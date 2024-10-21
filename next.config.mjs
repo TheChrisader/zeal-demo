@@ -1,8 +1,6 @@
 import CopyPlugin from "copy-webpack-plugin";
 import path from "path";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
@@ -17,8 +15,8 @@ const nextConfig = {
         new CopyPlugin({
           patterns: [
             {
-              from: path.join(__dirname, "data"),
-              to: path.join(__dirname, ".next/server/data"),
+              from: path.join(process.cwd(), "data/GeoLite2-Country.mmdb"),
+              to: path.join(process.cwd(), "data/GeoLite2-Country.mmdb"),
             },
           ],
         }),
