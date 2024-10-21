@@ -1,0 +1,185 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+
+    /* --primary: 222.2 47.4% 11.2%; */
+    --primary: 121, 44%, 33%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --ring: 215 20.2% 65.1%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 224 26% 14%;
+    --foreground: 213 31% 91%;
+
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
+
+    --accent: 216 34% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    --popover: 219 27% 19%;
+    --popover-foreground: 215 20.2% 65.1%;
+
+    --border: 216 21% 28%;
+    --input: 216 34% 17%;
+
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
+
+    --primary: 121 89% 71%;
+    --primary-foreground: 222.2 47.4% 1.2%;
+
+    --secondary: 222.2 47.4% 11.2%;
+    --secondary-foreground: 210 40% 98%;
+
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --ring: 216 34% 17%;
+
+    --radius: 0.5rem;
+
+    #nprogress .bar {
+      background-color: rgb(115, 247, 117);
+    }
+
+    .bg-slate-100 {
+      background-color: rgb(17 17 31 / 51%);
+    }
+
+    .bg-blue-50\/60 {
+      background-color: rgb(21, 31, 46);
+      opacity: 1;
+    }
+
+    .bg-white {
+      background-color: rgb(29, 40, 58);
+    }
+
+    .text-\[\#2F7830\] {
+      color: rgb(115, 247, 117);
+    }
+
+    .bg-\[\#2F7830\] {
+      background-color: rgb(115, 247, 117);
+    }
+
+    .bg-\[\#FAFAFA\] {
+      background-color: rgb(26, 31, 45);
+    }
+
+    .text-\[\#2F2D32\] {
+      color: rgb(207, 204, 211);
+    }
+
+    .text-\[\#696969\] {
+      color: rgb(180, 180, 180);
+    }
+
+    .\[\&_p\]\:text-\[\#696969\] p {
+      color: rgb(180, 180, 180);
+    }
+
+    .hover\:bg-gray-100:hover {
+      background-color: rgb(34, 37, 54);
+    }
+    .to-white {
+      --tw-gradient-to: hsl(var(--background)) var(--tw-gradient-to-position);
+    }
+
+    .bg-\[\#e1ffe8\] {
+      background-color: #020f0d;
+    }
+
+    .hover\:bg-green-900:hover {
+      background-color: rgb(44, 174, 77);
+    }
+
+    .text-white {
+      color: rgb(29, 29, 65);
+    }
+
+    /* .bg-background {
+      background-color: rgb(21, 31, 46);
+    } */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+  }
+}
+
+@layer base {
+  html,
+  body,
+  main {
+    @apply scrollbar-change;
+  }
+
+  /* main {
+    @apply;
+  } */
+}
+
+@layer base {
+  .scrollbar-change::-webkit-scrollbar {
+    width: 7px;
+    height: 5px;
+  }
+
+  .scrollbar-change-mini::-webkit-scrollbar {
+    height: 4px;
+    width: 5px;
+  }
+
+  .scrollbar-change::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--primary));
+    border-radius: 20px;
+  }
+
+  .scrollbar-change::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+}
+
+/* * {
+  transition: color 0.4s ease;
+} */
