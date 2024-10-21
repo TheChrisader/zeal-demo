@@ -5,6 +5,7 @@ export const getMMDB = async () => {
   const mmdbLocation = await fs.readFile(
     process.cwd() + "/public/GeoLite2-Country.mmdb",
   );
+  console.log(fs.readdir(process.cwd()));
   // get current the path to this current file
   //   const mmdbLocation = import.meta.url.replace("file://", "");
   //   const mmdbPath = new URL(mmdbLocation).pathname;
