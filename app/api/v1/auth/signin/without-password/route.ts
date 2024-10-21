@@ -98,8 +98,7 @@ export const POST = async (request: NextRequest) => {
     });
   } catch (error) {
     console.log(error);
-    // @ts-expect-error TODO
-    return new Response(error.message, { status: 500 });
+    return new Response("Internal Server Error", { status: 500 });
     // return NextResponse.json(error);
   }
 };
