@@ -6,7 +6,7 @@ export const getMMDB = async () => {
   //     process.cwd() + "/public/GeoLite2-Country.mmdb",
   //   );
   const mmdbLocation = await fs.readFile(
-    require.resolve("./GeoLite2-Country.mmdb"),
+    process.cwd() + ".next/server/data/GeoLite2-Country.mmdb",
   );
 
   return new MMDB.Reader<MMDB.CountryResponse>(mmdbLocation);
