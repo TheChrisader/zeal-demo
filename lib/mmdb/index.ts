@@ -3,7 +3,7 @@ import { promises as fs } from "fs";
 
 export const getMMDB = async () => {
   const mmdbLocation = await fs.readFile(
-    process.cwd() + "/GeoLite2-Country.mmdb",
+    process.cwd() + "/public/GeoLite2-Country.mmdb",
   );
   // get current the path to this current file
   //   const mmdbLocation = import.meta.url.replace("file://", "");
