@@ -1,6 +1,7 @@
 import { FetchPostsResponse } from "@/hooks/post/useFetchPosts";
 import Trending from "../../(home)/_components/Trending";
 import { getPostsByFilters } from "@/database/post/post.repository";
+import { connectToDatabase } from "@/lib/database";
 
 const RecommendedArticles = async ({
   headline,
@@ -16,6 +17,7 @@ const RecommendedArticles = async ({
   keywords: string[];
   domain?: string;
 }) => {
+  await connectToDatabase();
   let tags;
 
   if (generic) {
