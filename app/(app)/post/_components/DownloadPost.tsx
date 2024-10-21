@@ -52,6 +52,7 @@ const DownloadPost = ({ article }: { article: PostToDownload }) => {
           toast: "flex gap-4 items-center w-fit",
         },
       });
+      setIsDownloaded(true);
     } catch (error) {
       toast.error("Something went wrong", {
         // icon: <CircleCheckBig className="stroke-primary" />,
