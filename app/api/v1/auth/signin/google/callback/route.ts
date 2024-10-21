@@ -11,6 +11,7 @@ import { google } from "@/lib/auth/providers/google";
 import { connectToDatabase, newId } from "@/lib/database";
 import { buildError, sendError } from "@/utils/error";
 import { INTERNAL_ERROR } from "@/utils/error/error-codes";
+import { getMMDB } from "@/lib/mmdb";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -72,9 +73,10 @@ export async function GET(request: Request) {
       ip_address = "127.0.0.1";
       location = "Nigeria";
     } else {
-      const mmdbLocation = await fs.readFile("/mmdb/GeoLite2-Country.mmdb");
+      // const mmdbLocation = await fs.readFile("/mmdb/GeoLite2-Country.mmdb");
 
-      const mmdb = new MMDB.Reader<MMDB.CountryResponse>(mmdbLocation);
+      // const mmdb = new MMDB.Reader<MMDB.CountryResponse>(mmdbLocation);
+      const mmdb = await getMMDB();
       const result = mmdb.get(ip_address);
 
       if (!result?.country?.names["en"]) {

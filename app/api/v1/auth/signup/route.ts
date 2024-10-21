@@ -17,6 +17,7 @@ import {
 } from "@/utils/error/error-codes";
 import { hashPassword } from "@/utils/password.utils";
 import { headers } from "next/headers";
+import { getMMDB } from "@/lib/mmdb";
 
 // TODO: case sensitive usernames? Search user by both email and username to find if
 // they exist
@@ -42,9 +43,10 @@ export const POST = async (request: NextRequest) => {
       ip_address = "127.0.0.1";
       location = "Nigeria";
     } else {
-      const mmdbLocation = await fs.readFile("/mmdb/GeoLite2-Country.mmdb");
+      // const mmdbLocation = await fs.readFile("/mmdb/GeoLite2-Country.mmdb");
 
-      const mmdb = new MMDB.Reader<MMDB.CountryResponse>(mmdbLocation);
+      // const mmdb = new MMDB.Reader<MMDB.CountryResponse>(mmdbLocation);
+      const mmdb = await getMMDB();
       const result = mmdb.get(ip_address);
 
       if (!result?.country?.names["en"]) {
