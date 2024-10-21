@@ -2,7 +2,7 @@ import * as MMDB from "mmdb-lib";
 import { promises as fs } from "fs";
 
 export const getMMDB = async () => {
-  console.log(await fs.readdir(process.cwd()));
+  console.log(await fs.readdir(process.cwd() + "/.next"));
   const mmdbLocation = await fs.readFile(
     process.cwd() + "/public/GeoLite2-Country.mmdb",
   );
