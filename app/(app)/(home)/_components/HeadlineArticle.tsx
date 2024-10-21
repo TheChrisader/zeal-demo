@@ -33,6 +33,12 @@ const HeadlineArticle = ({ article }: HeadlineArticleProps) => {
         <span className="text-sm font-normal text-[#696969]">
           {getPublishTimeStamp(article?.published_at as string)}
         </span>
+        <div className="h-3">
+          <Separator orientation="vertical" />
+        </div>
+        <span className="text-sm font-normal text-[#696969]">
+          `{article?.ttr} min read`
+        </span>
       </div>
     </Link>
   );

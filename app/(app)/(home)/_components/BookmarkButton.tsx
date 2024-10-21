@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { fetcher } from "@/lib/fetcher";
 import useAuth from "@/context/auth/useAuth";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { toast } from "sonner";
 
 const BookmarkButton = ({
   id,
@@ -44,6 +45,8 @@ const BookmarkButton = ({
       });
 
       await revalidatePathAction("/bookmarks");
+
+      toast.success("Bookmarked successfully");
 
       if (pathName === "/bookmarks") {
         return;
