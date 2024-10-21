@@ -16,6 +16,8 @@ export const POST = async (request: NextRequest) => {
     await connectToDatabase();
     const body = await request.json();
 
+    console.log(body);
+
     const existingUser = await findUserByEmail(body.email);
 
     if (existingUser) {
