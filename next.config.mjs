@@ -38,6 +38,7 @@ const NextConfig = async (phase) => {
       swSrc: "service-worker/app-worker.ts",
       swDest: "public/sw.js",
       reloadOnOnline: true,
+      cacheOnNavigation: true,
     });
     return withSerwist(nextConfig);
   }

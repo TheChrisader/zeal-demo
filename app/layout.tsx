@@ -30,6 +30,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   initialScale: 1,
   width: "device-width",
+  themeColor: "#2f7930",
 };
 
 export default function RootLayout({
