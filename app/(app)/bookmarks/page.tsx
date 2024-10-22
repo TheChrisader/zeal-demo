@@ -4,8 +4,10 @@ import { serverAuthGuard } from "@/lib/auth/serverAuthGuard";
 import { getBookmarksByUserId } from "@/database/bookmark/bookmark.repository";
 import Trending from "../(home)/_components/Trending";
 import { getPostsByIds } from "@/database/post/post.repository";
+import { connectToDatabase } from "@/lib/database";
 
 export default async function BookmarksPage() {
+  await connectToDatabase();
   const { user } = await serverAuthGuard();
   const bookmarks = await getBookmarksByUserId(user?.id);
   const posts = await getPostsByIds(
