@@ -104,13 +104,15 @@ const Topbar = () => {
   const { theme } = useTheme();
 
   const matches = useMediaQuery("(max-width: 750px)");
+  const colorScheme = useMediaQuery("(prefers-color-scheme: dark)");
 
   useEffect(() => {
     setShowActions(!matches);
   }, [matches]);
 
   useEffect(() => {
-    if (theme === "dark") {
+    console.log(colorScheme, theme === "system");
+    if (theme === "dark" || (theme === "system" && colorScheme)) {
       setLogo(ZealLogoDark);
     } else {
       setLogo(ZealLogo);
