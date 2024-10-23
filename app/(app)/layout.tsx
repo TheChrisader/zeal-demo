@@ -23,7 +23,7 @@ const AppLayout = async ({ children }: { children: ReactNode }) => {
       <Topbar />
       {user && <MobileNav />}
       {children}
-      <div className="max-[750px]:mb-20"></div>
+      {user && <div className="max-[750px]:mb-20"></div>}
     </AuthProvider>
   );
 };
