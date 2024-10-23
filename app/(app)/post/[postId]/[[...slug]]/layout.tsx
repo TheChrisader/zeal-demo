@@ -5,9 +5,11 @@ import PostPage from "./page";
 import InfinitePostScroll from "../../_components/InfinitePostScroll";
 import ReadMoreWrapper from "../../_components/ReadMoreWrapper";
 import RecommendedArticles from "../../_components/RecommendedArticles";
+import { connectToDatabase } from "@/lib/database";
 
 async function getNextPost() {
   "use server";
+  await connectToDatabase();
   const categoryList = [
     "Headlines",
     "Breaking",

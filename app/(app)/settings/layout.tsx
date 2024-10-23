@@ -3,12 +3,14 @@ import { Separator } from "@/components/ui/separator";
 import { serverAuthGuard } from "@/lib/auth/serverAuthGuard";
 import SettingsBar from "./_components/SettingsBar";
 import SettingSidebar from "./_components/SettingsSidebar";
+import { connectToDatabase } from "@/lib/database";
 
 export default async function SettingsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  await connectToDatabase();
   await serverAuthGuard({
     rolesWhiteList: ["user"],
     redirect: true,
