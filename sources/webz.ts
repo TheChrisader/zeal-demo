@@ -103,12 +103,12 @@ export const fetchWithRetries = async (
 
 const categories: Record<string, { filter: string }>[] = [
   //   "For you", //accumulation
-  {
-    Breaking: {
-      filter:
-        "(category:(war, conflict and unrest) OR category:(disaster and accident))",
-    },
-  }, // global world news api
+  // {
+  //   Breaking: {
+  //     filter:
+  //       "(category:(war, conflict and unrest) OR category:(disaster and accident))",
+  //   },
+  // }, // global world news api
   // //   //   "Viral Videos", // no answer
   // //   // local
   // {
@@ -174,58 +174,58 @@ const categories: Record<string, { filter: string }>[] = [
   //       "(site_category:vehicles OR site_category:auto_repair) language:english",
   //   },
   // },
-  // { "Gadgets Buying Guide": { filter: "(site_category:computer_reviews)" } },
+  { "Gadgets Buying Guide": { filter: "(site_category:computer_reviews)" } },
   // // health
-  // { "Health News": { filter: "category:health" } },
-  // {
-  //   "Food & Nutrition": {
-  //     filter: "(site_category:food AND category:(Lifestyle and Leisure))",
-  //   },
-  // },
-  // { "Travel & Tourism": { filter: "(site_category:travel)" } },
-  // {
-  //   "Style & Beauty": {
-  //     filter: "(site_category:style_and_fashion)",
-  //   },
-  // },
-  // {
-  //   "Family & Parenting": {
-  //     filter:
-  //       "(site_category:family_and_parenting OR site_category:parenting_teens)",
-  //   },
-  // },
+  { "Health News": { filter: "category:health" } },
+  {
+    "Food & Nutrition": {
+      filter: "(site_category:food AND category:(Lifestyle and Leisure))",
+    },
+  },
+  { "Travel & Tourism": { filter: "(site_category:travel)" } },
+  {
+    "Style & Beauty": {
+      filter: "(site_category:style_and_fashion)",
+    },
+  },
+  {
+    "Family & Parenting": {
+      filter:
+        "(site_category:family_and_parenting OR site_category:parenting_teens)",
+    },
+  },
   // // sports
-  // { "Top Sports News": { filter: "category:sport" } },
-  // {
-  //   "UK Premiership": {
-  //     filter: "category:sport site_category:football thread.country:gb",
-  //   },
-  // },
-  // { Basketball: { filter: "site_category:pro_basketball" } },
-  // {
-  //   Gaming: {
-  //     filter: "(site_category:games OR site_category:video_and_computer_games)",
-  //   },
-  // },
-  // // career
-  // {
-  //   "Latest Job News": {
-  //     filter:
-  //       "(site_category:jobs OR site_category:job_fair OR site_category:job_search) thread.country:ng",
-  //   },
-  // },
-  // {
-  //   "Career Tips": {
-  //     filter:
-  //       "(site_category:career_advice OR site_category:career_planning) language:english",
-  //   },
-  // },
-  // {
-  //   "Top Global Jobs": {
-  //     filter:
-  //       "(site_category:jobs OR site_category:job_fair OR site_category:job_search)",
-  //   },
-  // },
+  { "Top Sports News": { filter: "category:sport" } },
+  {
+    "UK Premiership": {
+      filter: "category:sport site_category:football thread.country:gb",
+    },
+  },
+  { Basketball: { filter: "site_category:pro_basketball" } },
+  {
+    Gaming: {
+      filter: "(site_category:games OR site_category:video_and_computer_games)",
+    },
+  },
+  // career
+  {
+    "Latest Job News": {
+      filter:
+        "(site_category:jobs OR site_category:job_fair OR site_category:job_search) thread.country:ng",
+    },
+  },
+  {
+    "Career Tips": {
+      filter:
+        "(site_category:career_advice OR site_category:career_planning) language:english",
+    },
+  },
+  {
+    "Top Global Jobs": {
+      filter:
+        "(site_category:jobs OR site_category:job_fair OR site_category:job_search)",
+    },
+  },
 ];
 
 function extractDomain(url: string): string {

@@ -1,4 +1,4 @@
-import { DownloadedPost } from "../page";
+import { DownloadedPost } from "../[[...id]]/page";
 import DownloadedArticle from "./DownloadedArticle";
 
 interface DownloadsProps {

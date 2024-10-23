@@ -1,12 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
-import DownloadsBar from "./_components/DownloadsBar";
+import DownloadsBar from "../_components/DownloadsBar";
 import setupIndexedDB, { useIndexedDBStore } from "@/hooks/useIndexedDB";
 import Link from "next/link";
-import Downloads from "./_components/Downloads";
+import Downloads from "../_components/Downloads";
 import { toast } from "sonner";
 import { CircleCheckBig } from "lucide-react";
 import useAuth from "@/context/auth/useAuth";
+import DownloadedPage from "../_components/DownloadedPage";
+import useDownloads from "@/context/downloads/useDownloads";
+import { usePathname } from "next/navigation";
 
 export type PostToDownload = {
   _id: string;
@@ -63,31 +66,35 @@ export const getIDBConfig = (userID: string) => ({
 
 const DownloadsPage = () => {
   const [posts, setPosts] = useState<DownloadedPost[]>([]);
+  const [postID, setPostID] = useState<string | null>(null);
+  const path = usePathname();
+  // const { postID } = useDownloads();
   const { user } = useAuth();
 
   useEffect(() => {
-    setupIndexedDB(getIDBConfig(user?.id.toString()!))
+    if (!user) {
+      return;
+    }
+
+    setupIndexedDB(getIDBConfig(user.id.toString()!))
       .then(() => console.log("success"))
       .catch((e) => console.error("error / unsupported", e));
-  }, []);
+  }, [user]);
+
+  useEffect(() => {
+    const id = path.replace("/downloads", "");
+    if (id) {
+      setPostID(id.replaceAll("/", ""));
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    } else {
+      setPostID(null);
+    }
+  }, [path]);
 
   const { add, getByID, getAll } = useIndexedDBStore("posts");
-
-  const post = {
-    _id: "1",
-    title: "Mango 🥭",
-    author_id: "Hi",
-    category: [],
-    description: "Hi",
-    image: "Yo",
-    published_at: "Heheh",
-    ttr: 5,
-    content: "HHHHHHH",
-    source: {
-      name: "i",
-      icon: "y",
-    },
-  };
 
   const insertPost = async (newPost: PostToDownload | DownloadedPost) => {
     try {
@@ -134,13 +141,6 @@ const DownloadsPage = () => {
             <h2 className="text-center text-2xl font-bold text-[#2F2D32]">
               Your downloads will appear here
             </h2>
-            {/* <button
-              onClick={async () => {
-                await insertPost(post);
-              }}
-            >
-              Qdd post
-            </button> */}
             <span className="max-w-[50vw] text-center text-sm font-normal text-[#696969] max-[500px]:max-w-full">
               Enim tempus tincidunt et facilisis amet et feugiat. Scelerisque at
               eget sed auctor non eget rhoncus. Morbi sit sumassa quis a. Velit.
@@ -157,19 +157,17 @@ const DownloadsPage = () => {
     );
   }
 
+  if (postID) {
+    return <DownloadedPage id={postID} />;
+  }
+
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-3">
       <DownloadsBar />
       <div className="mb-3 flex h-fit flex-1 flex-col gap-3 rounded-[20px] px-[100px] py-4 shadow-sm max-[900px]:px-5">
-        {/* <button onClick={getPost}>Qdd post</button> */}
         <Downloads articles={posts} />
-        {/* <div className="flex flex-col gap-4"></div> */}
       </div>
     </main>
-    // <p>
-    //   <p>Downloads</p>
-    //   <button onClick={insertPost}>Qdd post</button>
-    // </>
   );
 };
 

@@ -1,7 +1,7 @@
 {
   "id": "zeal-news-africa",
-  "theme_color": "#2f7930",
-  "background_color": "#2f7930",
+  "theme_color": "#3ccf3e",
+  "background_color": "#3ccf3e",
   "display": "standalone",
   "scope": "/",
   "start_url": "/",

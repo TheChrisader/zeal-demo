@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { serverAuthGuard } from "@/lib/auth/serverAuthGuard";
 import { connectToDatabase } from "@/lib/database";
+import DownloadsProvider from "@/context/downloads/downloads.provider";
 
 export default async function DownloadsLayout({
   children,
@@ -13,5 +14,5 @@ export default async function DownloadsLayout({
     redirect: true,
   });
 
-  return <>{children}</>;
+  return <DownloadsProvider>{children}</DownloadsProvider>;
 }

@@ -3,7 +3,8 @@ import { Separator } from "@/components/ui/separator";
 import { getPublishTimeStamp } from "@/utils/time.utils";
 import { Button } from "@/components/ui/button";
 import AnimateTitle from "../../_components/AnimateTitle";
-import { DownloadedPost } from "../page";
+import { DownloadedPost } from "../[[...id]]/page";
+import DLink from "./DLink";
 
 interface DownloadedArticleProps {
   article?: DownloadedPost;
@@ -25,8 +26,8 @@ const DownloadedArticle = ({ article, className }: DownloadedArticleProps) => {
       <div
         className={`relative flex h-fit flex-1 rounded-[5px] p-4 shadow-sm transition-transform duration-700 hover:scale-[0.97] hover:shadow-md ${className}`}
       >
-        <Link
-          href={`/downloads/post/${article?.id}`}
+        <DLink
+          to={`/${article?.id}`}
           className={`flex h-fit w-full flex-1 cursor-pointer gap-5 [&_h3]:hover:text-primary [&_h3]:hover:underline`}
         >
           {/* <div
@@ -78,7 +79,7 @@ const DownloadedArticle = ({ article, className }: DownloadedArticleProps) => {
         >
           <BookmarkIcon />
         </Button> */}
-        </Link>
+        </DLink>
         {/* <BookmarkButton
           id={article?.id as string}
           bookmarked={article?.bookmarked}
@@ -91,8 +92,8 @@ const DownloadedArticle = ({ article, className }: DownloadedArticleProps) => {
     <div
       className={`relative flex h-fit flex-1 rounded-[5px] p-2 shadow-sm transition-transform duration-700 hover:scale-[0.97] hover:shadow-md ${className}`}
     >
-      <Link
-        href={`downloads/post/${article?.id}`}
+      <DLink
+        to={`/${article?.id}`}
         className={`flex h-fit w-full flex-1 cursor-pointer gap-5 rounded-[5px] max-[1100px]:flex-col [&>div>img]:transition-transform [&>div>img]:duration-1000 [&>div>img]:hover:scale-110 [&_h3]:hover:text-primary [&_h3]:hover:underline`}
       >
         <div
@@ -135,7 +136,7 @@ const DownloadedArticle = ({ article, className }: DownloadedArticleProps) => {
             {article?.ttr && `${article?.ttr} min read`}
           </span>
         </div>
-      </Link>
+      </DLink>
       {/* <BookmarkButton
         id={article?.id as string}
         bookmarked={article?.bookmarked}

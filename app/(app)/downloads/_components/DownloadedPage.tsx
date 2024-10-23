@@ -2,36 +2,39 @@
 import setupIndexedDB, { useIndexedDBStore } from "@/hooks/useIndexedDB";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { DownloadedPost, getIDBConfig } from "../../page";
+import { DownloadedPost, getIDBConfig } from "../[[...id]]/page";
 import { cleanContent } from "@/utils/post.utils";
 import AnimateTitle from "@/app/(app)/_components/AnimateTitle";
 import { Separator } from "@/components/ui/separator";
 import { getPublishTimeStamp } from "@/utils/time.utils";
 import useAuth from "@/context/auth/useAuth";
 
-const DownloadedArticlePage = () => {
+const DownloadedPage = ({ id }: { id: string }) => {
   const [post, setPost] = useState<DownloadedPost | null>(null);
   const { user } = useAuth();
 
-  const path = usePathname();
+  //   const path = usePathname();
 
   useEffect(() => {
-    setupIndexedDB(getIDBConfig(user?.id.toString()!))
+    if (!user) {
+      return;
+    }
+    setupIndexedDB(getIDBConfig(user.id.toString()!))
       .then(() => console.log("success"))
       .catch((e) => console.error("error / unsupported", e));
-  }, []);
+  }, [user]);
 
   const { getByID } = useIndexedDBStore("posts");
 
   useEffect(() => {
     const getPost = async () => {
-      const id = path.split("/").pop()!;
+      //   const id = path.split("/").pop()!;
       const post = (await getByID(Number(id))) as DownloadedPost;
       post.content = cleanContent(post.content);
       setPost(post);
     };
     getPost();
-  }, []);
+  }, [id]);
 
   if (!post) {
     return (
@@ -88,4 +91,4 @@ const DownloadedArticlePage = () => {
   );
 };
 
-export default DownloadedArticlePage;
+export default DownloadedPage;

@@ -4,7 +4,7 @@ import {
   DownloadedPost,
   getIDBConfig,
   PostToDownload,
-} from "../../downloads/page";
+} from "../../downloads/[[...id]]/page";
 import { CircleCheckBig, Download } from "lucide-react";
 import useAuth from "@/context/auth/useAuth";
 import { useEffect, useState } from "react";
