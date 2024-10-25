@@ -2,19 +2,25 @@
 import DarkModeIcon from "@/assets/svgs/utils/DarkModeIcon";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 export default function SettingsBar() {
   const { theme, setTheme } = useTheme();
+  const colorScheme = useMediaQuery("(prefers-color-scheme: dark)");
   const [isDark, setIsDark] = useState(false);
   const handleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    setTheme(
+      theme === "dark" || (theme === "system" && colorScheme)
+        ? "light"
+        : "dark",
+    );
   };
 
   useEffect(() => {
-    setIsDark(theme === "dark");
-  }, [theme]);
+    setIsDark(theme === "dark" || (theme === "system" && colorScheme));
+  }, [theme, colorScheme]);
 
   return (
     <div>

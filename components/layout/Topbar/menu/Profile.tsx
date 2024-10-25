@@ -18,6 +18,7 @@ import { UserAvatar } from "..";
 import LogoutAlert from "../popup/Logout";
 import { useTheme } from "next-themes";
 import { Download } from "lucide-react";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const ProfileDropdown = ({
   children,
@@ -28,8 +29,13 @@ const ProfileDropdown = ({
 }) => {
   const { canWrite } = useAuth();
   const { theme, setTheme } = useTheme();
+  const colorScheme = useMediaQuery("(prefers-color-scheme: dark)");
   const handleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    setTheme(
+      theme === "dark" || (theme === "system" && colorScheme)
+        ? "light"
+        : "dark",
+    );
   };
 
   return (
@@ -93,7 +99,10 @@ const ProfileDropdown = ({
                 Dark Mode
               </span>
             </div>
-            <Switch checked={theme === "dark"} onClick={handleTheme} />
+            <Switch
+              checked={theme === "dark" || (theme === "system" && colorScheme)}
+              onClick={handleTheme}
+            />
           </div>
           {/* <div className="flex items-center justify-between"> */}
           <LogoutAlert>

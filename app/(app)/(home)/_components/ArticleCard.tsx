@@ -2,8 +2,8 @@ import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { PostsResponse } from "@/hooks/post/useFetchPosts";
 import { getPublishTimeStamp } from "@/utils/time.utils";
-import BookmarkButton from "./BookmarkButton";
 import ArticleTitle from "./ArticleTitle";
+import BookmarkButton from "./BookmarkButton";
 
 interface ArticleCardProps {
   article?: PostsResponse;
