@@ -114,9 +114,11 @@ const DownloadedArticle = ({ article, className }: DownloadedArticleProps) => {
         className="h-[90px] min-w-[200px] max-w-[200px] rounded-[5px] object-cover"
       /> */}
         <div className="flex flex-col justify-center">
-          <h3 className="mb-2 text-sm font-semibold text-[#2F2D32]">
-            {truncateString(article?.title)}
-          </h3>
+          <AnimateTitle _key={article!.title}>
+            <h3 className="mb-2 text-sm font-semibold text-[#2F2D32]">
+              {truncateString(article?.title)}
+            </h3>
+          </AnimateTitle>
           <div className="mb-2 flex items-center gap-2">
             <img
               className="size-5 rounded-full object-cover"

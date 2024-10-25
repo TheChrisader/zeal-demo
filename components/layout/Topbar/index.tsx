@@ -111,13 +111,12 @@ const Topbar = () => {
   }, [matches]);
 
   useEffect(() => {
-    console.log(colorScheme, theme === "system");
     if (theme === "dark" || (theme === "system" && colorScheme)) {
       setLogo(ZealLogoDark);
     } else {
       setLogo(ZealLogo);
     }
-  }, [theme]);
+  }, [theme, colorScheme]);
 
   return (
     <>
@@ -165,10 +164,12 @@ const Topbar = () => {
           )}
         </div>
         <div className="flex h-fit items-center gap-5 max-[510px]:gap-2">
-          <WriterForm>
-            <PenIcon />
-            <span className="text-sm font-medium text-[#696969]">Write</span>
-          </WriterForm>
+          <div className="max-[400px]:hidden">
+            <WriterForm>
+              <PenIcon />
+              <span className="text-sm font-medium text-[#696969]">Write</span>
+            </WriterForm>
+          </div>
           <div className="h-8">
             <Separator orientation="vertical" />
           </div>

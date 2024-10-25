@@ -266,13 +266,15 @@ const Navbar = () => {
     setIsMatch(matches);
   }, [matches]);
 
-  const getSelected = () => {
-    return { selected };
-  };
+  useEffect(() => {
+    const current = getCategoryFromPath(pathname)[0];
+    setSelected(current);
+  }, [pathname]);
 
   const ref =
     useRef<HTMLUListElement>() as React.MutableRefObject<HTMLUListElement>;
   const { events } = useDraggable(ref);
+
   return (
     <div>
       <div

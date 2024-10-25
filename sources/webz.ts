@@ -103,77 +103,77 @@ export const fetchWithRetries = async (
 
 const categories: Record<string, { filter: string }>[] = [
   //   "For you", //accumulation
-  // {
-  //   Breaking: {
-  //     filter:
-  //       "(category:(war, conflict and unrest) OR category:(disaster and accident))",
-  //   },
-  // }, // global world news api
+  {
+    Breaking: {
+      filter:
+        "(category:(war, conflict and unrest) OR category:(disaster and accident))",
+    },
+  }, // global world news api
   // //   //   "Viral Videos", // no answer
   // //   // local
-  // {
-  //   Politics: {
-  //     filter: "thread.country:ng category:politics",
-  //   },
-  // },
+  {
+    Politics: {
+      filter: "thread.country:ng category:politics",
+    },
+  },
   // //   //   "Headlines", // worldnews, local
-  // {
-  //   Weather: {
-  //     filter: "thread.country:ng category:weather",
-  //   },
-  // }, //
+  {
+    Weather: {
+      filter: "thread.country:ng category:weather",
+    },
+  }, //
   // //   // global
-  // { "Top US News": { filter: "thread.country:us" } },
-  // { "UK Top News": { filter: "site_category:top_news_gb" } },
-  // {
-  //   "EU News": {
-  //     filter:
-  //       "(thread.country:DE OR thread.country:FR OR thread.country:IT OR thread.country:ES) language:english",
-  //   },
-  // },
-  // {
-  //   "Asian News": {
-  //     filter:
-  //       "(thread.country:CN OR thread.country:IN OR thread.country:JP OR thread.country:ID) language:english",
-  //   },
-  // },
+  { "Top US News": { filter: "thread.country:us" } },
+  { "UK Top News": { filter: "site_category:top_news_gb" } },
+  {
+    "EU News": {
+      filter:
+        "(thread.country:DE OR thread.country:FR OR thread.country:IT OR thread.country:ES) language:english",
+    },
+  },
+  {
+    "Asian News": {
+      filter:
+        "(thread.country:CN OR thread.country:IN OR thread.country:JP OR thread.country:ID) language:english",
+    },
+  },
   // //   // entertainment
-  // { "Celebrity News": { filter: "site_category:celebrity_fan_gossip" } },
-  // { "Top Movies": { filter: "site_category:movies" } },
-  // { "Trending Music": { filter: "site_category:music language:english" } },
+  { "Celebrity News": { filter: "site_category:celebrity_fan_gossip" } },
+  { "Top Movies": { filter: "site_category:movies" } },
+  { "Trending Music": { filter: "site_category:music language:english" } },
   // //   //   "Hot Interviews", // no answer
   // //   // business
-  // { Economy: { filter: "category:(economy, business and finance)" } },
-  // {
-  //   "Personal Finance": {
-  //     filter: "(site_category:financial_news OR site_category=investing)",
-  //   },
-  // },
-  // { "Market Watch": { filter: "site_category:enterprise_news" } },
-  // { "Startup News": { filter: "site_category:investing" } },
+  { Economy: { filter: "category:(economy, business and finance)" } },
+  {
+    "Personal Finance": {
+      filter: "(site_category:financial_news OR site_category=investing)",
+    },
+  },
+  { "Market Watch": { filter: "site_category:enterprise_news" } },
+  { "Startup News": { filter: "site_category:investing" } },
   // //   //   "Entrepreneurship",
-  // { "E-Commerce": { filter: "site_category:shopping" } },
+  { "E-Commerce": { filter: "site_category:shopping" } },
   // //   // tech
-  // { "Latest Tech News": { filter: "category:(science and technology)" } },
-  // {
-  //   "Artificial Intelligence": {
-  //     filter:
-  //       "title:(AI OR Artificial Intelligence OR Machine Learning OR ChatGPT)",
-  //   },
-  // },
-  // { Crypto: { filter: "title:(crypto OR bitcoin OR blockchain)" } },
-  // {
-  //   Fintech: {
-  //     filter:
-  //       "(category:(Economy, Business and Finance) AND category:(Science and Technology)) thread.country:ng",
-  //   },
-  // },
-  // {
-  //   Cartech: {
-  //     filter:
-  //       "(site_category:vehicles OR site_category:auto_repair) language:english",
-  //   },
-  // },
+  { "Latest Tech News": { filter: "category:(science and technology)" } },
+  {
+    "Artificial Intelligence": {
+      filter:
+        "title:(AI OR Artificial Intelligence OR Machine Learning OR ChatGPT)",
+    },
+  },
+  { Crypto: { filter: "title:(crypto OR bitcoin OR blockchain)" } },
+  {
+    Fintech: {
+      filter:
+        "(category:(Economy, Business and Finance) AND category:(Science and Technology)) thread.country:ng",
+    },
+  },
+  {
+    Cartech: {
+      filter:
+        "(site_category:vehicles OR site_category:auto_repair) language:english",
+    },
+  },
   { "Gadgets Buying Guide": { filter: "(site_category:computer_reviews)" } },
   // // health
   { "Health News": { filter: "category:health" } },
@@ -371,11 +371,11 @@ const handlePosts = async (
       console.log(
         `${err.result.insertedCount} posts under ${key} category saved`,
       );
-      // @ts-ignore
+      // @ts-expect-error TODO
     } else if (err instanceof Error && err.code === 11000) {
       console.log(err.message, "!!!!!!!!!!!!!!11");
       console.log(
-        // @ts-ignore
+        // @ts-expect-error TODO
         `${err.result.insertedCount} posts under ${key} category saved`,
       );
     } else {

@@ -33,26 +33,31 @@ const ArticleCard = ({ article, className }: ArticleCardProps) => {
             <h3 className="text-md mb-2 font-semibold text-[#2F2D32]">
               {truncateString(article?.title)}
             </h3>
-            <div className="flex items-center gap-2">
-              <img
-                className="size-5 rounded-full object-cover"
-                src={article?.source.icon}
-              />
-              <span className="text-sm font-normal text-[#696969]">
-                {article?.source.name}
-              </span>
-              <div className="h-3">
+            <div className="flex items-center gap-2 max-[400px]:flex-col max-[400px]:items-start">
+              <div className="flex items-center gap-2">
+                <img
+                  className="size-3 rounded-full object-cover"
+                  alt="article source icon"
+                  src={article?.source.icon}
+                />
+                <span className="text-xs font-normal text-[#696969]">
+                  {article?.source.name}
+                </span>
+              </div>
+              <div className="h-3 max-[400px]:hidden">
                 <Separator orientation="vertical" />
               </div>
-              <span className="text-sm font-normal text-[#696969]">
-                {getPublishTimeStamp(article?.published_at as string)}
-              </span>
-              <div className="h-3">
-                <Separator orientation="vertical" />
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-normal text-[#696969]">
+                  {getPublishTimeStamp(article?.published_at as string)}
+                </span>
+                <div className="h-3">
+                  <Separator orientation="vertical" />
+                </div>
+                <span className="flex text-xs font-normal text-primary">
+                  {article?.ttr && `${article?.ttr} min read`}
+                </span>
               </div>
-              <span className="flex text-xs font-normal text-primary">
-                {article?.ttr && `${article?.ttr} min read`}
-              </span>
             </div>
           </div>
         </Link>
@@ -85,22 +90,28 @@ const ArticleCard = ({ article, className }: ArticleCardProps) => {
           <ArticleTitle title={article?.title} />
           <div className="mb-2 flex items-center gap-2">
             <img
-              className="size-5 rounded-full object-cover"
+              className="size-3 rounded-full object-cover"
+              alt="Article source Icon"
               src={article?.source.icon}
             />
-            <span className="text-sm font-normal text-[#696969] max-[1000px]:hidden max-[900px]:block max-[430px]:hidden">
+            <span className="text-xs font-normal text-[#696969]">
               {article?.source.name}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-xs font-normal text-[#696969]">
+              {getPublishTimeStamp(article?.published_at as string)}
             </span>
             <div className="h-3">
               <Separator orientation="vertical" />
             </div>
-            <span className="text-sm font-normal text-[#696969]">
-              {getPublishTimeStamp(article?.published_at as string)}
+            <span
+              // className="absolute left-[40px] top-[0px] flex -translate-x-1/2 rounded-lg bg-white px-4 py-2 text-xs font-normal text-primary"
+              className="text-xs font-normal text-primary"
+            >
+              {article?.ttr && `${article?.ttr} min read`}
             </span>
           </div>
-          <span className="absolute left-[40px] top-[0px] flex -translate-x-1/2 rounded-lg bg-white px-4 py-2 text-xs font-normal text-primary">
-            {article?.ttr && `${article?.ttr} min read`}
-          </span>
         </div>
       </Link>
       <BookmarkButton

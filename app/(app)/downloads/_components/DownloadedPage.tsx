@@ -9,8 +9,8 @@ import { Separator } from "@/components/ui/separator";
 import { getPublishTimeStamp } from "@/utils/time.utils";
 import useAuth from "@/context/auth/useAuth";
 
-const DownloadedPage = ({ id }: { id: string }) => {
-  const [post, setPost] = useState<DownloadedPost | null>(null);
+const DownloadedPage = ({ post }: { post: DownloadedPost }) => {
+  // const [post, setPost] = useState<DownloadedPost | null>(null);
   const { user } = useAuth();
 
   //   const path = usePathname();
@@ -24,25 +24,25 @@ const DownloadedPage = ({ id }: { id: string }) => {
       .catch((e) => console.error("error / unsupported", e));
   }, [user]);
 
-  const { getByID } = useIndexedDBStore("posts");
+  // const { getByID } = useIndexedDBStore("posts");
 
-  useEffect(() => {
-    const getPost = async () => {
-      //   const id = path.split("/").pop()!;
-      const post = (await getByID(Number(id))) as DownloadedPost;
-      post.content = cleanContent(post.content);
-      setPost(post);
-    };
-    getPost();
-  }, [id]);
+  // useEffect(() => {
+  //   const getPost = async () => {
+  //     //   const id = path.split("/").pop()!;
+  //     const post = (await getByID(Number(id))) as DownloadedPost;
+  //     post.content = cleanContent(post.content);
+  //     setPost(post);
+  //   };
+  //   getPost();
+  // }, [id]);
 
-  if (!post) {
-    return (
-      <div className="flex h-[calc(100vh-62px)] items-center justify-center text-3xl max-[900px]:px-7">
-        Post not found
-      </div>
-    );
-  }
+  // if (!post) {
+  //   return (
+  //     <div className="flex h-[calc(100vh-62px)] items-center justify-center text-3xl max-[900px]:px-7">
+  //       Post not found
+  //     </div>
+  //   );
+  // }
 
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-6 px-[100px] py-4 max-[900px]:px-7">

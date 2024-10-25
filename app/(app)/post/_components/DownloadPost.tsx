@@ -27,6 +27,8 @@ const DownloadPost = ({ article }: { article: PostToDownload }) => {
 
   useEffect(() => {
     const getPost = async () => {
+      if (!user) return;
+
       const posts = await getAll();
       const post = posts.find(
         (post) => (post as DownloadedPost)._id === article._id,

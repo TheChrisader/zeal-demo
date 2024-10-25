@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import Navbar from "@/components/layout/Navbar";
+import OneTap from "../_components/OneTap";
 
 const HomeLayout = ({ children }: { children?: ReactNode }) => {
   return (
@@ -8,6 +9,7 @@ const HomeLayout = ({ children }: { children?: ReactNode }) => {
       <div className="px-[100px] max-[1024px]:px-7 max-[500px]:px-0">
         {children}
       </div>
+      <OneTap />
     </div>
   );
 };

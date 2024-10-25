@@ -52,7 +52,7 @@ export default function LogoutAlert({
             onClick={async () => {
               setIsLoading(true);
               await logout();
-              setTheme("light");
+              setTheme("system");
               setIsLoading(false);
               setOpen(false);
             }}

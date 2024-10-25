@@ -18,7 +18,7 @@ const MobileNav = () => {
               className={`flex flex-col items-center gap-1 ${pathname === "/" ? "text-primary" : "text-[#696969]"}`}
             >
               <Newspaper />
-              <span className="text-sm">Feed</span>
+              <span className="text-xs">Feed</span>
             </div>
           </Link>
         </li>
@@ -28,7 +28,7 @@ const MobileNav = () => {
               className={`flex flex-col items-center gap-1 ${pathname === "/bookmarks" ? "text-primary" : "text-[#696969]"}`}
             >
               <Bookmark />
-              <span className="text-sm">Bookmarks</span>
+              <span className="text-xs">Bookmarks</span>
             </div>
           </Link>
         </li>
@@ -38,7 +38,7 @@ const MobileNav = () => {
               className={`flex flex-col items-center gap-1 ${pathname === "/downloads" ? "text-primary" : "text-[#696969]"}`}
             >
               <Download />
-              <span className="text-sm">Downloads</span>
+              <span className="text-xs">Downloads</span>
             </div>
           </Link>
         </li>
@@ -48,7 +48,7 @@ const MobileNav = () => {
               className={`flex flex-col items-center gap-1 ${pathname.includes("/settings") ? "text-primary" : "text-[#696969]"}`}
             >
               <Settings />
-              <span className="text-sm">Settings</span>
+              <span className="text-xs">Settings</span>
             </div>
           </Link>
         </li>

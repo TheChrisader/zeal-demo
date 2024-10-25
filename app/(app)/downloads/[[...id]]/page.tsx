@@ -10,6 +10,7 @@ import useAuth from "@/context/auth/useAuth";
 import DownloadedPage from "../_components/DownloadedPage";
 import useDownloads from "@/context/downloads/useDownloads";
 import { usePathname } from "next/navigation";
+import { cleanContent } from "@/utils/post.utils";
 
 export type PostToDownload = {
   _id: string;
@@ -65,6 +66,7 @@ export const getIDBConfig = (userID: string) => ({
 });
 
 const DownloadsPage = () => {
+  const [post, setPost] = useState<DownloadedPost | null>(null);
   const [posts, setPosts] = useState<DownloadedPost[]>([]);
   const [postID, setPostID] = useState<string | null>(null);
   const path = usePathname();
@@ -81,20 +83,34 @@ const DownloadsPage = () => {
       .catch((e) => console.error("error / unsupported", e));
   }, [user]);
 
-  useEffect(() => {
-    const id = path.replace("/downloads", "");
-    if (id) {
-      setPostID(id.replaceAll("/", ""));
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    } else {
-      setPostID(null);
-    }
-  }, [path]);
-
   const { add, getByID, getAll } = useIndexedDBStore("posts");
+
+  const getPost = async () => {
+    const id = path.replace("/downloads", "").replaceAll("/", "");
+    if (!id) {
+      setPost(null);
+      return;
+    }
+    const post = (await getByID(Number(id))) as DownloadedPost;
+
+    if (!post) {
+      setPost(null);
+      return;
+    }
+
+    post.content = cleanContent(post.content);
+
+    setPost(post);
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  useEffect(() => {
+    getPost();
+  }, [path]);
 
   const insertPost = async (newPost: PostToDownload | DownloadedPost) => {
     try {
@@ -117,10 +133,6 @@ const DownloadsPage = () => {
         },
       });
     }
-  };
-
-  const getPost = () => {
-    getByID(1).then(console.log).catch(console.error);
   };
 
   useEffect(() => {
@@ -157,8 +169,8 @@ const DownloadsPage = () => {
     );
   }
 
-  if (postID) {
-    return <DownloadedPage id={postID} />;
+  if (post) {
+    return <DownloadedPage post={post} />;
   }
 
   return (

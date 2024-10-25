@@ -178,6 +178,13 @@
   .scrollbar-change::-webkit-scrollbar-track {
     background-color: transparent;
   }
+
+  @supports (-moz-appearance: none) {
+    .scrollbar-change {
+      scrollbar-width: thin;
+      scrollbar-color: hsl(var(--primary)) hsl(var(--secondary));
+    }
+  }
 }
 
 /* * {
