@@ -1,13 +1,13 @@
 "use client";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import revalidatePathAction from "@/app/actions/revalidatePath";
 import BookmarkIcon from "@/assets/svgs/utils/BookmarkIcon";
 import { Button } from "@/components/ui/button";
-import { fetcher } from "@/lib/fetcher";
 import useAuth from "@/context/auth/useAuth";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { toast } from "sonner";
+import { fetcher } from "@/lib/fetcher";
 
 const BookmarkButton = ({
   id,
@@ -29,10 +29,10 @@ const BookmarkButton = ({
     if (user) {
       setIsMatch(matches);
     }
-  }, [matches]);
+  }, [matches, user]);
 
   if (!user) {
-    return <></>;
+    return null;
   }
 
   const handleBookmark = async () => {

@@ -1,9 +1,20 @@
 import type { Metadata, Viewport } from "next";
+import dynamic from "next/dynamic";
 import { Poppins } from "next/font/google";
 import "./globals.css";
-import PageProgressBar from "@/components/layout/PageProgressBar";
+// import PageProgressBar from "@/components/layout/PageProgressBar";
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
+// import { Toaster } from "@/components/ui/sonner";
+
+const PageProgressBar = dynamic(
+  () => import("@/components/layout/PageProgressBar"),
+  { ssr: false },
+);
+
+const Toaster = dynamic(
+  () => import("@/components/ui/sonner").then((mod) => mod.Toaster),
+  { ssr: false },
+);
 
 const poppins = Poppins({
   subsets: ["latin"],

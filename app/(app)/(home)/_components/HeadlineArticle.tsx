@@ -1,7 +1,7 @@
+import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { PostsResponse } from "@/hooks/post/useFetchPosts";
 import { getPublishTimeStamp } from "@/utils/time.utils";
-import Link from "next/link";
 
 interface HeadlineArticleProps {
   article?: PostsResponse;

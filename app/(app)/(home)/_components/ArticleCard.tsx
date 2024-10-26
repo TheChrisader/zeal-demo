@@ -1,9 +1,14 @@
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { PostsResponse } from "@/hooks/post/useFetchPosts";
 import { getPublishTimeStamp } from "@/utils/time.utils";
 import ArticleTitle from "./ArticleTitle";
-import BookmarkButton from "./BookmarkButton";
+// import BookmarkButton from "./BookmarkButton";
+
+const BookmarkButton = dynamic(() => import("./BookmarkButton"), {
+  ssr: false,
+});
 
 interface ArticleCardProps {
   article?: PostsResponse;

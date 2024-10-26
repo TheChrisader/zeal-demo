@@ -1,7 +1,7 @@
 "use client";
+import { useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { truncateString } from "./ArticleCard";
-import { useEffect, useState } from "react";
 
 const ArticleTitle = ({ title }: { title: string }) => {
   const matches = useMediaQuery("(max-width: 1000px)");
