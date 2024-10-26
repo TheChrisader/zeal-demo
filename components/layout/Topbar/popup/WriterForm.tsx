@@ -16,18 +16,9 @@ import useAuth from "@/context/auth/useAuth";
 
 const WriterForm = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
-  // if (!user) user: Partial<typeof > = {
-  //   display_name: ""}
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button
-          variant={"outline"}
-          className="flex h-auto gap-2 rounded-full px-4 py-2"
-        >
-          {children}
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="scrollbar-change max-h-[85vh] gap-2 overflow-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">Sign up as a writer</DialogTitle>

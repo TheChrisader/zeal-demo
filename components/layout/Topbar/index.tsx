@@ -20,6 +20,7 @@ import WriterForm from "./popup/WriterForm";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 
 interface UserActionProps {
   user: User | null;
@@ -95,6 +96,46 @@ const UserAction = ({ user }: UserActionProps) => {
   );
 };
 
+const Write = () => {
+  const { user } = useAuth();
+
+  if (!user) {
+    return (
+      <Link
+        className="flex h-auto gap-2 rounded-full bg-background px-4 py-2 shadow-basic hover:bg-accent hover:text-accent-foreground"
+        href="/signup"
+      >
+        <PenIcon />
+        <span className="text-sm font-medium text-[#696969]">Write</span>
+      </Link>
+    );
+  }
+
+  if (user.role !== "writer") {
+    return (
+      <WriterForm>
+        <Button
+          variant="outline"
+          className="flex h-auto gap-2 rounded-full px-4 py-2"
+        >
+          <PenIcon />
+          <span className="text-sm font-medium text-[#696969]">Write</span>
+        </Button>
+      </WriterForm>
+    );
+  }
+
+  return (
+    <Link
+      className="flex h-auto gap-2 rounded-full bg-background px-4 py-2 shadow-basic hover:bg-accent hover:text-accent-foreground"
+      href="/write"
+    >
+      <PenIcon />
+      <span className="text-sm font-medium text-[#696969]">Write</span>
+    </Link>
+  );
+};
+
 const Topbar = () => {
   const pathname = usePathname();
   const { user } = useAuth();
@@ -165,10 +206,11 @@ const Topbar = () => {
         </div>
         <div className="flex h-fit items-center gap-5 max-[510px]:gap-2">
           <div className="max-[400px]:hidden">
-            <WriterForm>
+            <Write />
+            {/* <WriterForm>
               <PenIcon />
               <span className="text-sm font-medium text-[#696969]">Write</span>
-            </WriterForm>
+            </WriterForm> */}
           </div>
           <div className="h-8">
             <Separator orientation="vertical" />

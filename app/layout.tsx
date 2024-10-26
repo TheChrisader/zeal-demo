@@ -1,16 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Noto_Serif, Poppins } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import PageProgressBar from "@/components/layout/PageProgressBar";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
-const inter = Inter({ subsets: ["latin"] });
-const notoSerif = Noto_Serif({ subsets: ["latin"] });
-
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {

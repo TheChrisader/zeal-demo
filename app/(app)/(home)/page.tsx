@@ -21,10 +21,23 @@ const PostBlock = async ({
   category: string;
   user: User | null;
 }) => {
-  const News = await getPostsByFilters({
-    categories: [category],
-    limit: 10,
-  });
+  // const News = await getPostsByFilters({
+  //   categories: [category],
+  //   limit: 10,
+  // });
+
+  const News = await unstable_cache(
+    async () => {
+      return await getPostsByFilters({
+        categories: [category],
+        limit: 10,
+      });
+    },
+    [category],
+    {
+      revalidate: 60 * 60,
+    },
+  )();
 
   if (user) {
     const bookmarkedNews = await BookmarkModel.find({
@@ -149,18 +162,7 @@ export default async function Home({
           },
         },
         { $sort: { published_at: -1 } },
-        // {
-        //   $group: {
-        //     _id: "$cluster_id",
-        //     doc: {
-        //       $first: "$$ROOT",
-        //     },
-        //   },
-        // },
-        // alternative to $group
         { $sample: { size: 4 } },
-        // { $limit: 4 },
-        // { $replaceRoot: { newRoot: "$doc" } },
       ]);
     },
     ["HEADLINES"],
