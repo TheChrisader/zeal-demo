@@ -13,6 +13,7 @@ import { getPreferencesByUserId } from "@/database/preferences/preferences.repos
 import { IPreferences } from "@/types/preferences.type";
 import { User } from "lucia";
 import { unstable_cache } from "next/cache";
+import { Suspense } from "react";
 
 const PostBlock = async ({
   category,
@@ -229,7 +230,11 @@ export default async function Home({
       <Separator />
       <div className="flex flex-wrap gap-3 max-[900px]:flex-col">
         {preferences?.category_updates?.map((category) => {
-          return <PostBlock key={category} category={category} user={user} />;
+          return (
+            <Suspense key={category}>
+              <PostBlock category={category} user={user} />
+            </Suspense>
+          );
         })}
       </div>
     </main>
