@@ -36,14 +36,29 @@ const PostBlock = async ({
     [category],
     {
       revalidate: 60 * 60,
+      tags: [category],
     },
   )();
 
   if (user) {
-    const bookmarkedNews = await BookmarkModel.find({
-      user_id: user?.id,
-      article_id: { $in: News.map((article) => article._id) },
-    });
+    // const bookmarkedNews = await BookmarkModel.find({
+    //   user_id: user?.id,
+    //   article_id: { $in: News.map((article) => article._id) },
+    // });
+
+    const bookmarkedNews = await unstable_cache(
+      async () => {
+        return await BookmarkModel.find({
+          user_id: user?.id,
+          article_id: { $in: News.map((article) => article._id) },
+        });
+      },
+      [`bookmarks-${user?.id.toString()}`],
+      {
+        revalidate: 60 * 60,
+        tags: [`bookmarks-${user?.id.toString()}`],
+      },
+    )();
 
     const bookmarkedNewsIds = new Set(
       bookmarkedNews
@@ -81,6 +96,7 @@ export default async function Home({
   let preferences: Partial<IPreferences> | null = await getPreferencesByUserId(
     user?.id as string,
   );
+
   if (!preferences) {
     preferences = {
       category_updates: [
@@ -93,7 +109,7 @@ export default async function Home({
   }
 
   const query = searchParams?.query || "";
-  const topics = searchParams?.topics || "top";
+  const topics = searchParams?.topics || "";
   const sources = searchParams?.sources || "";
 
   const header = headers();
@@ -110,31 +126,31 @@ export default async function Home({
     country = ["Nigeria"];
   }
 
-  const articles = await getPostsByFilters({
-    query: query,
-    categories: topics.split(","),
-    limit: 20,
-    country: country,
-  });
+  if (query || topics || sources) {
+    const articles = await getPostsByFilters({
+      query: query,
+      categories: topics.split(","),
+      limit: 20,
+      // country: country,
+    });
 
-  const bookmarkedArticles = await BookmarkModel.find({
-    user_id: user?.id,
-    article_id: { $in: articles.map((article) => article._id) },
-  });
+    const bookmarkedArticles = await BookmarkModel.find({
+      user_id: user?.id,
+      article_id: { $in: articles.map((article) => article._id) },
+    });
 
-  const bookmarkedArticlesIds = new Set(
-    bookmarkedArticles
-      .map((bookmark) => bookmark.article_id)
-      .map((id) => id.toString()),
-  );
+    const bookmarkedArticlesIds = new Set(
+      bookmarkedArticles
+        .map((bookmark) => bookmark.article_id)
+        .map((id) => id.toString()),
+    );
 
-  articles.forEach((article) => {
-    if (bookmarkedArticlesIds.has(article._id!.toString())) {
-      article.bookmarked = true;
-    }
-  });
+    articles.forEach((article) => {
+      if (bookmarkedArticlesIds.has(article._id!.toString())) {
+        article.bookmarked = true;
+      }
+    });
 
-  if (query || topics !== "top" || sources) {
     const title = query ? `Search Results for "${query}"` : "Filtered Results";
     return (
       <main className="flex flex-col">
@@ -168,25 +184,42 @@ export default async function Home({
     ["HEADLINES"],
     {
       revalidate: 60 * 60,
+      tags: ["HEADLINES"],
     },
   )();
 
-  const bookmarkedHeadlinesPosts = await BookmarkModel.find({
-    user_id: user?.id,
-    article_id: { $in: HeadlinesPosts.map((article) => article._id) },
-  });
+  // const bookmarkedHeadlinesPosts = await BookmarkModel.find({
+  //   user_id: user?.id,
+  //   article_id: { $in: HeadlinesPosts.map((article) => article._id) },
+  // });
 
-  const bookmarkedHeadlinesPostsIds = new Set(
-    bookmarkedHeadlinesPosts
-      .map((bookmark) => bookmark.article_id)
-      .map((id) => id?.toString()),
-  );
+  if (user) {
+    const bookmarkedHeadlinesPosts = await unstable_cache(
+      async () => {
+        return await BookmarkModel.find({
+          user_id: user?.id,
+          article_id: { $in: HeadlinesPosts.map((article) => article._id) },
+        });
+      },
+      [`bookmarks-${user?.id.toString()}`],
+      {
+        revalidate: 60 * 60,
+        tags: [`bookmarks-${user?.id.toString()}`],
+      },
+    )();
 
-  HeadlinesPosts.forEach((article) => {
-    if (bookmarkedHeadlinesPostsIds.has(article._id.toString())) {
-      article.bookmarked = true;
-    }
-  });
+    const bookmarkedHeadlinesPostsIds = new Set(
+      bookmarkedHeadlinesPosts
+        .map((bookmark) => bookmark.article_id)
+        .map((id) => id?.toString()),
+    );
+
+    HeadlinesPosts.forEach((article) => {
+      if (bookmarkedHeadlinesPostsIds.has(article._id.toString())) {
+        article.bookmarked = true;
+      }
+    });
+  }
 
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-7">

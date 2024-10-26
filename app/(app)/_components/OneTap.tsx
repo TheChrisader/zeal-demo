@@ -15,6 +15,7 @@ const OneTap = () => {
 
   return (
     <Script
+      async
       strategy="lazyOnload"
       src="https://accounts.google.com/gsi/client"
       onLoad={() => {
