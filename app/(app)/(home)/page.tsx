@@ -81,6 +81,66 @@ const PostBlock = async ({
   );
 };
 
+const HeadlinesBlock = async ({ user }: { user: User | null }) => {
+  const HeadlinesPosts = await unstable_cache(
+    async () => {
+      return await PostModel.aggregate([
+        {
+          $match: {
+            headline: true,
+            image_url: {
+              $ne: null,
+            },
+            country: {
+              $in: ["Nigeria"],
+            },
+          },
+        },
+        { $sort: { published_at: -1 } },
+        { $sample: { size: 4 } },
+      ]);
+    },
+    ["HEADLINES"],
+    {
+      revalidate: 60 * 60,
+      tags: ["HEADLINES"],
+    },
+  )();
+
+  if (user) {
+    const bookmarkedHeadlinesPosts = await unstable_cache(
+      async () => {
+        return await BookmarkModel.find({
+          user_id: user?.id,
+          article_id: { $in: HeadlinesPosts.map((article) => article._id) },
+        });
+      },
+      [`bookmarks-${user?.id.toString()}`],
+      {
+        revalidate: 60 * 60,
+        tags: [`bookmarks-${user?.id.toString()}`],
+      },
+    )();
+
+    const bookmarkedHeadlinesPostsIds = new Set(
+      bookmarkedHeadlinesPosts
+        .map((bookmark) => bookmark.article_id)
+        .map((id) => id?.toString()),
+    );
+
+    HeadlinesPosts.forEach((article) => {
+      if (bookmarkedHeadlinesPostsIds.has(article._id.toString())) {
+        article.bookmarked = true;
+      }
+    });
+  }
+  return (
+    <ArticlesContainer title="Headlines">
+      <Headlines headlines={HeadlinesPosts} />
+    </ArticlesContainer>
+  );
+};
+
 export default async function Home({
   searchParams,
 }: {
@@ -164,69 +224,11 @@ export default async function Home({
     );
   }
 
-  const HeadlinesPosts = await unstable_cache(
-    async () => {
-      return await PostModel.aggregate([
-        {
-          $match: {
-            headline: true,
-            image_url: {
-              $ne: null,
-            },
-            country: {
-              $in: ["Nigeria"],
-            },
-          },
-        },
-        { $sort: { published_at: -1 } },
-        { $sample: { size: 4 } },
-      ]);
-    },
-    ["HEADLINES"],
-    {
-      revalidate: 60 * 60,
-      tags: ["HEADLINES"],
-    },
-  )();
-
-  // const bookmarkedHeadlinesPosts = await BookmarkModel.find({
-  //   user_id: user?.id,
-  //   article_id: { $in: HeadlinesPosts.map((article) => article._id) },
-  // });
-
-  if (user) {
-    const bookmarkedHeadlinesPosts = await unstable_cache(
-      async () => {
-        return await BookmarkModel.find({
-          user_id: user?.id,
-          article_id: { $in: HeadlinesPosts.map((article) => article._id) },
-        });
-      },
-      [`bookmarks-${user?.id.toString()}`],
-      {
-        revalidate: 60 * 60,
-        tags: [`bookmarks-${user?.id.toString()}`],
-      },
-    )();
-
-    const bookmarkedHeadlinesPostsIds = new Set(
-      bookmarkedHeadlinesPosts
-        .map((bookmark) => bookmark.article_id)
-        .map((id) => id?.toString()),
-    );
-
-    HeadlinesPosts.forEach((article) => {
-      if (bookmarkedHeadlinesPostsIds.has(article._id.toString())) {
-        article.bookmarked = true;
-      }
-    });
-  }
-
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-7">
-      <ArticlesContainer title="Headlines">
-        <Headlines headlines={HeadlinesPosts} />
-      </ArticlesContainer>
+      <Suspense>
+        <HeadlinesBlock user={user} />
+      </Suspense>
       <Separator />
       <div className="flex flex-wrap gap-3 max-[900px]:flex-col">
         {preferences?.category_updates?.map((category) => {
