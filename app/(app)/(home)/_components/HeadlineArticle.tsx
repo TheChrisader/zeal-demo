@@ -17,6 +17,7 @@ const HeadlineArticle = ({ article }: HeadlineArticleProps) => {
         <img
           src={article?.image_url || article?.source.icon}
           alt="article preview"
+          fetchPriority="high"
           className="h-[190px] w-full object-cover"
         />
       </div>
