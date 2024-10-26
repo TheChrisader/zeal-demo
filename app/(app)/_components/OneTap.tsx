@@ -3,15 +3,15 @@
 import Script from "next/script";
 import { useRouter } from "next-nprogress-bar";
 import revalidatePathAction from "@/app/actions/revalidatePath";
-import useAuth from "@/context/auth/useAuth";
+// import useAuth from "@/context/auth/useAuth";
 import { SignUserWithoutPassword } from "@/services/auth.services";
 import { decodeJWTResponse } from "@/utils/jwt.utils";
 
 const OneTap = () => {
   const router = useRouter();
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
-  if (user) return null;
+  // if (user) return null;
 
   return (
     <Script

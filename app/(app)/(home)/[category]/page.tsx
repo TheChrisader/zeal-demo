@@ -37,10 +37,8 @@ export default async function CategoryPage({
   const restrictToNG = whitelist.includes(params.category);
 
   const posts = await getPostsByFilters({
-    query: query,
     categories: [pageSubcategory || pageCategory],
     country: restrictToNG ? ["Nigeria"] : undefined,
-    // authors: sources.split(",").filter((source) => source !== ""),
     limit: 16,
   });
 
