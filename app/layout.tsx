@@ -4,7 +4,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 // import PageProgressBar from "@/components/layout/PageProgressBar";
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import CookieConsentComponent from "@/components/layout/Cookie/CookieConsent";
+// import CookieConsentComponent from "@/components/layout/Cookie/CookieConsent";
 // import { Toaster } from "@/components/ui/sonner";
 
 const PageProgressBar = dynamic(
@@ -14,6 +14,11 @@ const PageProgressBar = dynamic(
 
 const Toaster = dynamic(
   () => import("@/components/ui/sonner").then((mod) => mod.Toaster),
+  { ssr: false },
+);
+
+const CookieConsentComponent = dynamic(
+  () => import("@/components/layout/Cookie/CookieConsent"),
   { ssr: false },
 );
 
