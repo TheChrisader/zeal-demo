@@ -24,7 +24,7 @@ const ResponsiveHeadlines = ({
   if (carousel) {
     return (
       <HeadlinesCarousel>
-        {headlines.map((article) => {
+        {headlines.map((article, index) => {
           return (
             <Link
               key={article._id?.toString()}
@@ -35,7 +35,8 @@ const ResponsiveHeadlines = ({
                 <img
                   src={article?.image_url || article?.source.icon}
                   alt="article preview"
-                  fetchPriority="high"
+                  fetchPriority={index === 0 ? "high" : "low"}
+                  loading={index === 0 ? "eager" : "lazy"}
                   className="h-[190px] w-full object-cover"
                 />
               </div>
