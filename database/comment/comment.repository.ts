@@ -21,7 +21,9 @@ export const getCommentsByArticleId = async (
   articleId: string | Id,
 ): Promise<IComment[]> => {
   try {
-    const comments = await CommentModel.find({ article_id: articleId });
+    const comments = await CommentModel.find({ article_id: articleId }).limit(
+      8,
+    );
     return comments.map((comment) => comment.toObject());
   } catch (error) {
     throw error;

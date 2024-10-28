@@ -51,7 +51,9 @@ const PostLayout = ({ children }: { children: React.ReactNode }) => {
     <>
       <InfinitePostScroll loadMoreAction={getNextPost}>
         <ReadMoreWrapper>{children}</ReadMoreWrapper>
-        <RecommendedArticles generic keywords={[]} />
+        <div className="px-2">
+          <RecommendedArticles generic keywords={[]} />
+        </div>
       </InfinitePostScroll>
     </>
   );

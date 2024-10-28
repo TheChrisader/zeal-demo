@@ -14,6 +14,8 @@ import { IPreferences } from "@/types/preferences.type";
 import { User } from "lucia";
 import { unstable_cache } from "next/cache";
 import { Suspense } from "react";
+import ResponsiveHeadlines from "./_components/ResponsiveHeadlines";
+import { cleanObject } from "@/utils/cleanObject.utils";
 
 const PostBlock = async ({
   category,
@@ -97,7 +99,7 @@ const HeadlinesBlock = async ({ user }: { user: User | null }) => {
           },
         },
         { $sort: { published_at: -1 } },
-        { $sample: { size: 4 } },
+        { $sample: { size: 7 } },
       ]);
     },
     ["HEADLINES"],
@@ -136,7 +138,11 @@ const HeadlinesBlock = async ({ user }: { user: User | null }) => {
   }
   return (
     <ArticlesContainer title="Headlines">
-      <Headlines headlines={HeadlinesPosts} />
+      <ResponsiveHeadlines
+        headlines={HeadlinesPosts.map((post) => cleanObject(post))}
+      >
+        <Headlines headlines={HeadlinesPosts} />
+      </ResponsiveHeadlines>
     </ArticlesContainer>
   );
 };

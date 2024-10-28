@@ -53,6 +53,7 @@ const BookmarkButton = ({
       }
     } catch (error) {
       setIsBookmarked(currentBookmarkedState);
+      toast.error("Something went wrong");
       console.log(error);
     }
   };

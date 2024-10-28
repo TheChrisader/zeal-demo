@@ -38,7 +38,7 @@ const HeadlineArticle = ({ article }: HeadlineArticleProps) => {
           <Separator orientation="vertical" />
         </div>
         <span className="text-sm font-normal text-[#696969]">
-          `{article?.ttr} min read`
+          {article?.ttr} min read
         </span>
       </div>
     </Link>

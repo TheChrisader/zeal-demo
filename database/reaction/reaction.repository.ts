@@ -2,11 +2,9 @@ import { Id } from "@/lib/database";
 import { IReaction } from "@/types/reaction.type";
 import ReactionModel from "./reaction.model";
 
-export const createReaction = async (
-  reaction: IReaction,
-): Promise<IReaction | null> => {
+export const createReaction = async (postID: Id): Promise<IReaction | null> => {
   try {
-    const newReaction = await ReactionModel.create(reaction);
+    const newReaction = await ReactionModel.create(postID);
     return newReaction.toObject();
   } catch (error) {
     throw error;
@@ -14,7 +12,7 @@ export const createReaction = async (
 };
 
 export const updateReaction = async (
-  reaction: IReaction,
+  reaction: Partial<IReaction>,
 ): Promise<IReaction | null> => {
   try {
     const updatedReaction = await ReactionModel.findOneAndUpdate(

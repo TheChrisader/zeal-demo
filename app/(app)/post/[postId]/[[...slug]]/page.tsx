@@ -44,18 +44,18 @@ export default async function PostPage({
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-6 px-[100px] py-4 max-[900px]:px-7 max-[500px]:px-4">
       <div className="flex flex-col gap-1">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between max-[600px]:flex-col">
           <div className="flex items-center gap-1">
             {post.source.icon && (
               <div className="rounded-sm bg-gray-300 p-1">
                 <img
                   src={post.source.icon}
-                  className="h-8 rounded-full"
+                  className="h-8 rounded-full max-[300px]:h-5"
                   alt="publisher logo"
                 />
               </div>
             )}
-            <span className="text-xl font-semibold text-[#2F2D32]">
+            <span className="text-xl font-semibold text-[#2F2D32] max-[300px]:text-lg">
               {post.source.name!}
             </span>
           </div>

@@ -4,10 +4,13 @@ import SendIcon from "@/assets/svgs/utils/SendIcon";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import useAuth from "@/context/auth/useAuth";
+import { Loader2 } from "lucide-react";
 import { useRef, useState } from "react";
 
 export default function CommentInput({ articleId }: { articleId: string }) {
   const [value, setValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
   const commentRef = useRef<HTMLTextAreaElement>(null);
 
@@ -15,28 +18,39 @@ export default function CommentInput({ articleId }: { articleId: string }) {
 
   const handleComment = async () => {
     if (value) {
-      const comment = {
-        content: value,
-        article_id: articleId,
-        user_id: user?.id,
-        parent_id: null,
-      };
+      try {
+        setIsLoading(true);
+        const comment = {
+          content: value,
+          article_id: articleId,
+          user_id: user?.id,
+          parent_id: null,
+        };
 
-      await fetch("/api/v1/comments", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(comment),
-      });
+        await fetch("/api/v1/comments", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(comment),
+        });
 
-      setValue("");
+        setValue("");
 
-      if (commentRef.current) {
-        commentRef.current.value = "";
+        if (commentRef.current) {
+          commentRef.current.value = "";
+        }
+
+        revalidatePathAction(`/post/${articleId}`);
+      } catch (error) {
+        console.log(error);
+        // @ts-expect-error TODO
+        if (error.status === 500) toast.error("Something went wrong");
+        // @ts-expect-error TODO
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
       }
-
-      revalidatePathAction(`/post/${articleId}`);
     }
   };
 
@@ -56,9 +70,13 @@ export default function CommentInput({ articleId }: { articleId: string }) {
         disabled={!value.trim()}
         onClick={handleComment}
       >
-        <SendIcon
-          className={`${value.trim() ? "[&>path]:fill-primary" : ""}`}
-        />
+        {isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <SendIcon
+            className={`${value.trim() ? "[&>path]:fill-primary" : ""}`}
+          />
+        )}
       </Button>
     </label>
   );

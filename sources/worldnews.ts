@@ -190,7 +190,20 @@ export const fetchWorldNewsHeadlines = async () => {
       }
     }
 
-    await createPosts(fetchedPosts);
+    try {
+      await createPosts(fetchedPosts);
+    } catch (err) {
+      // @ts-expect-error TODO
+      if (err instanceof Error && err.code === 11000) {
+        console.log(err.message, "!!!!!!!!!!!!!!11");
+        console.log(
+          // @ts-expect-error TODO
+          `Only ${err.result.insertedCount} posts under Headlines saved`,
+        );
+      } else {
+        console.log(err);
+      }
+    }
   } catch (error) {
     if (error instanceof TypeError) {
       // @ts-expect-error TODO

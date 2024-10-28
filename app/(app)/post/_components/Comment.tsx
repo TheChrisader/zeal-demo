@@ -12,8 +12,8 @@ const Comment = ({
   content: string;
 }) => {
   return (
-    <div className="flex w-fit items-center rounded-md bg-slate-100 px-6 py-2">
-      <div>
+    <div className="flex w-fit items-center rounded-md px-6 py-2">
+      <div className="min-w-fit self-start">
         {avatar && (
           <img
             className="mr-4 size-10 rounded-full"
@@ -24,7 +24,7 @@ const Comment = ({
       </div>
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-[#2F2D32]">{name}</span>
+          <span className="text-lg font-semibold text-[#696969]">{name}</span>
           <span className="text-sm font-normal text-[#696969]">
             {getPublishTimeStamp(date)}
           </span>
