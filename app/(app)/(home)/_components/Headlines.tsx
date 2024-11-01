@@ -1,6 +1,8 @@
 import { PostsResponse } from "@/hooks/post/useFetchPosts";
 import ArticleCard from "./ArticleCard";
 import HeadlineArticle from "./HeadlineArticle";
+import ResponsiveHeadlines from "./ResponsiveHeadlines";
+import { cleanObject } from "@/utils/cleanObject.utils";
 
 interface HeadlinesProps {
   headlines: PostsResponse[];
@@ -13,23 +15,25 @@ const Headlines = ({ headlines }: HeadlinesProps) => {
 
   const headline = headlines.shift();
 
-  if (headlines.length > 4) {
-    headlines = headlines.slice(0, 4);
-  }
+  const wideHeadlines = headlines.slice(0, 4);
 
   return (
     <div className="flex gap-6 max-[900px]:flex-col">
       <div className="flex-1">
         <HeadlineArticle article={headline} />
       </div>
-      <div className="max-[800px]:scrollbar-change flex flex-1 flex-col gap-2 max-[800px]:flex-row max-[800px]:overflow-auto">
-        {headlines.map((_, index) => (
-          <ArticleCard
-            className="max-[800px]:min-w-[450px]"
-            article={headlines[index]}
-            key={index}
-          />
-        ))}
+      <div className="flex flex-1 flex-col gap-2">
+        <ResponsiveHeadlines
+          headlines={headlines.map((post) => cleanObject(post))}
+        >
+          {wideHeadlines.map((_, index) => (
+            <ArticleCard
+              className="max-[800px]:min-w-[450px]"
+              article={headlines[index]}
+              key={index}
+            />
+          ))}
+        </ResponsiveHeadlines>
       </div>
     </div>
   );

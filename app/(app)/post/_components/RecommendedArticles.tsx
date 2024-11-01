@@ -36,19 +36,19 @@ const RecommendedArticles = async ({
     );
   }
 
-  if (headline) {
-    const RelevantArticles = await getPostsByFilters({
-      limit: 6,
-      cluster: headline.cluster,
-    });
+  // if (headline) {
+  //   const RelevantArticles = await getPostsByFilters({
+  //     limit: 6,
+  //     cluster: headline.cluster,
+  //   });
 
-    return (
-      <>
-        <h1 className="text-2xl font-bold text-[#2F2D32]">Relevant Articles</h1>
-        <Trending articles={RelevantArticles} />
-      </>
-    );
-  }
+  //   return (
+  //     <>
+  //       <h1 className="text-2xl font-bold text-[#2F2D32]">Relevant Articles</h1>
+  //       <Trending articles={RelevantArticles} />
+  //     </>
+  //   );
+  // }
 
   if (keywords.length === 0) {
     // const MoreArticlesResponse = await fetch(

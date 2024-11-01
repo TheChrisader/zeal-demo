@@ -1,6 +1,6 @@
+import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/database";
 import { fetchNewsDataArticles } from "@/sources/newsdata";
-import { NextResponse } from "next/server";
 
 export const POST = async () => {
   try {

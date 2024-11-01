@@ -4,8 +4,24 @@ import ReactionModel from "./reaction.model";
 
 export const createReaction = async (postID: Id): Promise<IReaction | null> => {
   try {
-    const newReaction = await ReactionModel.create(postID);
+    const newReaction = await ReactionModel.create({ post_id: postID });
     return newReaction.toObject();
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createReactions = async (reactions: Partial<IReaction>[]) => {
+  try {
+    const newReactions = await ReactionModel.insertMany(reactions, {
+      ordered: false,
+    });
+
+    const reactionsToReturn = newReactions.map((reaction) =>
+      reaction.toObject(),
+    );
+
+    return reactionsToReturn;
   } catch (error) {
     throw error;
   }

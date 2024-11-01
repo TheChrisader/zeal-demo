@@ -18,10 +18,10 @@ const HeadlineArticle = ({ article }: HeadlineArticleProps) => {
           src={article?.image_url || article?.source.icon}
           alt="article preview"
           fetchPriority="high"
-          className="h-[190px] w-full object-cover"
+          className="h-[190px] w-full object-cover max-[450px]:h-[140px]"
         />
       </div>
-      <h3 className="mb-4 text-lg font-semibold text-[#2F2D32]">
+      <h3 className="mb-4 text-lg font-semibold text-[#2F2D32] max-[450px]:text-base">
         {article?.title}
       </h3>
       <div className="flex items-center gap-3">

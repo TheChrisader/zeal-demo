@@ -138,11 +138,11 @@ const HeadlinesBlock = async ({ user }: { user: User | null }) => {
   }
   return (
     <ArticlesContainer title="Headlines">
-      <ResponsiveHeadlines
+      {/* <ResponsiveHeadlines
         headlines={HeadlinesPosts.map((post) => cleanObject(post))}
-      >
-        <Headlines headlines={HeadlinesPosts} />
-      </ResponsiveHeadlines>
+      > */}
+      <Headlines headlines={HeadlinesPosts} />
+      {/* </ResponsiveHeadlines> */}
     </ArticlesContainer>
   );
 };

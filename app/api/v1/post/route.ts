@@ -18,6 +18,17 @@ import { calculateReadingTime } from "@/utils/post.utils";
 
 // TODO: Delete Draft if it exists
 
+function generateRandomString(length: number) {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters[randomIndex];
+  }
+  return result;
+}
+
 export const POST = async (request: NextRequest) => {
   try {
     const formData = await request.formData();
@@ -76,7 +87,7 @@ export const POST = async (request: NextRequest) => {
       language: "English",
       published: true,
       published_at: new Date().toISOString(),
-      link: null,
+      link: `httyd://${generateRandomString(10)}`,
       author_id: user.id,
       source: {
         name: user.display_name,

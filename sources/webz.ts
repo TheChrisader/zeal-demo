@@ -102,27 +102,22 @@ export const fetchWithRetries = async (
 // language english default, need opt out
 
 const categories: Record<string, { filter: string }>[] = [
-  //   "For you", //accumulation
   {
     Breaking: {
       filter:
         "(category:(war, conflict and unrest) OR category:(disaster and accident))",
     },
-  }, // global world news api
-  // //   //   "Viral Videos", // no answer
-  // //   // local
+  },
   {
     Politics: {
       filter: "thread.country:ng category:politics",
     },
   },
-  // //   //   "Headlines", // worldnews, local
   {
     Weather: {
       filter: "thread.country:ng category:weather",
     },
-  }, //
-  // //   // global
+  },
   { "Top US News": { filter: "thread.country:us" } },
   { "UK Top News": { filter: "site_category:top_news_gb" } },
   {
@@ -137,12 +132,9 @@ const categories: Record<string, { filter: string }>[] = [
         "(thread.country:CN OR thread.country:IN OR thread.country:JP OR thread.country:ID) language:english",
     },
   },
-  // //   // entertainment
   { "Celebrity News": { filter: "site_category:celebrity_fan_gossip" } },
   { "Top Movies": { filter: "site_category:movies" } },
   { "Trending Music": { filter: "site_category:music language:english" } },
-  // //   //   "Hot Interviews", // no answer
-  // //   // business
   { Economy: { filter: "category:(economy, business and finance)" } },
   {
     "Personal Finance": {
@@ -151,9 +143,7 @@ const categories: Record<string, { filter: string }>[] = [
   },
   { "Market Watch": { filter: "site_category:enterprise_news" } },
   { "Startup News": { filter: "site_category:investing" } },
-  // //   //   "Entrepreneurship",
   { "E-Commerce": { filter: "site_category:shopping" } },
-  // //   // tech
   { "Latest Tech News": { filter: "category:(science and technology)" } },
   {
     "Artificial Intelligence": {
@@ -175,7 +165,6 @@ const categories: Record<string, { filter: string }>[] = [
     },
   },
   { "Gadgets Buying Guide": { filter: "(site_category:computer_reviews)" } },
-  // // health
   { "Health News": { filter: "category:health" } },
   {
     "Food & Nutrition": {
@@ -194,7 +183,6 @@ const categories: Record<string, { filter: string }>[] = [
         "(site_category:family_and_parenting OR site_category:parenting_teens)",
     },
   },
-  // // sports
   { "Top Sports News": { filter: "category:sport" } },
   {
     "UK Premiership": {
@@ -207,7 +195,6 @@ const categories: Record<string, { filter: string }>[] = [
       filter: "(site_category:games OR site_category:video_and_computer_games)",
     },
   },
-  // career
   {
     "Latest Job News": {
       filter:
