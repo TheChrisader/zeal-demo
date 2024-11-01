@@ -40,7 +40,6 @@ const ResponsiveHeadlines = ({
                   <img
                     src={article?.image_url || article?.source.icon}
                     alt="article preview"
-                    fetchPriority={index === 0 ? "high" : "low"}
                     loading={index === 0 ? "eager" : "lazy"}
                     className="h-[90px] min-w-[200px] max-w-[200px] object-cover max-[900px]:min-w-[160px] max-[900px]:max-w-[160px] max-[500px]:min-w-[100px] max-[500px]:max-w-[100px]"
                   />
