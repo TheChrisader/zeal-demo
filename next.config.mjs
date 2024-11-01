@@ -15,6 +15,8 @@ const NextConfig = async (phase) => {
     eslint: {
       ignoreDuringBuilds: true,
     },
+    // cacheHandler: require.resolve('./cache-handler.js'),
+    // cacheMaxMemorySize: 0,
     webpack: (config, { isServer }) => {
       if (!isServer) {
         config.plugins.push(

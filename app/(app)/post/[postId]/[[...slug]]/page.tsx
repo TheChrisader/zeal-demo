@@ -11,7 +11,14 @@ import RecommendedArticles from "../../_components/RecommendedArticles";
 import ShareButton from "../../_components/ShareButton";
 import AnimateTitle from "@/app/(app)/_components/AnimateTitle";
 import DownloadPost from "../../_components/DownloadPost";
-import { connectToDatabase } from "@/lib/database";
+import { connectToDatabase, newId } from "@/lib/database";
+import Reactions from "../../_components/Reactions";
+import { validateRequest } from "@/lib/auth/auth";
+import {
+  checkLike,
+  getLikeByUserAndPostID,
+} from "@/database/like/like.repository";
+import { checkDislike } from "@/database/dislike/dislike.repository";
 
 export default async function PostPage({
   params,
@@ -37,6 +44,16 @@ export default async function PostPage({
         Post not found
       </div>
     );
+  }
+
+  const { user } = await validateRequest();
+  let like: boolean | undefined = undefined;
+  let dislike: boolean | undefined = undefined;
+
+  if (user) {
+    // get reaction
+    like = await checkLike(user.id, newId(article_id));
+    dislike = await checkDislike(user.id, newId(article_id));
   }
 
   post.content = cleanContent(post.content);
@@ -103,6 +120,9 @@ export default async function PostPage({
         className="rounded-[20px] p-1 [&_a]:text-blue-500 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:font-bold [&_figure>img]:mb-2 [&_figure>img]:mt-4 [&_figure>img]:max-h-[350px] [&_figure>img]:rounded-md [&_figure>p]:text-black [&_figure]:mb-7 [&_figure]:flex [&_figure]:w-full [&_figure]:flex-col [&_figure]:items-center [&_img]:mx-auto [&_img]:block [&_img]:max-h-[350px] [&_img]:w-1/2 [&_img]:rounded-md [&_img]:object-cover [&_img]:object-center [&_p]:mb-4 [&_p]:max-w-[100vw] [&_p]:text-base [&_p]:font-normal [&_p]:text-[#696969]"
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
+      <div className="flex w-full items-center justify-end">
+        <Reactions reaction={{ like, dislike }} postID={article_id} />
+      </div>
       <Separator />
       <Suspense fallback={<div>Loading...</div>}>
         <Comments postID={article_id} />
