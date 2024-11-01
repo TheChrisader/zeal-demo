@@ -39,7 +39,7 @@ const SignInPage = () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         callback: async (data: { credential: string; select_by: string }) => {
           const user = decodeJWTResponse(data.credential);
-          await SignUserWithoutPassword({
+          const res = await SignUserWithoutPassword({
             email: user.email,
             display_name: user.name,
             username: user.email.split("@")[0],
@@ -47,9 +47,13 @@ const SignInPage = () => {
             has_password: false,
             avatar: user.picture,
           });
-
           revalidatePathAction("/");
-          router.push("/");
+
+          if (res.message === "Created") {
+            router.push("/onboarding");
+          } else {
+            router.push("/");
+          }
         },
       });
 

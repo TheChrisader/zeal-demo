@@ -17,8 +17,6 @@ export const POST = async (request: NextRequest) => {
     await connectToDatabase();
     const body = await request.json();
 
-    console.log(body);
-
     const existingUser = await findUserByEmail(body.email);
 
     if (existingUser) {
@@ -31,9 +29,12 @@ export const POST = async (request: NextRequest) => {
         sessionCookie.attributes,
       );
 
-      return NextResponse.json(existingUser, {
-        status: 200,
-      });
+      return NextResponse.json(
+        { user: existingUser, message: "Signed In" },
+        {
+          status: 200,
+        },
+      );
 
       //   return new Response(null, {
       //     status: 302,
@@ -92,10 +93,13 @@ export const POST = async (request: NextRequest) => {
     const session = await lucia.createSession(newId(createdUser.id), {});
     const sessionCookie = lucia.createSessionCookie(session.id);
 
-    return NextResponse.json(createdUser, {
-      status: 201,
-      headers: { "Set-Cookie": sessionCookie.serialize() },
-    });
+    return NextResponse.json(
+      { message: "Created", user: createdUser },
+      {
+        status: 201,
+        headers: { "Set-Cookie": sessionCookie.serialize() },
+      },
+    );
   } catch (error) {
     console.log(error);
     return new Response("Internal Server Error", { status: 500 });

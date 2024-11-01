@@ -57,12 +57,12 @@ export async function GET(request: Request) {
         sessionCookie.attributes,
       );
 
-      return new Response(null, {
-        status: 302,
-        headers: {
-          Location: "/",
+      return NextResponse.json(
+        { user: existingUser, message: "Signed In" },
+        {
+          status: 200,
         },
-      });
+      );
     }
 
     const header = headers();
@@ -114,10 +114,13 @@ export async function GET(request: Request) {
     const session = await lucia.createSession(newId(createdUser.id), {});
     const sessionCookie = lucia.createSessionCookie(session.id);
 
-    return NextResponse.json(createdUser, {
-      status: 201,
-      headers: { "Set-Cookie": sessionCookie.serialize() },
-    });
+    return NextResponse.json(
+      { message: "Created", user: createdUser },
+      {
+        status: 201,
+        headers: { "Set-Cookie": sessionCookie.serialize() },
+      },
+    );
   } catch (error) {
     if (error instanceof OAuth2RequestError) {
       return new Response("Invalid code", { status: 400 });

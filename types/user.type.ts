@@ -1,6 +1,6 @@
 import { Id } from "@/lib/database";
 
-export const UserRoles = ["admin", "user", "writer"] as const;
+export const UserRoles = ["admin", "user", "writer", "writer:pending"] as const;
 export type UserRole = (typeof UserRoles)[number];
 
 export const AuthProviders = ["email", "google"] as const;

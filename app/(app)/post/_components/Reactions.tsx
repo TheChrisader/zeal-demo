@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import useAuth from "@/context/auth/useAuth";
 import { fetcher } from "@/lib/fetcher";
 import { CircleCheckBig, CircleX, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -17,13 +18,18 @@ const Reactions = ({
   const [currentReaction, setCurrentReaction] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const { user } = useAuth();
+
   useEffect(() => {
+    if (!user) return;
     if (reaction.like || reaction.dislike) {
       setCurrentReaction(
         reaction.like ? "like" : reaction.dislike ? "dislike" : null,
       );
     }
   }, [reaction]);
+
+  if (!user) return null;
 
   const handleLike = async () => {
     const oldReaction = currentReaction;

@@ -65,7 +65,9 @@ export const SignInUserWithUsernameAndPassword = async ({
   }
 };
 
-export const SignUserWithoutPassword = async (user: Partial<IUser>) => {
+export const SignUserWithoutPassword = async (
+  user: Partial<IUser>,
+): Promise<{ message: string; user: IUser | null }> => {
   try {
     const data = await fetcher("/api/v1/auth/signin/without-password", {
       method: "POST",
