@@ -28,7 +28,7 @@ const Headlines = ({ headlines }: HeadlinesProps) => {
         >
           {wideHeadlines.map((_, index) => (
             <ArticleCard
-              className="max-[800px]:min-w-[450px]"
+              // className="max-[800px]:min-w-[450px]"
               article={headlines[index]}
               key={index}
             />
