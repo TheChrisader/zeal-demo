@@ -22,22 +22,22 @@ const WritePage = () => {
   };
 
   return (
-    <main className="flex min-h-[calc(100vh-62px)] flex-col gap-3 bg-slate-100">
+    <main className="flex min-h-[calc(100vh-62px)] flex-col gap-3 bg-slate-100 pb-20">
       <WriteBar />
-      <div className="flex flex-col gap-9 px-[100px] py-4">
+      <div className="flex flex-col gap-9 px-[100px] py-4 max-[1024px]:px-7 max-[500px]:px-3">
         {/* TOP */}
-        <div className="flex gap-7">
-          <div className="flex flex-1 flex-col">
+        <div className="flex gap-7 max-[600px]:flex-col">
+          <div className="flex flex-1 flex-col gap-2">
             <span>Title</span>
             <Input onChange={(e) => setTitle(e.target.value)} />
           </div>
-          <div className="flex flex-1 flex-col">
+          <div className="flex flex-1 flex-col items-end gap-2 max-[600px]:items-start">
             <span>Tags</span>
             <SelectCategory />
           </div>
         </div>
         {/* MIDDLE */}
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-4">
           <span>Post Thumbnail</span>
           {file ? (
             <div className="relative h-[200px] w-full rounded-[5px] outline outline-slate-300">
@@ -63,7 +63,7 @@ const WritePage = () => {
         </div>
         {/* BOTTOM */}
         <div className="flex flex-col">
-          <span>Content</span>
+          {/* <span>Content</span> */}
           <div>
             <Editor />
           </div>

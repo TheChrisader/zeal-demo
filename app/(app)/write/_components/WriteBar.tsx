@@ -9,7 +9,7 @@ const WriteBar = () => {
   const { draftRef } = useActionHandler();
   return (
     <div>
-      <div className="my-3 flex w-full items-center gap-5 px-[100px]">
+      <div className="my-3 flex w-full items-center gap-5 px-[100px] max-[1024px]:px-7 max-[500px]:px-2">
         <div className="flex w-full items-center justify-between">
           <h1 className="text-2xl font-bold text-[#2F2D32]">Write</h1>
         </div>

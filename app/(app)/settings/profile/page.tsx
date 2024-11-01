@@ -41,7 +41,7 @@ const ProfileSettings = () => {
   };
 
   return (
-    <div className="flex w-full flex-col items-center gap-7">
+    <div className="flex w-full flex-col items-center gap-7 pb-20">
       <div className="relative flex w-full justify-center">
         <div className="flex flex-col items-center">
           <div className="size-32 overflow-hidden rounded-full bg-[#2F2D32]">

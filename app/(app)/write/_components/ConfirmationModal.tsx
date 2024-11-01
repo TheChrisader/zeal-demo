@@ -41,12 +41,14 @@ function ConfirmationModal({
       if (type === "publish") {
         if (!title || !category || !stripHtmlTags(publishPayload as string))
           return;
+
         const post = await createPost({
           title: title,
           content: publishPayload as string,
           category: category,
           image: file || undefined,
         });
+
         const postID = post._id?.toString();
         router.push(`/post/${postID}`);
       } else {
