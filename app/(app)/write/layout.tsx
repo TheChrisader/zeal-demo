@@ -10,7 +10,7 @@ export default async function WriteLayout({
 }) {
   await connectToDatabase();
   await serverAuthGuard({
-    rolesWhiteList: ["user"],
+    rolesWhiteList: ["writer", "admin"],
     redirect: true,
   });
 
