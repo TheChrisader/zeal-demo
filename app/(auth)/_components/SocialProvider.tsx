@@ -12,10 +12,15 @@ const SocialProvider = ({
 }) => {
   const router = useRouter();
 
-  const handleProvider = () => {
+  const handleProvider = async () => {
     if (name !== "google") return;
 
-    router.push(`/api/v1/auth/signin/${name}`);
+    try {
+      await fetch(`/api/v1/auth/signin/${name}`);
+      router.push(`/`);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
