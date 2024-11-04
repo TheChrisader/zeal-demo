@@ -1,21 +1,28 @@
+import { User } from "lucia";
+import { unstable_cache } from "next/cache";
 import { headers } from "next/headers";
+import { Suspense } from "react";
 import { Separator } from "@/components/ui/separator";
-import { FetchPostsResponse } from "@/hooks/post/useFetchPosts";
+import BookmarkModel from "@/database/bookmark/bookmark.model";
+import PostModel from "@/database/post/post.model";
+import { getPostsByFilters } from "@/database/post/post.repository";
+import { getPreferencesByUserId } from "@/database/preferences/preferences.repository";
+import { validateRequest } from "@/lib/auth/auth";
+import { connectToDatabase } from "@/lib/database";
+import { IPreferences } from "@/types/preferences.type";
 import ArticlesContainer from "./_components/ArticlesContainer";
 import Headlines from "./_components/Headlines";
 import Trending from "./_components/Trending";
-import { connectToDatabase } from "@/lib/database";
-import { getPostsByFilters } from "@/database/post/post.repository";
-import BookmarkModel from "@/database/bookmark/bookmark.model";
-import { validateRequest } from "@/lib/auth/auth";
-import PostModel from "@/database/post/post.model";
-import { getPreferencesByUserId } from "@/database/preferences/preferences.repository";
-import { IPreferences } from "@/types/preferences.type";
-import { User } from "lucia";
-import { unstable_cache } from "next/cache";
-import { Suspense } from "react";
-import ResponsiveHeadlines from "./_components/ResponsiveHeadlines";
-import { cleanObject } from "@/utils/cleanObject.utils";
+
+function shuffleArray(array?: string[]) {
+  if (!array) return [];
+
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1)); // Get a random index
+    [array[i], array[j]] = [array[j]!, array[i]!]; // Swap elements
+  }
+  return array; // Return the shuffled array
+}
 
 const PostBlock = async ({
   category,
@@ -24,11 +31,6 @@ const PostBlock = async ({
   category: string;
   user: User | null;
 }) => {
-  // const News = await getPostsByFilters({
-  //   categories: [category],
-  //   limit: 10,
-  // });
-
   const News = await unstable_cache(
     async () => {
       return await getPostsByFilters({
@@ -44,11 +46,6 @@ const PostBlock = async ({
   )();
 
   if (user) {
-    // const bookmarkedNews = await BookmarkModel.find({
-    //   user_id: user?.id,
-    //   article_id: { $in: News.map((article) => article._id) },
-    // });
-
     const bookmarkedNews = await unstable_cache(
       async () => {
         return await BookmarkModel.find({
@@ -78,7 +75,9 @@ const PostBlock = async ({
 
   return (
     <ArticlesContainer title={category}>
-      <Trending articles={News} partial />
+      {/* <ScrollContainer> */}
+      <Trending articles={News} category={category} partial />
+      {/* </ScrollContainer> */}
     </ArticlesContainer>
   );
 };
@@ -181,17 +180,18 @@ export default async function Home({
 
   const header = headers();
   const ip = header.get("x-forwarded-for");
-  let country: [string];
+  // let country: [string];
+  console.log(ip);
 
   // TODO: Add ip location
   /* or, check if env is in dev */
-  if (ip != "::1") {
-    // set country to nigeria
-    country = ["Nigeria"];
-  } else {
-    // set country to ip location
-    country = ["Nigeria"];
-  }
+  // if (ip != "::1") {
+  //   // set country to nigeria
+  //   country = ["Nigeria"];
+  // } else {
+  //   // set country to ip location
+  //   country = ["Nigeria"];
+  // }
 
   if (query || topics || sources) {
     const articles = await getPostsByFilters({
@@ -237,7 +237,7 @@ export default async function Home({
       </Suspense>
       <Separator />
       <div className="flex flex-wrap gap-3 max-[900px]:flex-col">
-        {preferences?.category_updates?.map((category) => {
+        {shuffleArray(preferences?.category_updates)?.map((category) => {
           return (
             <Suspense key={category}>
               <PostBlock category={category} user={user} />

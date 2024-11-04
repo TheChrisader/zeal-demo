@@ -1,8 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
-import ReadMoreWrapper from "./ReadMoreWrapper";
-import RecommendedArticles from "./RecommendedArticles";
+import { useEffect, useRef, useState } from "react";
 
 type LoadMoreAction = () => Promise<JSX.Element>;
 

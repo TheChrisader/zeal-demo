@@ -3,10 +3,6 @@ import { Id } from "@/lib/database";
 import { IPost } from "@/types/post.type";
 
 import PostModel from "./post.model";
-import {
-  createReaction,
-  createReactions,
-} from "../reaction/reaction.repository";
 
 export type SortParams<D> = Partial<Record<keyof D, -1 | 1>>;
 
@@ -75,7 +71,7 @@ export const createPosts = async (
   posts: Partial<IPost>[],
 ): Promise<IPost[]> => {
   try {
-    let createdPosts = await PostModel.insertMany(posts, {
+    const createdPosts = await PostModel.insertMany(posts, {
       ordered: false,
     });
 

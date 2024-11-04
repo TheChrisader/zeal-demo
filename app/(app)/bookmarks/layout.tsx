@@ -9,7 +9,7 @@ export default async function BookmarksLayout({
 }) {
   await connectToDatabase();
   await serverAuthGuard({
-    rolesWhiteList: ["user"],
+    rolesWhiteList: ["user", "writer:pending", "writer", "admin"],
     redirect: true,
   });
 

@@ -10,7 +10,7 @@ export default async function DownloadsLayout({
 }) {
   await connectToDatabase();
   await serverAuthGuard({
-    rolesWhiteList: ["user"],
+    rolesWhiteList: ["user", "writer:pending", "writer", "admin"],
     redirect: true,
   });
 
