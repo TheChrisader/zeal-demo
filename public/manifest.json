@@ -17,6 +17,28 @@
     "media",
     "entertainment"
   ],
+  "screenshots": [
+    {
+      "src": "images/screenshot1.jpg",
+      "type": "image/jpg",
+      "sizes": "1080x1920"
+    },
+    {
+      "src": "images/screenshot2.jpg",
+      "type": "image/jpg",
+      "sizes": "1080x1920"
+    },
+    {
+      "src": "images/screenshot3.jpg",
+      "type": "image/jpg",
+      "sizes": "1080x1920"
+    },
+    {
+      "src": "images/screenshot4.jpg",
+      "type": "image/jpg",
+      "sizes": "1080x1920"
+    }
+  ],
   "icons": [
     {
       "src": "windows11/SmallTile.scale-100.png",

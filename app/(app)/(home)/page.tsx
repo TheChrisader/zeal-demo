@@ -33,7 +33,7 @@ const PostBlock = async ({
     async () => {
       return await getPostsByFilters({
         categories: [category],
-        limit: 10,
+        limit: 4,
       });
     },
     [category],
@@ -99,7 +99,7 @@ const HeadlinesBlock = async ({ user }: { user: User | null }) => {
           },
         },
         { $sort: { published_at: -1 } },
-        { $sample: { size: 7 } },
+        { $sample: { size: 13 } },
       ]);
     },
     ["HEADLINES"],

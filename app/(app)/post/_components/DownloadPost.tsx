@@ -10,9 +10,11 @@ import useAuth from "@/context/auth/useAuth";
 import { useEffect, useState } from "react";
 import setupIndexedDB, { useIndexedDBStore } from "@/hooks/useIndexedDB";
 import { toast } from "sonner";
+import { usePathname } from "next/navigation";
 
 const DownloadPost = ({ article }: { article: PostToDownload }) => {
   const [isDownloaded, setIsDownloaded] = useState(false);
+  console.log(usePathname());
   const { user } = useAuth();
 
   useEffect(() => {

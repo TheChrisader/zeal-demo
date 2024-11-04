@@ -1,10 +1,12 @@
-import { serverAuthGuard } from "@/lib/auth/serverAuthGuard";
 import Link from "next/link";
+import { getDraftsByUserId } from "@/database/draft/draft.repository";
+import { serverAuthGuard } from "@/lib/auth/serverAuthGuard";
+import DraftItem from "./_components/DraftItem";
 import DraftsBar from "./_components/DraftsBar";
 
 const DraftsPage = async () => {
   const { user } = await serverAuthGuard();
-  const drafts = [];
+  const drafts = await getDraftsByUserId(user?.id);
 
   if (drafts.length === 0) {
     return (
@@ -33,10 +35,16 @@ const DraftsPage = async () => {
 
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-3">
-      {/* <BookmarkBar number={bookmarks.length} />
+      <DraftsBar
+      //  number={drafts.length}
+      />
       <div className="mb-3 flex h-fit flex-1 flex-col gap-3 rounded-[20px] bg-white px-[100px] py-4 shadow-sm">
-        <Trending articles={posts} />
-      </div> */}
+        <div className={`flex flex-wrap gap-5 max-[800px]:flex-col`}>
+          {drafts.map((draft) => {
+            return <DraftItem key={draft.id as string} draft={draft} />;
+          })}
+        </div>
+      </div>
     </main>
   );
 };

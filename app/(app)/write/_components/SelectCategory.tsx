@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -21,36 +20,18 @@ import {
 import useActionHandler from "../_context/action-handler/useActionHandler";
 import Categories from "@/categories";
 import { flattenCategories } from "@/utils/category.utils";
+import { useEffect, useState } from "react";
 
 const categories = flattenCategories(Categories);
 
-// const categories = [
-//   {
-//     category: "next.js",
-//     label: "Next.js",
-//   },
-//   {
-//     category: "sveltekit",
-//     label: "SvelteKit",
-//   },
-//   {
-//     category: "nuxt.js",
-//     label: "Nuxt.js",
-//   },
-//   {
-//     category: "remix",
-//     label: "Remix",
-//   },
-//   {
-//     category: "astro",
-//     label: "Astro",
-//   },
-// ];
-
-function SelectCategory() {
-  const [open, setOpen] = React.useState(false);
-  //   const [category, setCategory] = React.useState("");
+function SelectCategory({ draftCategory }: { draftCategory?: string }) {
+  const [open, setOpen] = useState(false);
   const { category, setCategory } = useActionHandler();
+
+  useEffect(() => {
+    if (!draftCategory) return;
+    setCategory(draftCategory);
+  }, [draftCategory]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -64,7 +45,7 @@ function SelectCategory() {
           {category
             ? categories.find((cat) => cat === category)
             : "Select category..."}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">

@@ -9,7 +9,7 @@ export default async function DraftsLayout({
 }) {
   await connectToDatabase();
   await serverAuthGuard({
-    rolesWhiteList: ["user"],
+    rolesWhiteList: ["writer", "admin"],
     redirect: true,
   });
 

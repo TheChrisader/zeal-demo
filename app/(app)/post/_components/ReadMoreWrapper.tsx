@@ -1,16 +1,32 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import PwaInstall from "../../_components/PwaInstall";
+import { PWAInstallElement } from "@khmyznikov/pwa-install";
 
 const ReadMoreWrapper = ({ children }: { children: React.ReactNode }) => {
   const [open, setOpen] = React.useState(false);
+  const pwaInstallRef = useRef<PWAInstallElement>(null);
   const handleOpen = () => {
     setOpen(true);
   };
 
+  useEffect(() => {
+    // get value from local storage
+    const shouldHidePWA = localStorage.getItem("pwa-hide-install") === "true";
+    if (open && !shouldHidePWA) {
+      pwaInstallRef.current?.showDialog(true);
+    }
+  }, [open]);
+
   if (open) {
-    return <div>{children}</div>;
+    return (
+      <div>
+        {children}
+        <PwaInstall ref={pwaInstallRef} />
+      </div>
+    );
   }
 
   return (

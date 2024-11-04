@@ -42,6 +42,8 @@ import { docFromHash, docToHash } from "../utils/docSerialization";
 import useActionHandler from "@/app/(app)/write/_context/action-handler/useActionHandler";
 
 import { flushSync } from "react-dom";
+import { getDraftData } from "@/services/draft.services";
+import { usePathname } from "next/navigation";
 
 // async function sendEditorState(editor: LexicalEditor): Promise<void> {
 //   const stringifiedEditorState = JSON.stringify(editor.getEditorState());
@@ -115,16 +117,31 @@ export default function ActionsPlugin({}: // isRichText,
   }, []);
 
   // ALL YOU NEED TO GET STATE FROM HASH
+  const id = usePathname().split("/").pop();
   useEffect(() => {
-    docFromHash(window.location.hash).then((doc) => {
-      if (
-        doc
-        //  && doc.source === "Playground"
-      ) {
-        editor.setEditorState(editorStateFromSerializedDocument(editor, doc));
-        editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
-      }
-    });
+    if (!id || id === "write") return;
+    const fillEditor = async () => {
+      const doc = (await getDraftData(id)).content_hash;
+      docFromHash(doc).then((doc) => {
+        if (
+          doc
+          //  && doc.source === "Playground"
+        ) {
+          editor.setEditorState(editorStateFromSerializedDocument(editor, doc));
+          editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
+        }
+      });
+    };
+    fillEditor();
+    // docFromHash(window.location.hash).then((doc) => {
+    //   if (
+    //     doc
+    //     //  && doc.source === "Playground"
+    //   ) {
+    //     editor.setEditorState(editorStateFromSerializedDocument(editor, doc));
+    //     editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
+    //   }
+    // });
   }, [editor]);
 
   useEffect(() => {

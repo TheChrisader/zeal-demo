@@ -1,7 +1,12 @@
-import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/database";
-import PostModel from "@/database/post/post.model";
 import isEnglish from "is-english";
+import { NextResponse } from "next/server";
+import PostModel from "@/database/post/post.model";
+import { connectToDatabase } from "@/lib/database";
+
+function removeCharacters(str: string, charsToRemove: string[]) {
+  const regex = new RegExp(`[${charsToRemove.join("")}]`, "g");
+  return str.replace(regex, "");
+}
 
 export const POST = async () => {
   try {
@@ -11,11 +16,29 @@ export const POST = async () => {
 
     const nonEnglishPosts = todaysPosts.filter((post) => {
       const currentPost = post.toObject();
-      if (!isEnglish(currentPost.title)) {
-        console.log(currentPost.title);
+      if (
+        !isEnglish(
+          removeCharacters(currentPost.title, [
+            "‘",
+            "’",
+            "…",
+            "₦",
+            "—",
+            "™",
+            "“",
+            "”",
+            "|",
+          ]),
+        )
+      ) {
         return true;
       }
     });
+
+    // get IDs
+    const postIDs = nonEnglishPosts.map((post) => post._id);
+
+    await PostModel.deleteMany({ _id: { $in: postIDs } });
 
     return NextResponse.json(nonEnglishPosts.length);
   } catch (error) {

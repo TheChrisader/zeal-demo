@@ -14,11 +14,13 @@ import DownloadPost from "../../_components/DownloadPost";
 import { connectToDatabase, newId } from "@/lib/database";
 import Reactions from "../../_components/Reactions";
 import { validateRequest } from "@/lib/auth/auth";
-import {
-  checkLike,
-  getLikeByUserAndPostID,
-} from "@/database/like/like.repository";
+import { checkLike } from "@/database/like/like.repository";
 import { checkDislike } from "@/database/dislike/dislike.repository";
+import dynamic from "next/dynamic";
+
+const ShareArray = dynamic(() => import("../../_components/ShareArray"), {
+  ssr: false,
+});
 
 export default async function PostPage({
   params,
@@ -120,6 +122,7 @@ export default async function PostPage({
         className="rounded-[20px] p-1 [&_a]:text-blue-500 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:font-bold [&_figure>img]:mb-2 [&_figure>img]:mt-4 [&_figure>img]:max-h-[350px] [&_figure>img]:rounded-md [&_figure>p]:text-black [&_figure]:mb-7 [&_figure]:flex [&_figure]:w-full [&_figure]:flex-col [&_figure]:items-center [&_img]:mx-auto [&_img]:block [&_img]:max-h-[350px] [&_img]:w-1/2 [&_img]:rounded-md [&_img]:object-cover [&_img]:object-center [&_p]:mb-4 [&_p]:max-w-[100vw] [&_p]:text-base [&_p]:font-normal [&_p]:text-[#696969]"
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
+      <ShareArray title={post.title} />
       <div className="flex w-full items-center justify-end">
         <Reactions reaction={{ like, dislike }} postID={article_id} />
       </div>

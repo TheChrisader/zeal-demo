@@ -1,11 +1,13 @@
 import { ReactNode } from "react";
-import Navbar from "@/components/layout/Navbar";
+// import Navbar from "@/components/layout/Navbar";
 import { validateRequest } from "@/lib/auth/auth";
 import { connectToDatabase } from "@/lib/database";
 // import OneTap from "../_components/OneTap";
 import dynamic from "next/dynamic";
 
 const OneTap = dynamic(() => import("../_components/OneTap"), { ssr: false });
+
+const Navbar = dynamic(() => import("@/components/layout/Navbar"));
 
 const HomeLayout = async ({ children }: { children?: ReactNode }) => {
   await connectToDatabase();

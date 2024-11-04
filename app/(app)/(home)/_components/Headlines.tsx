@@ -15,7 +15,7 @@ const Headlines = ({ headlines }: HeadlinesProps) => {
 
   const headline = headlines.shift();
 
-  const wideHeadlines = headlines.slice(0, 4);
+  const wideHeadlines = headlines.slice(0, 3);
 
   return (
     <div className="flex gap-6 max-[900px]:flex-col">

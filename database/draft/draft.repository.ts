@@ -63,7 +63,7 @@ export const deleteMultipleDraftsByUserId = async (
 
 export const updateDraft = async (
   id: string | Id,
-  draft: IDraft,
+  draft: Partial<IDraft>,
 ): Promise<IDraft | null> => {
   try {
     const updatedDraftDoc = await DraftModel.findOneAndUpdate(

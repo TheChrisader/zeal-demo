@@ -14,8 +14,9 @@ import { Button } from "@/components/ui/button";
 import useActionHandler from "../_context/action-handler/useActionHandler";
 import { useState } from "react";
 import { createPost } from "@/services/post.services";
-import { createDraft } from "@/services/draft.services";
+import { createDraft, updateDraft } from "@/services/draft.services";
 import { useRouter } from "next-nprogress-bar";
+import { usePathname } from "next/navigation";
 
 const stripHtmlTags = (html: string) => {
   const doc = new DOMParser().parseFromString(html, "text/html");
@@ -31,6 +32,7 @@ function ConfirmationModal({
 }) {
   const { file, publishPayload, draftPayload, title, category } =
     useActionHandler();
+  const id = usePathname().split("/").pop();
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -52,14 +54,25 @@ function ConfirmationModal({
         const postID = post._id?.toString();
         router.push(`/post/${postID}`);
       } else {
+        console.log(title, category, stripHtmlTags(draftPayload as string));
         if (!title || !category || !stripHtmlTags(draftPayload as string))
           return;
-        await createDraft({
-          title: title,
-          content: draftPayload as string,
-          category: category,
-          image: file || undefined,
-        });
+        if (!id || id === "write") {
+          await createDraft({
+            title: title,
+            content: draftPayload as string,
+            category: category,
+            image: file || undefined,
+          });
+        } else {
+          await updateDraft(id, {
+            title: title,
+            content: draftPayload as string,
+            category: category,
+            image: file || undefined,
+          });
+        }
+        router.push("/drafts");
       }
     } catch (error) {
     } finally {

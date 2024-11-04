@@ -8,8 +8,6 @@ import { connectToDatabase, newId } from "@/lib/database";
 import { generateOTP } from "@/lib/otp";
 import { sendAccountVerificationEmail } from "@/utils/email";
 import { buildError, sendError } from "@/utils/error";
-import { promises as fs } from "fs";
-import * as MMDB from "mmdb-lib";
 import {
   INTERNAL_ERROR,
   INVALID_INPUT_ERROR,

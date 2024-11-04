@@ -15,7 +15,6 @@ const InfinitePostScroll = ({
 }) => {
   const loadRef = useRef<HTMLDivElement>(null);
   const [loadedNodes, setLoadedNodes] = useState<JSX.Element[]>([]);
-  // const offsetRef = useRef(0);
 
   useEffect(() => {
     const handleLoad = async () => {

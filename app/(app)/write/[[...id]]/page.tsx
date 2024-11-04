@@ -1,17 +1,36 @@
 "use client";
 
 import Editor from "@/lexical/Editor";
-import WriteBar from "./_components/WriteBar";
+import WriteBar from "../_components/WriteBar";
 import { Input } from "@/components/ui/input";
-import PublishButton from "./_components/PublishButton";
-import SelectCategory from "./_components/SelectCategory";
-import useActionHandler from "./_context/action-handler/useActionHandler";
-import { ChangeEventHandler } from "react";
+import PublishButton from "../_components/PublishButton";
+import SelectCategory from "../_components/SelectCategory";
+import useActionHandler from "../_context/action-handler/useActionHandler";
+import { ChangeEventHandler, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CircleX } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { getDraftData } from "@/services/draft.services";
+import { IDraft } from "@/types/draft.type";
 
 const WritePage = () => {
   const { setTitle, file, setFile } = useActionHandler();
+  const [existingState, setExistingState] = useState<Partial<IDraft>>({
+    title: "",
+    category: [],
+    image_url: "",
+  });
+  const id = usePathname().split("/").pop();
+
+  useEffect(() => {
+    if (!id || id === "write") return;
+    const getDraft = async () => {
+      const doc = await getDraftData(id);
+      setExistingState(doc);
+      setTitle(doc.title);
+    };
+    getDraft();
+  }, [id]);
 
   const handleUpdateFile: ChangeEventHandler<HTMLInputElement> = (event) => {
     const { files } = event.target;
@@ -29,17 +48,20 @@ const WritePage = () => {
         <div className="flex gap-7 max-[600px]:flex-col">
           <div className="flex flex-1 flex-col gap-2">
             <span>Title</span>
-            <Input onChange={(e) => setTitle(e.target.value)} />
+            <Input
+              defaultValue={existingState?.title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
           </div>
           <div className="flex flex-1 flex-col items-end gap-2 max-[600px]:items-start">
             <span>Tags</span>
-            <SelectCategory />
+            <SelectCategory draftCategory={existingState?.category?.[0]} />
           </div>
         </div>
         {/* MIDDLE */}
         <div className="flex flex-col gap-4">
           <span>Post Thumbnail</span>
-          {file ? (
+          {file || existingState?.image_url ? (
             <div className="relative h-[200px] w-full rounded-[5px] outline outline-slate-300">
               <Button
                 onClick={() => setFile(null)}
@@ -49,7 +71,10 @@ const WritePage = () => {
               </Button>
               <img
                 className="size-full object-cover"
-                src={URL.createObjectURL(file)}
+                src={
+                  (file && URL.createObjectURL(file)) ||
+                  existingState?.image_url
+                }
                 alt="user avatar"
               />
             </div>

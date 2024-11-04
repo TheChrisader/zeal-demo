@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { useDraggable } from "@/hooks/useDraggable";
 import { CATEGORIES } from "@/types/utils/category.type";
 import { getCategoryFromPath } from "@/utils/path.utils";
-import FiltersDropdown from "./menu/Filters";
+// import FiltersDropdown from "./menu/Filters";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -25,6 +25,9 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { waitUntil } from "@/utils/waitUntil";
+import dynamic from "next/dynamic";
+
+const FiltersDropdown = dynamic(() => import("./menu/Filters"), { ssr: false });
 
 const Categories = [
   {
