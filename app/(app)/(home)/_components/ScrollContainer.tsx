@@ -18,16 +18,20 @@ const ScrollContainer = ({
   loadMoreAction: LoadMoreAction;
 }) => {
   const [loadedNodes, setLoadedNodes] = useState<JSX.Element[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const offsetRef = useRef(1);
 
   const handleLoad = async () => {
     try {
+      setIsLoading(true);
       const newNode = await loadMoreAction(offsetRef.current, category);
 
       offsetRef.current++;
       setLoadedNodes((nodes) => [...nodes, newNode]);
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -37,7 +41,7 @@ const ScrollContainer = ({
       {loadedNodes}
       <div className="mt-2 flex w-full items-center justify-center">
         <Button variant="outline" className="py-1" onClick={handleLoad}>
-          <span>View More</span>
+          {isLoading ? <span>Loading...</span> : <span>View More</span>}
         </Button>
       </div>
     </div>
