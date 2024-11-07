@@ -16,8 +16,7 @@ const SocialProvider = ({
     if (name !== "google") return;
 
     try {
-      await fetch(`/api/v1/auth/signin/${name}`);
-      router.push(`/`);
+      router.push(`/api/v1/auth/signin/${name}`);
     } catch (error) {
       console.log(error);
     }

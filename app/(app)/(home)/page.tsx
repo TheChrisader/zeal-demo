@@ -14,14 +14,38 @@ import ArticlesContainer from "./_components/ArticlesContainer";
 import Headlines from "./_components/Headlines";
 import Trending from "./_components/Trending";
 
+function createTimedRandomGenerator(timeout: number) {
+  let lastGeneratedValue: number | null = null;
+  let lastGeneratedTime = 0;
+
+  return function () {
+    const currentTime = Date.now();
+
+    // Check if the last generated value is still valid based on the timeout
+    if (
+      lastGeneratedValue !== null &&
+      currentTime - lastGeneratedTime < timeout
+    ) {
+      return lastGeneratedValue; // Return the same value if within timeout
+    }
+
+    // Generate a new random value
+    lastGeneratedValue = Math.random();
+    lastGeneratedTime = currentTime; // Update the time of generation
+    return lastGeneratedValue;
+  };
+}
+
+const cachedShuffler = createTimedRandomGenerator(1000 * 60 * 10);
+
 function shuffleArray(array?: string[]) {
   if (!array) return [];
 
   for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1)); // Get a random index
-    [array[i], array[j]] = [array[j]!, array[i]!]; // Swap elements
+    const j = Math.floor(cachedShuffler() * (i + 1));
+    [array[i], array[j]] = [array[j]!, array[i]!];
   }
-  return array; // Return the shuffled array
+  return array;
 }
 
 const PostBlock = async ({

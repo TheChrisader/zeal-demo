@@ -12,7 +12,12 @@ export const POST = async () => {
   try {
     await connectToDatabase();
 
-    const todaysPosts = await PostModel.find();
+    const todaysPosts = await PostModel.find({
+      created_at: {
+        $gte: new Date(new Date().setHours(0, 0, 0, 0)),
+        $lt: new Date(new Date().setHours(23, 59, 59, 999)),
+      },
+    });
 
     const nonEnglishPosts = todaysPosts.filter((post) => {
       const currentPost = post.toObject();

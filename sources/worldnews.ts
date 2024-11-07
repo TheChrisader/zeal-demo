@@ -136,7 +136,7 @@ export const fetchWorldNewsHeadlines = async () => {
   try {
     const fetchedPosts: Partial<IPost>[] = [];
     const data = await fetchWithRetries(
-      `https://api.worldnewsapi.com/top-news?source-country=us&language=en&date=${getCurrentDateString()}`,
+      `https://api.worldnewsapi.com/top-news?source-country=gb&language=en&date=${getCurrentDateString()}`,
     );
     const topNews = data.top_news;
     for (const section of topNews) {
@@ -181,7 +181,7 @@ export const fetchWorldNewsHeadlines = async () => {
           language: "English",
           country: [lookup.byIso(data.country)!.country],
           ttr: calculateReadingTime(cleanContent(parsedArticle.content)),
-          category: ["Top US News"],
+          category: ["UK Top News"],
           published: true,
           external: true,
         };

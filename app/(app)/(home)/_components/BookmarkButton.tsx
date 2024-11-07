@@ -40,21 +40,24 @@ const BookmarkButton = ({
     try {
       setIsBookmarked(!isBookmarked);
 
+      if (!isBookmarked) {
+        toast.success("Bookmarked successfully");
+      } else {
+        toast.success("Unbookmarked successfully");
+      }
+
       await fetcher(`/api/v1/bookmark/${id}`, {
         method: "POST",
       });
 
       await revalidatePathAction("/bookmarks");
 
-      toast.success("Bookmarked successfully");
-
       if (pathName === "/bookmarks") {
         return;
       }
     } catch (error) {
       setIsBookmarked(currentBookmarkedState);
-      toast.error("Something went wrong");
-      console.log(error);
+      toast.error("Bookmarking failed");
     }
   };
 

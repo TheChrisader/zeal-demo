@@ -12,6 +12,7 @@ import { connectToDatabase, newId } from "@/lib/database";
 import { buildError, sendError } from "@/utils/error";
 import { INTERNAL_ERROR } from "@/utils/error/error-codes";
 import { getMMDB } from "@/lib/mmdb";
+import { redirect } from "next/navigation";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -56,13 +57,9 @@ export async function GET(request: Request) {
         sessionCookie.value,
         sessionCookie.attributes,
       );
+      // redirect to "/"
 
-      return NextResponse.json(
-        { user: existingUser, message: "Signed In" },
-        {
-          status: 200,
-        },
-      );
+      return NextResponse.redirect(new URL("/", request.url));
     }
 
     const header = headers();
@@ -114,17 +111,22 @@ export async function GET(request: Request) {
     const session = await lucia.createSession(newId(createdUser.id), {});
     const sessionCookie = lucia.createSessionCookie(session.id);
 
-    return NextResponse.json(
-      { message: "Created", user: createdUser },
-      {
-        status: 201,
-        headers: { "Set-Cookie": sessionCookie.serialize() },
-      },
-    );
+    return NextResponse.redirect(new URL("/onboarding", request.url), {
+      status: 302,
+      headers: { "Set-Cookie": sessionCookie.serialize() },
+    });
+
+    // return NextResponse.json(
+    //   { message: "Created", user: createdUser },
+    //   {
+    //     status: 201,
+    //     headers: { "Set-Cookie": sessionCookie.serialize() },
+    //   },
+    // );
   } catch (error) {
     if (error instanceof OAuth2RequestError) {
       return new Response("Invalid code", { status: 400 });
     }
-    return new Response("Server Error", { status: 400 });
+    return new Response("Server Error", { status: 500 });
   }
 }

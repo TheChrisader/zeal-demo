@@ -12,7 +12,7 @@ export const POST = async () => {
         $gte: new Date(new Date().setHours(0, 0, 0, 0)),
         $lt: new Date(new Date().setHours(23, 59, 59, 999)),
       },
-    }).sort({ created_at: -1 });
+    });
 
     const postIDs = todaysPosts.map((post) => ({ post_id: post._id }));
 
