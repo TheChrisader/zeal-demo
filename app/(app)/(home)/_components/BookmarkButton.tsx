@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import useAuth from "@/context/auth/useAuth";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { fetcher } from "@/lib/fetcher";
+import revalidateTagAction from "@/app/actions/revalidateTag";
 
 const BookmarkButton = ({
   id,
@@ -50,7 +51,8 @@ const BookmarkButton = ({
         method: "POST",
       });
 
-      await revalidatePathAction("/bookmarks");
+      // await revalidatePathAction("/bookmarks");
+      await revalidateTagAction(`bookmarks-${user?.id.toString()}`);
 
       if (pathName === "/bookmarks") {
         return;
