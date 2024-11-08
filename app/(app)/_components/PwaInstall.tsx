@@ -53,9 +53,17 @@ const PwaInstall = React.forwardRef<PWAInstallElement>(({}, ref) => {
           ?.querySelector(
             "div.install-dialog.chrome.mobile.available > div > pwa-bottom-sheet > div.body-header > button",
           )
-          ?.addEventListener("click", (e) => {
-            (ref as MutableRefObject<PWAInstallElement>)?.current.install();
-            console.log("click", e);
+          ?.addEventListener("click", () => {
+            const browser = getBrowser();
+            if (browser === "chrome" || browser === "edge") {
+              console.log(browser);
+              window.deferredPromptEvent.prompt();
+              (
+                ref as MutableRefObject<PWAInstallElement>
+              )?.current.hideDialog();
+            } else {
+              console.log(browser);
+            }
           });
       }, 1500);
 

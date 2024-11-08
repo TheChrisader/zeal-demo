@@ -5,9 +5,7 @@ const DeferInstallPromptEvent = () => {
   return (
     <Script id="defer-install-prompt-event">
       {`
-      console.log("object!!!!!!!!!!!!!!!!!!!!");
             window.addEventListener('beforeinstallprompt', (e) => {
-            console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 e.preventDefault();
                 e.stopPropagation();
                 e.stopImmediatePropagation();

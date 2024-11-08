@@ -5,6 +5,51 @@ import React, { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import PwaInstall from "../../_components/PwaInstall";
 
+function getPWADisplayMode() {
+  if (document.referrer.startsWith("android-app://")) return "twa";
+  if (window.matchMedia("(display-mode: browser)").matches) return "browser";
+  if (window.matchMedia("(display-mode: standalone)").matches)
+    return "standalone";
+  if (window.matchMedia("(display-mode: minimal-ui)").matches)
+    return "minimal-ui";
+  if (window.matchMedia("(display-mode: fullscreen)").matches)
+    return "fullscreen";
+  if (window.matchMedia("(display-mode: window-controls-overlay)").matches)
+    return "window-controls-overlay";
+
+  return "unknown";
+}
+
+function setWithExpiry(key: string, value: unknown, ttl: number) {
+  const now = new Date();
+
+  // `item` is an object which contains the original value
+  // as well as the time when it's supposed to expire
+  const item = {
+    value: value,
+    expiry: now.getTime() + ttl,
+  };
+  localStorage.setItem(key, JSON.stringify(item));
+}
+
+function getWithExpiry(key: string) {
+  const itemStr = localStorage.getItem(key);
+  // if the item doesn't exist, return null
+  if (!itemStr) {
+    return null;
+  }
+  const item = JSON.parse(itemStr);
+  const now = new Date();
+  // compare the expiry time of the item with the current time
+  if (now.getTime() > item.expiry) {
+    // If the item is expired, delete the item from storage
+    // and return null
+    localStorage.removeItem(key);
+    return null;
+  }
+  return item.value;
+}
+
 const ReadMoreWrapper = ({ children }: { children: React.ReactNode }) => {
   const [open, setOpen] = React.useState(false);
   const pwaInstallRef = useRef<PWAInstallElement>(null);
@@ -15,8 +60,15 @@ const ReadMoreWrapper = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const shouldHidePWA = localStorage.getItem("pwa-hide-install") === "true";
     if (open && !shouldHidePWA) {
+      if (getPWADisplayMode() === "standalone") return;
+
       setTimeout(() => {
+        if (getWithExpiry("pwa-install-prompt")) {
+          return;
+        }
+
         pwaInstallRef.current?.showDialog(true);
+        setWithExpiry("pwa-install-prompt", true, 1000 * 60 * 60 * 24);
       }, 1000);
     }
   }, [open]);
