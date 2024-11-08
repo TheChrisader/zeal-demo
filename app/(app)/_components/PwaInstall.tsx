@@ -2,12 +2,11 @@
 
 import { PWAInstallElement } from "@khmyznikov/pwa-install";
 import PWAInstall from "@khmyznikov/pwa-install/react-legacy";
-import React, { MutableRefObject, useEffect } from "react";
+import React, { MutableRefObject, useEffect, useState } from "react";
 
 declare global {
   interface Window {
-    // @eslint-disable-next-line @typescript-eslint/no-explicit-any
-    //   promptEvent: any;
+    deferredPromptEvent: BeforeInstallPromptEvent;
   }
 }
 
@@ -40,11 +39,25 @@ const getScreen = (): "mobile" | "tablet" | "desktop" => {
 const PwaInstall = React.forwardRef<PWAInstallElement>(({}, ref) => {
   // console.log((ref as MutableRefObject<PWAInstallElement>)?.current);
   // console.log(getBrowser(), getScreen());
+  const [promptEvent, setPromptEvent] =
+    useState<BeforeInstallPromptEvent | null>(null);
+
   useEffect(() => {
     setTimeout(() => {
       const $ = (selector: string) => document.querySelector(selector);
 
       const pwaChromeMobile = $("pwa-install")?.shadowRoot;
+
+      setTimeout(() => {
+        pwaChromeMobile
+          ?.querySelector(
+            "div.install-dialog.chrome.mobile.available > div > pwa-bottom-sheet > div.body-header > button",
+          )
+          ?.addEventListener("click", (e) => {
+            (ref as MutableRefObject<PWAInstallElement>)?.current.install();
+            console.log("click", e);
+          });
+      }, 1500);
 
       if (pwaChromeMobile) {
         (
@@ -56,11 +69,27 @@ const PwaInstall = React.forwardRef<PWAInstallElement>(({}, ref) => {
     }, 2500);
   }, []);
 
+  useEffect(() => {
+    let lastPromptEvent = window.deferredPromptEvent;
+
+    const intervalId = setInterval(() => {
+      if (window.deferredPromptEvent !== lastPromptEvent) {
+        lastPromptEvent = window.deferredPromptEvent;
+        setPromptEvent(window.deferredPromptEvent);
+      }
+    }, 100);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
   return (
     <PWAInstall
       useLocalStorage
       ref={ref}
       manifestUrl="/manifest.json"
+      externalPromptEvent={promptEvent}
+      onPwaInstallAvailableEvent={(event) => console.log(event)}
     ></PWAInstall>
   );
 });

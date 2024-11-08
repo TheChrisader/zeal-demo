@@ -6,6 +6,13 @@ import InfinitePostScroll from "../../_components/InfinitePostScroll";
 import ReadMoreWrapper from "../../_components/ReadMoreWrapper";
 import RecommendedArticles from "../../_components/RecommendedArticles";
 import { connectToDatabase } from "@/lib/database";
+// import DeferInstallPromptEvent from "@/app/(app)/_components/DeferInstallPromptEvent";
+import dynamic from "next/dynamic";
+
+const DeferInstallPromptEvent = dynamic(
+  () => import("@/app/(app)/_components/DeferInstallPromptEvent"),
+  { ssr: false },
+);
 
 async function getNextPost() {
   "use server";
@@ -55,6 +62,7 @@ const PostLayout = ({ children }: { children: React.ReactNode }) => {
           <RecommendedArticles generic keywords={[]} />
         </div>
       </InfinitePostScroll>
+      <DeferInstallPromptEvent />
     </>
   );
 };
