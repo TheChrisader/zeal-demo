@@ -1,10 +1,10 @@
-import { FetchPostsResponse } from "@/hooks/post/useFetchPosts";
-import Trending from "../../(home)/_components/Trending";
+// import { FetchPostsResponse } from "@/hooks/post/useFetchPosts";
 import { getPostsByFilters } from "@/database/post/post.repository";
 import { connectToDatabase } from "@/lib/database";
+import Trending from "../../(home)/_components/Trending";
 
 const RecommendedArticles = async ({
-  headline,
+  // headline,
   keywords,
   generic = false,
   domain,
@@ -18,7 +18,7 @@ const RecommendedArticles = async ({
   domain?: string;
 }) => {
   await connectToDatabase();
-  let tags;
+  // let tags;
 
   if (generic) {
     const Articles = await getPostsByFilters({

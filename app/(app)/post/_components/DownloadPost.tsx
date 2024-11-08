@@ -1,20 +1,19 @@
 "use client";
+
+import { CircleCheckBig, Download } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import useAuth from "@/context/auth/useAuth";
+import setupIndexedDB, { useIndexedDBStore } from "@/hooks/useIndexedDB";
 import {
   DownloadedPost,
   getIDBConfig,
   PostToDownload,
 } from "../../downloads/[[...id]]/page";
-import { CircleCheckBig, Download } from "lucide-react";
-import useAuth from "@/context/auth/useAuth";
-import { useEffect, useState } from "react";
-import setupIndexedDB, { useIndexedDBStore } from "@/hooks/useIndexedDB";
-import { toast } from "sonner";
-import { usePathname } from "next/navigation";
 
 const DownloadPost = ({ article }: { article: PostToDownload }) => {
   const [isDownloaded, setIsDownloaded] = useState(false);
-  console.log(usePathname());
   const { user } = useAuth();
 
   useEffect(() => {
@@ -23,9 +22,9 @@ const DownloadPost = ({ article }: { article: PostToDownload }) => {
         .then(() => console.log("success"))
         .catch((e) => console.error("error / unsupported", e));
     }
-  }, []);
+  }, [user]);
 
-  const { add, getByID, getAll } = useIndexedDBStore("posts");
+  const { add, getAll } = useIndexedDBStore("posts");
 
   useEffect(() => {
     const getPost = async () => {
@@ -40,7 +39,7 @@ const DownloadPost = ({ article }: { article: PostToDownload }) => {
       }
     };
     getPost();
-  }, []);
+  }, [article._id, user, getAll]);
 
   if (!user || isDownloaded) {
     return null;
@@ -65,11 +64,6 @@ const DownloadPost = ({ article }: { article: PostToDownload }) => {
         },
       });
     }
-  };
-
-  const handleDownload = async () => {
-    try {
-    } catch {}
   };
 
   return (

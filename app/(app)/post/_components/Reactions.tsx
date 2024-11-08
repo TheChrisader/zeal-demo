@@ -1,11 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import useAuth from "@/context/auth/useAuth";
-import { fetcher } from "@/lib/fetcher";
 import { CircleCheckBig, CircleX, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import useAuth from "@/context/auth/useAuth";
+import { fetcher } from "@/lib/fetcher";
 
 const Reactions = ({
   postID,
@@ -14,9 +14,9 @@ const Reactions = ({
   postID: string;
   reaction: { like?: boolean; dislike?: boolean };
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  // const [, setIsLoading] = useState(false);
   const [currentReaction, setCurrentReaction] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // const [error, setError] = useState<string | null>(null);
 
   const { user } = useAuth();
 
@@ -27,14 +27,14 @@ const Reactions = ({
         reaction.like ? "like" : reaction.dislike ? "dislike" : null,
       );
     }
-  }, [reaction]);
+  }, [reaction, user]);
 
   if (!user) return null;
 
   const handleLike = async () => {
     const oldReaction = currentReaction;
     try {
-      setIsLoading(true);
+      // setIsLoading(true);
       if (currentReaction === "like") {
         setCurrentReaction(null);
       } else {
@@ -74,13 +74,13 @@ const Reactions = ({
 
       setCurrentReaction(oldReaction);
     } finally {
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   };
 
   const handleDislike = async () => {
     try {
-      setIsLoading(true);
+      // setIsLoading(true);
 
       if (currentReaction === "dislike") {
         setCurrentReaction(null);
@@ -121,7 +121,7 @@ const Reactions = ({
 
       setCurrentReaction(null);
     } finally {
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   };
   return (

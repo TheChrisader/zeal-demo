@@ -3,6 +3,7 @@
 import { PWAInstallElement } from "@khmyznikov/pwa-install";
 import PWAInstall from "@khmyznikov/pwa-install/react-legacy";
 import React, { MutableRefObject, useEffect, useState } from "react";
+import AddToHomescreen from "./AddToHomescreen";
 
 declare global {
   interface Window {
@@ -18,8 +19,6 @@ const getBrowser = () => {
     return "chrome";
   } else if (ua.indexOf("Safari") > -1) {
     return "safari";
-  } else if (ua.indexOf("Edge") > -1) {
-    return "edge";
   } else {
     return "other";
   }
@@ -39,10 +38,13 @@ const getScreen = (): "mobile" | "tablet" | "desktop" => {
 const PwaInstall = React.forwardRef<PWAInstallElement>(({}, ref) => {
   // console.log((ref as MutableRefObject<PWAInstallElement>)?.current);
   // console.log(getBrowser(), getScreen());
-  const [promptEvent, setPromptEvent] =
-    useState<BeforeInstallPromptEvent | null>(null);
+  const [open, setOpen] = useState(false);
+  const isFirefoxDesktop =
+    getBrowser() === "firefox" && getScreen() !== "mobile";
 
   useEffect(() => {
+    if (isFirefoxDesktop) return;
+
     setTimeout(() => {
       const $ = (selector: string) => document.querySelector(selector);
 
@@ -55,13 +57,16 @@ const PwaInstall = React.forwardRef<PWAInstallElement>(({}, ref) => {
           )
           ?.addEventListener("click", () => {
             const browser = getBrowser();
-            if (browser === "chrome") {
+            if (browser === "chrome" && window.deferredPromptEvent) {
               window.deferredPromptEvent.prompt();
               (
                 ref as MutableRefObject<PWAInstallElement>
               )?.current.hideDialog();
             } else {
-              console.log(browser);
+              (
+                ref as MutableRefObject<PWAInstallElement>
+              )?.current.hideDialog();
+              setOpen(true);
             }
           });
 
@@ -71,13 +76,16 @@ const PwaInstall = React.forwardRef<PWAInstallElement>(({}, ref) => {
           )
           ?.addEventListener("click", () => {
             const browser = getBrowser();
-            if (browser === "chrome") {
+            if (browser === "chrome" && window.deferredPromptEvent) {
               window.deferredPromptEvent.prompt();
               (
                 ref as MutableRefObject<PWAInstallElement>
               )?.current.hideDialog();
             } else {
-              console.log(browser);
+              (
+                ref as MutableRefObject<PWAInstallElement>
+              )?.current.hideDialog();
+              setOpen(true);
             }
           });
       }, 1500);
@@ -90,30 +98,20 @@ const PwaInstall = React.forwardRef<PWAInstallElement>(({}, ref) => {
         )?.style.setProperty("--translateY", "translateY(192px)");
       }
     }, 2500);
-  }, []);
+  }, [isFirefoxDesktop, ref]);
 
-  useEffect(() => {
-    let lastPromptEvent = window.deferredPromptEvent;
-
-    const intervalId = setInterval(() => {
-      if (window.deferredPromptEvent !== lastPromptEvent) {
-        lastPromptEvent = window.deferredPromptEvent;
-        setPromptEvent(window.deferredPromptEvent);
-      }
-    }, 100);
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, []);
+  if (isFirefoxDesktop) return null;
 
   return (
-    <PWAInstall
-      useLocalStorage
-      ref={ref}
-      manifestUrl="/manifest.json"
-      externalPromptEvent={promptEvent}
-      onPwaInstallAvailableEvent={(event) => console.log(event)}
-    ></PWAInstall>
+    <>
+      <PWAInstall
+        useLocalStorage
+        ref={ref}
+        manifestUrl="/manifest.json"
+        onPwaInstallAvailableEvent={(event) => console.log(event)}
+      ></PWAInstall>
+      <AddToHomescreen open={open} setOpen={setOpen} />
+    </>
   );
 });
 

@@ -1,13 +1,13 @@
+import dynamic from "next/dynamic";
 import { Separator } from "@/components/ui/separator";
 import PostModel from "@/database/post/post.model";
+import { connectToDatabase } from "@/lib/database";
 import { IPost } from "@/types/post.type";
 import PostPage from "./page";
 import InfinitePostScroll from "../../_components/InfinitePostScroll";
 import ReadMoreWrapper from "../../_components/ReadMoreWrapper";
 import RecommendedArticles from "../../_components/RecommendedArticles";
-import { connectToDatabase } from "@/lib/database";
 // import DeferInstallPromptEvent from "@/app/(app)/_components/DeferInstallPromptEvent";
-import dynamic from "next/dynamic";
 
 const DeferInstallPromptEvent = dynamic(
   () => import("@/app/(app)/_components/DeferInstallPromptEvent"),
