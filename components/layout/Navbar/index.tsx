@@ -436,7 +436,7 @@ const Navbar = () => {
                 setHideSearch(false);
               }}
             >
-              <MotionSearch className="text-[#696969]" layout />
+              <MotionSearch className="text-[#696969]" />
             </motion.button>
           </motion.div>
         ) : (
