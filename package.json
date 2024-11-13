@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --experimental-debug-memory-usage",
     "start": "next start",
     "lint": "next lint",
     "preinstall": "npx only-allow npm",
@@ -89,6 +89,8 @@
     "tailwind-merge": "^2.5.1",
     "tailwindcss-animate": "^1.0.7",
     "vanilla-cookieconsent": "^3.0.1",
+    "vaul": "^1.1.1",
+    "web-push": "^3.6.7",
     "zod": "^3.23.8",
     "zustand": "^4.5.4"
   },
@@ -101,6 +103,7 @@
     "@types/nodemailer": "^6.4.15",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/web-push": "^3.6.4",
     "@typescript-eslint/eslint-plugin": "^7.16.1",
     "@typescript-eslint/parser": "^7.16.1",
     "commitizen": "^4.3.0",

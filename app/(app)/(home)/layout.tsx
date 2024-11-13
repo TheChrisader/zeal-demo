@@ -4,6 +4,7 @@ import { validateRequest } from "@/lib/auth/auth";
 import { connectToDatabase } from "@/lib/database";
 // import OneTap from "../_components/OneTap";
 import dynamic from "next/dynamic";
+import PreferencesPopup from "./_components/PreferencesPopup";
 
 const OneTap = dynamic(() => import("../_components/OneTap"), { ssr: false });
 
@@ -20,6 +21,7 @@ const HomeLayout = async ({ children }: { children?: ReactNode }) => {
         {children}
       </div>
       {!user && <OneTap />}
+      <PreferencesPopup />
     </div>
   );
 };

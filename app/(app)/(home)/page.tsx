@@ -12,6 +12,7 @@ import { connectToDatabase } from "@/lib/database";
 import { IPreferences } from "@/types/preferences.type";
 import ArticlesContainer from "./_components/ArticlesContainer";
 import Headlines from "./_components/Headlines";
+import HomepageScroll from "./_components/HomepageScroll";
 import Trending from "./_components/Trending";
 
 function createTimedRandomGenerator(timeout: number) {
@@ -36,13 +37,23 @@ function createTimedRandomGenerator(timeout: number) {
   };
 }
 
-const cachedShuffler = createTimedRandomGenerator(1000 * 60 * 10);
+const getCachedShuffler = async () => {
+  return await unstable_cache(
+    async () => {
+      return createTimedRandomGenerator(1000 * 60 * 10)();
+    },
+    [],
+    {
+      revalidate: 1000 * 60 * 10,
+    },
+  )();
+};
 
-function shuffleArray(array?: string[]) {
+async function shuffleArray(array?: string[]) {
   if (!array) return [];
 
   for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(cachedShuffler() * (i + 1));
+    const j = Math.floor((await getCachedShuffler()) * (i + 1));
     [array[i], array[j]] = [array[j]!, array[i]!];
   }
   return array;
@@ -106,6 +117,19 @@ const PostBlock = async ({
   );
 };
 
+const loadMoreAction = async (selection: string[]) => {
+  "use server";
+  const { user } = await validateRequest();
+
+  return selection.map((category) => {
+    return (
+      <Suspense key={category}>
+        <PostBlock category={category} user={user} />
+      </Suspense>
+    );
+  });
+};
+
 const HeadlinesBlock = async ({ user }: { user: User | null }) => {
   const HeadlinesPosts = await unstable_cache(
     async () => {
@@ -121,7 +145,7 @@ const HeadlinesBlock = async ({ user }: { user: User | null }) => {
             },
           },
         },
-        { $sort: { published_at: -1 } },
+        { $sort: { created_at: -1 } },
         { $sample: { size: 13 } },
       ]);
     },
@@ -260,15 +284,22 @@ export default async function Home({
         <HeadlinesBlock user={user} />
       </Suspense>
       <Separator />
-      <div className="flex flex-wrap gap-3 max-[900px]:flex-col">
-        {shuffleArray(preferences?.category_updates)?.map((category) => {
-          return (
-            <Suspense key={category}>
-              <PostBlock category={category} user={user} />
-            </Suspense>
-          );
-        })}
-      </div>
+      <HomepageScroll
+        currentSelection={preferences!.category_updates!}
+        loadMoreAction={loadMoreAction}
+      >
+        {/* <div className="flex flex-wrap gap-3 max-[900px]:flex-col"> */}
+        {(await shuffleArray(preferences?.category_updates))?.map(
+          (category) => {
+            return (
+              <Suspense key={category}>
+                <PostBlock category={category} user={user} />
+              </Suspense>
+            );
+          },
+        )}
+        {/* </div> */}
+      </HomepageScroll>
     </main>
   );
 }

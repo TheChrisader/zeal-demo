@@ -4,36 +4,39 @@ import Link from "next/link";
 
 const ShareArray = ({ title }: { title: string }) => {
   return (
-    <div className="flex items-center gap-2 p-2">
-      <Link
-        href={`https://twitter.com/intent/tweet?text=Check This Out: ${title}&url=${window.location.href}&via=zealnews`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="rounded-lg bg-[#c8c8c8]"
-      >
-        <TwitterIcon />
-      </Link>
-      <Link
-        href={`https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <FacebookIcon />
-      </Link>
-      <Link
-        href={`https://wa.me/?text=${window.location.href}`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <WhatsappIcon />
-      </Link>
-      <Link
-        href={`https://www.linkedin.com/sharing/share-offsite/?url=${window.location.href}`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <LinkedInIcon />
-      </Link>
+    <div>
+      <span className="text-sm font-semibold">Share this article:</span>
+      <div className="flex items-center gap-2 p-2">
+        <Link
+          href={`https://twitter.com/intent/tweet?text=Check This Out: ${title}&url=${window.location.href}&via=zealnews`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-lg bg-[#c8c8c8]"
+        >
+          <TwitterIcon />
+        </Link>
+        <Link
+          href={`https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <FacebookIcon />
+        </Link>
+        <Link
+          href={`https://wa.me/?text=${window.location.href}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <WhatsappIcon />
+        </Link>
+        <Link
+          href={`https://www.linkedin.com/sharing/share-offsite/?url=${window.location.href}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <LinkedInIcon />
+        </Link>
+      </div>
     </div>
   );
 };

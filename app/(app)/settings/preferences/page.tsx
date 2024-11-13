@@ -25,9 +25,9 @@ const setPreferences = (categories: string[]) => {
   return preferences;
 };
 
-const PreferencesContext = React.createContext<(categoryName: string) => void>(
-  () => {},
-);
+export const PreferencesContext = React.createContext<
+  (categoryName: string) => void
+>(() => {});
 
 export const usePreferencesContext = () => {
   const context = React.useContext(PreferencesContext);

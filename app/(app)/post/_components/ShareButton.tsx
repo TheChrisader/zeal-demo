@@ -1,5 +1,5 @@
 "use client";
-import { Share } from "lucide-react";
+import { Share2 } from "lucide-react";
 // import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
@@ -18,7 +18,7 @@ const ShareButton = ({ id }: { id: string }) => {
         await navigator.share({ url: generateLink(id) });
       }}
     >
-      <Share className="text-[#696969]" />
+      <Share2 className="text-[#696969]" />
     </Button>
   );
 };

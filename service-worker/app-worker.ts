@@ -14,12 +14,34 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope;
 
+self.skipWaiting();
+
+self.addEventListener("push", (event) => {
+  const options = {
+    body: "New notification",
+    icon: "/favicon.ico",
+    data: {
+      url: self.registration.scope,
+    },
+  };
+
+  event.waitUntil(
+    self.registration.showNotification("New notification", options),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(self.clients.openWindow(event.notification.data.url));
+});
+
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching: defaultCache,
+  disableDevLogs: true,
   fallbacks: {
     entries: [
       {

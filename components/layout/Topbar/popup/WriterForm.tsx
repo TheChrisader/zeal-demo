@@ -70,7 +70,17 @@ const WriterForm = ({ children }: { children: React.ReactNode }) => {
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="username" className="text-right">
-              Blog:
+              Instagram:
+            </Label>
+            <Input
+              id="username"
+              defaultValue={`@${user?.username}`}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="username" className="text-right">
+              LinkedIn:
             </Label>
             <Input
               id="username"
@@ -115,6 +125,12 @@ const WriterForm = ({ children }: { children: React.ReactNode }) => {
             <Checkbox id="major-publisher" className="col-span-3" />
           </div>
           <div className="flex items-center justify-between gap-4 px-7">
+            <Label htmlFor="freelance" className="text-right">
+              Are you a freelance writer/content creator?
+            </Label>
+            <Checkbox id="freelance" className="col-span-3" />
+          </div>
+          <div className="flex items-center justify-between gap-4 px-7">
             <Label htmlFor="content-audio-video" className="text-right">
               Will you be uploading audio content, video, or both?
             </Label>
@@ -122,7 +138,7 @@ const WriterForm = ({ children }: { children: React.ReactNode }) => {
           </div>
           <div className="flex items-center justify-between gap-4 px-7">
             <Label htmlFor="terms-and-conditions" className="text-right">
-              Do you agree with the Terms and conditions?
+              Do you agree with our Terms and conditions?
             </Label>
             <Checkbox id="terms-and-conditions" className="col-span-3" />
           </div>

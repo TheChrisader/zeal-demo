@@ -17,10 +17,47 @@ import { validateRequest } from "@/lib/auth/auth";
 import { checkLike } from "@/database/like/like.repository";
 import { checkDislike } from "@/database/dislike/dislike.repository";
 import dynamic from "next/dynamic";
+import { url } from "inspector";
 
 const ShareArray = dynamic(() => import("../../_components/ShareArray"), {
   ssr: false,
 });
+
+// determine if a site allows being rendered as an iframe
+const canEmbedInIframe = async (url: string) => {
+  if (!url.includes("http")) {
+    url = "https://" + url;
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: "HEAD",
+      mode: "no-cors",
+    });
+    const xFrameOptions = response.headers
+      .get("X-Frame-Options")
+      ?.toLowerCase();
+    const contentSecurityPolicy = response.headers
+      .get("Content-Security-Policy")
+      ?.toLowerCase();
+
+    if (
+      xFrameOptions?.includes("sameorigin") ||
+      xFrameOptions?.includes("deny")
+    ) {
+      return false;
+    }
+
+    if (contentSecurityPolicy?.includes("frame-ancestors")) {
+      return !contentSecurityPolicy.includes("none");
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error fetching headers: ", error);
+    return false;
+  }
+};
 
 export default async function PostPage({
   params,
@@ -60,6 +97,9 @@ export default async function PostPage({
 
   post.content = cleanContent(post.content);
 
+  const canIframe = await canEmbedInIframe(post.source.url!);
+  console.log(canIframe);
+
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-6 px-[100px] py-4 max-[900px]:px-7 max-[500px]:px-4">
       <div className="flex flex-col gap-1">
@@ -80,9 +120,15 @@ export default async function PostPage({
           </div>
           <div className="flex items-center gap-3">
             <ShareButton id={article_id} />
-            <Link href={`/post/out/${article_id}`}>
-              <SquareArrowOutUpRight className="text-[#696969]" />
-            </Link>
+            {canIframe ? (
+              <Link href={`/post/out/${article_id}`}>
+                <SquareArrowOutUpRight className="text-[#696969]" />
+              </Link>
+            ) : (
+              <a href={post.link!} target="_blank" rel="noopener noreferrer">
+                <SquareArrowOutUpRight className="text-[#696969]" />
+              </a>
+            )}
             <DownloadPost
               article={{
                 _id: article_id,

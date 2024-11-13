@@ -6,8 +6,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
+import useAuth from "@/context/auth/useAuth";
+import { useNotifications } from "@/hooks/useNotifications";
 
 const NotificationsDropdown = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
+  // const { notifications, isConnected } = useNotifications(user!.id.toString());
+  // console.log(notifications);
   return (
     <Popover>
       <PopoverTrigger asChild>

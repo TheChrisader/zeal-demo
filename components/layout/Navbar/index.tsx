@@ -279,7 +279,7 @@ const Navbar = () => {
   const { events } = useDraggable(ref);
 
   return (
-    <div>
+    <div className="sticky top-[62px] z-50 bg-white">
       <div
         className={`flex items-center justify-between gap-5 px-[100px] max-[900px]:px-7 max-[600px]:gap-2 max-[500px]:flex-col`}
       >
