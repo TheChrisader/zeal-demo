@@ -19,13 +19,14 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import { NavigationMenuContent } from "@radix-ui/react-navigation-menu";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { waitUntil } from "@/utils/waitUntil";
 import dynamic from "next/dynamic";
+import useScrollDetection from "@/hooks/useScrolldetection";
 
 const FiltersDropdown = dynamic(() => import("./menu/Filters"), { ssr: false });
 
@@ -258,8 +259,11 @@ const Navbar = () => {
   const [showFilters, setShowFilters] = useState(false);
   const router = useRouter();
   const [isMatch, setIsMatch] = useState(false);
+  const [hideSearch, setHideSearch] = useState(false);
 
   const matches = useMediaQuery("( max-width: 500px )");
+
+  const { hasScrolled, scrollPosition } = useScrollDetection(20);
 
   useEffect(() => {
     setShowFilters(!!params.get("query"));
@@ -274,14 +278,20 @@ const Navbar = () => {
     setSelected(current);
   }, [pathname]);
 
+  useEffect(() => {
+    setHideSearch(hasScrolled);
+  }, [hasScrolled]);
+
   const ref =
     useRef<HTMLUListElement>() as React.MutableRefObject<HTMLUListElement>;
   const { events } = useDraggable(ref);
 
+  const MotionSearch = motion(Search);
+
   return (
-    <div className="sticky top-[62px] z-50 bg-white">
+    <div className="sticky top-[59px] z-50 bg-white">
       <div
-        className={`flex items-center justify-between gap-5 px-[100px] max-[900px]:px-7 max-[600px]:gap-2 max-[500px]:flex-col`}
+        className={`relative flex items-center justify-between gap-5 px-[100px] max-[900px]:px-7 max-[600px]:gap-2 max-[500px]:flex-col`}
       >
         <NavigationMenu className="mt-3 flex [&>div]:flex">
           <NavigationMenuList
@@ -412,17 +422,42 @@ const Navbar = () => {
             <Separator orientation="vertical" />
           </div>
         )}
-        <div className="flex items-center gap-3">
-          <SearchInput
-            placeholder="Search for any news"
-            className="max-[500px]:mb-2"
-          />
-          {showFilters && (
-            <FiltersDropdown>
-              <FilterIcon />
-            </FiltersDropdown>
-          )}
-        </div>
+        {hideSearch && isMatch ? (
+          <motion.div
+            layoutId="search"
+            className="absolute bottom-[-15px] z-50 flex w-[240px] justify-center"
+            transition={{
+              layout: { duration: 0.1 },
+            }}
+          >
+            <motion.button
+              className="flex rounded-full bg-white p-1 shadow-basic"
+              onClick={() => {
+                setHideSearch(false);
+              }}
+            >
+              <MotionSearch className="text-[#696969]" layout />
+            </motion.button>
+          </motion.div>
+        ) : (
+          <motion.div
+            layoutId="search"
+            className="flex items-center gap-3"
+            transition={{
+              layout: { duration: 0.5 },
+            }}
+          >
+            <SearchInput
+              placeholder="Search for any news"
+              className="max-[500px]:mb-2"
+            />
+            {showFilters && (
+              <FiltersDropdown>
+                <FilterIcon />
+              </FiltersDropdown>
+            )}
+          </motion.div>
+        )}
       </div>
       <Separator />
     </div>
