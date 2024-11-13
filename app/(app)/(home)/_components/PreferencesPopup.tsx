@@ -57,8 +57,8 @@ const PreferencesPopup = () => {
   useEffect(() => {
     if (user) {
       // Random timeout between 30 seconds and 2 minutes
-      // const timeout = Math.random() * (120000 - 30000) + 30000;
-      const timeout = 2000;
+      const timeout = Math.random() * (120000 - 30000) + 30000;
+      // const timeout = 2000;
 
       const timer = setTimeout(() => {
         // Check if user hasn't seen the drawer today
