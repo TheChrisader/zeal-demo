@@ -52,7 +52,7 @@ const BookmarkButton = ({
       });
 
       // await revalidatePathAction("/bookmarks");
-      await revalidateTagAction(`bookmarks-${user?.id.toString()}`);
+      // await revalidateTagAction(`bookmarks-${user?.id.toString()}`);
 
       if (pathName === "/bookmarks") {
         return;
