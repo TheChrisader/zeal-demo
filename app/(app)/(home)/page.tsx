@@ -131,6 +131,8 @@ const loadMoreAction = async (selection: string[]) => {
 };
 
 const HeadlinesBlock = async ({ user }: { user: User | null }) => {
+  const daysAgo = new Date();
+  daysAgo.setDate(daysAgo.getDate() - 1);
   const HeadlinesPosts = await unstable_cache(
     async () => {
       return await PostModel.aggregate([
@@ -142,6 +144,9 @@ const HeadlinesBlock = async ({ user }: { user: User | null }) => {
             },
             country: {
               $in: ["Nigeria"],
+            },
+            created_at: {
+              $gte: daysAgo,
             },
           },
         },
