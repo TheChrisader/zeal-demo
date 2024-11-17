@@ -9,12 +9,15 @@ import { updateUserAvatar } from "@/services/auth.services";
 import revalidatePathAction from "@/app/actions/revalidatePath";
 import { Loader2 } from "lucide-react";
 import LogoutAlert from "@/components/layout/Topbar/popup/Logout";
+import FollowingList from "./menu/FollowingList";
+import { Separator } from "@/components/ui/separator";
+import FollowerList from "./menu/FollowerList";
 
 const ProfileSettings = () => {
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const { user } = useAuth();
+  const { user, canWrite } = useAuth();
 
   const handleUpdateFile: ChangeEventHandler<HTMLInputElement> = (event) => {
     const { files } = event.target;
@@ -50,7 +53,7 @@ const ProfileSettings = () => {
                 className="size-full"
                 src={
                   (fileToUpload && URL.createObjectURL(fileToUpload)) ||
-                  user?.avatar!
+                  user!.avatar!
                 }
                 alt="user avatar"
               />
@@ -83,6 +86,29 @@ const ProfileSettings = () => {
         {/* <Button variant="outline" className="absolute right-0 rounded-full"> */}
         <UpdateProfile>Edit</UpdateProfile>
         {/* </Button> */}
+      </div>
+      <div className="flex gap-5">
+        <div className="flex flex-col items-center gap-1">
+          <h3 className="text-sm font-normal text-[#696969]">Following</h3>
+          <FollowingList>
+            <button className="text-sm font-normal text-[#2F2D32]">{0}</button>
+          </FollowingList>
+        </div>
+        {canWrite && (
+          <>
+            <div className="h-10">
+              <Separator orientation="vertical" />
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <h3 className="text-sm font-normal text-[#696969]">Followers</h3>
+              <FollowerList>
+                <button className="text-sm font-normal text-[#2F2D32]">
+                  {0}
+                </button>
+              </FollowerList>
+            </div>
+          </>
+        )}
       </div>
       <div className="flex items-center gap-12 max-[500px]:flex-col max-[500px]:items-start max-[500px]:self-start">
         <div>

@@ -17,6 +17,12 @@ const NextConfig = async (phase) => {
     },
     // cacheHandler: require.resolve('./cache-handler.js'),
     // cacheMaxMemorySize: 0,
+    i18n: {
+      locales: ["en", "fr"],
+      defaultLocale: "en",
+      localeDetection: false,
+      // localePath: "locales",
+    },
     webpack: (config, { isServer }) => {
       if (!isServer) {
         config.plugins.push(

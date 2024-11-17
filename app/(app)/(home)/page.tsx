@@ -132,7 +132,7 @@ const loadMoreAction = async (selection: string[]) => {
 
 const HeadlinesBlock = async ({ user }: { user: User | null }) => {
   const daysAgo = new Date();
-  daysAgo.setDate(daysAgo.getDate() - 1);
+  daysAgo.setDate(daysAgo.getDate() - 2);
   const HeadlinesPosts = await unstable_cache(
     async () => {
       return await PostModel.aggregate([

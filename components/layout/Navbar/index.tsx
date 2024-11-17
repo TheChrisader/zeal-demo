@@ -289,7 +289,7 @@ const Navbar = () => {
   const MotionSearch = motion(Search);
 
   return (
-    <div className="sticky top-[59px] z-50 bg-white">
+    <div className="sticky top-[60.5px] z-50 bg-white max-[750px]:top-[59px] max-[400px]:top-[55px]">
       <div
         className={`relative flex items-center justify-between gap-5 px-[100px] max-[900px]:px-7 max-[600px]:gap-2 max-[500px]:flex-col`}
       >

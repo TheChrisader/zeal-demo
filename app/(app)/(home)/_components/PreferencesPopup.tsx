@@ -34,22 +34,6 @@ const setPreferences = (categories: string[]) => {
   return preferences;
 };
 
-// const PreferencesContext = React.createContext<(categoryName: string) => void>(
-//   () => {},
-// );
-
-// export const usePreferencesContext = () => {
-//   const context = React.useContext(PreferencesContext);
-
-//   if (context === undefined) {
-//     throw new Error(
-//       "usePreferencesContext must be used within a PreferencesContextProvider",
-//     );
-//   }
-
-//   return context;
-// };
-
 const PreferencesPopup = () => {
   const [showDrawer, setShowDrawer] = useState(false);
   const { user } = useAuth();

@@ -1,8 +1,8 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Categories from "@/categories";
 import { flattenCategories } from "@/utils/category.utils";
-import { useEffect, useRef, useState } from "react";
 
 type LoadMoreAction = (selection: string[]) => Promise<JSX.Element[]>;
 

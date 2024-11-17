@@ -1,14 +1,19 @@
+import dynamic from "next/dynamic";
 import { ReactNode } from "react";
 // import Navbar from "@/components/layout/Navbar";
 import { validateRequest } from "@/lib/auth/auth";
 import { connectToDatabase } from "@/lib/database";
 // import OneTap from "../_components/OneTap";
-import dynamic from "next/dynamic";
-import PreferencesPopup from "./_components/PreferencesPopup";
+// import PreferencesPopup from "./_components/PreferencesPopup";
 
 const OneTap = dynamic(() => import("../_components/OneTap"), { ssr: false });
 
 const Navbar = dynamic(() => import("@/components/layout/Navbar"));
+
+const PreferencesPopup = dynamic(
+  () => import("./_components/PreferencesPopup"),
+  { ssr: false },
+);
 
 const HomeLayout = async ({ children }: { children?: ReactNode }) => {
   await connectToDatabase();
@@ -21,7 +26,7 @@ const HomeLayout = async ({ children }: { children?: ReactNode }) => {
         {children}
       </div>
       {!user && <OneTap />}
-      <PreferencesPopup />
+      {user && <PreferencesPopup />}
     </div>
   );
 };

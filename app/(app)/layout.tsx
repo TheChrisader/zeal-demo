@@ -22,7 +22,7 @@ const AppLayout = async ({ children }: { children: ReactNode }) => {
 
   const { user } = cleanObject(await validateRequest());
   const canWrite = user
-    ? user.role === "admin" || user.role === "author"
+    ? user.role === "admin" || user.role === "writer"
     : false;
   const canAdmin = user ? user.role === "admin" : false;
 

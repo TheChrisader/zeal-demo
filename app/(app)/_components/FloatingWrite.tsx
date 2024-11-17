@@ -2,12 +2,18 @@
 
 import { PenIcon } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import WriterForm from "@/components/layout/Topbar/popup/WriterForm";
 import { Button } from "@/components/ui/button";
 import useAuth from "@/context/auth/useAuth";
 
 const FloatingWrite = () => {
   const { canWrite } = useAuth();
+  const pathname = usePathname();
+
+  if (pathname.includes("/write")) {
+    return null;
+  }
 
   if (canWrite) {
     return (
