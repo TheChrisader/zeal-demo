@@ -7,34 +7,6 @@ env:
   REGISTRY: ghcr.io
   AUTHOR: thechrisader
   REPO: zeal-demo
-  NODE_ENV: production
-  NEXT_PUBLIC_APP_NAME: ${{ secrets.NEXT_PUBLIC_APP_NAME }}
-  APP_URL: ${{ secrets.APP_URL }}
-  NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
-  DB_USER: ${{ secrets.DB_USER }}
-  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-  DB_NAME: ${{ secrets.DB_NAME }}
-  DB_CLUSTER: ${{ secrets.DB_CLUSTER }}
-  DB_PORT: ${{ secrets.DB_PORT }}
-  WORLDNEWS_API_KEY: ${{ secrets.WORLDNEWS_API_KEY }}
-  WEBZ_API_KEY: ${{ secrets.WEBZ_API_KEY }}
-  EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
-  EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
-  EMAIL_USER: ${{ secrets.EMAIL_USER }}
-  EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
-  EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
-  GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-  GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
-  NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
-  BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
-  BUCKET_ACCESS_KEY_ID: ${{ secrets.BUCKET_ACCESS_KEY_ID }}
-  BUCKET_SECRET_ACCESS_KEY: ${{ secrets.BUCKET_SECRET_ACCESS_KEY }}
-  BUCKET_REGION: ${{ secrets.BUCKET_REGION }}
-  BUCKET_POLICY_VERSION: ${{ secrets.BUCKET_POLICY_VERSION }}
-  CLOUDFRONT_BASE_URL: ${{ secrets.CLOUDFRONT_BASE_URL }}
-  VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
-  VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
 
 jobs:
   build:
@@ -55,6 +27,38 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create .env File
+        run: |
+          echo "NODE_ENV=production" >> .env
+          echo "NEXT_PUBLIC_APP_NAME=${{ secrets.NEXT_PUBLIC_APP_NAME }}" >> .env
+          echo "APP_URL=${{ secrets.APP_URL }}" >> .env
+          echo "NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_CLUSTER=${{ secrets.DB_CLUSTER }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "WORLDNEWS_API_KEY=${{ secrets.WORLDNEWS_API_KEY }}" >> .env
+          echo "WEBZ_API_KEY=${{ secrets.WEBZ_API_KEY }}" >> .env
+          echo "EMAIL_HOST=${{ secrets.EMAIL_HOST }}" >> .env
+          echo "EMAIL_PORT=${{ secrets.EMAIL_PORT }}" >> .env
+          echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" >> .env
+          echo "EMAIL_PASS=${{ secrets.EMAIL_PASS }}" >> .env
+          echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> .env
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+          echo "GOOGLE_CALLBACK_URL=${{ secrets.GOOGLE_CALLBACK_URL }}" >> .env
+          echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}" >> .env
+          echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> .env
+          echo "BUCKET_ACCESS_KEY_ID=${{ secrets.BUCKET_ACCESS_KEY_ID }}" >> .env
+          echo "BUCKET_SECRET_ACCESS_KEY=${{ secrets.BUCKET_SECRET_ACCESS_KEY }}" >> .env
+          echo "BUCKET_REGION=${{ secrets.BUCKET_REGION }}" >> .env
+          echo "BUCKET_POLICY_VERSION=${{ secrets.BUCKET_POLICY_VERSION }}" >> .env
+          echo "CLOUDFRONT_BASE_URL=${{ secrets.CLOUDFRONT_BASE_URL }}" >> .env
+          echo "VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }}" >> .env
+          echo "VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }}" >> .env
+        shell: bash
 
       - name: Build and push Docker image
         uses: ./.github/actions/nixpacks-build-push
