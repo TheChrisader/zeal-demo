@@ -1,4 +1,4 @@
-import { CountryIconList } from "@/app/(auth)/onboarding/_utils/svgs";
+import { CountryIconList } from "@/app/[locale]/(auth)/onboarding/_utils/svgs";
 import NamedCheckbox from "@/components/forms/Input/NamedCheckbox";
 import SearchInput from "@/components/forms/Input/SearchInput";
 import { Button } from "@/components/ui/button";

@@ -1,0 +1,69 @@
+name: Build & Deploy Docker Image to Coolify
+on:
+  push:
+    branches:
+      - main
+env:
+  REGISTRY: ghcr.io
+  AUTHOR: thechrisader
+  REPO: zeal-demo
+  NODE_ENV: production
+  NEXT_PUBLIC_APP_NAME: ${{ secrets.NEXT_PUBLIC_APP_NAME }}
+  APP_URL: ${{ secrets.APP_URL }}
+  NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  DB_NAME: ${{ secrets.DB_NAME }}
+  DB_CLUSTER: ${{ secrets.DB_CLUSTER }}
+  DB_PORT: ${{ secrets.DB_PORT }}
+  WORLDNEWS_API_KEY: ${{ secrets.WORLDNEWS_API_KEY }}
+  WEBZ_API_KEY: ${{ secrets.WEBZ_API_KEY }}
+  EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+  EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+  EMAIL_USER: ${{ secrets.EMAIL_USER }}
+  EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+  EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+  GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+  GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
+  NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+  BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
+  BUCKET_ACCESS_KEY_ID: ${{ secrets.BUCKET_ACCESS_KEY_ID }}
+  BUCKET_SECRET_ACCESS_KEY: ${{ secrets.BUCKET_SECRET_ACCESS_KEY }}
+  BUCKET_REGION: ${{ secrets.BUCKET_REGION }}
+  BUCKET_POLICY_VERSION: ${{ secrets.BUCKET_POLICY_VERSION }}
+  CLOUDFRONT_BASE_URL: ${{ secrets.CLOUDFRONT_BASE_URL }}
+  VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+  VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: ./.github/actions/nixpacks-build-push
+        with:
+          platforms: linux/amd64
+          push: true
+          image_name: ${{ env.REGISTRY }}/${{ env.AUTHOR }}/${{ env.REPO }}
+
+      # - name: Deploy to Coolify
+      #   run: |
+      #     curl --request GET '${{ secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
+      #   shell: bash

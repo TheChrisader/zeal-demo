@@ -1,6 +1,7 @@
 "use client";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useRouter } from "next-nprogress-bar";
+import { useSearchParams } from "next/navigation";
+import { usePathname } from "@/i18n/routing";
+import { useRouter } from "@/app/_components/useRouter";
 import SearchIcon from "@/assets/svgs/utils/SearchIcon";
 import { Input } from "@/components/ui/input";
 

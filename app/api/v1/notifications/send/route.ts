@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ConnectionManager } from "@/lib/connection-manager";
+import connectionManager from "@/lib/connection-manager";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const connectionManager = ConnectionManager.getInstance();
     await connectionManager.sendNotification(userId, {
       ...notification,
       timestamp: Date.now(),

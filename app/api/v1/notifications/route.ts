@@ -1,5 +1,5 @@
 import { validateRequest } from "@/lib/auth/auth";
-import { ConnectionManager } from "@/lib/connection-manager";
+import connectionManager, { ConnectionManager } from "@/lib/connection-manager";
 
 export async function GET() {
   try {
@@ -46,8 +46,10 @@ export async function GET() {
 
     //
 
-    const connectionManager = ConnectionManager.getInstance();
+    // const connectionManager = ConnectionManager.getInstance();
+    console.log("22222222222222222");
     await connectionManager.addConnection(user.id.toString(), writer);
+    console.log("22222222222222222");
 
     const response = new Response(stream.readable, {
       headers: {

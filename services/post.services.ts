@@ -1,4 +1,3 @@
-import PostModel from "@/database/post/post.model";
 import { fetcher } from "@/lib/fetcher";
 
 import { IPost } from "@/types/post.type";

@@ -1,5 +1,5 @@
 import { validateRequest } from "@/lib/auth/auth";
-import { ConnectionManager } from "@/lib/connection-manager";
+import connectionManager, { ConnectionManager } from "@/lib/connection-manager";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     }
 
     const subscription = await request.json();
-    const connectionManager = ConnectionManager.getInstance();
+    // const connectionManager = ConnectionManager.getInstance();
     await connectionManager.addPushSubscription(
       user.id.toString(),
       subscription,

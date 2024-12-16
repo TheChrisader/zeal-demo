@@ -39,11 +39,11 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import useModal from "../hooks/useModal";
 import Button from "../ui/Button";
 import { docFromHash, docToHash } from "../utils/docSerialization";
-import useActionHandler from "@/app/(app)/write/_context/action-handler/useActionHandler";
+import useActionHandler from "@/app/[locale]/(app)/write/_context/action-handler/useActionHandler";
 
 import { flushSync } from "react-dom";
 import { getDraftData } from "@/services/draft.services";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/routing";
 
 // async function sendEditorState(editor: LexicalEditor): Promise<void> {
 //   const stringifiedEditorState = JSON.stringify(editor.getEditorState());

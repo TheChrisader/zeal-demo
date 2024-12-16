@@ -1,13 +1,10 @@
 import { CircleCheckBig } from "lucide-react";
-import {
-  ReadonlyURLSearchParams,
-  usePathname,
-  useSearchParams,
-} from "next/navigation";
-import { useRouter } from "next-nprogress-bar";
+import { ReadonlyURLSearchParams, useSearchParams } from "next/navigation";
+import { usePathname } from "@/i18n/routing";
+import { useRouter } from "@/app/_components/useRouter";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { SOURCES } from "@/app/(auth)/onboarding/_components/SourcesForm";
+import { SOURCES } from "@/app/[locale]/(auth)/onboarding/_components/SourcesForm";
 import SearchInput from "@/components/forms/Input/SearchInput";
 import {
   Accordion,

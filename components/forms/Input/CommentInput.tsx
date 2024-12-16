@@ -27,7 +27,7 @@ export default function CommentInput({ articleId }: { articleId: string }) {
           parent_id: null,
         };
 
-        await fetch("/api/v1/comments", {
+        const response = await fetch("/api/v1/comments", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -71,7 +71,7 @@ export default function CommentInput({ articleId }: { articleId: string }) {
         onClick={handleComment}
       >
         {isLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="size-4 animate-spin" />
         ) : (
           <SendIcon
             className={`${value.trim() ? "[&>path]:fill-primary" : ""}`}

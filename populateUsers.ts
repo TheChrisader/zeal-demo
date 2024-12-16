@@ -21,7 +21,7 @@ const generateUsers = (count: number) => {
       is_disabled: false,
       last_login_at: new Date(),
       has_password: true,
-      is_creator: false,
+      upgrade_pending: false,
       location: "New York",
       ip_address: "127.0.0.1",
       bio: `This is user ${i + 1}`,

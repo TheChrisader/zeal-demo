@@ -1,8 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useRouter } from "next-nprogress-bar";
+import { useSearchParams } from "next/navigation";
+import { usePathname } from "@/i18n/routing";
+import { useRouter } from "@/app/_components/useRouter";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import FilterIcon from "@/assets/svgs/utils/FilterIcon";
 import SearchInput from "@/components/forms/Input/SearchInput";
@@ -22,7 +23,7 @@ import {
 import { ChevronDown, Search } from "lucide-react";
 import { NavigationMenuContent } from "@radix-ui/react-navigation-menu";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { waitUntil } from "@/utils/waitUntil";
 import dynamic from "next/dynamic";

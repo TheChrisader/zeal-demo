@@ -1,4 +1,4 @@
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/routing";
 import { IntlProvider as NextIntlProvider } from "next-intl";
 
 export default function IntlProvider({

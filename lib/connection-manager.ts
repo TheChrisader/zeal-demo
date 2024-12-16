@@ -8,35 +8,51 @@ interface Connection {
   pushSubscription: PushSubscription | null;
 }
 
+interface NotificationPayload {
+  type: string;
+  message: string;
+  data?: Record<string, unknown>;
+}
+
 export class ConnectionManager {
   private static instance: ConnectionManager;
   private connections: Map<string, Connection>;
   private events: EventEmitter;
-  private readonly HEARTBEAT_INTERVAL = 30000;
-  private readonly CONNECTION_TIMEOUT = 60000;
+  private readonly HEARTBEAT_INTERVAL = 60000;
+  private readonly CONNECTION_TIMEOUT = 90000;
+  private heartbeatInterval: NodeJS.Timeout | null;
 
   constructor() {
     this.connections = new Map();
     this.events = new EventEmitter();
+    this.heartbeatInterval = null;
+    this.startHeartbeat();
     // setInterval(() => this.checkHeartbeats(), this.HEARTBEAT_INTERVAL);
+  }
+
+  private startHeartbeat(): void {
+    if (!this.heartbeatInterval) {
+      this.heartbeatInterval = setInterval(
+        () => this.checkHeartbeats(),
+        this.HEARTBEAT_INTERVAL,
+      );
+    }
   }
 
   static getInstance() {
     if (!ConnectionManager.instance) {
-      console.log("hehe boii");
       ConnectionManager.instance = new ConnectionManager();
     }
-    console.log("no hehe boii");
     return ConnectionManager.instance;
   }
 
   async addConnection(userId: string, writer: WritableStreamDefaultWriter) {
+    const subscription = this.connections.get(userId)?.pushSubscription || null;
     this.connections.set(userId, {
       writer,
       lastPing: Date.now(),
-      pushSubscription: null,
+      pushSubscription: subscription,
     });
-    console.log(this.connections.size);
     console.log(`Connection added for user ${userId}`);
   }
 
@@ -49,11 +65,19 @@ export class ConnectionManager {
   }
 
   async removeConnection(userId: string) {
-    const connection = this.connections.get(userId);
-    if (connection && !connection.writer.closed) {
-      await connection.writer.close();
+    try {
+      const connection = this.connections.get(userId);
+      if (connection) {
+        if (!connection.writer.closed) {
+          await connection.writer.close();
+        }
+        this.connections.delete(userId);
+        // this.events.emit('connection:removed', userId);
+        console.log(`Connection removed for user ${userId}`);
+      }
+    } catch (error) {
+      console.error(`Error removing connection for user ${userId}:`, error);
       this.connections.delete(userId);
-      console.log(`Connection removed for user ${userId}`);
     }
   }
 
@@ -65,11 +89,11 @@ export class ConnectionManager {
         await this.removeConnection(userId);
       }
     }
+    console.log("Heartbeat checked.");
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async sendNotification(userId: string, notification: any) {
-    console.log(this.connections.size);
     const connection = this.connections.get(userId);
     if (connection) {
       const encoder = new TextEncoder();
@@ -88,7 +112,33 @@ export class ConnectionManager {
       } catch (error) {
         console.error(`Error sending notification to user ${userId}: `, error);
         await this.removeConnection(userId);
+        throw error;
       }
     }
   }
+
+  public updatePing(userId: string): void {
+    const connection = this.connections.get(userId);
+    if (connection) {
+      connection.lastPing = Date.now();
+      console.log(`Ping received from user ${userId}`);
+    } else {
+      console.warn(
+        `Ping received for non-existent connection (user: ${userId})`,
+      );
+    }
+  }
 }
+
+declare global {
+  // eslint-disable-next-line no-var
+  var connectionManager: ConnectionManager | undefined;
+}
+
+const connectionManager =
+  global.connectionManager || ConnectionManager.getInstance();
+
+if (process.env.NODE_ENV !== "production")
+  global.connectionManager = connectionManager;
+
+export default connectionManager;

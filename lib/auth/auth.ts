@@ -22,6 +22,7 @@ export const lucia = new Lucia(adapter, {
       avatar: attributes.avatar,
       country: attributes.location,
       has_email_verified: attributes.has_email_verified,
+      bio: attributes.bio,
     };
   },
 });
@@ -31,6 +32,7 @@ export const validateRequest = cache(
     { user: User; session: Session } | { user: null; session: null }
   > => {
     const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
+    // console.log(cookies());
 
     if (!sessionId) {
       return {

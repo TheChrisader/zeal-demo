@@ -38,7 +38,7 @@ export type CreateUserDTO = z.infer<typeof CreateUserSchema> & {
   is_disabled: boolean;
   last_login_at: Date;
   has_password: boolean;
-  is_creator: boolean;
+  upgrade_pending: boolean;
   location: string;
   ip_address: string;
   avatar?: string;

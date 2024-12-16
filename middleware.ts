@@ -1,7 +1,9 @@
 // import { authMiddleware } from "./middlewares/auth.middleware";
-// import { stackMiddlewares } from "./middlewares/stack-middlewares";
+import { corsMiddleware } from "./middlewares/cors.middleware";
+import { intlMiddleware } from "./middlewares/intl.middleware";
+import { jwtMiddleware } from "./middlewares/jwt.middleware";
+import { stackMiddlewares } from "./middlewares/stack-middlewares";
 
-// const middlewares = [authMiddleware];
+const middlewares = [corsMiddleware, jwtMiddleware, intlMiddleware];
 
-// export default stackMiddlewares(middlewares);
-export default () => {};
+export default stackMiddlewares(middlewares);

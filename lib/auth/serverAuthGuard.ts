@@ -1,4 +1,4 @@
-import { redirect as nextRedirect } from "next/navigation";
+import { redirect as nextRedirect } from "@/i18n/routing";
 import { UserRole } from "@/types/user.type";
 import { buildError } from "@/utils/error";
 import { FORBIDDEN_ERROR, UNAUTHORIZED_ERROR } from "@/utils/error/error-codes";
@@ -19,7 +19,10 @@ export const serverAuthGuard = async (options?: ProtectionOptions) => {
 
   if (!user || !session) {
     if (redirect) {
-      return nextRedirect(typeof redirect === "boolean" ? "/" : redirect);
+      return nextRedirect({
+        href: typeof redirect === "boolean" ? "/" : redirect,
+        locale: "en",
+      });
     }
     throw buildError({
       code: UNAUTHORIZED_ERROR,
@@ -28,9 +31,14 @@ export const serverAuthGuard = async (options?: ProtectionOptions) => {
     });
   }
 
+  // console.log(rolesWhiteList?.includes(user.role!), user, user.role);
+
   if (rolesWhiteList.length > 0 && !rolesWhiteList?.includes(user.role!)) {
     if (redirect) {
-      return nextRedirect(typeof redirect === "boolean" ? "/" : redirect);
+      return nextRedirect({
+        href: typeof redirect === "boolean" ? "/" : redirect,
+        locale: "en",
+      });
     }
 
     throw buildError({

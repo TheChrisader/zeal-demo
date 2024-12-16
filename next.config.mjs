@@ -3,12 +3,15 @@ import {
   PHASE_DEVELOPMENT_SERVER,
   PHASE_PRODUCTION_BUILD,
 } from "next/constants.js";
+import createNextIntlPlugin from "next-intl/plugin";
 import path from "path";
+
+const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 /** @type {(phase: string, defaultConfig: import("next").NextConfig) => Promise<import("next").NextConfig>} */
 const NextConfig = async (phase) => {
   /** @type {import("next").NextConfig} */
-  const nextConfig = {
+  let nextConfig = {
     typescript: {
       ignoreBuildErrors: true,
     },
@@ -17,12 +20,6 @@ const NextConfig = async (phase) => {
     },
     // cacheHandler: require.resolve('./cache-handler.js'),
     // cacheMaxMemorySize: 0,
-    i18n: {
-      locales: ["en", "fr"],
-      defaultLocale: "en",
-      localeDetection: false,
-      // localePath: "locales",
-    },
     webpack: (config, { isServer }) => {
       if (!isServer) {
         config.plugins.push(
@@ -48,36 +45,10 @@ const NextConfig = async (phase) => {
       reloadOnOnline: true,
       cacheOnNavigation: true,
     });
-    return withSerwist(nextConfig);
+    return withNextIntl(withSerwist(nextConfig));
   }
 
-  return nextConfig;
-};
-
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.plugins.push(
-        new CopyPlugin({
-          patterns: [
-            {
-              from: path.join(process.cwd(), "data/GeoLite2-Country.mmdb"),
-              to: path.join(process.cwd(), "data/GeoLite2-Country.mmdb"),
-            },
-          ],
-        }),
-      );
-    }
-
-    return config;
-  },
+  return withNextIntl(nextConfig);
 };
 
 export default NextConfig;

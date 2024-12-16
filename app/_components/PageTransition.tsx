@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, Transition, Variants } from "framer-motion";
 import { LayoutRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/routing";
 import { useContext, useEffect, useMemo, useRef } from "react";
 
 const FrozenRouter = ({

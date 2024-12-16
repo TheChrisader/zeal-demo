@@ -1,6 +1,6 @@
 import { Id } from "@/lib/database";
 
-export const UserRoles = ["admin", "user", "writer", "writer:pending"] as const;
+export const UserRoles = ["admin", "user", "writer"] as const;
 export type UserRole = (typeof UserRoles)[number];
 
 export const AuthProviders = ["email", "google"] as const;
@@ -24,7 +24,7 @@ export interface IUser {
   is_disabled: boolean;
   last_login_at: Date;
   has_password: boolean;
-  is_creator: boolean;
+  upgrade_pending: boolean;
   location: string;
   ip_address: string;
   bio: string | null;

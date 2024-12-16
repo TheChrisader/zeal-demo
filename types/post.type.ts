@@ -1,6 +1,5 @@
 import { Id } from "@/lib/database";
 import { IReaction } from "./reaction.type";
-import { TCategory } from "./utils/category.type";
 // import { ICountries } from "./utils/country.type";
 import { Language } from "./utils/language.type";
 import { IPostSource } from "./utils/postsource.type";
@@ -16,7 +15,6 @@ export interface IPost {
   content: string;
   description: string;
   ttr: number;
-  // thumbnail: string;
   link: string | null;
   image_url: string | null;
   video_url: string | null;
@@ -28,7 +26,9 @@ export interface IPost {
   published: boolean;
   reactions: IReaction;
   external: boolean;
+  top_feature?: string;
+  status?: "active" | "removed" | "flagged";
   published_at: Date | string;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
 }

@@ -71,7 +71,7 @@ const UserSchema = new Schema<IUserWithPassword>(
       type: Boolean,
       default: false,
     },
-    is_creator: {
+    upgrade_pending: {
       type: Boolean,
       default: false,
     },

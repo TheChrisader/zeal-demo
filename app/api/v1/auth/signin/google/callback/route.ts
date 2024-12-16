@@ -12,7 +12,7 @@ import { connectToDatabase, newId } from "@/lib/database";
 import { buildError, sendError } from "@/utils/error";
 import { INTERNAL_ERROR } from "@/utils/error/error-codes";
 import { getMMDB } from "@/lib/mmdb";
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/routing";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);

@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPost } from "@/database/post/post.repository";
 import { serverAuthGuard } from "@/lib/auth/serverAuthGuard";
+import { uploadImageToS3 } from "@/lib/bucket";
 import { connectToDatabase } from "@/lib/database";
+import { IPost } from "@/types/post.type";
 import { buildError, sendError } from "@/utils/error";
 import {
   FILE_TOO_LARGE_ERROR,
   INTERNAL_ERROR,
   WRONG_FILE_FORMAT_ERROR,
 } from "@/utils/error/error-codes";
-import { IPost } from "@/types/post.type";
 import {
   AUTHORIZED_IMAGE_MIME_TYPES,
   AUTHORIZED_IMAGE_SIZE,
 } from "@/utils/file.utils";
-import { uploadImageToS3 } from "@/lib/bucket";
 import { calculateReadingTime } from "@/utils/post.utils";
 
 // TODO: Delete Draft if it exists
@@ -82,18 +82,23 @@ export const POST = async (request: NextRequest) => {
       title: formData.get("title") as string,
       content: formData.get("content") as string,
       category: [formData.get("category") as string],
-      country: [user.country as string],
-      external: false,
-      language: "English",
+      country: formData.get("country")
+        ? [formData.get("country") as string]
+        : [user.country as string],
+      external: formData.get("external") ? true : false,
+      language: (formData.get("language") as "English" | "French") || "English",
       published: true,
       published_at: new Date().toISOString(),
-      link: `httyd://${generateRandomString(10)}`,
-      author_id: user.id,
+      link:
+        (formData.get("link") as string) ||
+        `httyd://${generateRandomString(10)}`,
+      author_id: (formData.get("author") as string) || user.id,
       source: {
-        name: user.display_name,
-        icon: user.avatar || undefined,
-        url: "",
-        id: user.username,
+        name: (formData.get("source_name") as string) || user.display_name,
+        icon:
+          (formData.get("source_icon") as string) || user.avatar || undefined,
+        url: (formData.get("source_url") as string) || "",
+        id: (formData.get("source_id") as string) || user.username,
       },
       image_url,
       ttr: calculateReadingTime(formData.get("content") as string),

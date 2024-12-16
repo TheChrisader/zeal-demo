@@ -371,9 +371,9 @@ const handlePosts = async (
     }
   }
 
-  if (!next && data.next) {
-    await handlePosts(category, data.next, count - 1);
-  }
+  // if (!next && data.next) {
+  //   await handlePosts(category, data.next, count - 1);
+  // }
 };
 
 export const fetchWebz = async (next?: string, count = 2) => {

@@ -58,22 +58,45 @@ export const connectToDatabase = async () => {
       return cached.conn;
     }
 
-    if (!cached.promise) {
-      const opts = {
-        bufferCommands: false,
-        maxPoolSize: 10,
-      };
+    // if (!cached.promise) {
+    const opts = {
+      bufferCommands: true,
+    };
 
-      cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+    cached.promise = mongoose
+      .connect(MONGODB_URI, opts)
+      .then((mongoose) => {
         console.info("Connected to MongoDB successfully.");
+        cached.conn = mongoose;
         return mongoose;
+      })
+      .catch((error) => {
+        if (
+          error.name === "MongoNetworkError" ||
+          error.name === "MongoServerSelectionError"
+        ) {
+          console.error(
+            "MongoDB connection error. Please make sure MongoDB is running!!!!!!!!!!!!!!",
+          );
+        }
+        cached.promise = null;
+        throw error;
       });
-    }
+    // }
 
-    cached.conn = await cached.promise;
-    return cached.conn;
+    // cached.conn = await cached.promise;
+    // return cached.conn;
+    return await cached.promise;
   } catch (error) {
     console.error("MONGODB CONNECTION ERROR >>>>>>>>>", error);
+    cached.promise = null;
+    cached.conn = null;
     throw error;
   }
 };
+
+// setInterval(() => {
+//   console.log(
+//     `Active connections: ${mongoose.connections.base.connections.length}`,
+//   );
+// }, 5000);

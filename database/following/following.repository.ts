@@ -1,3 +1,4 @@
+import { ClientSession } from "mongoose";
 import { Id } from "@/lib/database";
 
 import { IFollowing } from "@/types/following.type";
@@ -6,11 +7,23 @@ import FollowingModel from "./following.model";
 
 // create following
 export const createFollowing = async (
-  followingToCreate: IFollowing,
+  userId: string | Id,
+  followingId: string | Id,
+  session: ClientSession,
 ): Promise<IFollowing> => {
   try {
-    const createdFollowingDoc = await FollowingModel.create(followingToCreate);
-    const createdFollowing: IFollowing = createdFollowingDoc.toObject();
+    const createdFollowingDoc = await FollowingModel.create(
+      [
+        {
+          user_id: userId,
+          following_id: followingId,
+        },
+      ],
+      {
+        session,
+      },
+    );
+    const createdFollowing: IFollowing = createdFollowingDoc[0]!.toObject();
     return createdFollowing;
   } catch (error) {
     throw error;
@@ -47,13 +60,33 @@ export const getFollowersByUserId = async (
 export const deleteFollowing = async (
   userId: string | Id,
   followingId: string | Id,
+  session: ClientSession,
 ): Promise<IFollowing | null> => {
   try {
-    const deletedFollowingDoc = await FollowingModel.findOneAndDelete({
+    const deletedFollowingDoc = await FollowingModel.findOneAndDelete(
+      {
+        user_id: userId,
+        following_id: followingId,
+      },
+      { session },
+    );
+    return deletedFollowingDoc?.toObject() || null;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// check if a user is following another user
+export const checkFollowing = async (
+  userId: string | Id,
+  followingId: string | Id,
+): Promise<boolean> => {
+  try {
+    const following = await FollowingModel.findOne({
       user_id: userId,
       following_id: followingId,
     });
-    return deletedFollowingDoc?.toObject() || null;
+    return !!following;
   } catch (error) {
     throw error;
   }

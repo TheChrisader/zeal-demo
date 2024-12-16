@@ -41,9 +41,6 @@ export const POST = async (request: NextRequest) => {
       ip_address = "127.0.0.1";
       location = "Nigeria";
     } else {
-      // const mmdbLocation = await fs.readFile("/mmdb/GeoLite2-Country.mmdb");
-
-      // const mmdb = new MMDB.Reader<MMDB.CountryResponse>(mmdbLocation);
       const mmdb = await getMMDB();
       const result = mmdb.get(ip_address);
 

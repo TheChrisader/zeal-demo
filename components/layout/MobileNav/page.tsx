@@ -1,8 +1,8 @@
 "use client";
 
 import { Bookmark, Download, Newspaper, Settings } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link } from "@/i18n/routing";
+import { usePathname } from "@/i18n/routing";
 
 const MobileNav = () => {
   const pathname = usePathname();

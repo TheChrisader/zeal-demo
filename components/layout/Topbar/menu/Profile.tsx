@@ -1,5 +1,5 @@
 import { User } from "lucia";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import DarkModeIcon from "@/assets/svgs/utils/DarkModeIcon";
 import LogOutIcon from "@/assets/svgs/utils/LogOutIcon";
 import PenIcon from "@/assets/svgs/utils/PenIcon";

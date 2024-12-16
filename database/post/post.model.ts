@@ -52,26 +52,25 @@ const PostSchema = new Schema<IPost>(
     ttr: {
       type: Number,
     },
-    source:
-      {
-        id: {
-          type: String || null,
-        },
-        name: {
-          type: String || null,
-        },
-        url: {
-          type: String || null,
-        },
-        icon: {
-          type: String || null,
-        },
-        priority: {
-          type: Number || null,
-        },
-      } || null,
+    source: {
+      id: {
+        type: String || null,
+      },
+      name: {
+        type: String || null,
+      },
+      url: {
+        type: String || null,
+      },
+      icon: {
+        type: String || null,
+      },
+      priority: {
+        type: Number || null,
+      },
+    },
     keywords: {
-      type: [String] || null,
+      type: [String],
       default: [],
       index: true,
     },
@@ -81,10 +80,12 @@ const PostSchema = new Schema<IPost>(
     },
     country: {
       type: [String],
+      default: ["Nigeria"],
       index: true,
     },
     category: {
-      type: [String] || null,
+      type: [String],
+      required: true,
       index: true,
     },
     published: {
@@ -105,9 +106,18 @@ const PostSchema = new Schema<IPost>(
       type: Boolean,
       default: false,
     },
+    top_feature: {
+      type: String,
+      default: null,
+    },
+    status: {
+      type: String,
+      enum: ["active", "removed", "flagged"],
+      default: "active",
+    },
     published_at: {
-      type: Date,
-      required: true,
+      type: Date || String,
+      default: Date.now,
     },
   },
   {

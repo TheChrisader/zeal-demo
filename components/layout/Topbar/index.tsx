@@ -3,8 +3,8 @@
 import { motion } from "framer-motion";
 import { User } from "lucia";
 import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link } from "@/i18n/routing";
+import { usePathname } from "@/i18n/routing";
 import ZealLogo from "@/assets/images/zeal_news_logo.png";
 import ZealLogoDark from "@/assets/images/zeal_news_logo_dark.png";
 import NigeriaIcon from "@/assets/svgs/Countries/NigeriaIcon";
@@ -139,7 +139,7 @@ const Write = () => {
 const Topbar = () => {
   const pathname = usePathname();
   const { user } = useAuth();
-  const [logo, setLogo] = useState(ZealLogo);
+  const [logo, setLogo] = useState("/zeal_news_logo.png");
   const [showActions, setShowActions] = useState(false);
 
   const { theme } = useTheme();
@@ -153,9 +153,9 @@ const Topbar = () => {
 
   useEffect(() => {
     if (theme === "dark" || (theme === "system" && colorScheme)) {
-      setLogo(ZealLogoDark);
+      setLogo("/zeal_news_logo_dark.png");
     } else {
-      setLogo(ZealLogo);
+      setLogo("/zeal_news_logo.png");
     }
   }, [theme, colorScheme]);
 
@@ -164,7 +164,7 @@ const Topbar = () => {
       <header className="sticky top-0 z-20 flex h-fit items-center justify-between bg-white px-[100px] py-3 shadow-md max-[900px]:px-7">
         <div className="flex gap-[100px]">
           <Link href="/">
-            <Image
+            {/* <Image
               // src={theme === "dark" ? ZealLogoDark : ZealLogo}
               src={logo}
               alt="logo"
@@ -172,6 +172,11 @@ const Topbar = () => {
               priority
               unoptimized
               className="h-[20.4px] w-[117px] object-cover"
+            /> */}
+            <img
+              src={logo}
+              className="h-[20.4px] w-[117px] object-cover"
+              alt="logo"
             />
           </Link>
           {user && showActions && (

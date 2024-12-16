@@ -201,7 +201,7 @@ export const fetchWorldNewsHeadlines = async () => {
           `Only ${err.result.insertedCount} posts under Headlines saved`,
         );
       } else {
-        console.log(err);
+        console.log(err.message);
       }
     }
   } catch (error) {
