@@ -10,7 +10,7 @@ import {
   RouterNProgressOptions,
 } from "next-nprogress-bar";
 
-type Router = ReturnType<typeof progressUseRouter>;
+export type Router = ReturnType<typeof progressUseRouter>;
 
 export const useRouter = (): Router => {
   const router = progressUseRouter();

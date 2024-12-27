@@ -21,6 +21,7 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useNotificationContext } from "@/context/notifications/NotificationsProvider";
 
 interface UserActionProps {
   user: User | null;
@@ -58,6 +59,7 @@ export const UserAvatar = ({ user }: { user: User }) => {
 const UserAction = ({ user }: UserActionProps) => {
   const matches = useMediaQuery("(max-width: 750px)");
   const [isMatch, setIsMatch] = useState(false);
+  const { unread } = useNotificationContext();
 
   useEffect(() => {
     setIsMatch(matches);
@@ -84,6 +86,11 @@ const UserAction = ({ user }: UserActionProps) => {
         <>
           <NotificationsDropdown>
             <BellIcon />
+            {unread > 0 && (
+              <span className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-normal leading-none text-[#ffffff]">
+                {unread}
+              </span>
+            )}
           </NotificationsDropdown>
 
           <ProfileDropdown user={user}>

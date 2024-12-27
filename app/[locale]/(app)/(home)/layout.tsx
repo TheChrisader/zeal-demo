@@ -26,7 +26,7 @@ const HomeLayout = async ({ children }: { children?: ReactNode }) => {
         {children}
       </div>
       {!user && <OneTap />}
-      {user && <PreferencesPopup />}
+      {/* {user && <PreferencesPopup />} */}
     </div>
   );
 };

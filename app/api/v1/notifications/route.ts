@@ -1,7 +1,10 @@
+import { NextRequest, NextResponse } from "next/server";
+import NotificationModel from "@/database/notification/notification.model";
 import { validateRequest } from "@/lib/auth/auth";
-import connectionManager, { ConnectionManager } from "@/lib/connection-manager";
+import { Id } from "@/lib/database";
+import UserModel from "@/database/user/user.model";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const { user } = await validateRequest();
 
@@ -12,73 +15,47 @@ export async function GET() {
       });
     }
 
-    const stream = new TransformStream();
-    const writer = stream.writable.getWriter();
-    const encoder = new TextEncoder();
+    const searchParams = request.nextUrl.searchParams;
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "20");
+    const type = searchParams.get("type");
+    const isRead = searchParams.get("isRead");
 
-    const initialMessage = {
-      type: "connection",
-      message: "Connected successfully",
+    const query = {
+      recipient: user.id as Id,
+      ...(type && { type }),
+      ...(isRead !== null && { "status.isRead": isRead === "true" }),
+      "status.isArchived": false,
     };
 
-    (async () => {
-      await writer.write(
-        encoder.encode(`data: ${JSON.stringify(initialMessage)}\n\n`),
-      );
-    })();
+    const [notifications, total] = await Promise.all([
+      NotificationModel.find(query)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .populate<{ actors: { name: string; avatar: string }[] }>(
+          "actors",
+          "name avatar",
+          UserModel,
+        )
+        .lean(),
+      NotificationModel.countDocuments(query),
+    ]);
 
-    // if (!process.env.NODE_ENV?.startsWith("dev")) {
-    //   const clients = new Map();
-    //   clients.set(user.id, writer);
-
-    //   const cleanup = () => {
-    //     clients.delete(user.id);
-    //     writer.close();
-    //   };
-
-    //   const response = new Response(stream.readable, {
-    //     headers: {
-    //       "Content-Type": "text/event-stream",
-    //       "Cache-Control": "no-cache, no-transform",
-    //       Connection: "keep-alive",
-    //     },
-    //   });
-
-    //
-
-    // const connectionManager = ConnectionManager.getInstance();
-    console.log("22222222222222222");
-    await connectionManager.addConnection(user.id.toString(), writer);
-    console.log("22222222222222222");
-
-    const response = new Response(stream.readable, {
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
+    return NextResponse.json({
+      notifications,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
       },
     });
-
-    //
-
-    // response.socket?.on("close", async () => {
-    //   await connectionManager.removeConnection(user.id.toString());
-    // });
-
-    return response;
-    // }
-
-    // return new Response(stream.readable, {
-    //   headers: {
-    //     "Content-Type": "text/event-stream",
-    //     "Cache-Control": "no-cache, no-transform",
-    //     Connection: "keep-alive",
-    //   },
-    // });
   } catch (error) {
-    return new Response(null, {
-      status: 500,
-      statusText: "Internal Server Error",
-    });
+    console.error("Notifications GET error:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }

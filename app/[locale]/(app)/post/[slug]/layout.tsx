@@ -4,9 +4,9 @@ import PostModel from "@/database/post/post.model";
 import { connectToDatabase } from "@/lib/database";
 import { IPost } from "@/types/post.type";
 import PostPage from "./page";
-import InfinitePostScroll from "../../_components/InfinitePostScroll";
-import ReadMoreWrapper from "../../_components/ReadMoreWrapper";
-import RecommendedArticles from "../../_components/RecommendedArticles";
+import InfinitePostScroll from "../_components/InfinitePostScroll";
+import ReadMoreWrapper from "../_components/ReadMoreWrapper";
+import RecommendedArticles from "../_components/RecommendedArticles";
 // import DeferInstallPromptEvent from "@/app/[locale]/(app)/_components/DeferInstallPromptEvent";
 
 const DeferInstallPromptEvent = dynamic(

@@ -8,16 +8,16 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import useAuth from "@/context/auth/useAuth";
-import { useNotifications } from "@/hooks/useNotifications";
+import { useNotificationContext } from "@/context/notifications/NotificationsProvider";
+// import { useNotifications } from "@/hooks/useNotifications";
 import { useEffect } from "react";
 
 const NotificationsDropdown = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
-  const { notifications, isConnected } = useNotifications(user!.id.toString());
+  const { notifications, isConnected } = useNotificationContext();
   console.log(notifications);
 
   useEffect(() => {
-    console.log("check");
     if (!isConnected) return;
     const heartbeatInterval = setInterval(async () => {
       await fetch("/api/v1/heartbeat", { method: "POST" });
@@ -31,7 +31,7 @@ const NotificationsDropdown = ({ children }: { children: React.ReactNode }) => {
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
-          className="flex h-auto items-center gap-2 rounded-full p-2"
+          className="relative flex h-auto items-center gap-2 rounded-full p-2"
         >
           {children}
         </Button>

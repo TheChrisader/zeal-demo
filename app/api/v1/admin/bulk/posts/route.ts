@@ -2,6 +2,7 @@ import { revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import PostModel from "@/database/post/post.model";
 import { connectToDatabase, Id, newId } from "@/lib/database";
+import ReactionModel from "@/database/reaction/reaction.model";
 
 // Types for query parameters
 interface QueryParams {
@@ -180,6 +181,8 @@ export async function DELETE(req: NextRequest) {
 
     // Delete posts`
     const deletedPosts = await PostModel.deleteMany({ _id: { $in: ids } });
+
+    await ReactionModel.deleteMany({ post_id: { $in: ids } });
 
     // revalidateTag(``)
     categories.forEach((c) => revalidateTag(c));

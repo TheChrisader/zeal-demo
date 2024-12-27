@@ -10,6 +10,12 @@ const PostSchema = new Schema<IPost>(
       required: true,
       index: true,
     },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
     author_id: {
       type: String || Schema.Types.ObjectId,
       ref: "User",
@@ -126,6 +132,7 @@ const PostSchema = new Schema<IPost>(
       updatedAt: "updated_at",
     },
     id: false,
+    autoIndex: true,
   },
 );
 

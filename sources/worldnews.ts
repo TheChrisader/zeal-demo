@@ -3,6 +3,7 @@ import { createPosts } from "@/database/post/post.repository";
 import { fetchAndParseURL } from "@/lib/parser";
 import { IPost } from "@/types/post.type";
 import { calculateReadingTime, cleanContent } from "@/utils/post.utils";
+import { SlugGenerator } from "@/lib/slug";
 
 type WorldNewsApiResponse = {
   top_news: {
@@ -132,77 +133,127 @@ const getCurrentDateString = () => {
   return `${year}-${month}-${day}`;
 };
 
+const COUNTRIES = [
+  "ng",
+  "gh",
+  "ke",
+  "za",
+  "ug",
+  // "zm",
+  // "na",
+  // "et",
+  // "sl",
+  "gb",
+  "us",
+  "jp",
+  "cn",
+  "in",
+];
+
+const getRelevantCategories = (countryCode: string) => {
+  if (countryCode === "us") {
+    return ["Top US News"];
+  } else if (countryCode === "gb") {
+    return ["UK Top News"];
+  } else if (
+    countryCode === "jp" ||
+    countryCode === "cn" ||
+    countryCode === "in"
+  ) {
+    return ["Asian News"];
+  } else {
+    return [];
+  }
+};
+
+const ensureDelay = async () => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+};
+
+const slugGenerator = new SlugGenerator();
+
 export const fetchWorldNewsHeadlines = async () => {
   try {
-    const fetchedPosts: Partial<IPost>[] = [];
-    const data = await fetchWithRetries(
-      `https://api.worldnewsapi.com/top-news?source-country=ng&language=en&date=${getCurrentDateString()}`,
-    );
-    const topNews = data.top_news;
-    for (const section of topNews) {
-      const articles = section.news;
-      const sectionHash = hash(
-        articles.reduce(
-          (acc: string, curr: { url: string }) => acc + curr.url,
-          "",
-        ),
-      );
-      for (const article of articles) {
-        console.log(article.url);
-        let parsedArticle;
+    for (const countryCode of COUNTRIES) {
+      const fetchedPosts: Partial<IPost>[] = [];
+      let data;
 
-        try {
-          parsedArticle = await fetchAndParseURL(article.url);
-        } catch {
-          continue;
-        }
-
-        if (!parsedArticle.content) {
-          continue;
-        }
-
-        const post: Partial<IPost> = {
-          title: article.title,
-          author_id: parsedArticle.byline || extractDomain(article.url),
-          link: article.url,
-          headline: true,
-          cluster_id: sectionHash,
-          content: parsedArticle.content,
-          description: parsedArticle.excerpt,
-          published_at: article.publish_date || new Date().toISOString(),
-          image_url: article.image,
-          video_url: article.video,
-          source: {
-            id: extractDomain(article.url),
-            name: parsedArticle.siteName || extractDomain(article.url),
-            url: `https://${extractHostname(article.url)}`,
-            icon: `https://www.google.com/s2/favicons?domain=${extractHostname(article.url)}&sz=64`,
-          },
-          language: "English",
-          country: [lookup.byIso(data.country)!.country],
-          ttr: calculateReadingTime(cleanContent(parsedArticle.content)),
-          category: ["Headlines"],
-          published: true,
-          external: true,
-        };
-
-        fetchedPosts.push(post);
-      }
-    }
-
-    try {
-      await createPosts(fetchedPosts);
-    } catch (err) {
-      // @ts-expect-error TODO
-      if (err instanceof Error && err.code === 11000) {
-        console.log(err.message, "!!!!!!!!!!!!!!11");
-        console.log(
-          // @ts-expect-error TODO
-          `Only ${err.result.insertedCount} posts under Headlines saved`,
+      try {
+        data = await fetchWithRetries(
+          `https://api.worldnewsapi.com/top-news?source-country=${countryCode}&language=en&date=${getCurrentDateString()}`,
         );
-      } else {
-        console.log(err.message);
+      } catch {
+        continue;
       }
+      const topNews = data.top_news;
+      for (const section of topNews) {
+        const articles = section.news;
+        const sectionHash = hash(
+          articles.reduce(
+            (acc: string, curr: { url: string }) => acc + curr.url,
+            "",
+          ),
+        );
+        for (const article of articles) {
+          console.log(article.url);
+          let parsedArticle;
+
+          try {
+            parsedArticle = await fetchAndParseURL(article.url);
+          } catch {
+            continue;
+          }
+
+          if (!parsedArticle.content) {
+            continue;
+          }
+
+          const post: Partial<IPost> = {
+            title: article.title,
+            slug: slugGenerator.generate(article.title),
+            author_id: parsedArticle.byline || extractDomain(article.url),
+            link: article.url,
+            headline: true,
+            cluster_id: sectionHash,
+            content: parsedArticle.content,
+            description: parsedArticle.excerpt,
+            published_at: article.publish_date || new Date().toISOString(),
+            image_url: article.image,
+            video_url: article.video,
+            source: {
+              id: extractDomain(article.url),
+              name: parsedArticle.siteName || extractDomain(article.url),
+              url: `https://${extractHostname(article.url)}`,
+              icon: `https://www.google.com/s2/favicons?domain=${extractHostname(article.url)}&sz=64`,
+            },
+            language: "English",
+            country: [lookup.byIso(data.country)!.country],
+            ttr: calculateReadingTime(cleanContent(parsedArticle.content)),
+            category: ["Headlines", ...getRelevantCategories(countryCode)],
+            published: true,
+            external: true,
+          };
+
+          fetchedPosts.push(post);
+        }
+      }
+
+      try {
+        await createPosts(fetchedPosts);
+      } catch (err) {
+        // @ts-expect-error TODO
+        if (err instanceof Error && err.code === 11000) {
+          console.log(err.message, "!!!!!!!!!!!!!!11");
+          console.log(
+            // @ts-expect-error TODO
+            `Only ${err.result.insertedCount} posts under Headlines saved`,
+          );
+        } else {
+          console.log(err.message);
+        }
+      }
+
+      await ensureDelay();
     }
   } catch (error) {
     if (error instanceof TypeError) {

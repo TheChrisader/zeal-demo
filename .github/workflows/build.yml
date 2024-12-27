@@ -31,35 +31,35 @@ jobs:
 
       - name: Create .env File
         run: |
-          touch .env.local
-          echo "NODE_ENV=production" >> .env.local
-          echo "NEXT_PUBLIC_APP_NAME=${{ secrets.NEXT_PUBLIC_APP_NAME }}" >> .env.local
-          echo "APP_URL=${{ secrets.APP_URL }}" >> .env.local
-          echo "NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}" >> .env.local
-          echo "DB_USER=${{ secrets.DB_USER }}" >> .env.local
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env.local
-          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env.local
-          echo "DB_CLUSTER=${{ secrets.DB_CLUSTER }}" >> .env.local
-          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env.local
-          echo "WORLDNEWS_API_KEY=${{ secrets.WORLDNEWS_API_KEY }}" >> .env.local
-          echo "WEBZ_API_KEY=${{ secrets.WEBZ_API_KEY }}" >> .env.local
-          echo "EMAIL_HOST=${{ secrets.EMAIL_HOST }}" >> .env.local
-          echo "EMAIL_PORT=${{ secrets.EMAIL_PORT }}" >> .env.local
-          echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" >> .env.local
-          echo "EMAIL_PASS=${{ secrets.EMAIL_PASS }}" >> .env.local
-          echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> .env.local
-          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env.local
-          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env.local
-          echo "GOOGLE_CALLBACK_URL=${{ secrets.GOOGLE_CALLBACK_URL }}" >> .env.local
-          echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}" >> .env.local
-          echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> .env.local
-          echo "BUCKET_ACCESS_KEY_ID=${{ secrets.BUCKET_ACCESS_KEY_ID }}" >> .env.local
-          echo "BUCKET_SECRET_ACCESS_KEY=${{ secrets.BUCKET_SECRET_ACCESS_KEY }}" >> .env.local
-          echo "BUCKET_REGION=${{ secrets.BUCKET_REGION }}" >> .env.local
-          echo "BUCKET_POLICY_VERSION=${{ secrets.BUCKET_POLICY_VERSION }}" >> .env.local
-          echo "CLOUDFRONT_BASE_URL=${{ secrets.CLOUDFRONT_BASE_URL }}" >> .env.local
-          echo "VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }}" >> .env.local
-          echo "VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }}" >> .env.local
+          touch .env
+          echo "NODE_ENV=production" >> .env
+          echo "NEXT_PUBLIC_APP_NAME=${{ secrets.NEXT_PUBLIC_APP_NAME }}" >> .env
+          echo "APP_URL=${{ secrets.APP_URL }}" >> .env
+          echo "NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_CLUSTER=${{ secrets.DB_CLUSTER }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "WORLDNEWS_API_KEY=${{ secrets.WORLDNEWS_API_KEY }}" >> .env
+          echo "WEBZ_API_KEY=${{ secrets.WEBZ_API_KEY }}" >> .env
+          echo "EMAIL_HOST=${{ secrets.EMAIL_HOST }}" >> .env
+          echo "EMAIL_PORT=${{ secrets.EMAIL_PORT }}" >> .env
+          echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" >> .env
+          echo "EMAIL_PASS=${{ secrets.EMAIL_PASS }}" >> .env
+          echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> .env
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+          echo "GOOGLE_CALLBACK_URL=${{ secrets.GOOGLE_CALLBACK_URL }}" >> .env
+          echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}" >> .env
+          echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> .env
+          echo "BUCKET_ACCESS_KEY_ID=${{ secrets.BUCKET_ACCESS_KEY_ID }}" >> .env
+          echo "BUCKET_SECRET_ACCESS_KEY=${{ secrets.BUCKET_SECRET_ACCESS_KEY }}" >> .env
+          echo "BUCKET_REGION=${{ secrets.BUCKET_REGION }}" >> .env
+          echo "BUCKET_POLICY_VERSION=${{ secrets.BUCKET_POLICY_VERSION }}" >> .env
+          echo "CLOUDFRONT_BASE_URL=${{ secrets.CLOUDFRONT_BASE_URL }}" >> .env
+          echo "VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }}" >> .env
+          echo "VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }}" >> .env
         shell: bash
 
       - name: Build and push Docker image

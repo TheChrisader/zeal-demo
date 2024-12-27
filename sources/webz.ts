@@ -4,6 +4,7 @@ import { fetchAndParseURL } from "@/lib/parser";
 import { IPost } from "@/types/post.type";
 import { calculateReadingTime, cleanContent } from "@/utils/post.utils";
 import { MongoBulkWriteError } from "mongodb";
+import { SlugGenerator } from "@/lib/slug";
 
 type Thread = {
   uuid: string;
@@ -110,52 +111,89 @@ const categories: Record<string, { filter: string }>[] = [
   },
   {
     Politics: {
-      filter: "thread.country:ng category:politics",
+      filter: "category:politics",
     },
   },
   {
     Weather: {
-      filter: "thread.country:ng category:weather",
+      filter: "category:weather",
     },
   },
-  { "Top US News": { filter: "thread.country:us" } },
-  { "UK Top News": { filter: "site_category:top_news_gb" } },
+  // { "Top US News": { filter: "thread.country:us" } },
+  // { "UK Top News": { filter: "site_category:top_news_gb" } },
+  // {
+  //   "EU News": {
+  //     filter:
+  //       "(thread.country:DE OR thread.country:FR OR thread.country:IT OR thread.country:ES) language:english",
+  //   },
+  // },
+  // {
+  //   "Asian News": {
+  //     filter:
+  //       "(thread.country:CN OR thread.country:IN OR thread.country:JP OR thread.country:ID) language:english",
+  //   },
+  // },
   {
-    "EU News": {
+    "Celebrity News": {
       filter:
-        "(thread.country:DE OR thread.country:FR OR thread.country:IT OR thread.country:ES) language:english",
+        "celebrity language:english category:(Arts, Culture and Entertainment)",
     },
   },
   {
-    "Asian News": {
+    "Top Movies": {
       filter:
-        "(thread.country:CN OR thread.country:IN OR thread.country:JP OR thread.country:ID) language:english",
+        "movies site_category:movies language:english category:(Arts, Culture and Entertainment)",
     },
   },
-  { "Celebrity News": { filter: "site_category:celebrity_fan_gossip" } },
-  { "Top Movies": { filter: "site_category:movies" } },
-  { "Trending Music": { filter: "site_category:music language:english" } },
-  { Economy: { filter: "category:(economy, business and finance)" } },
+  {
+    "Trending Music": {
+      filter:
+        "music language:english category:(Arts, Culture and Entertainment)",
+    },
+  },
+  {
+    Economy: {
+      filter: "category:(economy, business and finance) language:english",
+    },
+  },
   {
     "Personal Finance": {
-      filter: "(site_category:financial_news OR site_category=investing)",
+      filter:
+        "personal finance (site_category:financial_news OR site_category=investing) language:english",
     },
   },
-  { "Market Watch": { filter: "site_category:enterprise_news" } },
-  { "Startup News": { filter: "site_category:investing" } },
-  { "E-Commerce": { filter: "site_category:shopping" } },
+  {
+    "Market Watch": {
+      filter:
+        "market watch category:(economy, business and finance) language:english",
+    },
+  },
+  {
+    "Startup News": {
+      filter: "startups site_category:investing language:english",
+    },
+  },
+  {
+    "E-Commerce": {
+      filter:
+        "e-commerce language:english category:(economy, business and finance)",
+    },
+  },
   { "Latest Tech News": { filter: "category:(science and technology)" } },
   {
     "Artificial Intelligence": {
-      filter:
-        "title:(AI OR Artificial Intelligence OR Machine Learning OR ChatGPT)",
+      filter: "ai language:english  category:(science and technology)",
     },
   },
-  { Crypto: { filter: "title:(crypto OR bitcoin OR blockchain)" } },
+  {
+    Crypto: {
+      filter: "crypto  category:(science and technology) language:english",
+    },
+  },
   {
     Fintech: {
       filter:
-        "(category:(Economy, Business and Finance) AND category:(Science and Technology)) thread.country:ng",
+        "(category:(Economy, Business and Finance) AND category:(Science and Technology)) thread.country:ng language:english",
     },
   },
   {
@@ -164,17 +202,26 @@ const categories: Record<string, { filter: string }>[] = [
         "(site_category:vehicles OR site_category:auto_repair) language:english",
     },
   },
-  { "Gadgets Buying Guide": { filter: "(site_category:computer_reviews)" } },
-  { "Health News": { filter: "category:health" } },
   {
-    "Food & Nutrition": {
-      filter: "(site_category:food AND category:(Lifestyle and Leisure))",
+    "Gadgets Buying Guide": {
+      filter: "gadget review category:(science and technology)",
     },
   },
-  { "Travel & Tourism": { filter: "(site_category:travel)" } },
+  { "Health News": { filter: "self care category:Health " } },
+  {
+    "Food & Nutrition": {
+      filter: "food (site_category:food AND category:(Lifestyle and Leisure))",
+    },
+  },
+  {
+    "Travel & Tourism": {
+      filter: "Travel (site_category:travel) language:english",
+    },
+  },
   {
     "Style & Beauty": {
-      filter: "(site_category:style_and_fashion)",
+      filter:
+        "fashion category:(lifestyle and leisure) (site_category:style_and_fashion)",
     },
   },
   {
@@ -186,13 +233,19 @@ const categories: Record<string, { filter: string }>[] = [
   { "Top Sports News": { filter: "category:sport" } },
   {
     "UK Premiership": {
-      filter: "category:sport site_category:football thread.country:gb",
+      filter:
+        "category:sport site_category:football thread.country:gb language:english",
     },
   },
-  { Basketball: { filter: "site_category:pro_basketball" } },
+  {
+    Basketball: {
+      filter: "basketball site_category:pro_basketball language:english",
+    },
+  },
   {
     Gaming: {
-      filter: "(site_category:games OR site_category:video_and_computer_games)",
+      filter:
+        "video games (site_category:games OR site_category:video_and_computer_games) language:english",
     },
   },
   {
@@ -204,13 +257,13 @@ const categories: Record<string, { filter: string }>[] = [
   {
     "Career Tips": {
       filter:
-        "(site_category:career_advice OR site_category:career_planning) language:english",
+        "career (site_category:career_advice OR site_category:career_planning) language:english",
     },
   },
   {
     "Top Global Jobs": {
       filter:
-        "(site_category:jobs OR site_category:job_fair OR site_category:job_search)",
+        "global jobs (site_category:jobs OR site_category:job_search) language:english",
     },
   },
 ];
@@ -285,6 +338,8 @@ const getCountryCode = (country: string): string[] => {
   }
 };
 
+const slugGenerator = new SlugGenerator();
+
 const handlePosts = async (
   category: Record<
     string,
@@ -292,6 +347,7 @@ const handlePosts = async (
       filter: string;
     }
   >,
+  time: number,
   next?: string,
   count: number = 2,
 ) => {
@@ -300,7 +356,7 @@ const handlePosts = async (
   const data = await fetchWithRetries(
     next
       ? `https://api.webz.io/${next}`
-      : `https://api.webz.io/newsApiLite?token=${process.env.WEBZ_API_KEY}&q=${category[key!]?.filter}`,
+      : `https://api.webz.io/newsApiLite?token=${process.env.WEBZ_API_KEY}&format=json&ts=${time}&sort=relevancy&q=${category[key!]?.filter}`,
   );
 
   for (const post of data.posts) {
@@ -320,6 +376,7 @@ const handlePosts = async (
 
     const postToSave: Partial<IPost> = {
       title: post.title || parsedArticle.title,
+      slug: slugGenerator.generate(post.title || parsedArticle.title),
       author_id: post.author || parsedArticle.byline || extractDomain(post.url),
       link: post.url,
       headline: false,
@@ -381,9 +438,11 @@ export const fetchWebz = async (next?: string, count = 2) => {
     return;
   }
 
+  const time = new Date(new Date().setHours(0, 0, 0, 0)).getTime();
+
   for (const category of categories) {
     try {
-      await handlePosts(category);
+      await handlePosts(category, time);
       //   const fetchedPosts: Partial<IPost>[] = [];
       //   const [key] = Object.keys(category);
       //   const data = await fetchWithRetries(

@@ -1,40 +1,72 @@
-import React, { createContext, useContext } from "react";
-import { INotification, useNotifications } from "@/hooks/useNotifications";
+"use client";
+import { createContext, ReactNode, useContext } from "react";
+import { useNotifications } from "@/hooks/useNotifications";
+import { Notification } from "@/types/notification.type";
+import useAuth from "../auth/useAuth";
 
-interface NotificationsContextValue {
-  notifications: INotification[];
+interface NotificationContextType {
+  notifications: Notification[];
+  unread: number;
   clearNotifications: () => void;
+  removeNotification: (id: string) => void;
   error: string | null;
   isConnected: boolean;
-  removeNotifications: (id: string) => void;
+  pushEnabled: boolean;
+  markAsRead: (id: string) => void;
+  markAllAsRead: () => void;
 }
 
-const NotificationContext = createContext<NotificationsContextValue | null>(
-  null,
+const NotificationContext = createContext<NotificationContextType | undefined>(
+  undefined,
 );
-
-export function NotificationProvider({
-  children,
-  userId,
-}: {
-  children: React.ReactNode;
-  userId: string;
-}) {
-  const notificationData = useNotifications(userId);
-
-  return (
-    <NotificationContext.Provider value={notificationData}>
-      {children}
-    </NotificationContext.Provider>
-  );
-}
 
 export const useNotificationContext = () => {
   const context = useContext(NotificationContext);
-  if (context === null) {
+  if (!context) {
     throw new Error(
       "useNotificationContext must be used within a NotificationProvider",
     );
   }
   return context;
+};
+
+interface NotificationProviderProps {
+  children: ReactNode;
+  // userId: string;
+}
+
+export const NotificationProvider = ({
+  children,
+  // userId,
+}: NotificationProviderProps) => {
+  const { user } = useAuth();
+  const {
+    notifications,
+    unread,
+    clearNotifications,
+    removeNotifications: removeNotification,
+    error,
+    isConnected,
+    pushEnabled,
+    markAsRead,
+    markAllAsRead,
+  } = useNotifications(user?.id.toString());
+
+  return (
+    <NotificationContext.Provider
+      value={{
+        notifications,
+        unread,
+        clearNotifications,
+        removeNotification,
+        error,
+        isConnected,
+        pushEnabled,
+        markAsRead,
+        markAllAsRead,
+      }}
+    >
+      {children}
+    </NotificationContext.Provider>
+  );
 };

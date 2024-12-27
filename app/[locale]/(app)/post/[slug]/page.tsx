@@ -2,24 +2,42 @@ import { SquareArrowOutUpRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Suspense } from "react";
 import { Separator } from "@/components/ui/separator";
-import { getPostById } from "@/database/post/post.repository";
+import { getPostById, getPostBySlug } from "@/database/post/post.repository";
 import { IPost } from "@/types/post.type";
 import { calculateReadingTime, cleanContent } from "@/utils/post.utils";
 import { getPublishTimeStamp } from "@/utils/time.utils";
-import Comments from "../../_components/Comments";
-import RecommendedArticles from "../../_components/RecommendedArticles";
-import ShareButton from "../../_components/ShareButton";
+import Comments from "../_components/Comments";
+import RecommendedArticles from "../_components/RecommendedArticles";
+import ShareButton from "../_components/ShareButton";
 import AnimateTitle from "@/app/[locale]/(app)/_components/AnimateTitle";
-import DownloadPost from "../../_components/DownloadPost";
+import DownloadPost from "../_components/DownloadPost";
 import { connectToDatabase, newId } from "@/lib/database";
-import Reactions from "../../_components/Reactions";
+import Reactions from "../_components/Reactions";
 import { validateRequest } from "@/lib/auth/auth";
 import { checkLike } from "@/database/like/like.repository";
 import { checkDislike } from "@/database/dislike/dislike.repository";
 import dynamic from "next/dynamic";
-import ReportDialog from "../../_components/ReportDialog";
+import ReportDialog from "../_components/ReportDialog";
 
-const ShareArray = dynamic(() => import("../../_components/ShareArray"), {
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const post = await getPostBySlug(params.slug);
+  return {
+    title: post?.title,
+    description: post?.description,
+    openGraph: {
+      title: post?.title,
+      description: post?.description,
+      images: post?.image_url,
+      type: "article",
+    },
+  };
+}
+
+const ShareArray = dynamic(() => import("../_components/ShareArray"), {
   ssr: false,
 });
 
@@ -88,18 +106,20 @@ export default async function PostPage({
   params,
   subPost,
 }: {
-  params?: { postId: string };
+  params?: { slug: string };
   subPost?: IPost;
 }) {
   await connectToDatabase();
-  const article_id: string = params?.postId || subPost!._id!.toString();
+  const article_slug: string = params?.slug || subPost!.slug;
+  // const article_id: string = params?.postId || subPost!._id!.toString();
 
   let post: IPost | null;
 
   if (subPost) {
     post = subPost;
   } else {
-    post = await getPostById(article_id);
+    // post = await getPostById(article_id);
+    post = await getPostBySlug(article_slug);
   }
 
   if (!post) {
@@ -109,6 +129,8 @@ export default async function PostPage({
       </div>
     );
   }
+
+  let article_id: string = post._id!.toString();
 
   const { user } = await validateRequest();
   let like: boolean | undefined = undefined;

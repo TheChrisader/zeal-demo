@@ -8,6 +8,7 @@ export interface IPost {
   _id?: Id;
   id: Id | string;
   title: string;
+  slug: string;
   cluster_id?: string;
   bookmarked?: boolean;
   headline?: boolean;

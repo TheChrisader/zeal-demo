@@ -1,3 +1,9 @@
+import { formatDistanceToNowStrict } from "date-fns";
+
+export function formatDistanceToNow(date: Date): string {
+  return formatDistanceToNowStrict(date, { addSuffix: true });
+}
+
 // example time string "2024-08-23 10:44:59"
 export const getPublishTimeStamp = (timestamp: string): string => {
   if (!timestamp) {

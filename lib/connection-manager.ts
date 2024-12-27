@@ -1,11 +1,13 @@
 import { PushSubscription } from "web-push";
 import { EventEmitter } from "events";
 import { webPush } from "./web-push";
+import { findSubscriptionsByUserId } from "@/database/subscription/subscription.repository";
 
 interface Connection {
   writer: WritableStreamDefaultWriter;
   lastPing: number;
-  pushSubscription: PushSubscription | null;
+  // pushSubscription: PushSubscription | null;
+  // pushSubscription: boolean;
 }
 
 interface NotificationPayload {
@@ -47,19 +49,21 @@ export class ConnectionManager {
   }
 
   async addConnection(userId: string, writer: WritableStreamDefaultWriter) {
-    const subscription = this.connections.get(userId)?.pushSubscription || null;
+    // const subscription = this.connections.get(userId)?.pushSubscription || null;
+
     this.connections.set(userId, {
       writer,
       lastPing: Date.now(),
-      pushSubscription: subscription,
+      // pushSubscription: false,
     });
     console.log(`Connection added for user ${userId}`);
   }
 
   async addPushSubscription(userId: string, subscription: PushSubscription) {
     const connection = this.connections.get(userId);
+    console.log(subscription);
     if (connection) {
-      connection.pushSubscription = subscription;
+      // connection.pushSubscription = subscription;
       console.log(`Push subscription added for user ${userId}`);
     }
   }
@@ -103,16 +107,19 @@ export class ConnectionManager {
         );
         connection.lastPing = Date.now();
 
-        if (connection.pushSubscription) {
-          await webPush.sendNotification(
-            connection.pushSubscription,
-            JSON.stringify(notification),
-          );
-        }
+        // if (connection.pushSubscription) {
+        //   await webPush.sendNotification(
+        //     connection.pushSubscription,
+        //     JSON.stringify(notification),
+        //   );
+        // }
       } catch (error) {
-        console.error(`Error sending notification to user ${userId}: `, error);
+        console.error(
+          `Error sending sse notification to user ${userId}: `,
+          error,
+        );
         await this.removeConnection(userId);
-        throw error;
+        // throw error;
       }
     }
   }

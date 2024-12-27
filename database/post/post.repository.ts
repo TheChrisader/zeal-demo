@@ -53,6 +53,16 @@ export const getPostById = async (
   }
 };
 
+export const getPostBySlug = async (slug: string): Promise<IPost | null> => {
+  try {
+    const postDoc = await PostModel.findOne({ slug });
+    const post = postDoc?.toObject() || null;
+    return post;
+  } catch (error) {
+    throw error;
+  }
+};
+
 // delete post
 export const deletePostById = async (
   postId: string | Id,
@@ -105,6 +115,25 @@ export const getPostsByIds = async (
       };
     }
     const posts = await PostModel.find({ _id: { $in: postIds } }).sort({
+      ...sort,
+    });
+    return posts.map((post) => post.toObject());
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getPostsBySlugs = async (
+  slugs: string[],
+  sort: SortParams<IPost> = {},
+): Promise<IPost[]> => {
+  try {
+    if (!sort) {
+      sort = {
+        published_at: -1,
+      };
+    }
+    const posts = await PostModel.find({ slug: { $in: slugs } }).sort({
       ...sort,
     });
     return posts.map((post) => post.toObject());

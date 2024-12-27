@@ -10,7 +10,7 @@ interface HeadlineArticleProps {
 const HeadlineArticle = ({ article }: HeadlineArticleProps) => {
   return (
     <Link
-      href={`/post/${article?.id}`}
+      href={`/post/${article?.slug}`}
       className="flex flex-col rounded-md p-2 pb-6 hover:shadow-xl [&>div>img]:transition-transform [&>div>img]:duration-1000 [&>div>img]:hover:scale-110 [&_h3]:hover:text-primary [&_h3]:hover:underline"
     >
       <div className="mb-6 overflow-hidden rounded-[15px]">

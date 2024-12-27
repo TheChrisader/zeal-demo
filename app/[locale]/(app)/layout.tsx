@@ -7,6 +7,7 @@ import { getPreferencesByUserId } from "@/database/preferences/preferences.repos
 import { validateRequest } from "@/lib/auth/auth";
 import { connectToDatabase } from "@/lib/database";
 import { cleanObject } from "@/utils/cleanObject.utils";
+import { NotificationProvider } from "@/context/notifications/NotificationsProvider";
 // import FloatingWrite from "./_components/FloatingWrite";
 
 const MobileNav = dynamic(() => import("@/components/layout/MobileNav/page"), {
@@ -30,11 +31,13 @@ const AppLayout = async ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthProvider value={{ user, canWrite, canAdmin, preferences }}>
-      <Topbar />
-      {user && <MobileNav />}
-      {children}
-      {user && <FloatingWrite />}
-      {user && <div className="max-[750px]:mb-20"></div>}
+      <NotificationProvider>
+        <Topbar />
+        {user && <MobileNav />}
+        {children}
+        {user && <FloatingWrite />}
+        {user && <div className="max-[750px]:mb-20"></div>}
+      </NotificationProvider>
     </AuthProvider>
   );
 };

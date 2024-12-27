@@ -1,3 +1,7 @@
+import {
+  createSubscription,
+  findSubscriptionByEndpoint,
+} from "@/database/subscription/subscription.repository";
 import { validateRequest } from "@/lib/auth/auth";
 import connectionManager, { ConnectionManager } from "@/lib/connection-manager";
 
@@ -12,11 +16,23 @@ export async function POST(request: Request) {
     }
 
     const subscription = await request.json();
-    // const connectionManager = ConnectionManager.getInstance();
-    await connectionManager.addPushSubscription(
-      user.id.toString(),
-      subscription,
-    );
+
+    // await connectionManager.addPushSubscription(
+    //   user.id.toString(),
+    //   subscription,
+    // );
+
+    console.log("try");
+
+    if (await findSubscriptionByEndpoint(subscription.endpoint)) {
+      return Response.json({ success: true });
+    }
+
+    console.log("to");
+
+    await createSubscription({ subscription, user_id: user.id.toString() });
+
+    console.log("subscribe");
 
     return Response.json({ success: true });
   } catch (error) {

@@ -9,6 +9,7 @@ import {
   AUTHORIZED_IMAGE_SIZE,
 } from "@/utils/file.utils";
 import { calculateReadingTime } from "@/utils/post.utils";
+import { SlugGenerator } from "@/lib/slug";
 
 function generateRandomString(length: number) {
   const characters =
@@ -23,6 +24,7 @@ function generateRandomString(length: number) {
 
 export const POST = async (request: NextRequest) => {
   try {
+    const slugGenerator = new SlugGenerator();
     const formData = await request.formData();
 
     if (!formData) {
@@ -61,6 +63,7 @@ export const POST = async (request: NextRequest) => {
 
     const post: Partial<IPost> = {
       title: formData.get("title") as string,
+      slug: slugGenerator.generate(formData.get("title") as string),
       content: formData.get("content") as string,
       category: [formData.get("category") as string],
       description: formData.get("description") as string,

@@ -1,7 +1,8 @@
 import { Types } from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 import PostModel from "@/database/post/post.model";
-import { connectToDatabase } from "@/lib/database";
+import { connectToDatabase, newId } from "@/lib/database";
+import ReactionModel from "@/database/reaction/reaction.model";
 
 export async function GET(
   req: NextRequest,
@@ -87,6 +88,8 @@ export async function DELETE(
         { status: 404 },
       );
     }
+
+    await ReactionModel.deleteOne({ post_id: newId(post._id) });
 
     return NextResponse.json(
       {
