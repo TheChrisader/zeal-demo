@@ -8,6 +8,7 @@ import {
 } from "@/database/subscription/subscription.repository";
 import { webPush } from "@/lib/web-push";
 import PostModel from "@/database/post/post.model";
+import connectionManager from "@/lib/connection-manager";
 
 async function createRecommendationNotification(
   recipientId: Id,
