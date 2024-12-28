@@ -1,7 +1,7 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Notification } from "@/types/notification.type";
-import { GroupedNotifications } from "./GroupedNotifications";
 import { EmptyState } from "./EmptyState";
+import { GroupedNotifications } from "./GroupedNotifications";
 
 interface NotificationListProps {
   notifications: Notification[];
@@ -44,7 +44,7 @@ function NotificationList({
   }
 
   return (
-    <div className="mt-4 max-h-[calc(85vh-10rem)] space-y-4 overflow-y-auto px-4">
+    <div className="scrollbar-change mt-4 max-h-[calc(85vh-10rem)] space-y-4 overflow-y-auto px-4">
       <GroupedNotifications
         notifications={notifications}
         markAsRead={markAsRead}

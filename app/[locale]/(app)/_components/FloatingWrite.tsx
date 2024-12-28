@@ -180,6 +180,7 @@ export default function FloatingWrite() {
         label: "Notifications",
         onClick: () => {
           setIsNotificationsDrawerOpen(true);
+          setIsOpen(false);
         },
       },
       {
@@ -316,8 +317,8 @@ export default function FloatingWrite() {
                 className="relative h-14 w-14 rounded-full bg-primary shadow-lg"
               >
                 <MoreHorizontal className="h-6 w-6" />
-                {unread > 0 && (
-                  <span className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-normal leading-none text-[#ffffff]">
+                {visibleActions["notifications"] && unread > 0 && (
+                  <span className="absolute -right-1 -top-1 flex size-6 items-center justify-center rounded-full bg-red-500 text-xs font-normal leading-none text-[#ffffff]">
                     {unread}
                   </span>
                 )}

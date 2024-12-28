@@ -75,22 +75,24 @@ export function NotificationItem({
       }`}
       onClick={handleClick}
     >
-      <CardContent className="flex items-start space-x-4 p-4">
-        <Avatar className={`h-10 w-10 ${status.isRead ? "opacity-50" : ""}`}>
-          <AvatarImage src={content.thumbnail} alt={content.title} />
-          <AvatarFallback>{getIcon()}</AvatarFallback>
-        </Avatar>
-        <div className="flex-1 space-y-1">
-          <p
-            className={`text-sm font-medium ${status.isRead ? "text-muted-foreground" : "text-foreground"}`}
-          >
-            {content.title}
-          </p>
-          {/* <p
+      <CardContent className="flex items-start space-x-4 p-4 pb-0 max-[500px]:flex-col">
+        <div className="flex items-start space-x-4 max-[500px]:pb-4">
+          <Avatar className={`h-10 w-10 ${status.isRead ? "opacity-50" : ""}`}>
+            <AvatarImage src={content.thumbnail} alt={content.title} />
+            <AvatarFallback>{getIcon()}</AvatarFallback>
+          </Avatar>
+          <div className="flex-1 space-y-1">
+            <p
+              className={`text-sm font-medium ${status.isRead ? "text-muted-foreground" : "text-foreground"}`}
+            >
+              {content.title}
+            </p>
+            {/* <p
             className={`text-sm ${status.isRead ? "text-muted-foreground" : "text-foreground"}`}
           >
             {content.body}
           </p> */}
+          </div>
         </div>
         <Badge variant={status.isRead ? "outline" : "default"}>{type}</Badge>
       </CardContent>
