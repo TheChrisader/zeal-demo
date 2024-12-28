@@ -72,7 +72,7 @@ import {
   MoreVertical,
   PenSquare,
   Repeat,
-  RotateCcw,
+  RotateCw,
   // Router,
   Settings,
   SlidersHorizontal,
@@ -84,6 +84,8 @@ import { useTheme } from "next-themes";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { NotificationDrawer } from "./_components/notifications/NotificationDrawer";
 import { useNotificationContext } from "@/context/notifications/NotificationsProvider";
+import useAuth from "@/context/auth/useAuth";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 interface Action {
   id: string;
@@ -143,7 +145,9 @@ interface Action {
 // ];
 
 export default function FloatingWrite() {
+  const { canWrite } = useAuth();
   const router: Router = useRouter();
+  const [isOpen, setIsOpen] = React.useState(false);
 
   const { theme, setTheme } = useTheme();
   const colorScheme = useMediaQuery("(prefers-color-scheme: dark)");
@@ -159,6 +163,7 @@ export default function FloatingWrite() {
     React.useState(false);
 
   const [animateRandom, setAnimateRandom] = React.useState(false);
+  const [animateRefresh, setAnimateRefresh] = React.useState(false);
 
   const { unread } = useNotificationContext();
 
@@ -168,7 +173,7 @@ export default function FloatingWrite() {
 
   const defaultActions = React.useMemo(() => {
     // const defaultActions = (router: Router, isDark: boolean): Action[] =>
-    return [
+    const actions: Action[] = [
       {
         id: "notifications",
         icon: <Bell className="h-4 w-4" />,
@@ -183,6 +188,7 @@ export default function FloatingWrite() {
         label: "Profile",
         onClick: () => {
           router.push("/settings/profile");
+          setIsOpen(false);
         },
       },
       {
@@ -191,6 +197,7 @@ export default function FloatingWrite() {
         label: "Write",
         onClick: () => {
           router.push("/write");
+          setIsOpen(false);
         },
       },
       {
@@ -205,6 +212,7 @@ export default function FloatingWrite() {
           const { slug } = await response.json();
           router.push(`/post/${slug}`);
           setAnimateRandom(false);
+          setIsOpen(false);
         },
       },
       {
@@ -226,9 +234,14 @@ export default function FloatingWrite() {
       // },
       {
         id: "refresh",
-        icon: <RotateCcw className="h-4 w-4" />,
+        icon: (
+          <RotateCw
+            className={`h-4 w-4 ${animateRefresh ? "animate-spin" : ""}`}
+          />
+        ),
         label: "Refresh",
         onClick: () => {
+          setAnimateRefresh(true);
           router.refresh();
           location.reload();
         },
@@ -239,15 +252,31 @@ export default function FloatingWrite() {
         label: "Preferences",
         onClick: () => {
           router.push("/settings/preferences");
+          setIsOpen(false);
         },
       },
     ];
-  }, [isDark, theme, animateRandom]);
 
-  const [visibleActions, setVisibleActions] = React.useState<Set<string>>(
-    new Set(defaultActions.map((action) => action.id)),
-  );
-  const [isOpen, setIsOpen] = React.useState(false);
+    if (canWrite) {
+      return actions;
+    } else {
+      return actions.filter((action) => action.label !== "Write");
+    }
+  }, [isDark, theme, animateRandom, animateRefresh, canWrite]);
+
+  // const [visibleActions, setVisibleActions] = React.useState<Set<string>>(
+  //   new Set(defaultActions.map((action) => action.id)),
+  // );
+  const getDefaultActions = () => {
+    const visibleActions: { [key: string]: boolean } = {};
+    for (const action of defaultActions) {
+      visibleActions[action.id] = true;
+    }
+    return visibleActions;
+  };
+  const [visibleActions, setVisibleActions] = useLocalStorage<
+    Record<string, boolean>
+  >("filtered-actions", getDefaultActions());
   const [isVisible, setIsVisible] = React.useState(true);
   const lastScrollY = React.useRef(0);
 
@@ -266,8 +295,8 @@ export default function FloatingWrite() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const filteredActions = defaultActions.filter((action) =>
-    visibleActions.has(action.id),
+  const filteredActions = defaultActions.filter(
+    (action) => visibleActions[action.id],
   );
 
   return (
@@ -322,15 +351,16 @@ export default function FloatingWrite() {
                               >
                                 <Checkbox
                                   id={action.id}
-                                  checked={visibleActions.has(action.id)}
+                                  checked={visibleActions[action.id]}
                                   onCheckedChange={(checked) => {
-                                    const newVisibleActions = new Set(
-                                      visibleActions,
-                                    );
+                                    console.log(visibleActions, "!!!!!!!!");
+                                    const newVisibleActions = {
+                                      ...visibleActions,
+                                    };
                                     if (checked) {
-                                      newVisibleActions.add(action.id);
+                                      newVisibleActions[action.id] = true;
                                     } else {
-                                      newVisibleActions.delete(action.id);
+                                      newVisibleActions[action.id] = false;
                                     }
                                     setVisibleActions(newVisibleActions);
                                   }}
@@ -362,7 +392,7 @@ export default function FloatingWrite() {
                   </DrawerTitle>
                 </DrawerHeader>
                 <div className="grid grid-cols-4 gap-2 px-6 pb-10">
-                  {filteredActions.map((action) => (
+                  {filteredActions.map((action: Action) => (
                     <Button
                       key={action.id}
                       variant="ghost"

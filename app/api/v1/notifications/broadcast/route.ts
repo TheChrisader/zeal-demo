@@ -38,9 +38,9 @@ async function createRecommendationNotification(
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { postId, content } = body;
+    const { postId } = body;
 
-    if (!postId || !content) {
+    if (!postId) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 },

@@ -130,7 +130,7 @@ export default async function PostPage({
     );
   }
 
-  let article_id: string = post._id!.toString();
+  const article_id: string = post._id!.toString();
 
   const { user } = await validateRequest();
   let like: boolean | undefined = undefined;
@@ -163,7 +163,7 @@ export default async function PostPage({
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <ShareButton id={article_id} />
+            <ShareButton slug={article_slug} />
             <Suspense>
               <OutboundLink
                 source_url={post.source.url!}

@@ -4,13 +4,13 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
-  Bell,
   Award,
-  Zap,
-  User,
-  MessageSquare,
+  Bell,
   Heart,
+  MessageSquare,
   Share2,
+  User,
+  Zap,
 } from "lucide-react";
 import { formatDistanceToNow } from "@/utils/time.utils";
 import { useRouter } from "@/app/_components/useRouter";
@@ -86,11 +86,11 @@ export function NotificationItem({
           >
             {content.title}
           </p>
-          <p
+          {/* <p
             className={`text-sm ${status.isRead ? "text-muted-foreground" : "text-foreground"}`}
           >
             {content.body}
-          </p>
+          </p> */}
         </div>
         <Badge variant={status.isRead ? "outline" : "default"}>{type}</Badge>
       </CardContent>

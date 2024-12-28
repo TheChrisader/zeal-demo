@@ -3,11 +3,11 @@ import { Share2 } from "lucide-react";
 // import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
-const generateLink = (id: string) => {
-  return `${process.env.NEXT_PUBLIC_APP_URL}/post/${id}`;
+const generateLink = (slug: string) => {
+  return `${process.env.NEXT_PUBLIC_APP_URL}/en/post/${slug}`;
 };
 
-const ShareButton = ({ id }: { id: string }) => {
+const ShareButton = ({ slug }: { slug: string }) => {
   return (
     <Button
       variant="unstyled"
@@ -15,7 +15,7 @@ const ShareButton = ({ id }: { id: string }) => {
         // navigator.clipboard.writeText(link);
         // toast.success("Link copied to clipboard");
         // console.log(generateLink(id));
-        await navigator.share({ url: generateLink(id) });
+        await navigator.share({ url: generateLink(slug) });
       }}
     >
       <Share2 className="text-[#696969]" />

@@ -1,4 +1,5 @@
 "use client";
+import NotificationList from "@/app/[locale]/(app)/_components/_components/notifications/NotificationList";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -13,9 +14,11 @@ import { useNotificationContext } from "@/context/notifications/NotificationsPro
 import { useEffect } from "react";
 
 const NotificationsDropdown = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
-  const { notifications, isConnected } = useNotificationContext();
-  console.log(notifications);
+  const { notifications, isConnected, markAsRead, markAllAsRead } =
+    useNotificationContext();
+
+  const hasMore = true;
+  const fetchNotifications = () => {};
 
   useEffect(() => {
     if (!isConnected) return;
@@ -37,15 +40,21 @@ const NotificationsDropdown = ({ children }: { children: React.ReactNode }) => {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[400px] px-5 py-3"
+        className="w-[700px] px-5 py-3"
         align="end"
         sideOffset={12}
       >
         <h3 className="text-lg font-semibold text-[#2F2D32]">Notifications</h3>
         <Separator className="my-3" />
-        <span className="text-sm font-normal text-[#959595]">
+        <NotificationList
+          notifications={notifications}
+          hasMore={hasMore}
+          loadMore={fetchNotifications}
+          markAsRead={markAsRead}
+        />
+        {/* <span className="text-sm font-normal text-[#959595]">
           You have no new notifications
-        </span>
+        </span> */}
       </PopoverContent>
     </Popover>
   );
