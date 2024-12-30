@@ -145,7 +145,7 @@ interface Action {
 // ];
 
 export default function FloatingWrite() {
-  const { canWrite } = useAuth();
+  const { canWrite, user } = useAuth();
   const router: Router = useRouter();
   const [isOpen, setIsOpen] = React.useState(false);
 
@@ -277,7 +277,7 @@ export default function FloatingWrite() {
   };
   const [visibleActions, setVisibleActions] = useLocalStorage<
     Record<string, boolean>
-  >("filtered-actions", getDefaultActions());
+  >(`filtered-actions-${user?.id}`, getDefaultActions());
   const [isVisible, setIsVisible] = React.useState(true);
   const lastScrollY = React.useRef(0);
 
@@ -392,29 +392,37 @@ export default function FloatingWrite() {
                     </DropdownMenu>
                   </DrawerTitle>
                 </DrawerHeader>
-                <div className="grid grid-cols-4 gap-2 px-6 pb-10">
-                  {filteredActions.map((action: Action) => (
-                    <Button
-                      key={action.id}
-                      variant="ghost"
-                      className="flex h-20 w-full flex-col items-center justify-center gap-2 rounded-xl"
-                      onClick={() => {
-                        action.onClick?.();
-                        // setIsOpen(false);
-                      }}
-                    >
-                      <div className="relative rounded-full bg-muted p-3">
-                        {action.icon}
-                        {action.label === "Notifications" && unread > 0 && (
-                          <span className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-normal leading-none text-[#ffffff]">
-                            {unread}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-xs">{action.label}</span>
-                    </Button>
-                  ))}
-                </div>
+                {filteredActions.length > 0 ? (
+                  <div className="grid grid-cols-4 gap-2 px-6 pb-10">
+                    {filteredActions.map((action: Action) => (
+                      <Button
+                        key={action.id}
+                        variant="ghost"
+                        className="flex h-20 w-full flex-col items-center justify-center gap-2 rounded-xl"
+                        onClick={() => {
+                          action.onClick?.();
+                          // setIsOpen(false);
+                        }}
+                      >
+                        <div className="relative rounded-full bg-muted p-3">
+                          {action.icon}
+                          {action.label === "Notifications" && unread > 0 && (
+                            <span className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-normal leading-none text-[#ffffff]">
+                              {unread}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-xs">{action.label}</span>
+                      </Button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mb-20 flex size-full items-center justify-center">
+                    <span className="text-center text-base font-light text-muted-foreground">
+                      No action has currently been set to visible.
+                    </span>
+                  </div>
+                )}
               </div>
             </DrawerContent>
           </Drawer>

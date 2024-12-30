@@ -9,6 +9,7 @@ import {
 import { webPush } from "@/lib/web-push";
 import PostModel from "@/database/post/post.model";
 import connectionManager from "@/lib/connection-manager";
+import UserModel from "@/database/user/user.model";
 
 async function createRecommendationNotification(
   recipientId: Id,
@@ -35,6 +36,17 @@ async function createRecommendationNotification(
   });
 }
 
+const getActiveUsers = async () => {
+  const users = await UserModel.find({
+    role: {
+      $in: ["user", "writer"],
+    },
+  })
+    .select("_id location")
+    .exec();
+  return users.map((user) => user._id.toString());
+};
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -47,6 +59,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // return NextResponse.json(await getActiveUsers());
+
     const post = await PostModel.findById(postId)
       .select("title description image_url link slug")
       .exec();
@@ -55,10 +69,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    const activeUsers = [
-      "671661b98966f7cda7f5486a",
-      "67163f3a82227c356a86cb88",
-    ];
+    // const activeUsers = [
+    //   "671661b98966f7cda7f5486a",
+    //   "67163f3a82227c356a86cb88",
+    // ];
+
+    const activeUsers = await getActiveUsers();
+
+    // console.log(await getActiveUsers());
+    // return NextResponse.json(null);
 
     for (const user of activeUsers) {
       const notification = await createRecommendationNotification(

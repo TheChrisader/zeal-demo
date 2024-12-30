@@ -1,5 +1,5 @@
-import PostModel from "@/database/post/post.model";
 import { NextResponse } from "next/server";
+import PostModel from "@/database/post/post.model";
 
 export const dynamic = "force-dynamic";
 
