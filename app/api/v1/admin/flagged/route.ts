@@ -17,7 +17,7 @@ export const GET = async () => {
           _id: 1,
           title: 1,
           description: 1,
-          createdAt: 1,
+          created_at: 1,
         },
       },
       {
@@ -29,7 +29,7 @@ export const GET = async () => {
             {
               $project: {
                 _id: 1,
-                createdAt: 1,
+                created_at: 1,
                 reason: 1,
               },
             },

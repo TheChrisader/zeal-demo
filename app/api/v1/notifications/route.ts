@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     const [notifications, total] = await Promise.all([
       NotificationModel.find(query)
-        .sort({ createdAt: -1 })
+        .sort({ created_at: -1 })
         .skip((page - 1) * limit)
         .limit(limit)
         .populate<{ actors: { name: string; avatar: string }[] }>(

@@ -124,7 +124,7 @@ NotificationSchema.index({
   recipient: 1,
   type: 1,
   "status.isRead": 1,
-  createdAt: -1,
+  created_at: -1,
 });
 
 NotificationSchema.statics.getUnreadCount = async function (userId) {

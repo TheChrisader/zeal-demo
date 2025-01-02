@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     const page = 1;
     const limit = 10;
-    const sortBy: { [key: string]: -1 | 1 } = { createdAt: -1 };
+    const sortBy: { [key: string]: -1 | 1 } = { created_at: -1 };
 
     const skip = (page - 1) * limit;
 

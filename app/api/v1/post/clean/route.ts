@@ -14,8 +14,8 @@ export const POST = async () => {
 
     const todaysPosts = await PostModel.find({
       created_at: {
-        $gte: new Date(new Date().setHours(0, 0, 0, 0)),
-        $lt: new Date(new Date().setHours(23, 59, 59, 999)),
+        $gte: new Date(new Date().setHours(new Date().getHours() - 12)),
+        $lt: new Date(),
       },
     });
 
