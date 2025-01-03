@@ -8,26 +8,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import useAuth from "@/context/auth/useAuth";
 import { useNotificationContext } from "@/context/notifications/NotificationsProvider";
 // import { useNotifications } from "@/hooks/useNotifications";
-import { useEffect } from "react";
 
 const NotificationsDropdown = ({ children }: { children: React.ReactNode }) => {
-  const { notifications, isConnected, markAsRead, markAllAsRead } =
-    useNotificationContext();
+  const { notifications, markAsRead, markAllAsRead } = useNotificationContext();
 
   const hasMore = true;
   const fetchNotifications = () => {};
-
-  useEffect(() => {
-    if (!isConnected) return;
-    const heartbeatInterval = setInterval(async () => {
-      await fetch("/api/v1/heartbeat", { method: "POST" });
-    }, 60000);
-
-    return () => clearInterval(heartbeatInterval);
-  }, [isConnected]);
 
   return (
     <Popover>

@@ -1,5 +1,5 @@
 "use client";
-import { createContext, ReactNode, useContext } from "react";
+import { createContext, ReactNode, useContext, useEffect } from "react";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Notification } from "@/types/notification.type";
 import useAuth from "../auth/useAuth";
@@ -51,6 +51,15 @@ export const NotificationProvider = ({
     markAsRead,
     markAllAsRead,
   } = useNotifications(user?.id.toString());
+
+  useEffect(() => {
+    if (!isConnected) return;
+    const heartbeatInterval = setInterval(async () => {
+      await fetch("/api/v1/heartbeat", { method: "POST" });
+    }, 60000);
+
+    return () => clearInterval(heartbeatInterval);
+  }, [isConnected]);
 
   return (
     <NotificationContext.Provider
