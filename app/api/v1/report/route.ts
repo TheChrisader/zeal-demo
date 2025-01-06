@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 // import { flagPost } from '@/lib/flagging';
 import PostModel from "@/database/post/post.model";
@@ -12,7 +13,7 @@ export async function flagPost(
   reason: IReport["reason"],
   description?: string,
 ) {
-  const session = await (await mongoose.conn!).startSession();
+  const session = await (await mongoose).startSession();
   session.startTransaction();
 
   try {

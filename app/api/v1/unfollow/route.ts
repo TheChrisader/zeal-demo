@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 import {
   checkFollowing,
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const sess = await (await mongoose.conn)!.startSession();
+    const sess = await (await mongoose)!.startSession();
     sess.startTransaction();
 
     try {

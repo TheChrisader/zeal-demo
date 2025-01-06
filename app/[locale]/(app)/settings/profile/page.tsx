@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import useAuth from "@/context/auth/useAuth";
 import UpdateProfile from "./menu/UpdateProfile";
-import React, { ChangeEventHandler, useRef, useState } from "react";
+import React, { ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { optimizeImage } from "@/utils/file.utils";
 import { updateUserAvatar } from "@/services/auth.services";
@@ -34,17 +34,6 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-
-const mockUser = {
-  name: "Sarahketunye Andersontopher",
-  username: "sanderson",
-  email: "sarah.anderson@example.com",
-  isVerified: true,
-  bio: "Product designer by day, artist by night. Love creating beautiful user experiences and exploring new design trends.",
-  followers: 1234,
-  following: 567,
-  avatarUrl: "/api/placeholder/150/150",
-};
 
 const EditProfileDialog = ({
   isEditDialogOpen,
@@ -141,6 +130,8 @@ const ProfileSettings = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [showSaveButton, setShowSaveButton] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [following, setFollowing] = useState(0);
+  const [followers, setFollowers] = useState(0);
 
   const { user, canWrite } = useAuth();
 
@@ -179,6 +170,18 @@ const ProfileSettings = () => {
     //   [name]: value,
     // }));
   };
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchFollowCount = async () => {
+      const response = await fetch("/api/v1/follow-count");
+      const data = await response.json();
+      setFollowing(data.followCount);
+      setFollowers(data.followerCount);
+    };
+
+    fetchFollowCount();
+  }, [user]);
 
   return (
     <>
@@ -255,7 +258,7 @@ const ProfileSettings = () => {
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-muted-foreground" />
                 <span className="text-muted-foreground">{user?.email}</span>
-                {mockUser.isVerified && (
+                {user?.has_email_verified && (
                   // <Badge variant="secondary" className="ml-2">
                   //   <Check className="mr-1 h-3 w-3" /> Verified
                   // </Badge>
@@ -275,9 +278,7 @@ const ProfileSettings = () => {
               <div className="flex space-x-6">
                 <FollowerList>
                   <button>
-                    <span className="font-bold">
-                      {mockUser.followers.toLocaleString()}
-                    </span>
+                    <span className="font-bold">{followers}</span>
                     <span className="ml-1 text-muted-foreground">
                       Followers
                     </span>
@@ -290,9 +291,7 @@ const ProfileSettings = () => {
                     </div>
                     <FollowingList>
                       <button>
-                        <span className="font-bold">
-                          {mockUser.following.toLocaleString()}
-                        </span>
+                        <span className="font-bold">{following}</span>
                         <span className="ml-1 text-muted-foreground">
                           Following
                         </span>

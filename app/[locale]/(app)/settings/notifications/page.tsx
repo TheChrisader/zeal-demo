@@ -64,14 +64,14 @@ const NotificationsSettings = () => {
           </div>
           <Switch checked={push} onCheckedChange={() => setPush(!push)} />
         </label>
-        <label className="flex cursor-pointer items-center justify-between py-2 hover:bg-gray-100">
+        {/* <label className="flex cursor-pointer items-center justify-between py-2 hover:bg-gray-100">
           <div className="flex">
             <span className="text-sm font-normal text-[#2F2D32]">
               In-App Notifications
             </span>
           </div>
           <Switch checked={inApp} onCheckedChange={() => setInApp(!inApp)} />
-        </label>
+        </label> */}
         <label className="flex cursor-pointer items-center justify-between py-2 hover:bg-gray-100">
           <div className="flex">
             <span className="text-sm font-normal text-[#2F2D32]">

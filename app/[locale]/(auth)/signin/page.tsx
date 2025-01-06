@@ -164,7 +164,7 @@ const SignInPage = () => {
         </Button>
         <ContinueWithSeparator />
         <SocialProviders />
-        <Separator className="mb-4 mt-5" />
+        <Separator className="mb-4 mt-3" />
         <Link
           className="text-end font-bold text-[#2F7830]"
           href="/forgot-password"

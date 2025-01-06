@@ -35,14 +35,14 @@ const SecuritySettings = () => {
           <CaretRightIcon />
         </PasswordModal>
         {/* </Button> */}
-        <label className="flex cursor-pointer items-center justify-between py-2 hover:bg-gray-100">
+        {/* <label className="flex cursor-pointer items-center justify-between py-2 hover:bg-gray-100">
           <div className="flex">
             <span className="text-sm font-normal text-[#2F2D32]">
               Enable Login 2FA
             </span>
           </div>
           <Switch />
-        </label>
+        </label> */}
       </div>
       <div className="mt-9 flex w-full justify-end">
         <Button>Save Changes</Button>
