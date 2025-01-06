@@ -350,7 +350,11 @@ export default async function Home({
   const header = headers();
   const ip = header.get("x-forwarded-for");
   // let country: [string];
-  console.log(ip);
+  console.log(
+    "Cloudflare ip: " + ip + "\n",
+    "Client IP (hopefully): ",
+    header.get("client-ip"),
+  );
 
   // TODO: Add ip location
   /* or, check if env is in dev */
