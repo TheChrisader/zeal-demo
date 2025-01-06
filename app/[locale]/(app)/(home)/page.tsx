@@ -353,7 +353,9 @@ export default async function Home({
   console.log(
     "Cloudflare ip: " + ip + "\n",
     "Client IP (hopefully): ",
-    header.get("client-ip"),
+    header.get("client-ip") + "\n",
+    "CF-Connecting-IP: ",
+    header.get("cf-connecting-ip"),
   );
 
   // TODO: Add ip location
