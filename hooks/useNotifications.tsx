@@ -122,7 +122,7 @@ export function useNotifications(userId?: string) {
         setIsConnected(true);
         return;
       }
-      setNotifications((prevNotifications) => [...prevNotifications, data]);
+      setNotifications((prevNotifications) => [data, ...prevNotifications]);
     };
 
     eventSource.onerror = (error) => {
