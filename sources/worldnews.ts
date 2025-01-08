@@ -138,7 +138,7 @@ const COUNTRIES = [
   "gh",
   "ke",
   "za",
-  "ug",
+  // "ug",
   // "zm",
   // "na",
   // "et",

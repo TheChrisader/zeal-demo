@@ -1,3 +1,4 @@
+import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata, Viewport } from "next";
 import dynamic from "next/dynamic";
 import { Poppins } from "next/font/google";
@@ -82,6 +83,7 @@ export default async function RootLayout({
         </NextIntlClientProvider>
         {/* </Suspense> */}
       </body>
+      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID as string} />
     </html>
   );
 }

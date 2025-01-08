@@ -60,6 +60,7 @@ jobs:
           echo "CLOUDFRONT_BASE_URL=${{ secrets.CLOUDFRONT_BASE_URL }}" >> .env
           echo "VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }}" >> .env
           echo "VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }}" >> .env
+          echo "NEXT_PUBLIC_GA_ID=${{ secrets.NEXT_PUBLIC_GA_ID }}" >> .env
         shell: bash
 
       - name: Build and push Docker image

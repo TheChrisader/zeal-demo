@@ -21,7 +21,7 @@ self.addEventListener("push", (event) => {
   const notification = event.data?.json();
   const options = {
     body: notification?.body,
-    icon: "/favicon.ico",
+    icon: notification?.thumbnail,
     badge: "/favicon.ico",
     image: notification?.thumbnail,
     data: {
