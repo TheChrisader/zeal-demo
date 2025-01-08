@@ -15,6 +15,10 @@ const PreferencesSchema = new Schema<IPreferences>(
       type: String,
       default: "en",
     },
+    country: {
+      type: String,
+      default: "Nigeria",
+    },
     category_updates: {
       type: [String],
       default: [

@@ -1,3 +1,4 @@
+import { GH, KE, NG, ZA } from "country-flag-icons/react/3x2";
 import AlgeriaIcon from "@/assets/svgs/Countries/AlgeriaIcon";
 import AngolaIcon from "@/assets/svgs/Countries/AngolaIcon";
 import BeninIcon from "@/assets/svgs/Countries/BeninIcon";
@@ -9,20 +10,20 @@ import NigeriaIcon from "@/assets/svgs/Countries/NigeriaIcon";
 export const CountryIconList = [
   {
     name: "Nigeria",
-    Icon: NigeriaIcon,
+    Icon: NG,
   },
   // {
-  //   name: "Algeria",
-  //   Icon: AlgeriaIcon,
+  //   name: "South Africa",
+  //   Icon: ZA,
   // },
-  // {
-  //   name: "Angola",
-  //   Icon: AngolaIcon,
-  // },
-  // {
-  //   name: "Benin",
-  //   Icon: BeninIcon,
-  // },
+  {
+    name: "Ghana",
+    Icon: GH,
+  },
+  {
+    name: "Kenya",
+    Icon: KE,
+  },
   // {
   //   name: "Botswana",
   //   Icon: BotswanaIcon,

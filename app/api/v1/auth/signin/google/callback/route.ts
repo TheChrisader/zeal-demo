@@ -63,7 +63,7 @@ export async function GET(request: Request) {
     }
 
     const header = headers();
-    let ip_address = header.get("x-forwarded-for");
+    let ip_address = header.get("CF-Connecting-IP");
 
     let location: string;
     if (ip_address === "::1" || !ip_address) {
@@ -106,7 +106,17 @@ export async function GET(request: Request) {
       );
     }
 
-    await createPreferences({ user_id: createdUser.id });
+    const APPROVED_COUNTRY_LIST = ["Nigeria", "Ghana", "South Africa", "Kenya"];
+    let locationPreference = "Nigeria";
+
+    if (APPROVED_COUNTRY_LIST.includes(createdUser.location)) {
+      locationPreference = createdUser.location;
+    }
+
+    await createPreferences({
+      user_id: createdUser.id,
+      country: locationPreference,
+    });
 
     const session = await lucia.createSession(newId(createdUser.id), {});
     const sessionCookie = lucia.createSessionCookie(session.id);

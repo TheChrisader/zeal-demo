@@ -24,6 +24,7 @@ export interface IPreferences {
   id: Id | string;
   user_id: Id | string;
   language: string;
+  country: string;
   category_updates: string[];
   notification_settings: NotificationSettings;
   notification_preferences: NotificationPreferences;

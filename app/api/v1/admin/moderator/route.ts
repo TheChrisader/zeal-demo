@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     const { email, password, display_name, permissions } = body;
 
     const header = headers();
-    let ip_address = header.get("x-forwarded-for");
+    let ip_address = header.get("CF-Connecting-IP");
 
     let location: string;
     if (ip_address === "::1" || !ip_address) {

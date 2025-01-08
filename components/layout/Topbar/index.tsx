@@ -13,7 +13,7 @@ import CollapseArrowIcon from "@/assets/svgs/utils/CollapseArrowIcon";
 import PenIcon from "@/assets/svgs/utils/PenIcon";
 import { Separator } from "@/components/ui/separator";
 import useAuth from "@/context/auth/useAuth";
-import CountryDropdown from "./menu/Country";
+import CountryDropdown, { useCountryContext } from "./menu/Country";
 import NotificationsDropdown from "./menu/Notifications";
 import ProfileDropdown from "./menu/Profile";
 import WriterForm from "./popup/WriterForm";
@@ -22,6 +22,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNotificationContext } from "@/context/notifications/NotificationsProvider";
+import { GH, KE, NG } from "country-flag-icons/react/3x2";
 
 interface UserActionProps {
   user: User | null;
@@ -56,6 +57,20 @@ export const UserAvatar = ({ user }: { user: User }) => {
   );
 };
 
+const MainIcon = () => {
+  const { country } = useCountryContext();
+
+  if (country === "Nigeria") {
+    return <NG className="size-6 rounded-full" />;
+  } else if (country === "Ghana") {
+    return <GH className="size-6 rounded-full" />;
+  } else if (country === "Kenya") {
+    return <KE className="size-6 rounded-full" />;
+  } else {
+    return <NG className="size-6 rounded-full" />;
+  }
+};
+
 const UserAction = ({ user }: UserActionProps) => {
   const matches = useMediaQuery("(max-width: 750px)");
   const [isMatch, setIsMatch] = useState(false);
@@ -79,7 +94,8 @@ const UserAction = ({ user }: UserActionProps) => {
   return (
     <div className="flex gap-2">
       <CountryDropdown>
-        <NigeriaIcon className="size-6 rounded-full" />
+        <MainIcon />
+        {/* <NigeriaIcon className="size-6 rounded-full" /> */}
         <CollapseArrowIcon />
       </CountryDropdown>
       {!isMatch && (

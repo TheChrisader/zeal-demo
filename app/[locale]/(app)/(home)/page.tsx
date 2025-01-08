@@ -137,43 +137,84 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
 
   const { user } = await validateRequest();
 
-  const HeadlinesPosts = await (async () => {
-    return await PostModel.aggregate([
-      {
-        $match: {
-          headline: true,
-          image_url: {
-            $ne: null,
+  const preferences: Partial<IPreferences> | null =
+    await getPreferencesByUserId(user?.id as string);
+
+  const HeadlinesPosts = user
+    ? await (async () => {
+        return await PostModel.aggregate([
+          {
+            $match: {
+              headline: true,
+              image_url: {
+                $ne: null,
+              },
+              country: {
+                $in: [preferences?.country || "Nigeria"],
+              },
+            },
           },
-          country: {
-            $in: ["Nigeria"],
+          {
+            $group: {
+              _id: "$cluster_id",
+              doc: { $first: "$$ROOT" },
+            },
           },
-        },
-      },
-      {
-        $group: {
-          _id: "$cluster_id",
-          doc: { $first: "$$ROOT" },
-        },
-      },
-      {
-        $replaceRoot: {
-          newRoot: "$doc",
-        },
-      },
-      {
-        $sort: {
-          published_at: -1,
-        },
-      },
-      {
-        $skip: offset * 5 + 13,
-      },
-      {
-        $limit: 5,
-      },
-    ]);
-  })();
+          {
+            $replaceRoot: {
+              newRoot: "$doc",
+            },
+          },
+          {
+            $sort: {
+              published_at: -1,
+            },
+          },
+          {
+            $skip: offset * 5 + 13,
+          },
+          {
+            $limit: 5,
+          },
+        ]);
+      })()
+    : await (async () => {
+        return await PostModel.aggregate([
+          {
+            $match: {
+              headline: true,
+              image_url: {
+                $ne: null,
+              },
+              country: {
+                $in: ["Nigeria"],
+              },
+            },
+          },
+          {
+            $group: {
+              _id: "$cluster_id",
+              doc: { $first: "$$ROOT" },
+            },
+          },
+          {
+            $replaceRoot: {
+              newRoot: "$doc",
+            },
+          },
+          {
+            $sort: {
+              published_at: -1,
+            },
+          },
+          {
+            $skip: offset * 5 + 13,
+          },
+          {
+            $limit: 5,
+          },
+        ]);
+      })();
 
   if (user) {
     const bookmarkedHeadlinesPosts = await unstable_cache(
@@ -222,52 +263,101 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
 };
 
 const HeadlinesBlock = async ({ user }: { user: User | null }) => {
+  const preferences: Partial<IPreferences> | null =
+    await getPreferencesByUserId(user?.id as string);
+
   const daysAgo = new Date();
   daysAgo.setDate(daysAgo.getDate() - 5);
-  const HeadlinesPosts = await unstable_cache(
-    async () => {
-      return await PostModel.aggregate([
-        {
-          $match: {
-            headline: true,
-            image_url: {
-              $ne: null,
+
+  const HeadlinesPosts = user
+    ? await unstable_cache(
+        async () => {
+          return await PostModel.aggregate([
+            {
+              $match: {
+                headline: true,
+                image_url: {
+                  $ne: null,
+                },
+                country: {
+                  $in: [preferences?.country || "Nigeria"],
+                },
+                created_at: {
+                  $gte: daysAgo,
+                },
+              },
             },
-            country: {
-              $in: ["Nigeria"],
+            {
+              $group: {
+                _id: "$cluster_id",
+                doc: { $first: "$$ROOT" },
+              },
             },
-            created_at: {
-              $gte: daysAgo,
+            {
+              $replaceRoot: {
+                newRoot: "$doc",
+              },
             },
-          },
+            {
+              $sort: {
+                published_at: -1,
+              },
+            },
+            {
+              $limit: 13,
+            },
+          ]);
         },
+        [`Headlines-${user?.id.toString()}`],
         {
-          $group: {
-            _id: "$cluster_id",
-            doc: { $first: "$$ROOT" },
-          },
+          revalidate: 60 * 60,
+          tags: [`Headlines-${user?.id.toString()}`],
         },
+      )()
+    : await unstable_cache(
+        async () => {
+          return await PostModel.aggregate([
+            {
+              $match: {
+                headline: true,
+                image_url: {
+                  $ne: null,
+                },
+                country: {
+                  $in: ["Nigeria"],
+                },
+                created_at: {
+                  $gte: daysAgo,
+                },
+              },
+            },
+            {
+              $group: {
+                _id: "$cluster_id",
+                doc: { $first: "$$ROOT" },
+              },
+            },
+            {
+              $replaceRoot: {
+                newRoot: "$doc",
+              },
+            },
+            {
+              $sort: {
+                published_at: -1,
+              },
+            },
+            {
+              $limit: 13,
+            },
+          ]);
+        },
+        ["Headlines"],
         {
-          $replaceRoot: {
-            newRoot: "$doc",
-          },
+          revalidate: 60 * 60,
+          tags: ["Headlines"],
         },
-        {
-          $sort: {
-            published_at: -1,
-          },
-        },
-        {
-          $limit: 13,
-        },
-      ]);
-    },
-    ["Headlines"],
-    {
-      revalidate: 60 * 60,
-      tags: ["Headlines"],
-    },
-  )();
+      )();
 
   if (user) {
     const bookmarkedHeadlinesPosts = await unstable_cache(
