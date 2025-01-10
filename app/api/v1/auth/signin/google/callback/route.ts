@@ -59,6 +59,8 @@ export async function GET(request: Request) {
       );
       // redirect to "/"
 
+      console.log(new URL("/", request.url), "!!!!!!!!!!!mfeerererer");
+
       return NextResponse.redirect(new URL("/", request.url));
     }
 
