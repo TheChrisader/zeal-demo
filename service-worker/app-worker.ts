@@ -58,7 +58,35 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  event.waitUntil(self.clients.openWindow(event.notification.data.url));
+
+  event.waitUntil(
+    (async () => {
+      const clientList = await self.clients.matchAll({
+        type: "window",
+        includeUncontrolled: true,
+      });
+
+      for (const client of clientList) {
+        if (client.url.includes(self.registration.scope)) {
+          await client.focus();
+          client.postMessage({
+            type: "NOTIFICATION_CLICKED",
+            id: event.notification.data.id,
+          });
+          return;
+        }
+      }
+
+      const client = await self.clients.openWindow(event.notification.data.url);
+      setTimeout(() => {
+        client?.postMessage({
+          type: "NOTIFICATION_CLICKED",
+          id: event.notification.data.id,
+        });
+      }, 1000);
+    })(),
+  );
+  // event.waitUntil(self.clients.openWindow(event.notification.data.url));
 });
 
 const serwist = new Serwist({

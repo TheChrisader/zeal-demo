@@ -180,6 +180,24 @@ export function useNotifications(userId?: string) {
     markAsReadOnServer(id);
   }, []);
 
+  useEffect(() => {
+    const handleMessage = async (event: MessageEvent) => {
+      if (event.data.type === "NOTIFICATION_CLICKED") {
+        await markAsRead(event.data.id);
+      }
+    };
+
+    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.addEventListener("message", handleMessage);
+    }
+
+    return () => {
+      if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+        navigator.serviceWorker.removeEventListener("message", handleMessage);
+      }
+    };
+  }, [markAsRead]);
+
   const markAllAsRead = useCallback(() => {
     setNotifications((prev) =>
       prev.map((notif) => ({
