@@ -27,12 +27,18 @@ async function getNextPost() {
   const category =
     categoryList[Math.floor(Math.random() * categoryList.length)];
 
+  const daysAgo = new Date();
+  daysAgo.setDate(daysAgo.getDate() - 2);
+
   const post: IPost = (
     await PostModel.aggregate([
       {
         $match: {
           category: {
             $in: [category],
+          },
+          created_at: {
+            $gte: daysAgo,
           },
         },
       },

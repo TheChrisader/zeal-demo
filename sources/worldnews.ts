@@ -136,8 +136,8 @@ const getCurrentDateString = () => {
 const COUNTRIES = [
   "ng",
   "gh",
-  "ke",
-  "za",
+  // "ke",
+  // "za",
   // "ug",
   // "zm",
   // "na",
@@ -147,7 +147,7 @@ const COUNTRIES = [
   "us",
   "jp",
   "cn",
-  "in",
+  // "in",
 ];
 
 const getRelevantCategories = (countryCode: string) => {

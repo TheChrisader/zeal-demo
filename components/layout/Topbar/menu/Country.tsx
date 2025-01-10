@@ -1,4 +1,5 @@
 import { CountryIconList } from "@/app/[locale]/(auth)/onboarding/_utils/svgs";
+import { useRouter } from "@/app/_components/useRouter";
 import revalidateTagAction from "@/app/actions/revalidateTag";
 import NamedCheckbox from "@/components/forms/Input/NamedCheckbox";
 import SearchInput from "@/components/forms/Input/SearchInput";
@@ -11,7 +12,6 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import useAuth from "@/context/auth/useAuth";
-import { useRouter } from "@/i18n/routing";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -53,8 +53,8 @@ const CountryDropdown = ({ children }: { children: React.ReactNode }) => {
     });
 
     revalidateTagAction(`Headlines-${user.id.toString()}`);
-    router.refresh();
-    window.location.reload();
+    // router.refresh();
+    // window.location.reload();
   };
 
   // const userCountry = preferences.country;

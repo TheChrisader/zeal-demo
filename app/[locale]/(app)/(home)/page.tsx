@@ -217,6 +217,13 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
       })();
 
   if (user) {
+    // unstable_cache(
+    //   async () => {
+    //   return ""
+    // }, [`bookmarks-${user?.id.toString()}`], {
+    //   revalidate: 60 * 60,
+    //   tags: [`bookmarks-${user?.id.toString()}`],
+    // })
     const bookmarkedHeadlinesPosts = await unstable_cache(
       async () => {
         return await BookmarkModel.find({

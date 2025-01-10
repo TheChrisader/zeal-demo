@@ -106,7 +106,7 @@ const categories: Record<string, { filter: string }>[] = [
   {
     Breaking: {
       filter:
-        "(category:(war, conflict and unrest) OR category:(disaster and accident))",
+        "(category:(war, conflict and unrest) OR category:(disaster and accident)) language:english",
     },
   },
   {
@@ -117,6 +117,26 @@ const categories: Record<string, { filter: string }>[] = [
   {
     Weather: {
       filter: "category:weather",
+    },
+  },
+  // {
+  //   "Top North African News": {
+  //     filter: ""
+  //   }
+  // },
+  {
+    "Top West African News": {
+      filter: "west africa language:english site_category:africa -country:US",
+    },
+  },
+  // {
+  //   "Top East African News": {
+  //     filter: ""
+  //   }
+  // },
+  {
+    "Top South African News": {
+      filter: "south africa language:english site_category:africa -country:US",
     },
   },
   // { "Top US News": { filter: "thread.country:us" } },
@@ -152,6 +172,12 @@ const categories: Record<string, { filter: string }>[] = [
     },
   },
   {
+    "Hot Interviews": {
+      filter:
+        "interviews language:english category:(Arts, Culture and Entertainment) ",
+    },
+  },
+  {
     Economy: {
       filter: "category:(economy, business and finance) language:english",
     },
@@ -174,6 +200,12 @@ const categories: Record<string, { filter: string }>[] = [
     },
   },
   {
+    Entrepreneurship: {
+      filter:
+        "entrepreneurship category:(economy, business and finance) domain_rank:<1000 language:english",
+    },
+  },
+  {
     "E-Commerce": {
       filter:
         "e-commerce language:english category:(economy, business and finance)",
@@ -193,7 +225,7 @@ const categories: Record<string, { filter: string }>[] = [
   {
     Fintech: {
       filter:
-        "(category:(Economy, Business and Finance) AND category:(Science and Technology)) thread.country:ng language:english",
+        "african fintech (category:(Economy, Business and Finance) AND category:(Science and Technology)) language:english",
     },
   },
   {
@@ -251,7 +283,7 @@ const categories: Record<string, { filter: string }>[] = [
   {
     "Latest Job News": {
       filter:
-        "(site_category:jobs OR site_category:job_fair OR site_category:job_search) thread.country:ng",
+        "africa (site_category:jobs OR site_category:job_fair OR site_category:job_search)",
     },
   },
   {
