@@ -26,6 +26,7 @@ self.addEventListener("push", (event) => {
     image: notification?.thumbnail,
     data: {
       url: self.registration.scope + "en/post/" + notification?.postSlug,
+      id: notification?.id,
     },
   };
 

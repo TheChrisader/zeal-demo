@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
           body: post.description,
           thumbnail: post.image_url ?? undefined,
           url: post.link ?? undefined,
+          id: post._id.toString(),
         },
         post.slug,
       );

@@ -40,10 +40,10 @@ const Categories = [
     name: "Breaking",
     path: "/breaking",
   },
-  {
-    name: "Viral Videos",
-    path: "/viral",
-  },
+  // {
+  //   name: "Viral Videos",
+  //   path: "/viral",
+  // },
   {
     name: "Local News",
     sub: [

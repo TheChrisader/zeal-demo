@@ -54,6 +54,7 @@ export interface NotificationContent {
   body?: string;
   thumbnail?: string;
   url?: string;
+  id?: string;
 }
 
 interface TargetObject {
