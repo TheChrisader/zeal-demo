@@ -37,6 +37,19 @@ const Categories: Categories = [
     ],
   },
   {
+    name: "Top African News",
+    sub: [
+      {
+        name: "Top West African News",
+        path: "/top-west-african-news",
+      },
+      {
+        name: "Top South African News",
+        path: "/top-south-african-news",
+      },
+    ],
+  },
+  {
     name: "Global News",
     sub: [
       {
