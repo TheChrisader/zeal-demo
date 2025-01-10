@@ -37,7 +37,7 @@ const Categories: Categories = [
     ],
   },
   {
-    name: "Top African News",
+    name: "African News",
     sub: [
       {
         name: "Top West African News",
