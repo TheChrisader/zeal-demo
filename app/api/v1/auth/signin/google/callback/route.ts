@@ -59,9 +59,7 @@ export async function GET(request: Request) {
       );
       // redirect to "/"
 
-      console.log(new URL("/", request.url), "!!!!!!!!!!!mfeerererer");
-
-      return NextResponse.redirect(new URL("/", request.url));
+      return NextResponse.redirect(new URL("/", "https://zealnews.africa"));
     }
 
     const header = headers();
@@ -123,10 +121,13 @@ export async function GET(request: Request) {
     const session = await lucia.createSession(newId(createdUser.id), {});
     const sessionCookie = lucia.createSessionCookie(session.id);
 
-    return NextResponse.redirect(new URL("/onboarding", request.url), {
-      status: 302,
-      headers: { "Set-Cookie": sessionCookie.serialize() },
-    });
+    return NextResponse.redirect(
+      new URL("/onboarding", "https://zealnews.africa"),
+      {
+        status: 302,
+        headers: { "Set-Cookie": sessionCookie.serialize() },
+      },
+    );
 
     // return NextResponse.json(
     //   { message: "Created", user: createdUser },
