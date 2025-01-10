@@ -125,7 +125,7 @@ const SignInPage = () => {
                     label="User Name"
                     type="username"
                     id="username"
-                    placeholder="@ayeni.Bolu"
+                    // placeholder="@ayeni.Bolu"
                     {...field}
                   />
                   <FormMessage />
@@ -143,7 +143,7 @@ const SignInPage = () => {
                     label="Password"
                     type="password"
                     id="password"
-                    placeholder="Password"
+                    // placeholder="Password"
                     {...field}
                   />
                   <FormMessage />

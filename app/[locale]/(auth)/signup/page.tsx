@@ -139,7 +139,7 @@ const SignUpPage = () => {
                     label="Full Name"
                     type="text"
                     id="name"
-                    placeholder="Ayeni Boluwatife"
+                    // placeholder="Ayeni Boluwatife"
                     {...field}
                   />
                   <FormMessage />
@@ -157,7 +157,7 @@ const SignUpPage = () => {
                     label="Email Address"
                     type="email"
                     id="email"
-                    placeholder="AyeniBolu@gmail.com"
+                    // placeholder="AyeniBolu@gmail.com"
                     {...field}
                   />
                   <FormMessage />
@@ -175,7 +175,7 @@ const SignUpPage = () => {
                     label="User Name"
                     type="text"
                     id="username"
-                    placeholder="@ayeni.bolu"
+                    // placeholder="@ayeni.bolu"
                     {...field}
                   />
                   <FormMessage />
@@ -193,7 +193,7 @@ const SignUpPage = () => {
                     label="Password"
                     type="password"
                     id="password"
-                    placeholder="Password"
+                    // placeholder="Password"
                     {...field}
                   />
                   <FormMessage />

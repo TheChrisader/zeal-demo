@@ -44,8 +44,8 @@ const Categories: Categories = [
         path: "/top-west-african-news",
       },
       {
-        name: "Top South African News",
-        path: "/top-south-african-news",
+        name: "Top Southern Africa News",
+        path: "/top-southern-africa-news",
       },
     ],
   },
