@@ -10,6 +10,7 @@ import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Suspense } from "react";
+import ClearPushNotifications from "./(app)/_components/ClearPushNotifications";
 
 const PageProgressBar = dynamic(
   () => import("@/components/layout/PageProgressBar"),
@@ -84,6 +85,7 @@ export default async function RootLayout({
         {/* </Suspense> */}
       </body>
       <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID as string} />
+      <ClearPushNotifications />
     </html>
   );
 }
