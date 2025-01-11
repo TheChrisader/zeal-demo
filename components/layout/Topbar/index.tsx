@@ -5,8 +5,8 @@ import { User } from "lucia";
 import Image from "next/image";
 import { Link } from "@/i18n/routing";
 import { usePathname } from "@/i18n/routing";
-import ZealLogo from "@/assets/images/zeal_news_logo.png";
-import ZealLogoDark from "@/assets/images/zeal_news_logo_dark.png";
+// import ZealLogo from "@/assets/images/zeal_news_logo.png";
+// import ZealLogoDark from "@/assets/images/zeal_news_logo_dark.png";
 import NigeriaIcon from "@/assets/svgs/Countries/NigeriaIcon";
 import BellIcon from "@/assets/svgs/utils/BellIcon";
 import CollapseArrowIcon from "@/assets/svgs/utils/CollapseArrowIcon";
@@ -23,6 +23,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNotificationContext } from "@/context/notifications/NotificationsProvider";
 import { GH, KE, NG } from "country-flag-icons/react/3x2";
+import ZealLogo from "@/assets/ZealLogo";
 
 interface UserActionProps {
   user: User | null;
@@ -162,7 +163,7 @@ const Write = () => {
 const Topbar = () => {
   const pathname = usePathname();
   const { user } = useAuth();
-  const [logo, setLogo] = useState("/zeal_news_logo.png");
+  const [isDark, setIsDark] = useState(false);
   const [showActions, setShowActions] = useState(false);
 
   const { theme } = useTheme();
@@ -176,9 +177,9 @@ const Topbar = () => {
 
   useEffect(() => {
     if (theme === "dark" || (theme === "system" && colorScheme)) {
-      setLogo("/zeal_news_logo_dark.png");
+      setIsDark(true);
     } else {
-      setLogo("/zeal_news_logo.png");
+      setIsDark(false);
     }
   }, [theme, colorScheme]);
 
@@ -196,11 +197,12 @@ const Topbar = () => {
               unoptimized
               className="h-[20.4px] w-[117px] object-cover"
             /> */}
-            <img
+            {/* <img
               src={logo}
               className="h-[20.4px] w-[117px] object-cover"
               alt="logo"
-            />
+            /> */}
+            <ZealLogo className={`${isDark ? "fill-white" : ""}`} />
           </Link>
           {user && showActions && (
             <div className="flex gap-6">

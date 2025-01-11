@@ -3,6 +3,7 @@ import NotificationModel from "@/database/notification/notification.model";
 import { Id, newId } from "@/lib/database";
 import { INotification, NotificationContent } from "@/types/notification.type";
 import {
+  deleteSubscription,
   deleteSubscriptionsByUserId,
   findSubscriptionsByUserId,
 } from "@/database/subscription/subscription.repository";
@@ -69,12 +70,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    // const activeUsers = [
-    //   "671661b98966f7cda7f5486a",
-    //   "67163f3a82227c356a86cb88",
-    // ];
+    const activeUsers = [
+      "671661b98966f7cda7f5486a",
+      "67163f3a82227c356a86cb88",
+    ];
 
-    const activeUsers = await getActiveUsers();
+    // const activeUsers = await getActiveUsers();
 
     // console.log(await getActiveUsers());
     // return NextResponse.json(null);
@@ -108,8 +109,9 @@ export async function POST(request: NextRequest) {
             JSON.stringify({ ...notification.content, postSlug: post.slug }),
           );
         } catch (error) {
+          console.log("Push notification error:", error.body);
           if (error.statusCode === 410) {
-            await deleteSubscriptionsByUserId(user);
+            await deleteSubscription(subscription.endpoint);
           }
         }
       }

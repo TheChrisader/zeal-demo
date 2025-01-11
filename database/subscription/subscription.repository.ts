@@ -11,7 +11,7 @@ type CreateSubscriptionInput = {
 
 type UpdateSubscriptionInput = {
   endpoint: string;
-  data: Partial<ISubscription>;
+  data: Partial<Omit<ISubscription, "user_id"> & { user_id?: string }>;
 };
 
 export const createSubscription = async ({
@@ -80,7 +80,6 @@ export const deleteSubscriptionsByUserId = async (
   return result.deletedCount > 0;
 };
 
-// Optional: Composition helpers
 export const validateSubscription = (
   subscription: PushSubscription,
 ): boolean => {

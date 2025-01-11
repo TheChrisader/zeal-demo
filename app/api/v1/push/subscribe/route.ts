@@ -1,6 +1,7 @@
 import {
   createSubscription,
   findSubscriptionByEndpoint,
+  updateSubscription,
 } from "@/database/subscription/subscription.repository";
 import { validateRequest } from "@/lib/auth/auth";
 import connectionManager, { ConnectionManager } from "@/lib/connection-manager";
@@ -24,7 +25,18 @@ export async function POST(request: Request) {
 
     console.log("try");
 
-    if (await findSubscriptionByEndpoint(subscription.endpoint)) {
+    const savedSubscription = await findSubscriptionByEndpoint(
+      subscription.endpoint,
+    );
+
+    if (savedSubscription) {
+      if (savedSubscription.user_id?.toString() !== user.id.toString()) {
+        await updateSubscription({
+          endpoint: savedSubscription.endpoint,
+          data: { user_id: user.id.toString() },
+        });
+      }
+
       return Response.json({ success: true });
     }
 

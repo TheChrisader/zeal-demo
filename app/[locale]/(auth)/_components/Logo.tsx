@@ -3,27 +3,31 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Link } from "@/i18n/routing";
+import ZealLogo from "@/assets/ZealLogo";
 
 const Logo = () => {
-  const [logo, setLogo] = useState("/zeal_news_logo.png");
+  const [isDark, setIsDark] = useState(false);
   const { theme } = useTheme();
   const colorScheme = useMediaQuery("(prefers-color-scheme: dark)");
 
   useEffect(() => {
     if (theme === "dark" || (theme === "system" && colorScheme)) {
-      setLogo("/zeal_news_logo_dark.png");
+      setIsDark(true);
     } else {
-      setLogo("/zeal_news_logo.png");
+      setIsDark(false);
     }
   }, [theme, colorScheme]);
 
   return (
     <Link href="/">
-      <img
+      {/* <img
         alt="zeal_news_logo"
         src={logo}
         className="mb-[34px] w-[150px] object-cover max-[1200px]:mb-0"
         height={34}
+      /> */}
+      <ZealLogo
+        className={`mb-[34px] max-[1200px]:mb-0 ${isDark ? "fill-white" : ""}`}
       />
     </Link>
   );
