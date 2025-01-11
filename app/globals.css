@@ -129,6 +129,10 @@
       color: rgb(29, 29, 65);
     }
 
+    .\[\&_p\]\:text-\[\#0C0C0C\] p {
+      color: rgb(229 231 245);
+    }
+
     /* .bg-background {
       background-color: rgb(21, 31, 46);
     } */
