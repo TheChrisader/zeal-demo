@@ -70,12 +70,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    const activeUsers = [
-      "671661b98966f7cda7f5486a",
-      // "67163f3a82227c356a86cb88",
-    ];
+    // const activeUsers = [
+    //   "671661b98966f7cda7f5486a",
+    //   // "67163f3a82227c356a86cb88",
+    // ];
 
-    // const activeUsers = await getActiveUsers();
+    const activeUsers = await getActiveUsers();
 
     // console.log(await getActiveUsers());
     // return NextResponse.json(null);

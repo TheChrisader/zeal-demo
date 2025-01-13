@@ -122,7 +122,7 @@ self.addEventListener("notificationclick", (event) => {
 
       if (client) {
         await client.focus();
-        // await client.navigate(event.notification.data.url);
+        await client.navigate(event.notification.data.url);
         client.postMessage({
           type: "NOTIFICATION_CLICKED",
           id: event.notification.data.id,
