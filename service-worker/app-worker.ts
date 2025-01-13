@@ -21,7 +21,7 @@ self.addEventListener("push", (event) => {
   const notification = event.data?.json();
   const options = {
     body: notification?.body,
-    icon: notification?.thumbnail,
+    icon: notification?.thumbnail || "/favicon.ico",
     badge: "/favicon.ico",
     image: notification?.thumbnail,
     data: {
@@ -56,37 +56,88 @@ self.addEventListener("push", (event) => {
 //     })
 //   );
 
+// self.addEventListener("notificationclick", (event) => {
+//   event.notification.close();
+
+//   event.waitUntil(
+//     (async () => {
+//       const clientList = await self.clients.matchAll({
+//         type: "window",
+//         includeUncontrolled: true,
+//       });
+
+//       for (const client of clientList) {
+//         if (client.url.includes(self.registration.scope)) {
+//           await client.focus();
+//           await client.navigate(event.notification.data.url);
+//           client.postMessage({
+//             type: "NOTIFICATION_CLICKED",
+//             id: event.notification.data.id,
+//           });
+//           return;
+//         }
+//       }
+
+//       const client = await self.clients.openWindow(event.notification.data.url);
+//       setTimeout(() => {
+//         client?.postMessage({
+//           type: "NOTIFICATION_CLICKED",
+//           id: event.notification.data.id,
+//         });
+//       }, 1000);
+//     })(),
+//   );
+//   // event.waitUntil(self.clients.openWindow(event.notification.data.url));
+// });
+
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
   event.waitUntil(
     (async () => {
-      const clientList = await self.clients.matchAll({
-        type: "window",
-        includeUncontrolled: true,
-      });
-
-      for (const client of clientList) {
-        if (client.url.includes(self.registration.scope)) {
-          await client.focus();
-          client.postMessage({
-            type: "NOTIFICATION_CLICKED",
-            id: event.notification.data.id,
+      const waitForWindow = async () => {
+        let attempts = 10; // Adjust the number of attempts as needed
+        while (attempts > 0) {
+          const clientList = await self.clients.matchAll({
+            type: "window",
+            includeUncontrolled: true,
           });
-          return;
-        }
-      }
 
-      const client = await self.clients.openWindow(event.notification.data.url);
-      setTimeout(() => {
-        client?.postMessage({
+          for (const client of clientList) {
+            if (client.url.includes(self.registration.scope)) {
+              return client;
+            }
+          }
+
+          if (attempts === 1) {
+            return null; // No window available
+          }
+
+          await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms before retrying
+          attempts--;
+        }
+      };
+
+      let client = await waitForWindow();
+
+      if (client) {
+        await client.focus();
+        // await client.navigate(event.notification.data.url);
+        client.postMessage({
           type: "NOTIFICATION_CLICKED",
           id: event.notification.data.id,
         });
-      }, 1000);
+      } else {
+        client = await self.clients.openWindow(event.notification.data.url);
+        setTimeout(() => {
+          client?.postMessage({
+            type: "NOTIFICATION_CLICKED",
+            id: event.notification.data.id,
+          });
+        }, 1000);
+      }
     })(),
   );
-  // event.waitUntil(self.clients.openWindow(event.notification.data.url));
 });
 
 const serwist = new Serwist({

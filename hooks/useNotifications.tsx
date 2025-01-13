@@ -183,6 +183,7 @@ export function useNotifications(userId?: string) {
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
       if (event.data.type === "NOTIFICATION_CLICKED") {
+        console.log("Loggggggggggggggggggggggggggggged", event, event.data.id);
         await markAsRead(event.data.id);
       }
     };

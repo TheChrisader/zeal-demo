@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
 
     const activeUsers = [
       "671661b98966f7cda7f5486a",
-      "67163f3a82227c356a86cb88",
+      // "67163f3a82227c356a86cb88",
     ];
 
     // const activeUsers = await getActiveUsers();
@@ -89,7 +89,6 @@ export async function POST(request: NextRequest) {
           body: post.description,
           thumbnail: post.image_url ?? undefined,
           url: post.link ?? undefined,
-          id: post._id.toString(),
         },
         post.slug,
       );
@@ -106,7 +105,11 @@ export async function POST(request: NextRequest) {
               expirationTime: subscription.expirationTime,
               keys: subscription.keys,
             },
-            JSON.stringify({ ...notification.content, postSlug: post.slug }),
+            JSON.stringify({
+              ...notification.content,
+              id: notification._id?.toString(),
+              postSlug: post.slug,
+            }),
           );
         } catch (error) {
           console.log("Push notification error:", error.body);
