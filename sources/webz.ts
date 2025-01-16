@@ -5,6 +5,7 @@ import { IPost } from "@/types/post.type";
 import { calculateReadingTime, cleanContent } from "@/utils/post.utils";
 import { MongoBulkWriteError } from "mongodb";
 import { SlugGenerator } from "@/lib/slug";
+import { isTextEnglish } from "@/utils/string.utils";
 
 type Thread = {
   uuid: string;
@@ -450,11 +451,15 @@ const handlePosts = async (
     }
     console.log(post.title || parsedArticle.title);
 
-    if (!parsedArticle.content || parsedArticle.textContent.length < 200) {
+    if (!parsedArticle.title || !post.title) {
       continue;
     }
 
-    if (!parsedArticle.title || !post.title) {
+    if (!isTextEnglish(post.title || parsedArticle.title)) {
+      continue;
+    }
+
+    if (!parsedArticle.content || parsedArticle.textContent.length < 200) {
       continue;
     }
 

@@ -90,7 +90,7 @@ const OutboundLink = async ({
   return (
     <>
       {canIframe ? (
-        <Link href={`/post/out/${article_id}`}>
+        <Link href={`/post/out/${article_id}`} rel="nofollow">
           <SquareArrowOutUpRight className="text-[#696969]" />
         </Link>
       ) : (

@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import PostModel from "@/database/post/post.model";
 import { connectToDatabase } from "@/lib/database";
 
-function removeCharacters(str: string, charsToRemove: string[]) {
+export function removeCharacters(str: string, charsToRemove: string[]) {
   const regex = new RegExp(`[${charsToRemove.join("")}]`, "g");
   return str.replace(regex, "");
 }
