@@ -102,203 +102,245 @@ export const fetchWithRetries = async (
 
 // language english default, need opt out
 
-const categories: Record<string, { filter: string }>[] = [
-  {
-    Breaking: {
-      filter:
-        "(category:(war, conflict and unrest) OR category:(disaster and accident)) language:english",
+const categories: Record<string, { filter: string; altCategory?: string[] }>[] =
+  [
+    {
+      Headlines: {
+        filter:
+          "(site:arise.tv OR site:vanguardngr.com OR  site:dailytrust.com) language:english",
+        altCategory: ["Top West African News"],
+      },
     },
-  },
-  {
-    Politics: {
-      filter: "category:politics",
+    {
+      Headlines: {
+        filter:
+          "(site:onlinenigeria.com OR site:channelstv.com OR  site:premiumtimesng.com) language:english",
+        altCategory: ["Top West African News"],
+      },
     },
-  },
-  {
-    Weather: {
-      filter: "category:weather",
+    {
+      Headlines: {
+        filter:
+          "(site:graphic.com.gh OR site:ghanaiantimes.com.gh OR  site:pulsesports.ng) language:english",
+        altCategory: ["Top West African News"],
+      },
     },
-  },
-  // {
-  //   "Top North African News": {
-  //     filter: ""
-  //   }
-  // },
-  {
-    "Top West African News": {
-      filter: "west africa language:english site_category:africa -country:US",
+    {
+      Headlines: {
+        filter:
+          "(site:standardmedia.co.ke OR site:tuko.co.ke OR  site:businesstoday.co.ke) language:english",
+        altCategory: ["Top East African News"],
+      },
     },
-  },
-  // {
-  //   "Top East African News": {
-  //     filter: ""
-  //   }
-  // },
-  {
-    "Top South African News": {
-      filter: "south africa language:english site_category:africa -country:US",
+    {
+      Breaking: {
+        filter:
+          "(category:(war, conflict and unrest) OR category:(disaster and accident)) language:english",
+      },
     },
-  },
-  // { "Top US News": { filter: "thread.country:us" } },
-  // { "UK Top News": { filter: "site_category:top_news_gb" } },
-  // {
-  //   "EU News": {
-  //     filter:
-  //       "(thread.country:DE OR thread.country:FR OR thread.country:IT OR thread.country:ES) language:english",
-  //   },
-  // },
-  // {
-  //   "Asian News": {
-  //     filter:
-  //       "(thread.country:CN OR thread.country:IN OR thread.country:JP OR thread.country:ID) language:english",
-  //   },
-  // },
-  {
-    "Celebrity News": {
-      filter:
-        "celebrity language:english category:(Arts, Culture and Entertainment)",
+    {
+      Politics: {
+        filter: "category:Politics country:NG language:english",
+      },
     },
-  },
-  {
-    "Top Movies": {
-      filter:
-        "movies site_category:movies language:english category:(Arts, Culture and Entertainment)",
+    {
+      Politics: {
+        filter: "category:Politics country:GH language:english",
+      },
     },
-  },
-  {
-    "Trending Music": {
-      filter:
-        "music language:english category:(Arts, Culture and Entertainment)",
+    {
+      Politics: {
+        filter: "category:Politics country:KE language:english",
+      },
     },
-  },
-  {
-    "Hot Interviews": {
-      filter:
-        "interviews language:english category:(Arts, Culture and Entertainment) ",
+    {
+      Weather: {
+        filter: "category:weather",
+      },
     },
-  },
-  {
-    Economy: {
-      filter: "category:(economy, business and finance) language:english",
+    // {
+    //   "Top North African News": {
+    //     filter: ""
+    //   }
+    // },
+    {
+      "Top West African News": {
+        filter: "west africa language:english site_category:africa -country:US",
+      },
     },
-  },
-  {
-    "Personal Finance": {
-      filter:
-        "personal finance (site_category:financial_news OR site_category=investing) language:english",
+    {
+      "Top East African News": {
+        filter:
+          "(site:standardmedia.co.ke OR site:tuko.co.ke OR  site:businesstoday.co.ke) language:english",
+      },
     },
-  },
-  {
-    "Market Watch": {
-      filter:
-        "market watch category:(economy, business and finance) language:english",
+    {
+      "Top Southern Africa News": {
+        filter:
+          "south africa language:english site_category:africa -country:US",
+      },
     },
-  },
-  {
-    "Startup News": {
-      filter: "startups site_category:investing language:english",
+    { "Top US News": { filter: "thread.country:us" } },
+    { "UK Top News": { filter: "country:GB" } },
+    {
+      "EU News": {
+        filter:
+          "(thread.country:DE OR thread.country:FR OR thread.country:IT OR thread.country:ES) language:english",
+      },
     },
-  },
-  {
-    Entrepreneurship: {
-      filter:
-        "entrepreneurship category:(economy, business and finance) domain_rank:<1000 language:english",
+    {
+      "Asian News": {
+        filter:
+          "(thread.country:CN OR thread.country:IN OR thread.country:JP OR thread.country:ID) language:english",
+      },
     },
-  },
-  {
-    "E-Commerce": {
-      filter:
-        "e-commerce language:english category:(economy, business and finance)",
+    {
+      "Celebrity News": {
+        filter:
+          "celebrity language:english category:(Arts, Culture and Entertainment)",
+      },
     },
-  },
-  { "Latest Tech News": { filter: "category:(science and technology)" } },
-  {
-    "Artificial Intelligence": {
-      filter: "ai language:english  category:(science and technology)",
+    {
+      "Top Movies": {
+        filter:
+          "movies site_category:movies language:english category:(Arts, Culture and Entertainment)",
+      },
     },
-  },
-  {
-    Crypto: {
-      filter: "crypto  category:(science and technology) language:english",
+    {
+      "Trending Music": {
+        filter:
+          "music language:english category:(Arts, Culture and Entertainment)",
+      },
     },
-  },
-  {
-    Fintech: {
-      filter:
-        "african fintech (category:(Economy, Business and Finance) AND category:(Science and Technology)) language:english",
+    {
+      "Hot Interviews": {
+        filter:
+          "interviews language:english category:(Arts, Culture and Entertainment) ",
+      },
     },
-  },
-  {
-    Cartech: {
-      filter:
-        "(site_category:vehicles OR site_category:auto_repair) language:english",
+    {
+      Economy: {
+        filter: "category:(economy, business and finance) language:english",
+      },
     },
-  },
-  {
-    "Gadgets Buying Guide": {
-      filter: "gadget review category:(science and technology)",
+    {
+      "Personal Finance": {
+        filter:
+          "personal finance (site_category:financial_news OR site_category=investing) language:english",
+      },
     },
-  },
-  { "Health News": { filter: "self care category:Health " } },
-  {
-    "Food & Nutrition": {
-      filter: "food (site_category:food AND category:(Lifestyle and Leisure))",
+    {
+      "Market Watch": {
+        filter:
+          "market watch category:(economy, business and finance) language:english",
+      },
     },
-  },
-  {
-    "Travel & Tourism": {
-      filter: "Travel (site_category:travel) language:english",
+    {
+      "Startup News": {
+        filter: "startups site_category:investing language:english",
+      },
     },
-  },
-  {
-    "Style & Beauty": {
-      filter:
-        "fashion category:(lifestyle and leisure) (site_category:style_and_fashion)",
+    {
+      Entrepreneurship: {
+        filter:
+          "entrepreneurship category:(economy, business and finance) domain_rank:<1000 language:english",
+      },
     },
-  },
-  {
-    "Family & Parenting": {
-      filter:
-        "(site_category:family_and_parenting OR site_category:parenting_teens)",
+    {
+      "E-Commerce": {
+        filter:
+          "e-commerce language:english category:(economy, business and finance)",
+      },
     },
-  },
-  { "Top Sports News": { filter: "category:sport" } },
-  {
-    "UK Premiership": {
-      filter:
-        "category:sport site_category:football thread.country:gb language:english",
+    { "Latest Tech News": { filter: "category:(science and technology)" } },
+    {
+      "Artificial Intelligence": {
+        filter: "ai language:english  category:(science and technology)",
+      },
     },
-  },
-  {
-    Basketball: {
-      filter: "basketball site_category:pro_basketball language:english",
+    {
+      Crypto: {
+        filter: "crypto  category:(science and technology) language:english",
+      },
     },
-  },
-  {
-    Gaming: {
-      filter:
-        "video games (site_category:games OR site_category:video_and_computer_games) language:english",
+    {
+      Fintech: {
+        filter:
+          "african fintech (category:(Economy, Business and Finance) AND category:(Science and Technology)) language:english",
+      },
     },
-  },
-  {
-    "Latest Job News": {
-      filter:
-        "africa (site_category:jobs OR site_category:job_fair OR site_category:job_search)",
+    {
+      Cartech: {
+        filter:
+          "(site_category:vehicles OR site_category:auto_repair) language:english",
+      },
     },
-  },
-  {
-    "Career Tips": {
-      filter:
-        "career (site_category:career_advice OR site_category:career_planning) language:english",
+    {
+      "Gadgets Buying Guide": {
+        filter: "gadget review category:(science and technology)",
+      },
     },
-  },
-  {
-    "Top Global Jobs": {
-      filter:
-        "global jobs (site_category:jobs OR site_category:job_search) language:english",
+    { "Health News": { filter: "self care category:Health " } },
+    {
+      "Food & Nutrition": {
+        filter:
+          "food (site_category:food AND category:(Lifestyle and Leisure))",
+      },
     },
-  },
-];
+    {
+      "Travel & Tourism": {
+        filter: "Travel (site_category:travel) language:english",
+      },
+    },
+    {
+      "Style & Beauty": {
+        filter:
+          "fashion category:(lifestyle and leisure) (site_category:style_and_fashion)",
+      },
+    },
+    {
+      "Family & Parenting": {
+        filter:
+          "(site_category:family_and_parenting OR site_category:parenting_teens)",
+      },
+    },
+    { "Top Sports News": { filter: "category:sport" } },
+    {
+      "UK Premiership": {
+        filter:
+          "category:sport site_category:football thread.country:gb language:english",
+      },
+    },
+    {
+      Basketball: {
+        filter: "basketball site_category:pro_basketball language:english",
+      },
+    },
+    {
+      Gaming: {
+        filter:
+          "video games (site_category:games OR site_category:video_and_computer_games) language:english",
+      },
+    },
+    {
+      "Latest Job News": {
+        filter:
+          "africa (site_category:jobs OR site_category:job_fair OR site_category:job_search)",
+      },
+    },
+    {
+      "Career Tips": {
+        filter:
+          "career (site_category:career_advice OR site_category:career_planning) language:english",
+      },
+    },
+    {
+      "Top Global Jobs": {
+        filter:
+          "global jobs (site_category:jobs OR site_category:job_search) language:english",
+      },
+    },
+  ];
 
 function extractDomain(url: string): string {
   // Create a URL object from the provided URL string
@@ -377,6 +419,7 @@ const handlePosts = async (
     string,
     {
       filter: string;
+      altCategory?: string[];
     }
   >,
   time: number,
@@ -385,10 +428,15 @@ const handlePosts = async (
 ) => {
   const fetchedPosts: Partial<IPost>[] = [];
   const [key] = Object.keys(category);
+  // if (key === "Top East African News") {
+  // } else {
+  //   return;
+  // }
+  const [value] = Object.values(category);
   const data = await fetchWithRetries(
     next
       ? `https://api.webz.io/${next}`
-      : `https://api.webz.io/newsApiLite?token=${process.env.WEBZ_API_KEY}&format=json&ts=${time}&sort=relevancy&q=${category[key!]?.filter}`,
+      : `https://api.webz.io/filterWebContent?token=${process.env.WEBZ_API_KEY}&format=json&ts=${time}&sort=relevancy&q=${category[key!]?.filter}`,
   );
 
   for (const post of data.posts) {
@@ -402,8 +450,17 @@ const handlePosts = async (
     }
     console.log(post.title || parsedArticle.title);
 
-    if (!parsedArticle.content) {
+    if (!parsedArticle.content || parsedArticle.textContent.length < 200) {
       continue;
+    }
+
+    if (!parsedArticle.title || !post.title) {
+      continue;
+    }
+
+    const extraCategories = [];
+    if (value?.altCategory && value.altCategory.length > 0) {
+      extraCategories.push(...value.altCategory);
     }
 
     const postToSave: Partial<IPost> = {
@@ -426,7 +483,7 @@ const handlePosts = async (
       language: "English",
       country: getCountryCode(post.thread.country),
       //   category: [...new Set([key!, ...(post.categories || [])])],
-      category: [key!],
+      category: [key!, ...extraCategories],
       keywords: stripKeywords(post),
       published: true,
       ttr: calculateReadingTime(cleanContent(parsedArticle.content)),

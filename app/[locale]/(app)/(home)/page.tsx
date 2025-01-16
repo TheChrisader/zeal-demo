@@ -142,6 +142,23 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
 
   const HeadlinesPosts = user
     ? await (async () => {
+        return await PostModel.find({
+          category: {
+            $in: [category],
+          },
+          country: {
+            $in: [preferences?.country || "Nigeria"],
+          },
+          image_url: {
+            $ne: null,
+          },
+        })
+          .sort({
+            published_at: -1,
+          })
+          .skip(offset * 5 + 13)
+          .limit(5)
+          .exec();
         return await PostModel.aggregate([
           {
             $match: {
@@ -179,6 +196,23 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
         ]);
       })()
     : await (async () => {
+        return await PostModel.find({
+          category: {
+            $in: [category],
+          },
+          country: {
+            $in: ["Nigeria"],
+          },
+          image_url: {
+            $ne: null,
+          },
+        })
+          .sort({
+            published_at: -1,
+          })
+          .skip(offset * 5 + 13)
+          .limit(5)
+          .exec();
         return await PostModel.aggregate([
           {
             $match: {
@@ -253,18 +287,18 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
 
   return (
     <>
-      <Suspense>
-        {HeadlinesPosts.map((article) => {
-          article.id = article._id.toString();
-          return (
-            <ArticleCard
-              className={"w-full"}
-              article={article}
-              key={article._id.toString()}
-            />
-          );
-        })}
-      </Suspense>
+      {/* <Suspense> */}
+      {HeadlinesPosts.map((article) => {
+        article.id = article._id.toString();
+        return (
+          <ArticleCard
+            className={"w-full"}
+            article={article}
+            key={article._id.toString()}
+          />
+        );
+      })}
+      {/* </Suspense> */}
     </>
   );
 };
@@ -279,6 +313,23 @@ const HeadlinesBlock = async ({ user }: { user: User | null }) => {
   const HeadlinesPosts = user
     ? await unstable_cache(
         async () => {
+          return await PostModel.find({
+            category: {
+              $in: ["Headlines"],
+            },
+            image_url: {
+              $ne: null,
+            },
+            country: {
+              $in: [preferences?.country || "Nigeria"],
+            },
+            created_at: {
+              $gte: daysAgo,
+            },
+          })
+            .sort({ published_at: -1 })
+            .limit(13)
+            .exec();
           return await PostModel.aggregate([
             {
               $match: {
@@ -323,6 +374,23 @@ const HeadlinesBlock = async ({ user }: { user: User | null }) => {
       )()
     : await unstable_cache(
         async () => {
+          return await PostModel.find({
+            category: {
+              $in: ["Headlines"],
+            },
+            image_url: {
+              $ne: null,
+            },
+            country: {
+              $in: ["Nigeria"],
+            },
+            created_at: {
+              $gte: daysAgo,
+            },
+          })
+            .sort({ published_at: -1 })
+            .limit(13)
+            .exec();
           return await PostModel.aggregate([
             {
               $match: {
@@ -400,14 +468,11 @@ const HeadlinesBlock = async ({ user }: { user: User | null }) => {
       > */}
       <Headlines headlines={HeadlinesPosts} />
       {/* </ResponsiveHeadlines> */}
-      <Suspense>
-        <ScrollContainer
-          loadMoreAction={loadMoreHeadlines}
-          category="Headlines"
-        >
-          <></>
-        </ScrollContainer>
-      </Suspense>
+      {/* <Suspense> */}
+      <ScrollContainer loadMoreAction={loadMoreHeadlines} category="Headlines">
+        <></>
+      </ScrollContainer>
+      {/* </Suspense> */}
     </ArticlesContainer>
   );
 };
@@ -504,9 +569,9 @@ export default async function Home({
 
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-7">
-      <Suspense>
-        <HeadlinesBlock user={user} />
-      </Suspense>
+      {/* <Suspense> */}
+      <HeadlinesBlock user={user} />
+      {/* </Suspense> */}
       <Separator />
       <HomepageScroll
         currentSelection={preferences!.category_updates!}
@@ -516,9 +581,9 @@ export default async function Home({
         {(await shuffleArray(preferences?.category_updates))?.map(
           (category) => {
             return (
-              <Suspense key={category}>
-                <PostBlock category={category} user={user} />
-              </Suspense>
+              // <Suspense key={category}>
+              <PostBlock key={category} category={category} user={user} />
+              // </Suspense>
             );
           },
         )}

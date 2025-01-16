@@ -133,6 +133,33 @@ const getCurrentDateString = () => {
   return `${year}-${month}-${day}`;
 };
 
+const g = [
+  {
+    Headlines: {
+      filter:
+        "(site:arise.tv OR site:vanguardngr.com OR  site:dailytrust.com) language:english",
+    },
+  },
+  {
+    Headlines: {
+      filter:
+        "(site:onlinenigeria.com OR site:channelstv.com OR  site:premiumtimesng.com) language:english",
+    },
+  },
+  {
+    Headlines: {
+      filter:
+        "(site:graphic.com.gh OR site:ghanaiantimes.com.gh OR  site:pulsesports.ng) language:english",
+    },
+  },
+  {
+    Headlines: {
+      filter:
+        "(site:standardmedia.co.ke OR site:tuko.co.ke OR  site:businesstoday.co.ke) language:english",
+    },
+  },
+];
+
 const COUNTRIES = [
   "ng",
   "gh",
@@ -147,7 +174,7 @@ const COUNTRIES = [
   "us",
   "jp",
   "cn",
-  // "in",
+  "in",
 ];
 
 const getRelevantCategories = (countryCode: string) => {
