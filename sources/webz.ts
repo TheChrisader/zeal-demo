@@ -129,7 +129,20 @@ const categories: Record<string, { filter: string; altCategory?: string[] }>[] =
     {
       Headlines: {
         filter:
-          "(site:standardmedia.co.ke OR site:tuko.co.ke OR  site:businesstoday.co.ke) language:english",
+          "(site:newvision.co.ug OR site:sunrise.ug OR site:pulse.ug) language:english",
+        altCategory: ["Top East African News"],
+      },
+    },
+    {
+      Headlines: {
+        filter:
+          "(site:times.co.zm OR site:lusakatimes.com OR site:zambianobserver.com) language:english",
+        altCategory: ["Top Southern Africa News"],
+      },
+    },
+    {
+      Headlines: {
+        filter: "tanzania language:english country:TZ category:Politics",
         altCategory: ["Top East African News"],
       },
     },
@@ -179,6 +192,7 @@ const categories: Record<string, { filter: string; altCategory?: string[] }>[] =
       "Top Southern Africa News": {
         filter:
           "south africa language:english site_category:africa -country:US",
+        altCategory: ["Headlines"],
       },
     },
     { "Top US News": { filter: "thread.country:us" } },
@@ -429,7 +443,7 @@ const handlePosts = async (
 ) => {
   const fetchedPosts: Partial<IPost>[] = [];
   const [key] = Object.keys(category);
-  // if (key === "Top East African News") {
+  // if (key === "Top Global Jobs") {
   // } else {
   //   return;
   // }
@@ -449,19 +463,23 @@ const handlePosts = async (
       console.log("Content can not be parsed. Skipping article...");
       continue;
     }
-    console.log(post.title || parsedArticle.title);
 
     if (!parsedArticle.title || !post.title) {
+      console.log(1);
       continue;
     }
 
     if (!isTextEnglish(post.title || parsedArticle.title)) {
+      console.log(2);
       continue;
     }
 
     if (!parsedArticle.content || parsedArticle.textContent.length < 200) {
+      console.log(3);
       continue;
     }
+
+    console.log(post.title || parsedArticle.title);
 
     const extraCategories = [];
     if (value?.altCategory && value.altCategory.length > 0) {
@@ -517,7 +535,7 @@ const handlePosts = async (
         `${err.result.insertedCount} posts under ${key} category saved`,
       );
     } else {
-      console.log(err);
+      console.log(err.message);
       console.log(`Failed to save posts under ${key} category`);
     }
   }

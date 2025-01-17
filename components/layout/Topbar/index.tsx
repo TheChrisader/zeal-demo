@@ -22,7 +22,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNotificationContext } from "@/context/notifications/NotificationsProvider";
-import { GH, KE, NG } from "country-flag-icons/react/3x2";
+import { GH, KE, NG, UG, ZA, ZM } from "country-flag-icons/react/3x2";
 import ZealLogo from "@/assets/ZealLogo";
 
 interface UserActionProps {
@@ -67,6 +67,12 @@ const MainIcon = () => {
     return <GH className="size-6 rounded-full" />;
   } else if (country === "Kenya") {
     return <KE className="size-6 rounded-full" />;
+  } else if (country === "South Africa") {
+    return <ZA className="size-6 rounded-full" />;
+  } else if (country === "Uganda") {
+    return <UG className="size-6 rounded-full" />;
+  } else if (country === "Zambia") {
+    return <ZM className="size-6 rounded-full" />;
   } else {
     return <NG className="size-6 rounded-full" />;
   }

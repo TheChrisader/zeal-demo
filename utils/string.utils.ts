@@ -11,7 +11,7 @@ export function removeCharacters(str: string, charsToRemove: string[]) {
 
 export const isTextEnglish = (str: string) => {
   if (
-    !isEnglish(
+    isEnglish(
       removeCharacters(str, [
         "‘",
         "’",
