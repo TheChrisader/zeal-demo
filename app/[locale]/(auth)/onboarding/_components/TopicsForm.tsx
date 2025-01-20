@@ -32,7 +32,7 @@ const TOPICS = [
 const TopicsForm = React.forwardRef(({ key }: { key: string }, _) => {
   // const { setStep } = useOnboardingContext();
   const TOPICS = flattenCategories(Categories)
-    .filter((c) => c !== "For you")
+    .filter((c) => c !== "Home")
     .filter((c) => c !== "Headlines");
   const [topics, setTopics] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);

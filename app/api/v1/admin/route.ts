@@ -22,7 +22,7 @@ const TIME_CONFIGS: Record<TimeRange, TimeConfig> = {
 
 // const CATEGORIES = ["Technology", "Science", "Arts", "Business", "Lifestyle"];
 const CATEGORIES = flattenCategories(Categories)
-  .filter((c) => c !== "For you")
+  .filter((c) => c !== "Home")
   .map((cat) => [cat]);
 const ROLES = ["user", "admin", "writer"];
 const EVENT_TYPES = ["prompt_accepted", "prompt_shown", "prompt_dismissed"];
