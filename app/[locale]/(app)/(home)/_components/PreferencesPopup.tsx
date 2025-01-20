@@ -22,7 +22,7 @@ import { PreferencesContext } from "../../settings/preferences/page";
 
 const setPreferences = (categories: string[]) => {
   const preferences = categories
-    .filter((category) => category !== "For you")
+    .filter((category) => category !== "Home")
     .filter((category) => category !== "Headlines")
     .map((category) => {
       return {

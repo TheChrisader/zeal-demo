@@ -20,7 +20,7 @@ const HomepageScroll = ({
   const [loaded, setLoaded] = useState(false);
   const remainingCategories = flattenCategories(Categories)
     .filter((category) => !currentSelection.includes(category))
-    .filter((category) => category !== "For you")
+    .filter((category) => category !== "Home")
     .filter((category) => category !== "Headlines")
     .filter((category) => category !== "Entrepreneurship")
     .filter((category) => category !== "Hot Interviews")

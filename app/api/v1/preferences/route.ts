@@ -59,6 +59,7 @@ export const PUT = async (request: NextRequest) => {
 
     return NextResponse.json({ message: "Preferences updated" });
   } catch (error) {
+    console.log(`Error updating preferences: ${error}`);
     return sendError(
       buildError({
         code: INTERNAL_ERROR,

@@ -226,6 +226,20 @@ const Topbar = () => {
               <div className="relative flex">
                 <Link
                   className="text-sm font-semibold text-[#2F7830]"
+                  href="/for-you"
+                >
+                  For you
+                </Link>
+                {pathname === "/for-you" && (
+                  <motion.span
+                    layoutId="topbarUnderline"
+                    className="absolute bottom-[-21px] h-1 w-full rounded-full bg-[#2F7830]"
+                  />
+                )}
+              </div>
+              {/* <div className="relative flex">
+                <Link
+                  className="text-sm font-semibold text-[#2F7830]"
                   href="/bookmarks"
                 >
                   Bookmarks
@@ -236,7 +250,7 @@ const Topbar = () => {
                     className="absolute bottom-[-21px] h-1 w-full rounded-full bg-[#2F7830]"
                   />
                 )}
-              </div>
+              </div> */}
             </div>
           )}
         </div>

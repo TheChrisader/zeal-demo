@@ -8,7 +8,7 @@ export type Categories = Category[];
 
 const Categories: Categories = [
   {
-    name: "For you",
+    name: "Home",
     path: "/",
   },
   {

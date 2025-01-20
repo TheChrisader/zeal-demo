@@ -26,12 +26,12 @@ export default async function CategoryPage({
     "/" + params.category,
   );
 
-  if (!pageCategory) {
-    redirect({
-      href: "/",
-      locale: "en",
-    });
-  }
+  // if (!pageCategory) {
+  //   redirect({
+  //     href: "/",
+  //     locale: "en",
+  //   });
+  // }
 
   const { user } = await validateRequest();
   await connectToDatabase();

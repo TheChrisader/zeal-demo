@@ -229,7 +229,7 @@ const FiltersDropdown = ({ children }: { children: React.ReactNode }) => {
               <AccordionContent className="p-1">
                 <Topics
                   set={flattenCategories(Categories).filter(
-                    (cat) => cat !== "For you",
+                    (cat) => cat !== "Home",
                   )}
                   type="topics"
                 />

@@ -33,7 +33,7 @@ const FiltersDropdown = dynamic(() => import("./menu/Filters"), { ssr: false });
 
 const Categories = [
   {
-    name: "For you",
+    name: "Home",
     path: "/",
   },
   {
