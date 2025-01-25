@@ -117,14 +117,6 @@ const hash = (s: string): string => {
   return hash.toString();
 };
 
-// const categories = {
-//   Headlines: {
-//     url: "",
-//   },
-// };
-
-// const categoryArray = Object.keys(categories);
-
 const getCurrentDateString = () => {
   const today = new Date();
   const year = today.getFullYear();
