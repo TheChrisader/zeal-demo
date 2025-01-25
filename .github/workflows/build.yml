@@ -38,9 +38,12 @@ jobs:
           echo "NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}" >> .env
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_IP=${{ secrets.DB_IP }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
           echo "DB_CLUSTER=${{ secrets.DB_CLUSTER }}" >> .env
-          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_REPLICA_SET=${{ secrets.DB_REPLICA_SET }}" >> .env
+          echo "DB_AUTH_SOURCE=${{ secrets.DB_AUTH_SOURCE }}" >> .env
           echo "WORLDNEWS_API_KEY=${{ secrets.WORLDNEWS_API_KEY }}" >> .env
           echo "WEBZ_API_KEY=${{ secrets.WEBZ_API_KEY }}" >> .env
           echo "EMAIL_HOST=${{ secrets.EMAIL_HOST }}" >> .env

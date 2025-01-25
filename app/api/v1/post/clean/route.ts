@@ -1,54 +1,21 @@
-import isEnglish from "is-english";
 import { NextResponse } from "next/server";
 import PostModel from "@/database/post/post.model";
 import { connectToDatabase } from "@/lib/database";
-
-export function removeCharacters(str: string, charsToRemove: string[]) {
-  const regex = new RegExp(`[${charsToRemove.join("")}]`, "g");
-  return str.replace(regex, "");
-}
+import { stripExtraWhitespace } from "@/utils/string.utils";
 
 export const POST = async () => {
   try {
-    await connectToDatabase();
+    // await connectToDatabase();
 
-    const todaysPosts = await PostModel.find({
-      created_at: {
-        $gte: new Date(new Date().setHours(new Date().getHours() - 12)),
-        $lt: new Date(),
-      },
-    });
+    // const posts = await PostModel.find({});
 
-    const nonEnglishPosts = todaysPosts.filter((post) => {
-      const currentPost = post.toObject();
-      if (
-        !isEnglish(
-          removeCharacters(currentPost.title, [
-            "‘",
-            "’",
-            "…",
-            "₦",
-            "—",
-            "™",
-            "“",
-            "”",
-            "|",
-            "★",
-            "☆",
-          ]),
-        )
-      ) {
-        return true;
-      }
-    });
+    // for (const post of posts) {
+    //   post.content = stripExtraWhitespace(post.content);
+    //   await post.save();
+    // }
 
-    // get IDs
-    const postIDs = nonEnglishPosts.map((post) => post._id);
-
-    await PostModel.deleteMany({ _id: { $in: postIDs } });
-
-    return NextResponse.json(nonEnglishPosts.length);
+    return NextResponse.json(`All posts cleaned`);
   } catch (error) {
-    NextResponse.json({ message: error });
+    return NextResponse.json({ message: error });
   }
 };

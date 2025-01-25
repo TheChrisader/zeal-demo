@@ -191,7 +191,7 @@ const Topbar = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-20 flex h-fit items-center justify-between bg-white px-[100px] py-3 shadow-md max-[900px]:px-7">
+      <header className="sticky top-0 z-50 flex h-fit items-center justify-between bg-white px-[100px] py-3 shadow-md max-[900px]:px-7">
         <div className="flex gap-[100px]">
           <Link href="/">
             {/* <Image
@@ -219,7 +219,7 @@ const Topbar = () => {
                 {pathname === "/" && (
                   <motion.span
                     layoutId="topbarUnderline"
-                    className="absolute bottom-[-21px] h-1 w-full rounded-full bg-[#2F7830]"
+                    className="absolute bottom-[-19px] h-1 w-full rounded-full bg-[#2F7830]"
                   />
                 )}
               </div>
@@ -233,7 +233,7 @@ const Topbar = () => {
                 {pathname === "/for-you" && (
                   <motion.span
                     layoutId="topbarUnderline"
-                    className="absolute bottom-[-21px] h-1 w-full rounded-full bg-[#2F7830]"
+                    className="absolute bottom-[-19px] h-1 w-full rounded-full bg-[#2F7830]"
                   />
                 )}
               </div>
@@ -268,7 +268,7 @@ const Topbar = () => {
           <UserAction user={user} />
         </div>
       </header>
-      <Separator />
+      {/* <Separator /> */}
     </>
   );
 };

@@ -1,7 +1,16 @@
 import { Collection, MongoClient } from "mongodb";
 import { Id } from "../database";
 
-const { DB_USER, DB_PASSWORD, DB_CLUSTER, DB_NAME, DB_PORT } = process.env;
+const {
+  DB_USER,
+  DB_PASSWORD,
+  DB_IP,
+  DB_CLUSTER,
+  DB_NAME,
+  DB_PORT,
+  DB_REPLICA_SET,
+  DB_AUTH_SOURCE,
+} = process.env;
 
 interface UserDoc {
   _id: Id | string;
@@ -24,6 +33,10 @@ export const getMongoDBURI = () => {
     }
     return `mongodb://127.0.0.1:${DB_PORT || "27017"}/${DB_NAME}?retryWrites=true&w=majority`;
   }
+  if (DB_IP && DB_PORT && DB_REPLICA_SET && DB_AUTH_SOURCE) {
+    return `mongodb://${DB_USER}:${DB_PASSWORD}@${DB_IP}:${DB_PORT}/${DB_NAME}?replicaSet=${DB_REPLICA_SET}&authSource=${DB_AUTH_SOURCE}&retryWrites=true&w=majority`;
+  }
+
   return `mongodb+srv://${DB_USER}:${DB_PASSWORD}@${DB_CLUSTER}.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`;
 };
 
