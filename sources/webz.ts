@@ -66,6 +66,43 @@ type ApiResponse = {
   warnings: null;
 };
 
+const ensureDelay = async (num: number) => {
+  await new Promise((resolve) => setTimeout(resolve, num * 1000));
+};
+
+export const savePostsWithRetries = async (
+  posts: Partial<IPost>[],
+  key: string,
+  retries: number = 3,
+) => {
+  let savedPosts;
+
+  try {
+    savedPosts = await createPosts(posts);
+    console.log(`${savedPosts.length} posts under ${key} category saved`);
+  } catch (err) {
+    // @ts-expect-error TODO
+    if (err instanceof Error && err.code === 11000) {
+      console.log(err.message, "!!!!!!!!!!!!!!");
+      console.log(
+        // @ts-expect-error TODO
+        `${err.result.insertedCount} posts under ${key} category saved`,
+      );
+      return;
+    } else {
+      if (retries > 0) {
+        console.log("Retrying save...");
+        await ensureDelay(3);
+        await savePostsWithRetries(posts, key, retries - 1);
+        return;
+      }
+    }
+    // @ts-expect-error TODO
+    console.log(err.message);
+    console.log(`Failed to save posts under ${key} category`);
+  }
+};
+
 export const fetchWithRetries = async (
   input: RequestInfo | URL,
   retries: number = 3,
@@ -521,29 +558,31 @@ const handlePosts = async (
     fetchedPosts.push(postToSave);
   }
 
-  let savedPosts;
+  await savePostsWithRetries(fetchedPosts, key as string);
 
-  try {
-    savedPosts = await createPosts(fetchedPosts);
+  // let savedPosts;
 
-    console.log(`${savedPosts.length} posts under ${key} category saved`);
-  } catch (err) {
-    if (err instanceof MongoBulkWriteError) {
-      console.log(
-        `${err.result.insertedCount} posts under ${key} category saved`,
-      );
-      // @ts-expect-error TODO
-    } else if (err instanceof Error && err.code === 11000) {
-      console.log(err.message, "!!!!!!!!!!!!!!11");
-      console.log(
-        // @ts-expect-error TODO
-        `${err.result.insertedCount} posts under ${key} category saved`,
-      );
-    } else {
-      console.log(err.message);
-      console.log(`Failed to save posts under ${key} category`);
-    }
-  }
+  // try {
+  //   savedPosts = await createPosts(fetchedPosts);
+
+  //   console.log(`${savedPosts.length} posts under ${key} category saved`);
+  // } catch (err) {
+  //   if (err instanceof MongoBulkWriteError) {
+  //     console.log(
+  //       `${err.result.insertedCount} posts under ${key} category saved`,
+  //     );
+  //     // @ts-expect-error TODO
+  //   } else if (err instanceof Error && err.code === 11000) {
+  //     console.log(err.message, "!!!!!!!!!!!!!!11");
+  //     console.log(
+  //       // @ts-expect-error TODO
+  //       `${err.result.insertedCount} posts under ${key} category saved`,
+  //     );
+  //   } else {
+  //     console.log(err.message);
+  //     console.log(`Failed to save posts under ${key} category`);
+  //   }
+  // }
 
   // if (!next && data.next) {
   //   await handlePosts(category, data.next, count - 1);
@@ -551,6 +590,7 @@ const handlePosts = async (
 };
 
 export const fetchWebz = async (next?: string, count = 2) => {
+  console.log("Begin...");
   if (count <= 0) {
     return;
   }
@@ -561,61 +601,6 @@ export const fetchWebz = async (next?: string, count = 2) => {
   for (const category of categories) {
     try {
       await handlePosts(category, time);
-      //   const fetchedPosts: Partial<IPost>[] = [];
-      //   const [key] = Object.keys(category);
-      //   const data = await fetchWithRetries(
-      //     next
-      //       ? next
-      //       : `https://api.webz.io/newsApiLite?token=${process.env.WEBZ_API_KEY}&q=${category[key!]?.filter} language:english`,
-      //   );
-
-      //   for (const post of data.posts) {
-      //     let parsedArticle;
-
-      //     try {
-      //       parsedArticle = await fetchAndParseURL(post.url);
-      //     } catch {
-      //       continue;
-      //     }
-
-      //     if (!parsedArticle.content) {
-      //       continue;
-      //     }
-
-      //     const postToSave: Partial<IPost> = {
-      //       title: post.title,
-      //       author_id: post.author || extractDomain(post.url),
-      //       link: post.url,
-      //       headline: false,
-      //       content: parsedArticle.content,
-      //       description: post.text,
-      //       published_at: post.published,
-      //       image_url: post.thread.main_image,
-      //       video_url: undefined,
-      //       source: {
-      //         id: extractDomain(post.url),
-      //         name: extractDomain(post.url),
-      //         url: post.thread.site_full || post.thread.site,
-      //         icon: `https://www.google.com/s2/favicons?domain=${post.thread.site}&sz=64`,
-      //       },
-      //       language: "English",
-      //       country: [lookup.byIso(post.thread.country)!.country],
-      //       //   category: [...new Set([key!, ...(post.categories || [])])],
-      //       category: [key!],
-      //       keywords: stripKeywords(post),
-      //       published: true,
-      //       ttr: calculateReadingTime(cleanContent(parsedArticle.content)),
-      //       external: true,
-      //     };
-
-      //     fetchedPosts.push(postToSave);
-      //   }
-
-      //   await createPosts(fetchedPosts);
-
-      //   if (!next && data.next) {
-      //     await fetchWebz(data.next, count - 1);
-      //   }
     } catch (error) {
       if (error instanceof TypeError) {
         // @ts-expect-error TODO
@@ -632,4 +617,6 @@ export const fetchWebz = async (next?: string, count = 2) => {
       console.log(error);
     }
   }
+
+  console.log("...End.");
 };
