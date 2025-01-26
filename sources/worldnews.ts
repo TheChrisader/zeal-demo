@@ -23,29 +23,6 @@ type WorldNewsApiResponse = {
   language: string;
   country: string;
 };
-// const res = {
-//   top_news: [
-//     {
-//       news: [
-//         {
-//           id: 224767206,
-//           title: "Jury to Begin Deliberations In Trump Trial",
-//           text: "...",
-//           summary: "...",
-//           url: "https://politicalwire.com/2024/05/28/jury-to-begin-deliberations-in-trump-trial/",
-//           image:
-//             "https://politicalwire.com/wp-content/uploads/2018/02/PW-podcast-logo.jpg",
-//           video: null,
-//           publish_date: "2024-05-29 00:10:48",
-//           author: "Taegan Goddard",
-//           authors: ["Taegan Goddard"],
-//         },
-//       ],
-//     },
-//   ],
-//   language: "en",
-//   country: "us",
-// };
 
 function extractDomain(url: string): string {
   const urlObj = new URL(url);
