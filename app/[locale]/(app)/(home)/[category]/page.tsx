@@ -9,6 +9,8 @@ import { getPostsByFilters } from "@/database/post/post.repository";
 import { connectToDatabase } from "@/lib/database";
 import BookmarkModel from "@/database/bookmark/bookmark.model";
 import { validateRequest } from "@/lib/auth/auth";
+import { findSiblings } from "@/utils/category.utils";
+import { IPost } from "@/types/post.type";
 
 const whitelist = ["headlines"];
 
@@ -62,6 +64,21 @@ export default async function CategoryPage({
     }
   });
 
+  let subs: string[] = [];
+  let subPosts: IPost[][] = [];
+  if (pageSubcategory) {
+    subs = findSiblings(pageSubcategory);
+    subPosts = await Promise.all(
+      subs.map(async (sub) => {
+        return await getPostsByFilters({
+          categories: [sub],
+          country: restrictToNG ? ["Nigeria"] : undefined,
+          limit: 16,
+        });
+      }),
+    );
+  }
+
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col">
       <ArticlesContainer title={pageSubcategory || pageCategory!}>
@@ -69,6 +86,15 @@ export default async function CategoryPage({
           <Trending articles={posts} />
         </Suspense>
       </ArticlesContainer>
+      {subs.map((sub, i) => {
+        return (
+          <ArticlesContainer key={sub} title={sub}>
+            <Suspense key={query} fallback={<div>Loading...</div>}>
+              <Trending articles={subPosts[i]!} />
+            </Suspense>
+          </ArticlesContainer>
+        );
+      })}
     </main>
   );
 }
