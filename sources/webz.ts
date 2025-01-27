@@ -142,20 +142,20 @@ export const fetchWithRetries = async (
 
 const categories: Record<string, { filter: string; altCategory?: string[] }>[] =
   [
-    // {
-    //   Headlines: {
-    //     filter:
-    //       "(site:arise.tv OR site:vanguardngr.com OR  site:dailytrust.com) language:english",
-    //     altCategory: ["Top West African News"],
-    //   },
-    // },
-    // {
-    //   Headlines: {
-    //     filter:
-    //       "(site:onlinenigeria.com OR site:channelstv.com OR  site:premiumtimesng.com) language:english",
-    //     altCategory: ["Top West African News"],
-    //   },
-    // },
+    {
+      Headlines: {
+        filter:
+          "(site:arise.tv OR site:vanguardngr.com OR  site:dailytrust.com) language:english",
+        altCategory: ["Top West African News"],
+      },
+    },
+    {
+      Headlines: {
+        filter:
+          "(site:onlinenigeria.com OR site:channelstv.com OR  site:premiumtimesng.com) language:english",
+        altCategory: ["Top West African News"],
+      },
+    },
     {
       Headlines: {
         filter:
@@ -163,13 +163,13 @@ const categories: Record<string, { filter: string; altCategory?: string[] }>[] =
         altCategory: ["Top West African News"],
       },
     },
-    // {
-    //   Headlines: {
-    //     filter:
-    //       "(site:newvision.co.ug OR site:sunrise.ug OR site:pulse.ug) language:english",
-    //     altCategory: ["Top East African News"],
-    //   },
-    // },
+    {
+      Headlines: {
+        filter:
+          "(site:newvision.co.ug OR site:sunrise.ug OR site:pulse.ug) language:english",
+        altCategory: ["Top East African News"],
+      },
+    },
     {
       Headlines: {
         filter:
@@ -177,226 +177,226 @@ const categories: Record<string, { filter: string; altCategory?: string[] }>[] =
         altCategory: ["Top Southern Africa News"],
       },
     },
+    {
+      Headlines: {
+        filter: "tanzania language:english country:TZ category:Politics",
+        altCategory: ["Top East African News"],
+      },
+    },
+    {
+      Breaking: {
+        filter:
+          "(category:(war, conflict and unrest) OR category:(disaster and accident)) language:english",
+      },
+    },
+    {
+      Politics: {
+        filter: "category:Politics country:NG language:english",
+      },
+    },
+    {
+      Politics: {
+        filter: "category:Politics country:GH language:english",
+      },
+    },
+    {
+      Politics: {
+        filter: "category:Politics country:KE language:english",
+      },
+    },
+    {
+      Weather: {
+        filter: "category:weather",
+      },
+    },
     // {
-    //   Headlines: {
-    //     filter: "tanzania language:english country:TZ category:Politics",
-    //     altCategory: ["Top East African News"],
-    //   },
+    //   "Top North African News": {
+    //     filter: ""
+    //   }
     // },
-    // {
-    //   Breaking: {
-    //     filter:
-    //       "(category:(war, conflict and unrest) OR category:(disaster and accident)) language:english",
-    //   },
-    // },
-    // {
-    //   Politics: {
-    //     filter: "category:Politics country:NG language:english",
-    //   },
-    // },
-    // {
-    //   Politics: {
-    //     filter: "category:Politics country:GH language:english",
-    //   },
-    // },
-    // {
-    //   Politics: {
-    //     filter: "category:Politics country:KE language:english",
-    //   },
-    // },
-    // {
-    //   Weather: {
-    //     filter: "category:weather",
-    //   },
-    // },
-    // // {
-    // //   "Top North African News": {
-    // //     filter: ""
-    // //   }
-    // // },
-    // {
-    //   "Top West African News": {
-    //     filter: "west africa language:english site_category:africa -country:US",
-    //   },
-    // },
-    // {
-    //   "Top East African News": {
-    //     filter:
-    //       "(site:standardmedia.co.ke OR site:tuko.co.ke OR  site:businesstoday.co.ke) language:english",
-    //     altCategory: ["Headlines"],
-    //   },
-    // },
-    // {
-    //   "Top Southern Africa News": {
-    //     filter:
-    //       "south africa language:english site_category:africa -country:US",
-    //     altCategory: ["Headlines"],
-    //   },
-    // },
-    // {
-    //   "Top US News": {
-    //     filter:
-    //       "(site:newsday.com OR site:latimes.com OR site:nytimes.com) language:english",
-    //   },
-    // },
-    // { "UK Top News": { filter: "country:GB" } },
-    // {
-    //   "EU News": {
-    //     filter:
-    //       "(thread.country:DE OR thread.country:FR OR thread.country:IT OR thread.country:ES) language:english",
-    //   },
-    // },
-    // {
-    //   "Asian News": {
-    //     filter:
-    //       "(thread.country:CN OR thread.country:IN OR thread.country:JP OR thread.country:ID) language:english",
-    //   },
-    // },
-    // {
-    //   "Celebrity News": {
-    //     filter:
-    //       "celebrity language:english category:(Arts, Culture and Entertainment)",
-    //   },
-    // },
-    // {
-    //   "Top Movies": {
-    //     filter:
-    //       "movies site_category:movies language:english category:(Arts, Culture and Entertainment)",
-    //   },
-    // },
-    // {
-    //   "Trending Music": {
-    //     filter:
-    //       "music language:english category:(Arts, Culture and Entertainment)",
-    //   },
-    // },
-    // {
-    //   "Hot Interviews": {
-    //     filter:
-    //       "interviews language:english category:(Arts, Culture and Entertainment) ",
-    //   },
-    // },
-    // {
-    //   Economy: {
-    //     filter: "category:(economy, business and finance) language:english",
-    //   },
-    // },
-    // {
-    //   "Personal Finance": {
-    //     filter:
-    //       "personal finance (site_category:financial_news OR site_category=investing) language:english",
-    //   },
-    // },
-    // {
-    //   "Market Watch": {
-    //     filter:
-    //       "market watch category:(economy, business and finance) language:english",
-    //   },
-    // },
-    // {
-    //   "Startup News": {
-    //     filter: "startups site_category:investing language:english",
-    //   },
-    // },
-    // {
-    //   Entrepreneurship: {
-    //     filter:
-    //       "entrepreneurship category:(economy, business and finance) domain_rank:<1000 language:english",
-    //   },
-    // },
-    // {
-    //   "E-Commerce": {
-    //     filter:
-    //       "e-commerce language:english category:(economy, business and finance)",
-    //   },
-    // },
-    // { "Latest Tech News": { filter: "category:(science and technology)" } },
-    // {
-    //   "Artificial Intelligence": {
-    //     filter: "ai language:english  category:(science and technology)",
-    //   },
-    // },
-    // {
-    //   Crypto: {
-    //     filter: "crypto  category:(science and technology) language:english",
-    //   },
-    // },
-    // {
-    //   Fintech: {
-    //     filter: "african fintech language:english",
-    //   },
-    // },
-    // {
-    //   Cartech: {
-    //     filter:
-    //       "(site_category:vehicles OR site_category:auto_repair) language:english",
-    //   },
-    // },
-    // {
-    //   "Gadgets Buying Guide": {
-    //     filter: "gadget review category:(science and technology)",
-    //   },
-    // },
-    // { "Health News": { filter: "self care category:Health" } },
-    // {
-    //   "Food & Nutrition": {
-    //     filter:
-    //       "food (site_category:food AND category:(Lifestyle and Leisure))",
-    //   },
-    // },
-    // {
-    //   "Travel & Tourism": {
-    //     filter: "Travel (site_category:travel) language:english",
-    //   },
-    // },
-    // {
-    //   "Style & Beauty": {
-    //     filter:
-    //       "fashion category:(lifestyle and leisure) (site_category:style_and_fashion)",
-    //   },
-    // },
-    // {
-    //   "Family & Parenting": {
-    //     filter:
-    //       "(site_category:family_and_parenting OR site_category:parenting_teens)",
-    //   },
-    // },
-    // { "Top Sports News": { filter: "category:sport" } },
-    // {
-    //   "UK Premiership": {
-    //     filter:
-    //       "category:sport site_category:football thread.country:gb language:english",
-    //   },
-    // },
-    // {
-    //   Basketball: {
-    //     filter: "basketball site_category:pro_basketball language:english",
-    //   },
-    // },
-    // {
-    //   Gaming: {
-    //     filter:
-    //       "video games (site_category:games OR site_category:video_and_computer_games) language:english",
-    //   },
-    // },
-    // {
-    //   "Latest Job News": {
-    //     filter:
-    //       "africa (site_category:jobs OR site_category:job_fair OR site_category:job_search)",
-    //   },
-    // },
-    // {
-    //   "Career Tips": {
-    //     filter:
-    //       "career (site_category:career_advice OR site_category:career_planning) language:english",
-    //   },
-    // },
-    // {
-    //   "Top Global Jobs": {
-    //     filter:
-    //       "global jobs (site_category:jobs OR site_category:job_search) language:english",
-    //   },
-    // },
+    {
+      "Top West African News": {
+        filter: "west africa language:english site_category:africa -country:US",
+      },
+    },
+    {
+      "Top East African News": {
+        filter:
+          "(site:standardmedia.co.ke OR site:tuko.co.ke OR  site:businesstoday.co.ke) language:english",
+        altCategory: ["Headlines"],
+      },
+    },
+    {
+      "Top Southern Africa News": {
+        filter:
+          "south africa language:english site_category:africa -country:US",
+        altCategory: ["Headlines"],
+      },
+    },
+    {
+      "Top US News": {
+        filter:
+          "(site:newsday.com OR site:latimes.com OR site:nytimes.com) language:english",
+      },
+    },
+    { "UK Top News": { filter: "country:GB" } },
+    {
+      "EU News": {
+        filter:
+          "(thread.country:DE OR thread.country:FR OR thread.country:IT OR thread.country:ES) language:english",
+      },
+    },
+    {
+      "Asian News": {
+        filter:
+          "(thread.country:CN OR thread.country:IN OR thread.country:JP OR thread.country:ID) language:english",
+      },
+    },
+    {
+      "Celebrity News": {
+        filter:
+          "celebrity language:english category:(Arts, Culture and Entertainment)",
+      },
+    },
+    {
+      "Top Movies": {
+        filter:
+          "movies site_category:movies language:english category:(Arts, Culture and Entertainment)",
+      },
+    },
+    {
+      "Trending Music": {
+        filter:
+          "music language:english category:(Arts, Culture and Entertainment)",
+      },
+    },
+    {
+      "Hot Interviews": {
+        filter:
+          "interviews language:english category:(Arts, Culture and Entertainment) ",
+      },
+    },
+    {
+      Economy: {
+        filter: "category:(economy, business and finance) language:english",
+      },
+    },
+    {
+      "Personal Finance": {
+        filter:
+          "personal finance (site_category:financial_news OR site_category=investing) language:english",
+      },
+    },
+    {
+      "Market Watch": {
+        filter:
+          "market watch category:(economy, business and finance) language:english",
+      },
+    },
+    {
+      "Startup News": {
+        filter: "startups site_category:investing language:english",
+      },
+    },
+    {
+      Entrepreneurship: {
+        filter:
+          "entrepreneurship category:(economy, business and finance) domain_rank:<1000 language:english",
+      },
+    },
+    {
+      "E-Commerce": {
+        filter:
+          "e-commerce language:english category:(economy, business and finance)",
+      },
+    },
+    { "Latest Tech News": { filter: "category:(science and technology)" } },
+    {
+      "Artificial Intelligence": {
+        filter: "ai language:english  category:(science and technology)",
+      },
+    },
+    {
+      Crypto: {
+        filter: "crypto  category:(science and technology) language:english",
+      },
+    },
+    {
+      Fintech: {
+        filter: "african fintech language:english",
+      },
+    },
+    {
+      Cartech: {
+        filter:
+          "(site_category:vehicles OR site_category:auto_repair) language:english",
+      },
+    },
+    {
+      "Gadgets Buying Guide": {
+        filter: "gadget review category:(science and technology)",
+      },
+    },
+    { "Health News": { filter: "self care category:Health" } },
+    {
+      "Food & Nutrition": {
+        filter:
+          "food (site_category:food AND category:(Lifestyle and Leisure))",
+      },
+    },
+    {
+      "Travel & Tourism": {
+        filter: "Travel (site_category:travel) language:english",
+      },
+    },
+    {
+      "Style & Beauty": {
+        filter:
+          "fashion category:(lifestyle and leisure) (site_category:style_and_fashion)",
+      },
+    },
+    {
+      "Family & Parenting": {
+        filter:
+          "(site_category:family_and_parenting OR site_category:parenting_teens)",
+      },
+    },
+    { "Top Sports News": { filter: "category:sport" } },
+    {
+      "UK Premiership": {
+        filter:
+          "category:sport site_category:football thread.country:gb language:english",
+      },
+    },
+    {
+      Basketball: {
+        filter: "basketball site_category:pro_basketball language:english",
+      },
+    },
+    {
+      Gaming: {
+        filter:
+          "video games (site_category:games OR site_category:video_and_computer_games) language:english",
+      },
+    },
+    {
+      "Latest Job News": {
+        filter:
+          "africa (site_category:jobs OR site_category:job_fair OR site_category:job_search)",
+      },
+    },
+    {
+      "Career Tips": {
+        filter:
+          "career (site_category:career_advice OR site_category:career_planning) language:english",
+      },
+    },
+    {
+      "Top Global Jobs": {
+        filter:
+          "global jobs (site_category:jobs OR site_category:job_search) language:english",
+      },
+    },
   ];
 
 function extractDomain(url: string): string {
