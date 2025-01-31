@@ -147,8 +147,8 @@ export default async function PostPage({
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-6 px-[100px] py-4 max-[900px]:px-7 max-[500px]:px-4">
       <div className="flex flex-col gap-1">
-        <div className="flex items-center justify-between max-[600px]:flex-col">
-          <div className="flex items-center gap-1">
+        {/* <div className="flex items-center justify-between max-[600px]:flex-col"> */}
+        {/* <div className="flex items-center gap-1">
             {post.source.icon && (
               <div className="rounded-sm bg-gray-300 p-1">
                 <img
@@ -161,7 +161,49 @@ export default async function PostPage({
             <span className="text-xl font-semibold text-[#2F2D32] max-[300px]:text-lg">
               {post.source.name!}
             </span>
+          </div> */}
+        {/* <div className="flex items-center gap-3">
+            <ShareButton slug={article_slug} />
+            <Suspense>
+              <OutboundLink
+                source_url={post.source.url!}
+                source_link={post.link!}
+                article_id={article_id}
+              />
+            </Suspense>
+            <DownloadPost
+              article={{
+                _id: article_id,
+                title: post.title,
+                author_id: post.author_id.toString(),
+                category: post.category,
+                description: post.description,
+                image: post.image_url,
+                published_at: post.published_at as string,
+                ttr: post.ttr,
+                content: post.content,
+                source: {
+                  name: post.source.name!,
+                  icon: post.source.icon!,
+                },
+              }}
+            />
+          </div> */}
+        {/* </div> */}
+        {/* <Separator /> */}
+      </div>
+      <div className="flex flex-col gap-3">
+        <h1 className="text-2xl font-extrabold text-[#2F2D32]">{post.title}</h1>
+        <div className="flex items-center justify-between max-[600px]:flex-col max-[600px]:justify-center">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-normal text-[#696969]">
+              Published {getPublishTimeStamp(post.published_at as string)}
+            </span>
+            <span className="text-sm font-normal text-[#696969]">
+              • {calculateReadingTime(post.content)} minute read
+            </span>
           </div>
+
           <div className="flex items-center gap-3">
             <ShareButton slug={article_slug} />
             <Suspense>
@@ -190,27 +232,34 @@ export default async function PostPage({
             />
           </div>
         </div>
-        <Separator />
-      </div>
-      <div className="flex flex-col gap-3">
-        <h1 className="text-2xl font-extrabold text-[#2F2D32]">{post.title}</h1>
-        <div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-normal text-[#696969]">
-              Published {getPublishTimeStamp(post.published_at as string)}
-            </span>
-            <span className="text-sm font-normal text-[#696969]">
-              • {calculateReadingTime(post.content)} minute read
-            </span>
-          </div>
-        </div>
       </div>
 
       <div
         className="rounded-[20px] p-1 [&_a]:text-blue-500 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:font-bold [&_figure>img]:mb-2 [&_figure>img]:mt-4 [&_figure>img]:max-h-[350px] [&_figure>img]:rounded-md [&_figure>p]:text-black [&_figure]:mb-7 [&_figure]:flex [&_figure]:w-full [&_figure]:flex-col [&_figure]:items-center [&_img]:mx-auto [&_img]:block [&_img]:max-h-[350px] [&_img]:w-1/2 [&_img]:rounded-md [&_img]:object-cover [&_img]:object-center [&_p]:mb-4 [&_p]:max-w-[100vw] [&_p]:text-base [&_p]:font-normal [&_p]:leading-7 [&_p]:text-[#0C0C0C]"
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
-      <span id="data-article-end" />
+      <a
+        href={`https://${post.source.url!}`}
+        rel="noopener noreferrer noindex"
+        target="_blank"
+        className="ml-auto flex items-center gap-1 rounded-md px-4 py-2 outline outline-2 outline-[#2F7830]"
+      >
+        <span className="mr-2 text-base font-semibold text-[#696969]">
+          Origin:{" "}
+        </span>
+        {post.source.icon && (
+          <div className="rounded-sm bg-gray-300 p-1">
+            <img
+              src={post.source.icon}
+              className="h-5 rounded-full max-[300px]:h-5"
+              alt="publisher logo"
+            />
+          </div>
+        )}
+        <span className="text-base font-semibold text-[#2F2D32] max-[300px]:text-base">
+          {post.source.name!}
+        </span>
+      </a>
       <ShareArray title={post.title} />
       <div className="flex w-full items-center justify-end">
         <Reactions reaction={{ like, dislike }} postID={article_id} />
@@ -219,6 +268,7 @@ export default async function PostPage({
       <div className="flex justify-end">
         <ReportDialog articleId={article_id} />
       </div>
+      <span id="data-article-end" />
       <Separator />
       <Suspense fallback={<div>Loading...</div>}>
         <Comments postID={article_id} />

@@ -64,6 +64,7 @@ jobs:
           echo "VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }}" >> .env
           echo "VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }}" >> .env
           echo "NEXT_PUBLIC_GA_ID=${{ secrets.NEXT_PUBLIC_GA_ID }}" >> .env
+          echo "NEXT_PUBLIC_GOOGLE_ADSENSE_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_ADSENSE_KEY }}" >> .env
         shell: bash
 
       - name: Build and push Docker image

@@ -12,6 +12,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Suspense } from "react";
 import ClearPushNotifications from "./(app)/_components/ClearPushNotifications";
+import GoogleAdsense from "./(app)/_components/GoogleAdsense";
 
 const PageProgressBar = dynamic(
   () => import("@/components/layout/PageProgressBar"),
@@ -117,6 +118,9 @@ export default async function RootLayout({
         {/* </Suspense> */}
       </body>
       <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID as string} />
+      <GoogleAdsense
+        pId={process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_KEY as string}
+      />
       <ClearPushNotifications />
     </html>
   );

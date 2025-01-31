@@ -11,6 +11,7 @@ const ShareButton = ({ slug }: { slug: string }) => {
   return (
     <Button
       variant="unstyled"
+      className="p-0"
       onClick={async () => {
         // navigator.clipboard.writeText(link);
         // toast.success("Link copied to clipboard");
