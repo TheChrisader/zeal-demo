@@ -145,7 +145,7 @@ export default async function PostPage({
   post.content = cleanContent(post.content);
 
   return (
-    <main className="flex min-h-[calc(100vh-62px)] flex-col gap-6 px-[100px] py-4 max-[900px]:px-7 max-[500px]:px-4">
+    <main className="flex min-h-[calc(100vh-62px)] flex-col gap-3 px-[100px] py-4 max-[900px]:px-7 max-[500px]:px-4">
       <div className="flex flex-col gap-1">
         {/* <div className="flex items-center justify-between max-[600px]:flex-col"> */}
         {/* <div className="flex items-center gap-1">
@@ -193,8 +193,10 @@ export default async function PostPage({
         {/* <Separator /> */}
       </div>
       <div className="flex flex-col gap-3">
-        <h1 className="text-2xl font-extrabold text-[#2F2D32]">{post.title}</h1>
-        <div className="flex items-center justify-between max-[600px]:flex-col max-[600px]:justify-center">
+        <h1 className="text-[22px] font-extrabold text-[#2F2D32]">
+          {post.title}
+        </h1>
+        <div className="flex items-center justify-between max-[600px]:flex-col max-[600px]:items-start max-[600px]:justify-center">
           <div className="flex items-center gap-3">
             <span className="text-sm font-normal text-[#696969]">
               Published {getPublishTimeStamp(post.published_at as string)}
