@@ -142,6 +142,7 @@ export const fetchWithRetries = async (
 
 const categories: Record<string, { filter: string; altCategory?: string[] }>[] =
   [
+    // Nigeria
     {
       Headlines: {
         filter:
@@ -159,6 +160,34 @@ const categories: Record<string, { filter: string; altCategory?: string[] }>[] =
     {
       Headlines: {
         filter:
+          "(site:qed.ng OR site:dailynigerian.com OR site:legit.ng) language:english",
+        altCategory: ["Top West African News"],
+      },
+    },
+    {
+      Headlines: {
+        filter:
+          "(site:saharareporters.com OR site:thenationonlineng.net OR site:thecable.ng) language:english",
+        altCategory: ["Top West African News"],
+      },
+    },
+    {
+      Headlines: {
+        filter:
+          "(site:thisdaylive.com OR site:pmnewsnigeria.com OR site:dailypost.ng) language:english",
+        altCategory: ["Top West African News"],
+      },
+    },
+    {
+      Headlines: {
+        filter: "(site:guardian.ng) language:english",
+        altCategory: ["Top West African News"],
+      },
+    },
+    // Ghana
+    {
+      Headlines: {
+        filter:
           "(site:graphic.com.gh OR site:ghanaiantimes.com.gh OR site:theheraldghana.com) language:english",
         altCategory: ["Top West African News"],
       },
@@ -166,10 +195,26 @@ const categories: Record<string, { filter: string; altCategory?: string[] }>[] =
     {
       Headlines: {
         filter:
+          "(site:pulse.com.gh OR site:myjoyonline.com OR site:citinewsroom.com) language:english",
+        altCategory: ["Top West African News"],
+      },
+    },
+    {
+      Headlines: {
+        filter:
+          "(site:ghanaweb.com OR site:accramail.com OR site:theheraldghana.com) language:english",
+        altCategory: ["Top West African News"],
+      },
+    },
+    // Uganda
+    {
+      Headlines: {
+        filter:
           "(site:newvision.co.ug OR site:sunrise.ug OR site:pulse.ug) language:english",
         altCategory: ["Top East African News"],
       },
     },
+    // Zambia
     {
       Headlines: {
         filter:
@@ -177,6 +222,7 @@ const categories: Record<string, { filter: string; altCategory?: string[] }>[] =
         altCategory: ["Top Southern Africa News"],
       },
     },
+    // Tanzania
     {
       Headlines: {
         filter: "tanzania language:english country:TZ category:Politics",
