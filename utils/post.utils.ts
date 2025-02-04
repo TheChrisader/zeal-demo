@@ -144,7 +144,7 @@ export const cleanContent = (
   let startPosition = 0,
     endPosition = 0;
   let tokens;
-  console.log(source);
+  // console.log(source);
 
   while (i < tokensList.length) {
     tokens = tokensList[i];

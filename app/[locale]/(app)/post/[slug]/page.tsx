@@ -142,7 +142,7 @@ export default async function PostPage({
     dislike = await checkDislike(user.id, newId(article_id));
   }
 
-  console.log(post.content);
+  // console.log(post.content);
   post.content = cleanContent(post.content, post.source.url!);
 
   return (
