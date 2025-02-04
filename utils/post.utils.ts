@@ -1,3 +1,67 @@
+type ParserConfig = Record<
+  string,
+  {
+    excludeTokens?: string[][];
+    specialTokens?: string[][];
+    removeKeywords?: string[];
+  }
+>;
+
+export const parserConfig: ParserConfig = {
+  "dailytrust.com": {
+    excludeTokens: [["<strong", "</strong>"]],
+    removeKeywords: ["SPONSOR AD"],
+  },
+  "thenationonlineng.net": {
+    removeKeywords: ["News"],
+  },
+  "www.premiumtimesng.com": {
+    excludeTokens: [["<strong", "</strong>"]],
+    specialTokens: [
+      ['<div id="membershipOverlay"', "</div>"],
+      ['<a href="#"', "</a>"],
+      ['<a href="https://www.premiumtimesng.com/support"', "</a>"],
+      ['<a rel="noopener" href="https://premiumtimes.ecwid.com/"', "</a>"],
+      ["<hr", ">"],
+    ],
+    removeKeywords: [
+      "At&nbsp;Premium Times, we firmly believe in the importance of high-quality journalism. Recognizing that not everyone can afford costly news subscriptions, we are dedicated to delivering meticulously researched, fact-checked news that remains freely accessible to all.",
+      "Whether you turn to Premium Times for daily updates, in-depth investigations into pressing national issues, or entertaining trending stories, we value your readership.",
+      "It’s essential to acknowledge that news production incurs expenses, and we take pride in never placing our stories behind a prohibitive paywall.",
+      "Would you consider supporting us with a modest contribution on a monthly basis&nbsp;to help maintain our commitment to free, accessible news?&nbsp;",
+      "TEXT AD:",
+    ],
+  },
+  "www.legit.ng": {
+    excludeTokens: [["<strong", "</strong>"]],
+  },
+  "guardian.ng": {
+    specialTokens: [
+      ['<div data-base-category="46751">', "</div> </div>"],
+      ['<div data-base-category="46751">', "</div></div>"],
+    ],
+  },
+};
+
+const escapeRegExp = (str: string): string => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+};
+
+const removeFilterString = (html: string, filter: string): string => {
+  if (filter === "") {
+    return html;
+  }
+  const escapedFilter = escapeRegExp(filter);
+  const pattern = `<(\\w+)(\\s+[^>]*)?>\\s*${escapedFilter}\\s*<\\/\\1>`;
+  const regex = new RegExp(pattern, "g");
+  let previousHtml;
+  do {
+    previousHtml = html;
+    html = html.replace(regex, "");
+  } while (html !== previousHtml);
+  return html;
+};
+
 export const TOKENS = [
   ["<ul", "</ul>"],
   ["<ol", "</ol>"],
@@ -8,6 +72,11 @@ export const TOKENS = [
   ["<strong", "</strong>"],
   ["<header", "</header>"],
 ];
+
+function filterTokens(source: string[][], filter: string[][]): string[][] {
+  const filterSet = new Set(filter.map((arr) => JSON.stringify(arr)));
+  return source.filter((arr) => !filterSet.has(JSON.stringify(arr)));
+}
 
 export const calculateReadingTime = (content: string): number => {
   const wordsPerMinute = 210;
@@ -65,12 +134,17 @@ export const deletePortion = (string: string, start: string, end: string) => {
 
 export const cleanContent = (
   content: string,
-  tokensList: string[][] = TOKENS,
+  source: string,
+  tokensList: string[][] = filterTokens(
+    TOKENS,
+    parserConfig[source]?.excludeTokens || [],
+  ).concat(parserConfig[source]?.specialTokens || []),
 ) => {
   let i = 0;
   let startPosition = 0,
     endPosition = 0;
   let tokens;
+  console.log(source);
 
   while (i < tokensList.length) {
     tokens = tokensList[i];
@@ -93,6 +167,10 @@ export const cleanContent = (
       endPosition = 0;
     }
   }
+
+  parserConfig[source]?.removeKeywords?.forEach((keyword) => {
+    content = removeFilterString(content, keyword);
+  });
 
   content = /* replaceLinksWithSpan( */ fixImgSrcset(content) /* ) */;
 
