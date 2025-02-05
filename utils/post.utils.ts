@@ -41,6 +41,21 @@ export const parserConfig: ParserConfig = {
       ['<div data-base-category="46751">', "</div></div>"],
     ],
   },
+  "dailynigerian.com": {
+    specialTokens: [
+      ['<a rel="nofollow nooperner', "</a>"],
+      ['<a rel="nofollow noopener noreferrer', "</a>"],
+    ],
+  },
+  "www.connectingafrica.com": {
+    specialTokens: [
+      ['<div data-component="contributor-summary">', "</div></div></div>"],
+    ],
+  },
+  "lifestyle.thecable.ng": {
+    specialTokens: [["<em>", "</em>"]],
+    removeKeywords: ["Follow us on twitter", "@Thecablestyle"],
+  },
 };
 
 const escapeRegExp = (str: string): string => {
@@ -144,7 +159,7 @@ export const cleanContent = (
   let startPosition = 0,
     endPosition = 0;
   let tokens;
-  // console.log(source);
+  console.log(content, "\n", source);
 
   while (i < tokensList.length) {
     tokens = tokensList[i];
