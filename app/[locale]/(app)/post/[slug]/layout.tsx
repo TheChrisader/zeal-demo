@@ -63,12 +63,17 @@ async function getNextPost() {
 const PostLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
-      <InfinitePostScroll loadMoreAction={getNextPost}>
-        <ReadMoreWrapper>{children}</ReadMoreWrapper>
-        <div className="px-2">
-          <RecommendedArticles generic keywords={[]} />
+      <main className="flex justify-between">
+        <InfinitePostScroll loadMoreAction={getNextPost}>
+          <ReadMoreWrapper>{children}</ReadMoreWrapper>
+          <div className="hidden px-2 max-[750px]:block">
+            <RecommendedArticles generic keywords={[]} />
+          </div>
+        </InfinitePostScroll>
+        <div className="scrollbar-change sticky top-[76px] mt-4 max-h-[calc(100vh-76px)] w-[30vw] overflow-y-auto pr-4 max-[750px]:hidden">
+          <RecommendedArticles generic side keywords={[]} />
         </div>
-      </InfinitePostScroll>
+      </main>
       <DeferInstallPromptEvent />
     </>
   );

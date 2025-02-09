@@ -579,10 +579,14 @@ export default async function Home({
       >
         {/* <div className="flex flex-wrap gap-3 max-[900px]:flex-col"> */}
         {(await shuffleArray(preferences?.category_updates))?.map(
-          (category) => {
+          (category, i) => {
             return (
               // <Suspense key={category}>
-              <PostBlock key={category} category={category} user={user} />
+              <>
+                <PostBlock key={category} category={category} user={user} />
+                {i === 1 && <div className="w-full bg-red-500">G</div>}
+              </>
+
               // </Suspense>
             );
           },

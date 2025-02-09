@@ -63,15 +63,17 @@ const HomepageScroll = ({
   }, [loadMoreAction, loaded, remainingCategories]);
 
   return (
-    <div className="flex flex-wrap gap-3 max-[900px]:flex-col">
-      {children}
-      {loadedNodes}
+    <>
+      <div className="flex flex-wrap gap-3 max-[900px]:flex-col">
+        {children}
+        {loadedNodes}
+      </div>
       {!loaded && (
         <div ref={loadRef} className="text-center">
           Loading...
         </div>
       )}
-    </div>
+    </>
   );
 };
 

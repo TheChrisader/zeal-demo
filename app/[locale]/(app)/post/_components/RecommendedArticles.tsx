@@ -1,12 +1,14 @@
 // import { FetchPostsResponse } from "@/hooks/post/useFetchPosts";
 import { getPostsByFilters } from "@/database/post/post.repository";
 import { connectToDatabase } from "@/lib/database";
+import RecommendedContainer from "./RecommendedContainer";
 import Trending from "../../(home)/_components/Trending";
 
 const RecommendedArticles = async ({
   // headline,
   keywords,
   generic = false,
+  side = false,
   domain,
 }: {
   headline?: {
@@ -14,6 +16,7 @@ const RecommendedArticles = async ({
     cluster: string;
   };
   generic?: boolean;
+  side?: boolean;
   keywords: string[];
   domain?: string;
 }) => {
@@ -23,15 +26,19 @@ const RecommendedArticles = async ({
   if (generic) {
     const Articles = await getPostsByFilters({
       limit: 8,
-      // country: ["Nigeria"],
+      country: ["Nigeria"],
     });
 
     return (
       <>
-        <h1 className="text-2xl font-bold text-[#2F2D32]">
+        <h1 className="mb-4 text-2xl font-bold text-[#2F2D32]">
           You may also like...
         </h1>
-        <Trending articles={Articles} />
+        {side ? (
+          <RecommendedContainer partial articles={Articles} />
+        ) : (
+          <Trending articles={Articles} />
+        )}
       </>
     );
   }
@@ -114,7 +121,7 @@ const RecommendedArticles = async ({
       <h1 className="text-2xl font-bold text-[#2F2D32]">
         Recommended Articles
       </h1>
-      <Trending articles={RecommendedArticles} />
+      <Trending partial articles={RecommendedArticles} />
     </>
   );
 };
