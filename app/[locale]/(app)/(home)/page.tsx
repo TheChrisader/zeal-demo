@@ -16,6 +16,7 @@ import HomepageScroll from "./_components/HomepageScroll";
 import Trending from "./_components/Trending";
 import ScrollContainer from "./_components/ScrollContainer";
 import ArticleCard from "./_components/ArticleCard";
+import { TodayInHistory } from "./_components/TodayInHistory";
 
 function createTimedRandomGenerator(timeout: number) {
   let lastGeneratedValue: number | null = null;
@@ -584,7 +585,7 @@ export default async function Home({
               // <Suspense key={category}>
               <>
                 <PostBlock key={category} category={category} user={user} />
-                {/* {i === 1 && <div className="w-full bg-red-500">G</div>} */}
+                {i === 1 && <TodayInHistory />}
               </>
 
               // </Suspense>

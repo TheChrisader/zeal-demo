@@ -8,6 +8,7 @@ import { validateRequest } from "@/lib/auth/auth";
 import { connectToDatabase } from "@/lib/database";
 import { cleanObject } from "@/utils/cleanObject.utils";
 import { NotificationProvider } from "@/context/notifications/NotificationsProvider";
+import { Footer } from "@/components/layout/Footer";
 // import FloatingWrite from "./_components/FloatingWrite";
 
 const MobileNav = dynamic(() => import("@/components/layout/MobileNav/page"), {
@@ -36,6 +37,7 @@ const AppLayout = async ({ children }: { children: ReactNode }) => {
         {user && <MobileNav />}
         {children}
         {user && <FloatingWrite />}
+        <Footer />
         {user && <div className="max-[750px]:mb-20"></div>}
       </NotificationProvider>
     </AuthProvider>

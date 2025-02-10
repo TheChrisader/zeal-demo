@@ -1,8 +1,12 @@
+import { Link } from "@/i18n/routing";
+
 const TermsAndConditions = () => {
   return (
     <div className="prose mx-auto flex flex-col px-3 py-4 lg:max-w-[80vw]">
       <p>
-        <strong>Effective Date: Dec 2^nd^</strong>
+        <strong>
+          Effective Date: Dec 2<sup className="text-xs">nd</sup>
+        </strong>
       </p>
       <p>
         Welcome to <strong>Zeal News Aggregation App</strong> (&quot;we,&quot;
@@ -317,15 +321,18 @@ const TermsAndConditions = () => {
       </p>
       <p>
         Your use of the app is also governed by our{" "}
-        <strong>Privacy Policy</strong>, [make into link] which explains how we
-        collect, use, and protect your personal information. By using the app,
-        you consent to the collection and use of your information as described
-        in the Privacy Policy.
+        <strong>
+          <Link href="/info/privacy-policy">Privacy Policy</Link>
+        </strong>
+        , which explains how we collect, use, and protect your personal
+        information. By using the app, you consent to the collection and use of
+        your information as described in the Privacy Policy.
       </p>
       <p>
         For detailed information on how we collect, use, and protect your
         personal data when you use the App, please refer to our Privacy Policy,
-        which is available at [insert link to Privacy Policy].
+        which is available at{" "}
+        <Link href="/info/privacy-policy">Privacy Policy</Link>.
       </p>
       <p>
         8. <strong>In-App Purchases</strong>
@@ -410,13 +417,18 @@ const TermsAndConditions = () => {
         please contact us at:
       </p>
       <p>
-        <strong>Email</strong>: [Insert Email]
+        <strong>Email</strong>:{" "}
+        <Link href="mailto:info@zealnews.africa">info@zealnews.africa</Link>
       </p>
       <p>
-        <strong>Phone</strong>: [Insert Phone Number]
+        <strong>Phone</strong>:{" "}
+        <Link href="tel:0800-123-4567">0808-566-7381</Link>
       </p>
       <p>
-        <strong>Mailing Address</strong>: [Insert Address]
+        <strong>Mailing Address</strong>:{" "}
+        <Link href="https://www.google.com/maps/search/?api=1&query=31+Afolabi+Aina+St,+Omole+Phase+1,+Lagos+101233">
+          Block A, 31 Afolabi Aina St, Omole Phase 1, Lagos 101233, Lagos
+        </Link>
       </p>
       <p>
         15. <strong>Severability</strong>

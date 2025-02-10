@@ -13,6 +13,7 @@ import { routing } from "@/i18n/routing";
 import { Suspense } from "react";
 import ClearPushNotifications from "./(app)/_components/ClearPushNotifications";
 import GoogleAdsense from "./(app)/_components/GoogleAdsense";
+import { Footer } from "@/components/layout/Footer";
 
 const PageProgressBar = dynamic(
   () => import("@/components/layout/PageProgressBar"),
@@ -114,6 +115,7 @@ export default async function RootLayout({
             <Toaster position="top-center" />
             <CookieConsent />
           </ThemeProvider>
+          {/* <Footer /> */}
         </NextIntlClientProvider>
         {/* </Suspense> */}
       </body>

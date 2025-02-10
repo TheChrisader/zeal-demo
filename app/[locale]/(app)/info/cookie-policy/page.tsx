@@ -1,3 +1,5 @@
+import { Link } from "@/i18n/routing";
+
 const CookiePolicyPage = () => {
   return (
     <div className="prose mx-auto flex flex-col px-3 py-4 lg:max-w-[80vw]">
@@ -203,10 +205,14 @@ const CookiePolicyPage = () => {
       </p>
       <ul>
         <li>
-          <p>[Company&#39;s link to] Cookie Policy</p>
+          <p>
+            <Link href="/info/cookie-policy">Cookie Policy</Link>
+          </p>
         </li>
         <li>
-          <p>[Company&#39;s link to] Privacy Policy</p>
+          <p>
+            <Link href="/info/privacy-policy">Privacy Policy</Link>
+          </p>
         </li>
         <li>
           <p>Your browser&#39;s documentation and support resources</p>
@@ -275,13 +281,21 @@ const CookiePolicyPage = () => {
       </p>
       <ul>
         <li>
-          <p>Email: [support email]</p>
+          <p>
+            Email:{" "}
+            <Link href="mailto:info@zealnews.africa">info@zealnews.africa</Link>
+          </p>
         </li>
         <li>
           <p>Contact Form: Available on our website [provide link]</p>
         </li>
         <li>
-          <p>Postal Address: [Company Name], [Address]</p>
+          <p>
+            Postal Address: Zeal News Network,{" "}
+            <Link href="https://www.google.com/maps/search/?api=1&query=31+Afolabi+Aina+St,+Omole+Phase+1,+Lagos+101233">
+              Block A, 31 Afolabi Aina St, Omole Phase 1, Lagos 101233, Lagos
+            </Link>
+          </p>
         </li>
       </ul>
       <p>

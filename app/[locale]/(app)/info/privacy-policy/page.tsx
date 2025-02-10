@@ -1,3 +1,5 @@
+import { Link } from "@/i18n/routing";
+
 const PrivacyPolicy = () => {
   return (
     <div className="prose mx-auto flex flex-col px-3 py-4 lg:max-w-[80vw]">
@@ -7,9 +9,13 @@ const PrivacyPolicy = () => {
       <p>LAST UPDATED: 02-DEC-2024</p>
       <p>EFFECTIVE DATE: 02-DEC-2024</p>
       <p>
-        Zeal News [Address Info] is a platform committed to protecting your
-        personal information. This policy explains how we collect, use, and
-        disclose your data when you use our website.
+        Zeal News (
+        <Link href="https://www.google.com/maps/search/?api=1&query=31+Afolabi+Aina+St,+Omole+Phase+1,+Lagos+101233">
+          Block A, 31 Afolabi Aina St, Omole Phase 1, Lagos 101233, Lagos
+        </Link>
+        ) is a platform committed to protecting your personal information. This
+        policy explains how we collect, use, and disclose your data when you use
+        our website.
       </p>
       <p>
         Our company, Zeal News, is located at 24, Pa Taiwo, Oyo 200253, Nigeria.
@@ -43,9 +49,9 @@ const PrivacyPolicy = () => {
       </p>
       <p>
         Your use of the Service is subject to the terms outlined in the Zeal
-        News Terms and Conditions (&quot;T&amp;C&quot;) [provide link]. You
-        acknowledge that your use of the Service does not establish an
-        employment relationship with Zeal News.
+        News <Link href="/terms-and-conditions">Terms and Conditions</Link>{" "}
+        (&quot;T&amp;C&quot;). You acknowledge that your use of the Service does
+        not establish an employment relationship with Zeal News.
       </p>
       <p>
         <strong>COLLECTION AND USE OF PERSONAL INFORMATION</strong>
@@ -97,8 +103,8 @@ const PrivacyPolicy = () => {
       <p> i. Contact details (name, email, phone number)</p>
       <p>
         {" "}
-        ii. Personal and payment information (as outlined in our Creator Terms
-        and Conditions) [provide link to T&amp;C]
+        ii. Personal and payment information (as outlined in our Creator{" "}
+        <Link href="/terms-and-conditions">Terms and Conditions</Link>)
       </p>
       <p> iii. Any other information you choose to share with us</p>
       <p>Secondly, we collect usage data, which includes:</p>
@@ -107,8 +113,8 @@ const PrivacyPolicy = () => {
       <p> iii. Dates and times of your visits</p>
       <p>
         We also use cookies and similar technologies to enhance your experience
-        on our site. You can manage cookies through your browser settings
-        [provide link to cookie policy].
+        on our site. You can manage <Link href="/cookie-policy">cookies</Link>{" "}
+        through your browser settings.
       </p>
       <p>
         <strong>How We Use Your Personal Data</strong>
@@ -259,8 +265,9 @@ const PrivacyPolicy = () => {
       </h1>
       <p>
         Zeal News is dedicated to protecting your privacy and adhering to
-        applicable data protection laws [see section 3 of section b of our terms
-        and conditions]. Key legal frameworks include:
+        applicable data protection laws [see section 3 of section b of our{" "}
+        <Link href="/terms-and-conditions">Terms and Conditions</Link>]. Key
+        legal frameworks include:
       </p>
       <p>
         <strong>1.</strong>{" "}

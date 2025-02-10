@@ -69,6 +69,25 @@
 
     --radius: 0.5rem;
 
+    .prose {
+      /* make it white */
+      --tw-prose-body: #8fb2d1;
+      --tw-prose-headings: 210 40% 98%;
+      --tw-prose-lead: 215 20.2% 65.1%;
+      --tw-prose-links: 216 34% 17%;
+      --tw-prose-bold: #4c7dbe;
+      --tw-prose-counters: 215 20.2% 65.1%;
+      --tw-prose-bullets: 215 20.2% 65.1%;
+      --tw-prose-hr: 215 20.2% 65.1%;
+      --tw-prose-quotes: 210 40% 98%;
+      --tw-prose-quote-borders: 215 20.2% 65.1%;
+      --tw-prose-captions: 215 20.2% 65.1%;
+      --tw-prose-code: 216 34% 17%;
+      --tw-prose-pre-code: 216 34% 17%;
+      --tw-prose-pre-bg: 224 71% 4%;
+      --tw-prose-th-borders: 215 20.2% 65.1%;
+    }
+
     #nprogress .bar {
       background-color: rgb(115, 247, 117);
     }
