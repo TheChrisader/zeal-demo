@@ -584,7 +584,7 @@ export default async function Home({
               // <Suspense key={category}>
               <>
                 <PostBlock key={category} category={category} user={user} />
-                {i === 1 && <div className="w-full bg-red-500">G</div>}
+                {/* {i === 1 && <div className="w-full bg-red-500">G</div>} */}
               </>
 
               // </Suspense>
