@@ -5,9 +5,9 @@ import { fetchWebz } from "@/sources/webz";
 export const POST = async () => {
   try {
     await connectToDatabase();
-    await fetchWebz();
+    fetchWebz();
 
-    return NextResponse.json({ message: "Refreshed" });
+    return NextResponse.json({ message: "Fetching successfully started." });
   } catch (error) {
     NextResponse.json({ message: error });
   }
