@@ -59,8 +59,11 @@ export const DotButton: React.FC<PropType> = (props) => {
 
 export default function HeadlinesCarousel({
   children,
+
+  timer = 5000,
 }: {
   children: React.ReactNode;
+  timer: number;
 }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
@@ -80,7 +83,7 @@ export default function HeadlinesCarousel({
 
     const interval = setInterval(() => {
       emblaApi.scrollNext();
-    }, 5000);
+    }, timer);
 
     return () => clearInterval(interval);
   });
