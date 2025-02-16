@@ -126,7 +126,7 @@ export const TodayInHistory: React.FC = () => {
           />
         </div> */}
 
-        <HeadlinesCarousel timer={8000}>
+        <HeadlinesCarousel timer={8000} hideSnaps={showLogo}>
           {events.map((event, index) => {
             return (
               <div
@@ -139,7 +139,7 @@ export const TodayInHistory: React.FC = () => {
                   </div>
                   <Clock className="size-4 text-gray-400" />
                 </div>
-                <p className="flex-1 text-base text-gray-700 dark:text-gray-300">
+                <p className="pointer-events-none flex-1 text-base text-gray-700 dark:text-gray-300">
                   {event?.event}
                 </p>
               </div>

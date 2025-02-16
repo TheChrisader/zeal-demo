@@ -59,11 +59,12 @@ export const DotButton: React.FC<PropType> = (props) => {
 
 export default function HeadlinesCarousel({
   children,
-
   timer = 5000,
+  hideSnaps = false,
 }: {
   children: React.ReactNode;
   timer: number;
+  hideSnaps?: boolean;
 }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
@@ -94,13 +95,14 @@ export default function HeadlinesCarousel({
         <div className="flex">{children}</div>
       </div>
       <div className="embla__dots">
-        {scrollSnaps.map((_, index) => (
-          <DotButton
-            key={index}
-            onClick={() => onDotButtonClick(index)}
-            className={`embla__dot ${index === selectedIndex ? "embla__dot--selected" : ""}`}
-          />
-        ))}
+        {!hideSnaps &&
+          scrollSnaps.map((_, index) => (
+            <DotButton
+              key={index}
+              onClick={() => onDotButtonClick(index)}
+              className={`embla__dot ${index === selectedIndex ? "embla__dot--selected" : ""}`}
+            />
+          ))}
       </div>
     </div>
   );
