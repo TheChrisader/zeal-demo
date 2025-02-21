@@ -492,6 +492,9 @@ const RecapSection = async () => {
   const batchedNews = await cacheManager({
     fetcher: fetchBatch,
     key: "batchedNews",
+    options: {
+      revalidate: 60 * 60,
+    },
   });
   return <NewsRecapSection batches={batchedNews} />;
 };

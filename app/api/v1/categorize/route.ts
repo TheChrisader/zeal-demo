@@ -41,16 +41,14 @@ export const POST = async (request: NextRequest) => {
     });
 
     const existingBatches = await BatchModel.find({
-      updated_at: {
-        $gte: new Date(new Date().setHours(new Date().getHours() - 6)),
-      },
+      //   updated_at: {
+      //     $gte: new Date(new Date().setHours(new Date().getHours() - 6)),
+      //   },
     })
       .select("_id name")
       .exec();
 
-    const existingBatchesList = existingBatches
-      .map((batch) => batch.name)
-      .join(" \n");
+    const existingBatchesList = existingBatches.map((batch) => batch.name);
 
     const posts = await PostModel.find({
       category: {
@@ -79,7 +77,7 @@ export const POST = async (request: NextRequest) => {
     If there are none, return an empty array.
 
     Existing Batches (Create new batches if necessary, disregard if no new articles fit):
-    ${existingBatchesList}
+    ${existingBatchesList.join(" \n")}
     
     Articles:
     ${postsList}
@@ -115,8 +113,12 @@ export const POST = async (request: NextRequest) => {
         }
       }
 
-      if (existingBatches.includes(batch)) {
-        console.log(batch, batchedArticles);
+      if (existingBatchesList.includes(batch)) {
+        await BatchModel.findOneAndUpdate(
+          { name: batch },
+          { $push: { articles: { $each: batchedArticles } } },
+          { new: true },
+        );
         continue;
       }
 

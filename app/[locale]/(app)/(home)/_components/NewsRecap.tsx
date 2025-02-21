@@ -45,7 +45,7 @@ const NewsRecapCard: React.FC<{ batch: ClientBatch }> = ({ batch }) => {
       <CardHeader className="bg-gradient-to-r from-primary to-primary text-white">
         <CardTitle className="text-lg font-semibold">{batch.name}</CardTitle>
         <CardDescription className="text-white">
-          {format(new Date(batch.updated_at), "MMM d, yyyy HH:mm")}
+          {format(new Date(batch.updated_at), "MMM d, yyyy")}
         </CardDescription>
       </CardHeader>
       <CardContent className="p-6">

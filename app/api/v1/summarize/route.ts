@@ -27,7 +27,12 @@ export const POST = async (request: NextRequest) => {
       },
     });
 
-    const existingBatches = await BatchModel.find({})
+    const existingBatches = await BatchModel.find({
+      updated_at: {
+        $gte: new Date(new Date().setHours(new Date().getHours() - 6)),
+        $lt: new Date(),
+      },
+    })
       .select("_id name articles.id")
       .exec();
 
