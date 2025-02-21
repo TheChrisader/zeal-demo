@@ -14,7 +14,7 @@ const BookmarkSchema = new Schema<IBookmark>(
     },
     article_id: {
       type: Schema.Types.ObjectId,
-      ref: "Article",
+      ref: "Post",
       // type: String,
       required: true,
     },

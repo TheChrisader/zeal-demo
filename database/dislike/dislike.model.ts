@@ -14,7 +14,7 @@ const DislikeSchema = new Schema<IDislike>(
     },
     article_id: {
       type: Schema.Types.ObjectId,
-      ref: "Article",
+      ref: "Post",
       // type: String,
       required: true,
     },

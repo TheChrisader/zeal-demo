@@ -8,7 +8,7 @@ const BatchArticleSchema = new Schema(
   {
     id: {
       type: Schema.Types.ObjectId,
-      ref: "Article",
+      ref: "Post",
       required: true,
     },
     title: {

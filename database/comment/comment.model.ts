@@ -8,7 +8,7 @@ const CommentSchema = new Schema<IComment>(
   {
     article_id: {
       type: Schema.Types.ObjectId,
-      ref: "Article",
+      ref: "Post",
       required: true,
       index: true,
     },
