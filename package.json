@@ -16,6 +16,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.670.0",
     "@aws-sdk/s3-request-presigner": "^3.670.0",
+    "@google/generative-ai": "^0.21.0",
     "@hookform/resolvers": "^3.9.0",
     "@khmyznikov/pwa-install": "^0.4.8",
     "@lexical/file": "^0.18.0",
@@ -35,6 +36,7 @@
     "@radix-ui/react-navigation-menu": "^1.2.1",
     "@radix-ui/react-popover": "^1.1.1",
     "@radix-ui/react-radio-group": "^1.2.0",
+    "@radix-ui/react-scroll-area": "^1.2.3",
     "@radix-ui/react-select": "^2.1.2",
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
@@ -97,6 +99,7 @@
     "react-hook-form": "^7.52.2",
     "sharp": "^0.33.5",
     "sonner": "^1.5.0",
+    "string-strip-html": "^13.4.8",
     "swr": "^2.2.5",
     "tailwind-merge": "^2.5.1",
     "tailwindcss-animate": "^1.0.7",

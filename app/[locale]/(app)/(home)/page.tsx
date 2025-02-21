@@ -17,6 +17,9 @@ import Trending from "./_components/Trending";
 import ScrollContainer from "./_components/ScrollContainer";
 import ArticleCard from "./_components/ArticleCard";
 import { TodayInHistory } from "./_components/TodayInHistory";
+import NewsRecapSection from "./_components/NewsRecap";
+import { cacheManager } from "@/lib/cache";
+import BatchModel from "@/database/batch/batch.model";
 
 function createTimedRandomGenerator(timeout: number) {
   let lastGeneratedValue: number | null = null;
@@ -478,6 +481,21 @@ const HeadlinesBlock = async ({ user }: { user: User | null }) => {
   );
 };
 
+const RecapSection = async () => {
+  const fetchBatch = async () => {
+    return await BatchModel.find({})
+      .sort({ updated_at: -1 })
+      .limit(5)
+      .lean()
+      .exec();
+  };
+  const batchedNews = await cacheManager({
+    fetcher: fetchBatch,
+    key: "batchedNews",
+  });
+  return <NewsRecapSection batches={batchedNews} />;
+};
+
 export default async function Home({
   searchParams,
 }: {
@@ -584,6 +602,11 @@ export default async function Home({
             return (
               // <Suspense key={category}>
               <>
+                {i === 0 && (
+                  <>
+                    <RecapSection /> <Separator className="my-3" />
+                  </>
+                )}
                 <PostBlock key={category} category={category} user={user} />
                 {i === 1 && <TodayInHistory />}
               </>
