@@ -65,6 +65,10 @@ async function shuffleArray(array?: string[]) {
   return array;
 }
 
+// const ZealPostBlock = async () => {
+//   const News = {};
+// };
+
 const PostBlock = async ({
   category,
   user,
@@ -607,11 +611,12 @@ export default async function Home({
               <>
                 {i === 0 && (
                   <>
-                    <RecapSection /> <Separator className="my-3" />
+                    <TodayInHistory /> <Separator className="my-3" />{" "}
+                    {/* <RecapSection /> */}
                   </>
                 )}
                 <PostBlock key={category} category={category} user={user} />
-                {i === 1 && <TodayInHistory />}
+                {/* {i === 1 && <TodayInHistory />} */}
               </>
 
               // </Suspense>

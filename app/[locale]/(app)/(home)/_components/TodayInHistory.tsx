@@ -10,6 +10,7 @@ import { Calendar, ChevronLeft, ChevronRight, Clock, Star } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import HeadlinesCarousel from "./HeadlinesCarousel";
 import ZealLogo2 from "@/assets/ZealLogo2";
+import { createHash } from "crypto";
 
 interface HistoricalEvent {
   event: string;
@@ -35,6 +36,16 @@ export const TodayInHistory: React.FC = () => {
     fetchTodayInHistory();
   }, []);
 
+  const generateHash = (length: number = 5): string => {
+    const timestamp = Date.now().toString();
+    const data = `${timestamp}${length}${Math.random()}`;
+    return createHash("sha256")
+      .update(data)
+      .digest("base64")
+      .replace(/[+/=]/g, "")
+      .substring(0, length);
+  };
+
   const onButtonClick = useCallback(() => {
     if (ref.current === null) {
       return;
@@ -45,7 +56,7 @@ export const TodayInHistory: React.FC = () => {
     toPng(ref.current, { cacheBust: true })
       .then((dataUrl) => {
         const link = document.createElement("a");
-        link.download = "today-in-history.png";
+        link.download = `today-in-history-${generateHash()}.png`;
         link.href = dataUrl;
         link.click();
       })
