@@ -18,6 +18,8 @@ import { checkLike } from "@/database/like/like.repository";
 import { checkDislike } from "@/database/dislike/dislike.repository";
 import dynamic from "next/dynamic";
 import ReportDialog from "../_components/ReportDialog";
+import BatchModel from "@/database/batch/batch.model";
+import RelatedExternalArticles from "../_components/RelatedExternalArticles";
 
 export async function generateMetadata({
   params,
@@ -145,6 +147,16 @@ export default async function PostPage({
   // console.log(post.content);
   post.content = cleanContent(post.content, post.source.url!);
 
+  const relatedExternalArticles =
+    (
+      await BatchModel.findOne({
+        name: post.title,
+      })
+        .select("articles")
+        .lean()
+        .exec()
+    )?.articles || [];
+
   return (
     // <main className="flex min-h-[calc(100vh-62px)] gap-4">
     <main className="flex min-h-[calc(100vh-60px)] w-[70vw] flex-col gap-3 px-12 py-4 max-[900px]:px-7 max-[750px]:w-auto max-[500px]:px-4">
@@ -164,13 +176,15 @@ export default async function PostPage({
 
           <div className="flex items-center gap-3">
             <ShareButton slug={article_slug} />
-            <Suspense>
-              <OutboundLink
-                source_url={post.source.url!}
-                source_link={post.link!}
-                article_id={article_id}
-              />
-            </Suspense>
+            {post.external && (
+              <Suspense>
+                <OutboundLink
+                  source_url={post.source.url!}
+                  source_link={post.link!}
+                  article_id={article_id}
+                />
+              </Suspense>
+            )}
             <DownloadPost
               article={{
                 _id: article_id,
@@ -196,32 +210,37 @@ export default async function PostPage({
         className="rounded-[20px] p-1 text-sm [&_a]:text-blue-500 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:font-bold [&_figure>img]:mb-2 [&_figure>img]:mt-4 [&_figure>img]:max-h-[350px] [&_figure>img]:rounded-md [&_figure>p]:text-black [&_figure]:mb-7 [&_figure]:flex [&_figure]:w-full [&_figure]:flex-col [&_figure]:items-center [&_img]:mx-auto [&_img]:block [&_img]:max-h-[350px] [&_img]:rounded-md [&_img]:object-cover [&_img]:object-center [&_p]:mb-4 [&_p]:max-w-[100vw] [&_p]:text-base [&_p]:font-normal [&_p]:leading-7 [&_p]:text-[#0C0C0C]"
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
-      <a
-        href={`https://${post.source.url!}`}
-        rel="noopener noreferrer noindex"
-        target="_blank"
-        className="ml-auto flex size-fit items-center gap-1 rounded-md px-4 py-2 outline outline-2 outline-[#2F7830]"
-      >
-        <span className="mr-2 text-base font-semibold text-[#696969]">
-          Origin:{" "}
-        </span>
-        {post.source.icon && (
-          <div className="rounded-sm bg-gray-300 p-1">
-            <img
-              src={post.source.icon}
-              className="h-5 rounded-full max-[300px]:h-5"
-              alt="publisher logo"
-            />
-          </div>
-        )}
-        <span className="text-base font-semibold text-[#2F2D32] max-[300px]:text-base">
-          {post.source.name!}
-        </span>
-      </a>
+      {post.external && (
+        <a
+          href={`https://${post.source.url!}`}
+          rel="noopener noreferrer noindex"
+          target="_blank"
+          className="ml-auto flex size-fit items-center gap-1 rounded-md px-4 py-2 outline outline-2 outline-[#2F7830]"
+        >
+          <span className="mr-2 text-base font-semibold text-[#696969]">
+            Origin:{" "}
+          </span>
+          {post.source.icon && (
+            <div className="rounded-sm bg-gray-300 p-1">
+              <img
+                src={post.source.icon}
+                className="h-5 rounded-full max-[300px]:h-5"
+                alt="publisher logo"
+              />
+            </div>
+          )}
+          <span className="text-base font-semibold text-[#2F2D32] max-[300px]:text-base">
+            {post.source.name!}
+          </span>
+        </a>
+      )}
       <ShareArray title={post.title} />
       <div className="flex w-full items-center justify-end">
         <Reactions reaction={{ like, dislike }} postID={article_id} />
       </div>
+      {relatedExternalArticles.length > 0 && (
+        <RelatedExternalArticles articles={relatedExternalArticles} />
+      )}
       <Separator />
       <div className="flex justify-end">
         <ReportDialog articleId={article_id} />

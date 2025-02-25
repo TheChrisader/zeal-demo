@@ -36,7 +36,7 @@ const ScrollContainer = ({
   };
 
   return (
-    <div>
+    <>
       {children}
       {loadedNodes}
       <div className="mt-2 flex w-full items-center justify-center">
@@ -44,7 +44,7 @@ const ScrollContainer = ({
           {isLoading ? <span>Loading...</span> : <span>View More</span>}
         </Button>
       </div>
-    </div>
+    </>
   );
 };
 

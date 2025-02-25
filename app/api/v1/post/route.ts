@@ -16,19 +16,9 @@ import {
 } from "@/utils/file.utils";
 import { calculateReadingTime } from "@/utils/post.utils";
 import { SlugGenerator } from "@/lib/slug";
+import { generateRandomString } from "@/lib/utils";
 
 // TODO: Delete Draft if it exists
-
-function generateRandomString(length: number) {
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    result += characters[randomIndex];
-  }
-  return result;
-}
 
 export const POST = async (request: NextRequest) => {
   try {

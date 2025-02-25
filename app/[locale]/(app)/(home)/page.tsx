@@ -65,9 +65,61 @@ async function shuffleArray(array?: string[]) {
   return array;
 }
 
-// const ZealPostBlock = async () => {
-//   const News = {};
-// };
+const ZealPostBlock = async ({ user }: { user: User | null }) => {
+  let category = "Zeal News Studio";
+  const fetcher = async () => {
+    return await getPostsByFilters({
+      categories: [category],
+      limit: 10,
+    });
+  };
+
+  const News = await cacheManager({
+    fetcher,
+    key: category,
+    options: {
+      revalidate: 60,
+    },
+  });
+
+  if (user) {
+    const bookmarkedNews = await unstable_cache(
+      async () => {
+        return await BookmarkModel.find({
+          user_id: user?.id,
+          article_id: { $in: News.map((article) => article._id) },
+        });
+      },
+      [`bookmarks-${user?.id.toString()}`],
+      {
+        revalidate: 60 * 60,
+        tags: [`bookmarks-${user?.id.toString()}`],
+      },
+    )();
+
+    const bookmarkedNewsIds = new Set(
+      bookmarkedNews
+        .map((bookmark) => bookmark.article_id)
+        .map((id) => id.toString()),
+    );
+
+    News.forEach((article) => {
+      if (bookmarkedNewsIds.has(article._id!.toString())) {
+        article.bookmarked = true;
+      }
+    });
+  }
+
+  return (
+    <div className="flex flex-wrap">
+      <ArticlesContainer title={category}>
+        {/* <ScrollContainer> */}
+        <Trending articles={News} category={category} />
+        {/* </ScrollContainer> */}
+      </ArticlesContainer>
+    </div>
+  );
+};
 
 const PostBlock = async ({
   category,
@@ -612,7 +664,7 @@ export default async function Home({
                 {i === 0 && (
                   <>
                     <TodayInHistory /> <Separator className="my-3" />{" "}
-                    {/* <RecapSection /> */}
+                    <ZealPostBlock user={user} />
                   </>
                 )}
                 <PostBlock key={category} category={category} user={user} />

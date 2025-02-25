@@ -3,6 +3,27 @@ import mongooseLeanVirtuals from "mongoose-lean-virtuals";
 
 import { IPost } from "@/types/post.type";
 
+const SourceSchema = new Schema(
+  {
+    id: {
+      type: String,
+    },
+    url: {
+      id: String,
+    },
+    name: {
+      type: String,
+    },
+    icon: {
+      type: String,
+    },
+    priority: {
+      type: Number,
+    },
+  },
+  { _id: true },
+);
+
 const PostSchema = new Schema<IPost>(
   {
     title: {
@@ -82,6 +103,7 @@ const PostSchema = new Schema<IPost>(
     },
     language: {
       type: String,
+      default: "English",
       index: true,
     },
     country: {

@@ -62,7 +62,6 @@ export const POST = async (request: NextRequest) => {
         $lt: new Date(),
       },
     })
-      .limit(50)
       .select("_id title source slug link")
       .exec();
 
