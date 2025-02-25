@@ -187,6 +187,7 @@ const loadMoreAction = async (selection: string[]) => {
     return (
       <Suspense key={category}>
         <PostBlock category={category} user={user} />
+        {/* <PostBlock category={category} user={user} /> */}
       </Suspense>
     );
   });

@@ -61,9 +61,13 @@ async function getNextPosts(offset: number, category: string) {
 
   return (
     <>
-      {News.map((_, index) => {
+      {News.map((news, index) => {
         return (
-          <ArticleCard className={"w-full"} article={News[index]} key={index} />
+          <ArticleCard
+            className="min-w-[40%] flex-1 basis-2/5"
+            article={news}
+            key={index}
+          />
         );
       })}
     </>
