@@ -70,7 +70,7 @@ const ZealPostBlock = async ({ user }: { user: User | null }) => {
   const fetcher = async () => {
     return await getPostsByFilters({
       categories: [category],
-      limit: 10,
+      limit: 6,
     });
   };
 
