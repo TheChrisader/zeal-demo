@@ -651,7 +651,7 @@ export default async function Home({
       {/* <Suspense> */}
       <HeadlinesBlock user={user} />
       {/* </Suspense> */}
-      <Separator />
+      {/* <Separator /> */}
       <HomepageScroll
         currentSelection={preferences!.category_updates!}
         loadMoreAction={loadMoreAction}
@@ -664,8 +664,9 @@ export default async function Home({
               <>
                 {i === 0 && (
                   <>
-                    <TodayInHistory /> <Separator className="my-3" />{" "}
-                    <ZealPostBlock user={user} />
+                    <TodayInHistory />
+                    {/* <Separator className="my-3" />{" "} */}
+                    {/* <ZealPostBlock user={user} /> */}
                   </>
                 )}
                 <PostBlock key={category} category={category} user={user} />
