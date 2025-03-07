@@ -4,6 +4,7 @@ import { PostsResponse } from "@/hooks/post/useFetchPosts";
 import { Link } from "@/i18n/routing";
 import { getPublishTimeStamp } from "@/utils/time.utils";
 import ArticleTitle from "./ArticleTitle";
+import { truncateString } from "@/utils/string.utils";
 // import BookmarkButton from "./BookmarkButton";
 
 const BookmarkButton = dynamic(() => import("./BookmarkButton"), {
@@ -13,15 +14,6 @@ const BookmarkButton = dynamic(() => import("./BookmarkButton"), {
 interface ArticleCardProps {
   article?: PostsResponse;
   className?: string;
-}
-
-export function truncateString(str?: string, num = 91) {
-  if (!str) return str;
-
-  if (str.length <= num) {
-    return str;
-  }
-  return str.slice(0, num) + "...";
 }
 
 const ArticleCard = ({ article, className }: ArticleCardProps) => {

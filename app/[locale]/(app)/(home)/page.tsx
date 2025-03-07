@@ -28,17 +28,15 @@ function createTimedRandomGenerator(timeout: number) {
   return function () {
     const currentTime = Date.now();
 
-    // Check if the last generated value is still valid based on the timeout
     if (
       lastGeneratedValue !== null &&
       currentTime - lastGeneratedTime < timeout
     ) {
-      return lastGeneratedValue; // Return the same value if within timeout
+      return lastGeneratedValue;
     }
 
-    // Generate a new random value
     lastGeneratedValue = Math.random();
-    lastGeneratedTime = currentTime; // Update the time of generation
+    lastGeneratedTime = currentTime;
     return lastGeneratedValue;
   };
 }
@@ -113,9 +111,7 @@ const ZealPostBlock = async ({ user }: { user: User | null }) => {
   return (
     <div className="flex flex-wrap">
       <ArticlesContainer title={category}>
-        {/* <ScrollContainer> */}
         <Trending articles={News} category={category} />
-        {/* </ScrollContainer> */}
       </ArticlesContainer>
     </div>
   );
@@ -172,9 +168,7 @@ const PostBlock = async ({
 
   return (
     <ArticlesContainer title={category}>
-      {/* <ScrollContainer> */}
       <Trending articles={News} category={category} partial />
-      {/* </ScrollContainer> */}
     </ArticlesContainer>
   );
 };
@@ -187,7 +181,6 @@ const loadMoreAction = async (selection: string[]) => {
     return (
       <Suspense key={category}>
         <PostBlock category={category} user={user} />
-        {/* <PostBlock category={category} user={user} /> */}
       </Suspense>
     );
   });
@@ -198,8 +191,8 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
 
   const { user } = await validateRequest();
 
-  const preferences: Partial<IPreferences> | null =
-    await getPreferencesByUserId(user?.id as string);
+  // const preferences: Partial<IPreferences> | null =
+  //   await getPreferencesByUserId(user?.id as string);
 
   const HeadlinesPosts = user
     ? await (async () => {
@@ -207,9 +200,9 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
           category: {
             $in: [category],
           },
-          country: {
-            $in: [preferences?.country || "Nigeria"],
-          },
+          // country: {
+          //   $in: [preferences?.country || "Nigeria"],
+          // },
           image_url: {
             $ne: null,
           },
@@ -220,50 +213,15 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
           .skip(offset * 5 + 13)
           .limit(5)
           .exec();
-        return await PostModel.aggregate([
-          {
-            $match: {
-              headline: true,
-              image_url: {
-                $ne: null,
-              },
-              country: {
-                $in: [preferences?.country || "Nigeria"],
-              },
-            },
-          },
-          {
-            $group: {
-              _id: "$cluster_id",
-              doc: { $first: "$$ROOT" },
-            },
-          },
-          {
-            $replaceRoot: {
-              newRoot: "$doc",
-            },
-          },
-          {
-            $sort: {
-              published_at: -1,
-            },
-          },
-          {
-            $skip: offset * 5 + 13,
-          },
-          {
-            $limit: 5,
-          },
-        ]);
       })()
     : await (async () => {
         return await PostModel.find({
           category: {
             $in: [category],
           },
-          country: {
-            $in: ["Nigeria"],
-          },
+          // country: {
+          //   $in: ["Nigeria"],
+          // },
           image_url: {
             $ne: null,
           },
@@ -274,51 +232,9 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
           .skip(offset * 5 + 13)
           .limit(5)
           .exec();
-        return await PostModel.aggregate([
-          {
-            $match: {
-              headline: true,
-              image_url: {
-                $ne: null,
-              },
-              country: {
-                $in: ["Nigeria"],
-              },
-            },
-          },
-          {
-            $group: {
-              _id: "$cluster_id",
-              doc: { $first: "$$ROOT" },
-            },
-          },
-          {
-            $replaceRoot: {
-              newRoot: "$doc",
-            },
-          },
-          {
-            $sort: {
-              published_at: -1,
-            },
-          },
-          {
-            $skip: offset * 5 + 13,
-          },
-          {
-            $limit: 5,
-          },
-        ]);
       })();
 
   if (user) {
-    // unstable_cache(
-    //   async () => {
-    //   return ""
-    // }, [`bookmarks-${user?.id.toString()}`], {
-    //   revalidate: 60 * 60,
-    //   tags: [`bookmarks-${user?.id.toString()}`],
-    // })
     const bookmarkedHeadlinesPosts = await unstable_cache(
       async () => {
         return await BookmarkModel.find({
@@ -348,7 +264,6 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
 
   return (
     <>
-      {/* <Suspense> */}
       {HeadlinesPosts.map((article) => {
         article.id = article._id.toString();
         return (
@@ -359,12 +274,17 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
           />
         );
       })}
-      {/* </Suspense> */}
     </>
   );
 };
 
-const HeadlinesBlock = async ({ user }: { user: User | null }) => {
+const HeadlinesBlock = async ({
+  user,
+  category,
+}: {
+  user: User | null;
+  category: string;
+}) => {
   const preferences: Partial<IPreferences> | null =
     await getPreferencesByUserId(user?.id as string);
 
@@ -376,14 +296,14 @@ const HeadlinesBlock = async ({ user }: { user: User | null }) => {
         async () => {
           return await PostModel.find({
             category: {
-              $in: ["Headlines"],
+              $in: [category],
             },
             image_url: {
               $ne: null,
             },
-            country: {
-              $in: [preferences?.country || "Nigeria"],
-            },
+            // country: {
+            //   $in: [preferences?.country || "Nigeria"],
+            // },
             created_at: {
               $gte: daysAgo,
             },
@@ -391,53 +311,18 @@ const HeadlinesBlock = async ({ user }: { user: User | null }) => {
             .sort({ published_at: -1 })
             .limit(13)
             .exec();
-          return await PostModel.aggregate([
-            {
-              $match: {
-                headline: true,
-                image_url: {
-                  $ne: null,
-                },
-                country: {
-                  $in: [preferences?.country || "Nigeria"],
-                },
-                created_at: {
-                  $gte: daysAgo,
-                },
-              },
-            },
-            {
-              $group: {
-                _id: "$cluster_id",
-                doc: { $first: "$$ROOT" },
-              },
-            },
-            {
-              $replaceRoot: {
-                newRoot: "$doc",
-              },
-            },
-            {
-              $sort: {
-                published_at: -1,
-              },
-            },
-            {
-              $limit: 13,
-            },
-          ]);
         },
-        [`Headlines-${user?.id.toString()}`],
+        [`${category}-${user?.id.toString()}`],
         {
           revalidate: 60 * 60,
-          tags: [`Headlines-${user?.id.toString()}`],
+          tags: [`${category}-${user?.id.toString()}`],
         },
       )()
     : await unstable_cache(
         async () => {
           return await PostModel.find({
             category: {
-              $in: ["Headlines"],
+              $in: [category],
             },
             image_url: {
               $ne: null,
@@ -452,48 +337,17 @@ const HeadlinesBlock = async ({ user }: { user: User | null }) => {
             .sort({ published_at: -1 })
             .limit(13)
             .exec();
-          return await PostModel.aggregate([
-            {
-              $match: {
-                headline: true,
-                image_url: {
-                  $ne: null,
-                },
-                country: {
-                  $in: ["Nigeria"],
-                },
-                created_at: {
-                  $gte: daysAgo,
-                },
-              },
-            },
-            {
-              $group: {
-                _id: "$cluster_id",
-                doc: { $first: "$$ROOT" },
-              },
-            },
-            {
-              $replaceRoot: {
-                newRoot: "$doc",
-              },
-            },
-            {
-              $sort: {
-                published_at: -1,
-              },
-            },
-            {
-              $limit: 13,
-            },
-          ]);
         },
-        ["Headlines"],
+        [category],
         {
           revalidate: 60 * 60,
-          tags: ["Headlines"],
+          tags: [category],
         },
       )();
+
+  if (!HeadlinesPosts) {
+    return <></>;
+  }
 
   if (user) {
     const bookmarkedHeadlinesPosts = await unstable_cache(
@@ -523,17 +377,13 @@ const HeadlinesBlock = async ({ user }: { user: User | null }) => {
     });
   }
   return (
-    <ArticlesContainer title="Headlines">
-      {/* <ResponsiveHeadlines
-        headlines={HeadlinesPosts.map((post) => cleanObject(post))}
-      > */}
+    <ArticlesContainer
+      title={category === "Headlines" ? "Headlines" : "Zeal Headline News"}
+    >
       <Headlines headlines={HeadlinesPosts} />
-      {/* </ResponsiveHeadlines> */}
-      {/* <Suspense> */}
-      <ScrollContainer loadMoreAction={loadMoreHeadlines} category="Headlines">
+      <ScrollContainer loadMoreAction={loadMoreHeadlines} category={category}>
         <></>
       </ScrollContainer>
-      {/* </Suspense> */}
     </ArticlesContainer>
   );
 };
@@ -590,7 +440,6 @@ export default async function Home({
 
   const header = headers();
   const ip = header.get("x-forwarded-for");
-  // let country: [string];
   console.log(
     "Cloudflare ip: " + ip + "\n",
     "Client IP (hopefully): ",
@@ -598,16 +447,6 @@ export default async function Home({
     "CF-Connecting-IP: ",
     header.get("cf-connecting-ip"),
   );
-
-  // TODO: Add ip location
-  /* or, check if env is in dev */
-  // if (ip != "::1") {
-  //   // set country to nigeria
-  //   country = ["Nigeria"];
-  // } else {
-  //   // set country to ip location
-  //   country = ["Nigeria"];
-  // }
 
   if (query || topics || sources) {
     const articles = await getPostsByFilters({
@@ -648,36 +487,20 @@ export default async function Home({
 
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-7">
-      {/* <Suspense> */}
-      <HeadlinesBlock user={user} />
-      {/* </Suspense> */}
-      {/* <Separator /> */}
+      <HeadlinesBlock user={user} category="Zeal Headline News" />
+      <TodayInHistory />
+      <HeadlinesBlock user={user} category="Headlines" />
+      {/* {process.env.NODE_ENV === "development" && <ZealPostBlock user={user} />} */}
+
       <HomepageScroll
         currentSelection={preferences!.category_updates!}
         loadMoreAction={loadMoreAction}
       >
-        {/* <div className="flex flex-wrap gap-3 max-[900px]:flex-col"> */}
         {(await shuffleArray(preferences?.category_updates))?.map(
           (category, i) => {
-            return (
-              // <Suspense key={category}>
-              <>
-                {i === 0 && (
-                  <>
-                    <TodayInHistory />
-                    {/* <Separator className="my-3" />{" "} */}
-                    {/* <ZealPostBlock user={user} /> */}
-                  </>
-                )}
-                <PostBlock key={category} category={category} user={user} />
-                {/* {i === 1 && <TodayInHistory />} */}
-              </>
-
-              // </Suspense>
-            );
+            return <PostBlock key={category} category={category} user={user} />;
           },
         )}
-        {/* </div> */}
       </HomepageScroll>
     </main>
   );

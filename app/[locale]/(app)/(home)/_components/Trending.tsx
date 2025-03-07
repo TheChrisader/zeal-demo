@@ -64,7 +64,7 @@ async function getNextPosts(offset: number, category: string) {
       {News.map((news, index) => {
         return (
           <ArticleCard
-            className="min-w-[40%] flex-1 basis-2/5"
+            className="min-w-[50%] flex-1 basis-2/5"
             article={news}
             key={index}
           />
@@ -95,18 +95,12 @@ const Trending = ({
 
   if (category) {
     return (
-      <div
-        className={`flex flex-wrap gap-5 max-[800px]:flex-col ${partial ? "flex-col" : ""}`}
-      >
+      <div className={`flex flex-wrap gap-5`}>
         <ScrollContainer category={category} loadMoreAction={getNextPosts}>
           {articles.map((_, index) => {
             return (
               <ArticleCard
-                className={
-                  partial
-                    ? "w-full"
-                    : "min-w-[45%] max-w-[50%] max-[800px]:max-w-full"
-                }
+                className={"min-w-[50%] flex-1 basis-2/5"}
                 article={articles[index]}
                 key={index}
               />
@@ -118,17 +112,11 @@ const Trending = ({
   }
 
   return (
-    <div
-      className={`flex flex-wrap gap-5 max-[800px]:flex-col ${partial ? "flex-col" : ""}`}
-    >
+    <div className={`flex flex-wrap gap-5`}>
       {articles.map((_, index) => {
         return (
           <ArticleCard
-            className={
-              partial
-                ? "w-full"
-                : "min-w-[45%] max-w-[50%] max-[800px]:max-w-full"
-            }
+            className={"min-w-[40%] flex-1 basis-2/5"}
             article={articles[index]}
             key={index}
           />

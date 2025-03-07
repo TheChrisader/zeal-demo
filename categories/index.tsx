@@ -28,7 +28,7 @@ const Categories: Categories = [
       },
       {
         name: "Headlines",
-        path: "/headlines",
+        path: "/zeal-news-headlines",
       },
       {
         name: "Weather",
@@ -56,6 +56,7 @@ const Categories: Categories = [
   {
     name: "Global News",
     sub: [
+      { name: "Zeal Global", path: "/zeal-global" },
       {
         name: "Top US News",
         path: "/us-news",
@@ -77,6 +78,7 @@ const Categories: Categories = [
   {
     name: "Entertainment",
     sub: [
+      { name: "Zeal Entertainment", path: "/zeal-entertainment" },
       {
         name: "Celebrity News",
         path: "/celebrity-news",
@@ -98,6 +100,7 @@ const Categories: Categories = [
   {
     name: "Business",
     sub: [
+      { name: "Business 360", path: "/business-360" },
       {
         name: "Economy",
         path: "/economy",
@@ -127,6 +130,7 @@ const Categories: Categories = [
   {
     name: "Technology",
     sub: [
+      { name: "Zeal Tech", path: "/zeal-tech" },
       {
         name: "Latest Tech News",
         path: "/latest-tech-news",
@@ -153,6 +157,7 @@ const Categories: Categories = [
   {
     name: "Lifestyle",
     sub: [
+      { name: "Zeal Lifestyle", path: "/zeal-lifestyle" },
       {
         name: "Health News",
         path: "/health-news",
@@ -178,6 +183,7 @@ const Categories: Categories = [
   {
     name: "Sports",
     sub: [
+      { name: "Zeal Sports", path: "/zeal-sports" },
       {
         name: "Top Sports News",
         path: "/top-sports-news",

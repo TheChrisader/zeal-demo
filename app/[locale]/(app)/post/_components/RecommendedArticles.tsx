@@ -3,6 +3,7 @@ import { getPostsByFilters } from "@/database/post/post.repository";
 import { connectToDatabase } from "@/lib/database";
 import RecommendedContainer from "./RecommendedContainer";
 import Trending from "../../(home)/_components/Trending";
+import PostModel from "@/database/post/post.model";
 
 const RecommendedArticles = async ({
   // headline,
@@ -10,6 +11,7 @@ const RecommendedArticles = async ({
   generic = false,
   side = false,
   domain,
+  id,
 }: {
   headline?: {
     isHeadline: boolean;
@@ -19,15 +21,21 @@ const RecommendedArticles = async ({
   side?: boolean;
   keywords: string[];
   domain?: string;
+  id?: string;
 }) => {
   await connectToDatabase();
   // let tags;
 
   if (generic) {
-    const Articles = await getPostsByFilters({
+    let Articles = await getPostsByFilters({
       limit: 8,
       country: ["Nigeria"],
+      categories: ["Zeal Headline News"],
     });
+
+    if (id) {
+      Articles = Articles.filter((article) => article._id?.toString() !== id);
+    }
 
     return (
       <>
@@ -111,10 +119,43 @@ const RecommendedArticles = async ({
   // const RecommendedArticles: FetchPostsResponse =
   //   await RecommendedArticlesResponse.json();
 
-  const RecommendedArticles = await getPostsByFilters({
-    limit: 6,
-    keywords: keywords,
-  });
+  // let RecommendedArticles = await getPostsByFilters({
+  //   limit: 6,
+  //   keywords: keywords,
+  // });
+
+  let RecommendedArticles = await PostModel.aggregate([
+    {
+      $match: {
+        keywords: {
+          $in: keywords,
+        },
+      },
+    },
+    {
+      $addFields: {
+        matchCount: {
+          $size: {
+            $setIntersection: ["$keywords", keywords],
+          },
+        },
+      },
+    },
+    {
+      $sort: {
+        matchCount: -1,
+      },
+    },
+    {
+      $limit: 6,
+    },
+  ]);
+
+  if (id) {
+    RecommendedArticles = RecommendedArticles.filter(
+      (article) => article._id?.toString() !== id,
+    );
+  }
 
   return (
     <>

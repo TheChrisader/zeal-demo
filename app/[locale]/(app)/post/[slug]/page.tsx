@@ -104,6 +104,26 @@ const OutboundLink = async ({
   );
 };
 
+const isZealArticle = (categoryList: string[]) => {
+  const categories = [
+    "Zeal Headline News",
+    "Zeal Global",
+    "Zeal Entertainment",
+    "Zeal Lifestyle",
+    "Business 360",
+    "Zeal Tech",
+    "Zeal Sports",
+  ];
+
+  for (const category of categoryList) {
+    if (categories.includes(category)) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 export default async function PostPage({
   params,
   subPost,
@@ -206,10 +226,31 @@ export default async function PostPage({
         </div>
       </div>
 
+      {isZealArticle(post.category) && post.image_url && (
+        <img
+          className="max-h-[350px] w-full rounded-md object-cover"
+          src={post.image_url}
+          alt={post.title}
+        />
+      )}
+
       <div
         className="rounded-[20px] p-1 text-sm [&_a]:text-blue-500 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:font-bold [&_figure>img]:mb-2 [&_figure>img]:mt-4 [&_figure>img]:max-h-[350px] [&_figure>img]:rounded-md [&_figure>p]:text-black [&_figure]:mb-7 [&_figure]:flex [&_figure]:w-full [&_figure]:flex-col [&_figure]:items-center [&_img]:mx-auto [&_img]:block [&_img]:max-h-[350px] [&_img]:rounded-md [&_img]:object-cover [&_img]:object-center [&_p]:mb-4 [&_p]:max-w-[100vw] [&_p]:text-base [&_p]:font-normal [&_p]:leading-7 [&_p]:text-[#0C0C0C]"
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
+      {isZealArticle(post.category) && (
+        <div>
+          <span className="flex items-center gap-2">
+            <strong>From Zeal News Studio</strong>
+            <Link
+              href="/info/terms-and-conditions"
+              className="text-xs underline"
+            >
+              (Terms and Conditions)
+            </Link>
+          </span>
+        </div>
+      )}
       {post.external && (
         <a
           href={`https://${post.source.url!}`}
@@ -253,6 +294,7 @@ export default async function PostPage({
       <Separator />
       <Suspense fallback={<div>Loading...</div>}>
         <RecommendedArticles
+          id={article_id}
           headline={
             post.headline
               ? { isHeadline: true, cluster: post.cluster_id as string }

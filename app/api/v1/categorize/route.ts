@@ -1,9 +1,53 @@
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
-import PostModel from "@/database/post/post.model";
 import BatchModel from "@/database/batch/batch.model";
+import PostModel from "@/database/post/post.model";
+import { Id } from "@/lib/database";
+import { IBatch } from "@/types/batch.type";
 
-export const POST = async (request: NextRequest) => {
+export const POST = async () => {
+  const batchResults: { [key: string]: Id[] } = {};
+  const categories: { title: string; groups: string[] }[] = [
+    { title: "Zeal Headline News", groups: ["Headlines"] },
+    {
+      title: "Zeal Global",
+      groups: ["Top US News", "UK Top News", "EU News", "Asian News"],
+    },
+    {
+      title: "Zeal Entertainment",
+      groups: [
+        "Celebrity News",
+        "Top Movies",
+        "Trending Music",
+        "Hot Interviews",
+      ],
+    },
+    {
+      title: "Zeal Lifestyle",
+      groups: [
+        "Health News",
+        "Food & Nutrition",
+        "Travel & Tourism",
+        "Style & Beauty",
+        "Family & Parenting",
+      ],
+    },
+    {
+      title: "Zeal Tech",
+      groups: [
+        "Latest Tech News",
+        "Artificial Intelligence",
+        "Crypto",
+        "Fintech",
+        "Cartech",
+        "Gadgets Buying Guide",
+      ],
+    },
+    {
+      title: "Zeal Sports",
+      groups: ["Top Sports News", "UK Premiereship", "Basketball", "Gaming"],
+    },
+  ];
   try {
     const schema = {
       description: "List of recipes",
@@ -40,34 +84,38 @@ export const POST = async (request: NextRequest) => {
       },
     });
 
-    const existingBatches = await BatchModel.find({
-      //   updated_at: {
-      //     $gte: new Date(new Date().setHours(new Date().getHours() - 6)),
-      //   },
-    })
-      .select("_id name")
-      .exec();
+    for (const category of categories) {
+      const { title, groups } = category;
 
-    const existingBatchesList = existingBatches.map((batch) => batch.name);
+      const existingBatches = await BatchModel.find({
+        category: title,
+        //   updated_at: {
+        //     $gte: new Date(new Date().setHours(new Date().getHours() - 6)),
+        //   },
+      })
+        .select("_id name")
+        .exec();
 
-    const posts = await PostModel.find({
-      category: {
-        $in: ["Headlines"],
-      },
-      country: {
-        $in: ["Nigeria"],
-      },
-      published_at: {
-        $gte: new Date(new Date().setHours(new Date().getHours() - 6)),
-        $lt: new Date(),
-      },
-    })
-      .select("_id title source slug link")
-      .exec();
+      const existingBatchesList = existingBatches.map((batch) => batch.name);
 
-    const postsList = posts.map((post) => post.title).join(" \n");
+      const posts = await PostModel.find({
+        category: {
+          $in: groups,
+        },
+        //   country: {
+        //     $in: ["Nigeria"],
+        //   },
+        published_at: {
+          $gte: new Date(new Date().setHours(new Date().getHours() - 24)),
+          $lt: new Date(),
+        },
+      })
+        .select("_id title source slug link")
+        .exec();
 
-    const prompt = `
+      const postsList = posts.map((post) => post.title).join(" \n");
+
+      const prompt = `
     Pre: Be extremely strict, detailed, and cautiously specific. Think carefully before responding, and recheck your work.
     Instructions: 
     Batch these news articles based off if their titles indicate content referring to the same event. 
@@ -82,57 +130,67 @@ export const POST = async (request: NextRequest) => {
     ${postsList}
     `;
 
-    const result = await model.generateContent(prompt);
-    let generated_batches = [];
-    try {
-      generated_batches = JSON.parse(result.response.text());
-    } catch (error) {
-      console.log(`Error parsing response: ${error}`);
-      return NextResponse.json("Internal Server Error", { status: 500 });
-    }
-
-    const batches = [];
-
-    for (const generatedBatch of generated_batches) {
-      const { batch, articles } = generatedBatch;
-      const batchedArticles = [];
-
-      for (const article of articles) {
-        const post = posts.find((post) => post.title === article);
-
-        if (post) {
-          batchedArticles.push({
-            id: post._id,
-            title: post.title,
-            slug: post.slug,
-            source_url: post.link,
-            source_name: post.source.name,
-            source_icon: post.source.icon,
-          });
-        }
+      const result = await model.generateContent(prompt);
+      let generated_batches = [];
+      try {
+        generated_batches = JSON.parse(result.response.text());
+      } catch (error) {
+        console.log(`Error parsing response: ${error}`);
+        return NextResponse.json("Internal Server Error", { status: 500 });
       }
 
-      if (existingBatchesList.includes(batch)) {
-        await BatchModel.findOneAndUpdate(
-          { name: batch },
-          { $push: { articles: { $each: batchedArticles } } },
-          { new: true },
-        );
+      const batches = [];
+
+      for (const generatedBatch of generated_batches) {
+        const { batch, articles } = generatedBatch;
+        const batchedArticles = [];
+
+        for (const article of articles) {
+          const post = posts.find((post) => post.title === article);
+
+          if (post) {
+            batchedArticles.push({
+              id: post._id,
+              title: post.title,
+              slug: post.slug,
+              source_url: post.link,
+              source_name: post.source.name,
+              source_icon: post.source.icon,
+            });
+          }
+        }
+
+        if (existingBatchesList.includes(batch)) {
+          await BatchModel.findOneAndUpdate(
+            { name: batch },
+            { $push: { articles: { $each: batchedArticles } } },
+            { new: true },
+          );
+          continue;
+        }
+
+        const newBatch = {
+          name: batch,
+          articles: batchedArticles,
+        };
+
+        batches.push(newBatch);
+      }
+
+      const createdBatches: IBatch[] = await BatchModel.create(batches, {
+        ordered: false,
+      });
+
+      if (createdBatches.length === 0) {
         continue;
       }
-
-      const newBatch = {
-        name: batch,
-        articles: batchedArticles,
-      };
-
-      batches.push(newBatch);
+      // const createdBatches = await Promise.all(
+      //   batches.map((batch) => BatchModel.create(batch)),
+      // )
+      batchResults[title] = createdBatches.map((batch) => batch._id!);
     }
 
-    await BatchModel.create(batches);
-
-    return NextResponse.json(batches.length);
-    // return NextResponse.json(posts.map((post) => post.title).join(" \n"));
+    return NextResponse.json(batchResults);
   } catch (error) {
     console.log(`Error categorizing post: ${error}`);
     return NextResponse.json("Internal Server Error", { status: 500 });

@@ -149,7 +149,7 @@ export const deletePortion = (string: string, start: string, end: string) => {
 
 export const cleanContent = (
   content: string,
-  source: string,
+  source: string = "base",
   tokensList: string[][] = filterTokens(
     TOKENS,
     parserConfig[source]?.excludeTokens || [],

@@ -15,6 +15,10 @@ export const flattenCategories = (arr: Category[]) => {
 };
 
 export const findSiblings = (targetName: string): string[] => {
+  if (targetName === "Zeal Headline News") {
+    targetName = "Headlines";
+  }
+
   for (const category of Categories) {
     if (category.sub) {
       const subNames = category.sub.map((sub) => sub.name);

@@ -1,0 +1,5012 @@
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\page.tsx ----
+import { User } from "lucia";
+import { unstable_cache } from "next/cache";
+import { headers } from "next/headers";
+import { Suspense } from "react";
+import { Separator } from "@/components/ui/separator";
+import BookmarkModel from "@/database/bookmark/bookmark.model";
+import PostModel from "@/database/post/post.model";
+import { getPostsByFilters } from "@/database/post/post.repository";
+import { getPreferencesByUserId } from "@/database/preferences/preferences.repository";
+import { validateRequest } from "@/lib/auth/auth";
+import { connectToDatabase } from "@/lib/database";
+import { IPreferences } from "@/types/preferences.type";
+import ArticlesContainer from "./_components/ArticlesContainer";
+import Headlines from "./_components/Headlines";
+import HomepageScroll from "./_components/HomepageScroll";
+import Trending from "./_components/Trending";
+import ScrollContainer from "./_components/ScrollContainer";
+import ArticleCard from "./_components/ArticleCard";
+import { TodayInHistory } from "./_components/TodayInHistory";
+import NewsRecapSection from "./_components/NewsRecap";
+import { cacheManager } from "@/lib/cache";
+import BatchModel from "@/database/batch/batch.model";
+
+function createTimedRandomGenerator(timeout: number) {
+  let lastGeneratedValue: number | null = null;
+  let lastGeneratedTime = 0;
+
+  return function () {
+    const currentTime = Date.now();
+
+    // Check if the last generated value is still valid based on the timeout
+    if (
+      lastGeneratedValue !== null &&
+      currentTime - lastGeneratedTime < timeout
+    ) {
+      return lastGeneratedValue; // Return the same value if within timeout
+    }
+
+    // Generate a new random value
+    lastGeneratedValue = Math.random();
+    lastGeneratedTime = currentTime; // Update the time of generation
+    return lastGeneratedValue;
+  };
+}
+
+const getCachedShuffler = async () => {
+  return await unstable_cache(
+    async () => {
+      return createTimedRandomGenerator(1000 * 60 * 10)();
+    },
+    [],
+    {
+      revalidate: 1000 * 60 * 10,
+    },
+  )();
+};
+
+async function shuffleArray(array?: string[]) {
+  if (!array) return [];
+
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor((await getCachedShuffler()) * (i + 1));
+    [array[i], array[j]] = [array[j]!, array[i]!];
+  }
+  return array;
+}
+
+const ZealPostBlock = async ({ user }: { user: User | null }) => {
+  let category = "Zeal News Studio";
+  const fetcher = async () => {
+    return await getPostsByFilters({
+      categories: [category],
+      limit: 6,
+    });
+  };
+
+  const News = await cacheManager({
+    fetcher,
+    key: category,
+    options: {
+      revalidate: 60,
+    },
+  });
+
+  if (user) {
+    const bookmarkedNews = await unstable_cache(
+      async () => {
+        return await BookmarkModel.find({
+          user_id: user?.id,
+          article_id: { $in: News.map((article) => article._id) },
+        });
+      },
+      [`bookmarks-${user?.id.toString()}`],
+      {
+        revalidate: 60 * 60,
+        tags: [`bookmarks-${user?.id.toString()}`],
+      },
+    )();
+
+    const bookmarkedNewsIds = new Set(
+      bookmarkedNews
+        .map((bookmark) => bookmark.article_id)
+        .map((id) => id.toString()),
+    );
+
+    News.forEach((article) => {
+      if (bookmarkedNewsIds.has(article._id!.toString())) {
+        article.bookmarked = true;
+      }
+    });
+  }
+
+  return (
+    <div className="flex flex-wrap">
+      <ArticlesContainer title={category}>
+        {/* <ScrollContainer> */}
+        <Trending articles={News} category={category} />
+        {/* </ScrollContainer> */}
+      </ArticlesContainer>
+    </div>
+  );
+};
+
+const PostBlock = async ({
+  category,
+  user,
+}: {
+  category: string;
+  user: User | null;
+}) => {
+  const News = await unstable_cache(
+    async () => {
+      return await getPostsByFilters({
+        categories: [category],
+        limit: 4,
+      });
+    },
+    [category],
+    {
+      revalidate: 60 * 60,
+      tags: [category],
+    },
+  )();
+
+  if (user) {
+    const bookmarkedNews = await unstable_cache(
+      async () => {
+        return await BookmarkModel.find({
+          user_id: user?.id,
+          article_id: { $in: News.map((article) => article._id) },
+        });
+      },
+      [`bookmarks-${user?.id.toString()}`],
+      {
+        revalidate: 60 * 60,
+        tags: [`bookmarks-${user?.id.toString()}`],
+      },
+    )();
+
+    const bookmarkedNewsIds = new Set(
+      bookmarkedNews
+        .map((bookmark) => bookmark.article_id)
+        .map((id) => id.toString()),
+    );
+
+    News.forEach((article) => {
+      if (bookmarkedNewsIds.has(article._id!.toString())) {
+        article.bookmarked = true;
+      }
+    });
+  }
+
+  return (
+    <ArticlesContainer title={category}>
+      {/* <ScrollContainer> */}
+      <Trending articles={News} category={category} partial />
+      {/* </ScrollContainer> */}
+    </ArticlesContainer>
+  );
+};
+
+const loadMoreAction = async (selection: string[]) => {
+  "use server";
+  const { user } = await validateRequest();
+
+  return selection.map((category) => {
+    return (
+      <Suspense key={category}>
+        <PostBlock category={category} user={user} />
+        {/* <PostBlock category={category} user={user} /> */}
+      </Suspense>
+    );
+  });
+};
+
+const loadMoreHeadlines = async (offset: number, category: string) => {
+  "use server";
+
+  const { user } = await validateRequest();
+
+  const preferences: Partial<IPreferences> | null =
+    await getPreferencesByUserId(user?.id as string);
+
+  const HeadlinesPosts = user
+    ? await (async () => {
+        return await PostModel.find({
+          category: {
+            $in: [category],
+          },
+          country: {
+            $in: [preferences?.country || "Nigeria"],
+          },
+          image_url: {
+            $ne: null,
+          },
+        })
+          .sort({
+            published_at: -1,
+          })
+          .skip(offset * 5 + 13)
+          .limit(5)
+          .exec();
+      })()
+    : await (async () => {
+        return await PostModel.find({
+          category: {
+            $in: [category],
+          },
+          country: {
+            $in: ["Nigeria"],
+          },
+          image_url: {
+            $ne: null,
+          },
+        })
+          .sort({
+            published_at: -1,
+          })
+          .skip(offset * 5 + 13)
+          .limit(5)
+          .exec();
+      })();
+
+  if (user) {
+    const bookmarkedHeadlinesPosts = await unstable_cache(
+      async () => {
+        return await BookmarkModel.find({
+          user_id: user?.id,
+          article_id: { $in: HeadlinesPosts.map((article) => article._id) },
+        });
+      },
+      [`bookmarks-${user?.id.toString()}`],
+      {
+        revalidate: 60 * 60,
+        tags: [`bookmarks-${user?.id.toString()}`],
+      },
+    )();
+
+    const bookmarkedHeadlinesPostsIds = new Set(
+      bookmarkedHeadlinesPosts
+        .map((bookmark) => bookmark.article_id)
+        .map((id) => id?.toString()),
+    );
+
+    HeadlinesPosts.forEach((article) => {
+      if (bookmarkedHeadlinesPostsIds.has(article._id.toString())) {
+        article.bookmarked = true;
+      }
+    });
+  }
+
+  return (
+    <>
+      {/* <Suspense> */}
+      {HeadlinesPosts.map((article) => {
+        article.id = article._id.toString();
+        return (
+          <ArticleCard
+            className={"w-full"}
+            article={article}
+            key={article._id.toString()}
+          />
+        );
+      })}
+      {/* </Suspense> */}
+    </>
+  );
+};
+
+const HeadlinesBlock = async ({ user }: { user: User | null }) => {
+  const preferences: Partial<IPreferences> | null =
+    await getPreferencesByUserId(user?.id as string);
+
+  const daysAgo = new Date();
+  daysAgo.setDate(daysAgo.getDate() - 5);
+
+  const HeadlinesPosts = user
+    ? await unstable_cache(
+        async () => {
+          return await PostModel.find({
+            category: {
+              $in: ["Headlines"],
+            },
+            image_url: {
+              $ne: null,
+            },
+            country: {
+              $in: [preferences?.country || "Nigeria"],
+            },
+            created_at: {
+              $gte: daysAgo,
+            },
+          })
+            .sort({ published_at: -1 })
+            .limit(13)
+            .exec();
+        },
+        [`Headlines-${user?.id.toString()}`],
+        {
+          revalidate: 60 * 60,
+          tags: [`Headlines-${user?.id.toString()}`],
+        },
+      )()
+    : await unstable_cache(
+        async () => {
+          return await PostModel.find({
+            category: {
+              $in: ["Headlines"],
+            },
+            image_url: {
+              $ne: null,
+            },
+            country: {
+              $in: ["Nigeria"],
+            },
+            created_at: {
+              $gte: daysAgo,
+            },
+          })
+            .sort({ published_at: -1 })
+            .limit(13)
+            .exec();
+        },
+        ["Headlines"],
+        {
+          revalidate: 60 * 60,
+          tags: ["Headlines"],
+        },
+      )();
+
+  if (user) {
+    const bookmarkedHeadlinesPosts = await unstable_cache(
+      async () => {
+        return await BookmarkModel.find({
+          user_id: user?.id,
+          article_id: { $in: HeadlinesPosts.map((article) => article._id) },
+        });
+      },
+      [`bookmarks-${user?.id.toString()}`],
+      {
+        revalidate: 60 * 60,
+        tags: [`bookmarks-${user?.id.toString()}`],
+      },
+    )();
+
+    const bookmarkedHeadlinesPostsIds = new Set(
+      bookmarkedHeadlinesPosts
+        .map((bookmark) => bookmark.article_id)
+        .map((id) => id?.toString()),
+    );
+
+    HeadlinesPosts.forEach((article) => {
+      if (bookmarkedHeadlinesPostsIds.has(article._id.toString())) {
+        article.bookmarked = true;
+      }
+    });
+  }
+  return (
+    <ArticlesContainer title="Headlines">
+      {/* <ResponsiveHeadlines
+        headlines={HeadlinesPosts.map((post) => cleanObject(post))}
+      > */}
+      <Headlines headlines={HeadlinesPosts} />
+      {/* </ResponsiveHeadlines> */}
+      {/* <Suspense> */}
+      <ScrollContainer loadMoreAction={loadMoreHeadlines} category="Headlines">
+        <></>
+      </ScrollContainer>
+      {/* </Suspense> */}
+    </ArticlesContainer>
+  );
+};
+
+const RecapSection = async () => {
+  const fetchBatch = async () => {
+    return await BatchModel.find({})
+      .sort({ updated_at: -1 })
+      .limit(5)
+      .lean()
+      .exec();
+  };
+  const batchedNews = await cacheManager({
+    fetcher: fetchBatch,
+    key: "batchedNews",
+    options: {
+      revalidate: 60 * 60,
+    },
+  });
+  return <NewsRecapSection batches={batchedNews} />;
+};
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: {
+    query?: string;
+    page?: string;
+    topics?: string;
+    sources?: string;
+  };
+}) {
+  await connectToDatabase();
+  const { user } = await validateRequest();
+
+  let preferences: Partial<IPreferences> | null = await getPreferencesByUserId(
+    user?.id as string,
+  );
+
+  if (!preferences) {
+    preferences = {
+      category_updates: [
+        "Politics",
+        "Breaking",
+        "Celebrity News",
+        "Market Watch",
+      ],
+    };
+  }
+
+  const query = searchParams?.query || "";
+  const topics = searchParams?.topics || "";
+  const sources = searchParams?.sources || "";
+
+  const header = headers();
+  const ip = header.get("x-forwarded-for");
+  // let country: [string];
+  console.log(
+    "Cloudflare ip: " + ip + "\n",
+    "Client IP (hopefully): ",
+    header.get("client-ip") + "\n",
+    "CF-Connecting-IP: ",
+    header.get("cf-connecting-ip"),
+  );
+
+  // TODO: Add ip location
+  /* or, check if env is in dev */
+  // if (ip != "::1") {
+  //   // set country to nigeria
+  //   country = ["Nigeria"];
+  // } else {
+  //   // set country to ip location
+  //   country = ["Nigeria"];
+  // }
+
+  if (query || topics || sources) {
+    const articles = await getPostsByFilters({
+      query: query,
+      categories: topics.split(","),
+      limit: 20,
+      // country: country,
+    });
+
+    const bookmarkedArticles = await BookmarkModel.find({
+      user_id: user?.id,
+      article_id: { $in: articles.map((article) => article._id) },
+    });
+
+    const bookmarkedArticlesIds = new Set(
+      bookmarkedArticles
+        .map((bookmark) => bookmark.article_id)
+        .map((id) => id.toString()),
+    );
+
+    articles.forEach((article) => {
+      if (bookmarkedArticlesIds.has(article._id!.toString())) {
+        article.bookmarked = true;
+      }
+    });
+
+    const title = query ? `Search Results for "${query}"` : "Filtered Results";
+    return (
+      <main className="flex flex-col">
+        <div className="max-[900px]:flex-col">
+          <ArticlesContainer title={title}>
+            <Trending articles={articles} />
+          </ArticlesContainer>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="flex min-h-[calc(100vh-62px)] flex-col gap-7">
+      {/* <Suspense> */}
+      <HeadlinesBlock user={user} />
+      {/* </Suspense> */}
+      {/* <Separator /> */}
+      <HomepageScroll
+        currentSelection={preferences!.category_updates!}
+        loadMoreAction={loadMoreAction}
+      >
+        {/* <div className="flex flex-wrap gap-3 max-[900px]:flex-col"> */}
+        {(await shuffleArray(preferences?.category_updates))?.map(
+          (category, i) => {
+            return (
+              // <Suspense key={category}>
+              <>
+                {i === 0 && (
+                  <>
+                    <TodayInHistory />
+                    {/* <Separator className="my-3" />{" "} */}
+                    {process.env.NODE_ENV === "development" && (
+                      <ZealPostBlock user={user} />
+                    )}
+                  </>
+                )}
+                <PostBlock key={category} category={category} user={user} />
+                {/* {i === 1 && <TodayInHistory />} */}
+              </>
+
+              // </Suspense>
+            );
+          },
+        )}
+        {/* </div> */}
+      </HomepageScroll>
+    </main>
+  );
+}
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\page.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\components/ui/separator.tsx ----
+"use client";
+
+import * as SeparatorPrimitive from "@radix-ui/react-separator";
+import * as React from "react";
+
+import { cn } from "@/lib/utils";
+
+const Separator = React.forwardRef<
+  React.ElementRef<typeof SeparatorPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>
+>(
+  (
+    { className, orientation = "horizontal", decorative = true, ...props },
+    ref,
+  ) => (
+    <SeparatorPrimitive.Root
+      ref={ref}
+      decorative={decorative}
+      orientation={orientation}
+      className={cn(
+        "shrink-0 bg-border",
+        orientation === "horizontal" ? "h-[1px] w-full" : "h-full w-[1px]",
+        className,
+      )}
+      {...props}
+    />
+  ),
+);
+Separator.displayName = SeparatorPrimitive.Root.displayName;
+
+export { Separator };
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\components/ui/separator.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\lib/utils.ts ----
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+export function generateRandomString(length: number) {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters[randomIndex];
+  }
+  return result;
+}
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\lib/utils.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\database/bookmark/bookmark.model.ts ----
+import { Model, model, models, Schema } from "mongoose";
+
+import mongooseLeanVirtuals from "mongoose-lean-virtuals";
+
+import { IBookmark } from "@/types/bookmark.type";
+
+const BookmarkSchema = new Schema<IBookmark>(
+  {
+    user_id: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+    article_id: {
+      type: Schema.Types.ObjectId,
+      ref: "Post",
+      // type: String,
+      required: true,
+    },
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
+    id: false,
+  },
+);
+
+BookmarkSchema.virtual("id").get(function () {
+  return this._id.toHexString();
+});
+
+BookmarkSchema.set("toObject", {
+  virtuals: true,
+});
+
+BookmarkSchema.plugin(mongooseLeanVirtuals);
+
+const BookmarkModel: Model<IBookmark> =
+  models.Bookmark || model<IBookmark>("Bookmark", BookmarkSchema);
+
+export default BookmarkModel;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\database/bookmark/bookmark.model.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\types/bookmark.type.ts ----
+import { Id } from "@/lib/database";
+
+export interface IBookmark {
+  id: Id | string;
+  user_id: Id | string;
+  article_id: Id | string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\types/bookmark.type.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\lib/database.ts ----
+import mongoose, { Types } from "mongoose";
+
+export type Id = Types.ObjectId;
+export const newId = (idString?: string | Id) => new Types.ObjectId(idString);
+
+export type UpdateQueryOptions = {
+  newDocument?: boolean;
+  upsert?: boolean;
+};
+
+export type SortParams<D> = Partial<Record<keyof D, 1 | -1>>;
+
+export type QueryOptions<D> = {
+  sort?: SortParams<D>;
+  limit?: number;
+  skip?: number;
+};
+
+const {
+  DB_USER,
+  DB_PASSWORD,
+  DB_IP,
+  DB_CLUSTER,
+  DB_NAME,
+  DB_PORT,
+  DB_REPLICA_SET,
+  DB_AUTH_SOURCE,
+} = process.env;
+
+export const getMongoDBURI = () => {
+  if (!DB_CLUSTER && !DB_USER && !DB_PASSWORD) {
+    if (!DB_NAME) {
+      throw new Error(
+        "Please define the DB_NAME environment variable inside .env.local",
+      );
+    }
+    return `mongodb://127.0.0.1:${DB_PORT || "27017"}/${DB_NAME}?retryWrites=true&w=majority`;
+  }
+  if (DB_IP && DB_PORT && DB_REPLICA_SET && DB_AUTH_SOURCE) {
+    return `mongodb://${DB_USER}:${DB_PASSWORD}@${DB_IP}:${DB_PORT}/${DB_NAME}?replicaSet=${DB_REPLICA_SET}&authSource=${DB_AUTH_SOURCE}&retryWrites=true&w=majority`;
+  }
+  return `mongodb+srv://${DB_USER}:${DB_PASSWORD}@${DB_CLUSTER}.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`;
+};
+
+const MONGODB_URI = getMongoDBURI();
+
+if (!MONGODB_URI) {
+  throw new Error(
+    "Wrong MONGODB_URI. Please define the environment variables inside .env.local",
+  );
+}
+
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = {
+    conn: null,
+    promise: null,
+  };
+
+  global.mongoose = {
+    conn: null,
+    promise: null,
+  };
+}
+
+export const connectToDatabase = async () => {
+  try {
+    if (cached.conn) {
+      return cached.conn;
+    }
+
+    // if (!cached.promise) {
+    const opts = {
+      bufferCommands: true,
+    };
+
+    cached.promise = mongoose
+      .connect(MONGODB_URI, opts)
+      .then((mongoose) => {
+        console.info("Connected to MongoDB successfully.");
+        cached.conn = mongoose;
+        return mongoose;
+      })
+      .catch((error) => {
+        if (
+          error.name === "MongoNetworkError" ||
+          error.name === "MongoServerSelectionError"
+        ) {
+          console.error(
+            "MongoDB connection error. Please make sure MongoDB is running!!!!!!!!!!!!!!",
+          );
+        }
+        cached.promise = null;
+        throw error;
+      });
+    // }
+
+    // cached.conn = await cached.promise;
+    // return cached.conn;
+    return await cached.promise;
+  } catch (error) {
+    console.error("MONGODB CONNECTION ERROR >>>>>>>>>", error);
+    cached.promise = null;
+    cached.conn = null;
+    throw error;
+  }
+};
+
+// setInterval(() => {
+//   console.log(
+//     `Active connections: ${mongoose.connections.base.connections.length}`,
+//   );
+// }, 5000);
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\lib/database.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\database/post/post.model.ts ----
+import { Model, model, models, Schema } from "mongoose";
+import mongooseLeanVirtuals from "mongoose-lean-virtuals";
+
+import { IPost } from "@/types/post.type";
+
+const SourceSchema = new Schema(
+  {
+    id: {
+      type: String,
+    },
+    url: {
+      id: String,
+    },
+    name: {
+      type: String,
+    },
+    icon: {
+      type: String,
+    },
+    priority: {
+      type: Number,
+    },
+  },
+  { _id: true },
+);
+
+const PostSchema = new Schema<IPost>(
+  {
+    title: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
+    author_id: {
+      type: String || Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+    cluster_id: {
+      type: String || undefined,
+      default: undefined,
+      index: true,
+    },
+    headline: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    content: {
+      type: String || null,
+      default: null,
+    },
+    description: {
+      type: String || null,
+      default: null,
+      index: true,
+    },
+    link: {
+      type: String || null,
+      unique: true,
+      index: true,
+      //   required: true,
+    },
+    image_url: {
+      type: String || null,
+      default: null,
+    },
+    video_url: {
+      type: String || null,
+      default: null,
+    },
+    ttr: {
+      type: Number,
+    },
+    source: {
+      id: {
+        type: String || null,
+      },
+      name: {
+        type: String || null,
+      },
+      url: {
+        type: String || null,
+      },
+      icon: {
+        type: String || null,
+      },
+      priority: {
+        type: Number || null,
+      },
+    },
+    keywords: {
+      type: [String],
+      default: [],
+      index: true,
+    },
+    language: {
+      type: String,
+      default: "English",
+      index: true,
+    },
+    country: {
+      type: [String],
+      default: ["Nigeria"],
+      index: true,
+    },
+    category: {
+      type: [String],
+      required: true,
+      index: true,
+    },
+    published: {
+      type: Boolean,
+      default: false,
+    },
+    reactions: {
+      like: {
+        type: Number,
+        default: 0,
+      },
+      dislike: {
+        type: Number,
+        default: 0,
+      },
+    },
+    external: {
+      type: Boolean,
+      default: false,
+    },
+    top_feature: {
+      type: String,
+      default: null,
+    },
+    status: {
+      type: String,
+      enum: ["active", "removed", "flagged"],
+      default: "active",
+    },
+    published_at: {
+      type: Date || String,
+      default: Date.now,
+    },
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
+    id: false,
+    autoIndex: true,
+  },
+);
+
+PostSchema.virtual("id").get(function () {
+  return this._id.toHexString();
+});
+
+PostSchema.set("toObject", {
+  virtuals: true,
+});
+
+PostSchema.plugin(mongooseLeanVirtuals);
+
+const PostModel: Model<IPost> = models.Post || model<IPost>("Post", PostSchema);
+
+export default PostModel;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\database/post/post.model.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\types/post.type.ts ----
+import { Id } from "@/lib/database";
+import { IReaction } from "./reaction.type";
+// import { ICountries } from "./utils/country.type";
+import { Language } from "./utils/language.type";
+import { IPostSource } from "./utils/postsource.type";
+
+export interface IPost {
+  _id?: Id;
+  id: Id | string;
+  title: string;
+  slug: string;
+  cluster_id?: string;
+  bookmarked?: boolean;
+  headline?: boolean;
+  author_id: Id | string;
+  content: string;
+  description: string;
+  ttr: number;
+  link: string | null;
+  image_url: string | null;
+  video_url: string | null;
+  source: Partial<IPostSource>;
+  keywords: string[];
+  language: Language;
+  country: string[];
+  category: string[];
+  published: boolean;
+  reactions: IReaction;
+  external: boolean;
+  top_feature?: string;
+  status?: "active" | "removed" | "flagged";
+  published_at: Date | string;
+  created_at: string;
+  updated_at: string;
+}
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\types/post.type.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\types\reaction.type.ts ----
+import { Id } from "@/lib/database";
+
+export interface IReaction {
+  id: Id | string;
+  post_id: Id | string;
+  like: number;
+  dislike: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\types\reaction.type.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\types\utils\language.type.ts ----
+// export const Languages = ["en", "fr"] as const;
+
+export const Languages = {
+  English: "en",
+  French: "fr",
+} as const;
+
+// export type Language = (typeof Languages)[keyof typeof Languages];
+
+export type Language = keyof typeof Languages;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\types\utils\language.type.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\types\utils\postsource.type.ts ----
+export interface IPostSource {
+  id: string;
+  name: string;
+  url: string;
+  icon: string;
+  priority: number;
+}
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\types\utils\postsource.type.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\database/post/post.repository.ts ----
+import { Id } from "@/lib/database";
+
+import { IPost } from "@/types/post.type";
+
+import PostModel from "./post.model";
+
+export type SortParams<D> = Partial<Record<keyof D, -1 | 1>>;
+
+export type QueryOptions<D> = {
+  sort?: SortParams<D>;
+  skip?: number;
+  limit?: number;
+};
+
+// create post
+export const createPost = async (post: Partial<IPost>): Promise<IPost> => {
+  try {
+    const newPostDoc = await PostModel.create(post);
+    const createdPost = newPostDoc.toObject();
+    return createdPost;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// update post
+export const updatePost = async (post: IPost): Promise<IPost | null> => {
+  try {
+    const updatedPostDoc = await PostModel.findByIdAndUpdate(
+      post.id,
+      { $set: { ...post } },
+      {
+        new: true,
+      },
+    );
+    const updatedPost = updatedPostDoc?.toObject() || null;
+    return updatedPost;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// get post
+export const getPostById = async (
+  postId: string | Id,
+): Promise<IPost | null> => {
+  try {
+    const postDoc = await PostModel.findById(postId);
+    const post = postDoc?.toObject() || null;
+    return post;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getPostBySlug = async (slug: string): Promise<IPost | null> => {
+  try {
+    const postDoc = await PostModel.findOne({ slug });
+    const post = postDoc?.toObject() || null;
+    return post;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// delete post
+export const deletePostById = async (
+  postId: string | Id,
+): Promise<IPost | null> => {
+  try {
+    const deletedPostDoc = await PostModel.findByIdAndDelete(postId);
+    const deletedPost = deletedPostDoc?.toObject() || null;
+    return deletedPost;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// create posts
+export const createPosts = async (
+  posts: Partial<IPost>[],
+): Promise<IPost[]> => {
+  try {
+    const createdPosts = await PostModel.insertMany(posts, {
+      ordered: false,
+    });
+
+    const postsToReturn = createdPosts.map((post) => post.toObject());
+
+    return postsToReturn;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// get posts
+export const getPosts = async (): Promise<IPost[]> => {
+  try {
+    const posts = await PostModel.find();
+    return posts.map((post) => post.toObject());
+  } catch (error) {
+    throw error;
+  }
+};
+
+// get many posts
+export const getPostsByIds = async (
+  postIds: string[],
+  sort?: SortParams<IPost>,
+): Promise<IPost[]> => {
+  try {
+    if (!sort) {
+      sort = {
+        published_at: -1,
+      };
+    }
+    const posts = await PostModel.find({ _id: { $in: postIds } }).sort({
+      ...sort,
+    });
+    return posts.map((post) => post.toObject());
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getPostsBySlugs = async (
+  slugs: string[],
+  sort: SortParams<IPost> = {},
+): Promise<IPost[]> => {
+  try {
+    if (!sort) {
+      sort = {
+        published_at: -1,
+      };
+    }
+    const posts = await PostModel.find({ slug: { $in: slugs } }).sort({
+      ...sort,
+    });
+    return posts.map((post) => post.toObject());
+  } catch (error) {
+    throw error;
+  }
+};
+
+// get many posts by filters
+/* {filters.query
+    ? {
+        $or: [
+          { title: { $regex: filters.query, $options: "i" } },
+          { description: { $regex: filters.query, $options: "i" } },
+        ],
+      }
+    : {},
+  filters.categories
+    ? { category: { $in: filters.categories } }
+    : {},
+  filters.authors
+    ? { author_id: { $in: filters.authors } }
+    : {},} */
+export const getPostsByFilters = async (filters: {
+  query?: string;
+  categories?: string[];
+  domain?: string;
+  keywords?: string[];
+  country?: string[];
+  image?: boolean;
+  limit?: number;
+  cluster?: string;
+  skip?: number;
+  sort?: SortParams<IPost>;
+}): Promise<IPost[]> => {
+  const queryFilters = filters.query
+    ? {
+        $or: [
+          { title: { $regex: filters.query.trim(), $options: "i" } },
+          { description: { $regex: filters.query, $options: "i" } },
+        ],
+      }
+    : {};
+
+  let categoriesFilters = filters.categories
+    ? { category: { $in: filters.categories } }
+    : {};
+
+  const domainFilters = filters.domain?.length
+    ? { "source.name": filters.domain }
+    : {};
+
+  const keywordsFilters = filters.keywords
+    ? { keywords: { $in: filters.keywords } }
+    : {};
+
+  const countryFilters = filters.country
+    ? { country: { $in: filters.country } }
+    : {};
+
+  const imageFilters = !filters.image ? {} : { image_url: { $ne: null } };
+
+  const clusterFilters = filters.cluster ? { cluster_id: filters.cluster } : {};
+
+  if (filters.query) {
+    categoriesFilters = {};
+  }
+
+  // console.log({
+  //   ...queryFilters,
+  //   ...categoriesFilters,
+  //   ...domainFilters,
+  //   ...keywordsFilters,
+  //   ...countryFilters,
+  //   ...imageFilters,
+  //   ...clusterFilters,
+  // });
+
+  try {
+    const posts = await PostModel.find({
+      ...queryFilters,
+      ...categoriesFilters,
+      ...domainFilters,
+      ...keywordsFilters,
+      ...countryFilters,
+      ...imageFilters,
+      ...clusterFilters,
+    })
+      .skip(filters.skip || 0)
+      .limit(filters.limit || 20)
+      .sort(
+        filters.sort || {
+          published_at: -1,
+        },
+      );
+    return posts.map((post) => post.toObject());
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getPostsByCategories = async (
+  categories: string[],
+): Promise<IPost[]> => {
+  try {
+    const posts = await PostModel.find({ category: { $in: categories } });
+    return posts.map((post) => post.toObject());
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getPostsByAuthorId = async (
+  authorId: string | Id,
+): Promise<IPost[]> => {
+  try {
+    const posts = await PostModel.find({ author_id: authorId });
+    return posts.map((post) => post.toObject());
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getPostsByKeyword = async (keyword: string): Promise<IPost[]> => {
+  try {
+    const posts = await PostModel.find({
+      title: { $regex: keyword, $options: "i" },
+    });
+    return posts.map((post) => post.toObject());
+  } catch (error) {
+    throw error;
+  }
+};
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\database/post/post.repository.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\database\post\post.model.ts ----
+import { Model, model, models, Schema } from "mongoose";
+import mongooseLeanVirtuals from "mongoose-lean-virtuals";
+
+import { IPost } from "@/types/post.type";
+
+const SourceSchema = new Schema(
+  {
+    id: {
+      type: String,
+    },
+    url: {
+      id: String,
+    },
+    name: {
+      type: String,
+    },
+    icon: {
+      type: String,
+    },
+    priority: {
+      type: Number,
+    },
+  },
+  { _id: true },
+);
+
+const PostSchema = new Schema<IPost>(
+  {
+    title: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
+    author_id: {
+      type: String || Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+    cluster_id: {
+      type: String || undefined,
+      default: undefined,
+      index: true,
+    },
+    headline: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    content: {
+      type: String || null,
+      default: null,
+    },
+    description: {
+      type: String || null,
+      default: null,
+      index: true,
+    },
+    link: {
+      type: String || null,
+      unique: true,
+      index: true,
+      //   required: true,
+    },
+    image_url: {
+      type: String || null,
+      default: null,
+    },
+    video_url: {
+      type: String || null,
+      default: null,
+    },
+    ttr: {
+      type: Number,
+    },
+    source: {
+      id: {
+        type: String || null,
+      },
+      name: {
+        type: String || null,
+      },
+      url: {
+        type: String || null,
+      },
+      icon: {
+        type: String || null,
+      },
+      priority: {
+        type: Number || null,
+      },
+    },
+    keywords: {
+      type: [String],
+      default: [],
+      index: true,
+    },
+    language: {
+      type: String,
+      default: "English",
+      index: true,
+    },
+    country: {
+      type: [String],
+      default: ["Nigeria"],
+      index: true,
+    },
+    category: {
+      type: [String],
+      required: true,
+      index: true,
+    },
+    published: {
+      type: Boolean,
+      default: false,
+    },
+    reactions: {
+      like: {
+        type: Number,
+        default: 0,
+      },
+      dislike: {
+        type: Number,
+        default: 0,
+      },
+    },
+    external: {
+      type: Boolean,
+      default: false,
+    },
+    top_feature: {
+      type: String,
+      default: null,
+    },
+    status: {
+      type: String,
+      enum: ["active", "removed", "flagged"],
+      default: "active",
+    },
+    published_at: {
+      type: Date || String,
+      default: Date.now,
+    },
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
+    id: false,
+    autoIndex: true,
+  },
+);
+
+PostSchema.virtual("id").get(function () {
+  return this._id.toHexString();
+});
+
+PostSchema.set("toObject", {
+  virtuals: true,
+});
+
+PostSchema.plugin(mongooseLeanVirtuals);
+
+const PostModel: Model<IPost> = models.Post || model<IPost>("Post", PostSchema);
+
+export default PostModel;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\database\post\post.model.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\database/preferences/preferences.repository.ts ----
+import { Id } from "@/lib/database";
+
+import { IPreferences } from "@/types/preferences.type";
+import PreferencesModel from "./preferences.model";
+
+export const createPreferences = async (
+  preferences: Partial<IPreferences>,
+): Promise<IPreferences | null> => {
+  try {
+    const newPreferences = await PreferencesModel.create(preferences);
+    return newPreferences.toObject();
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getPreferencesByUserId = async (
+  userId: string | Id,
+): Promise<IPreferences | null> => {
+  try {
+    const preferences = await PreferencesModel.findOne({ user_id: userId });
+    return preferences?.toObject() || null;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updatePreferences = async (
+  user_id: string | Id,
+  preferences: IPreferences,
+): Promise<IPreferences | null> => {
+  try {
+    const updatedPreferences = await PreferencesModel.findOneAndUpdate(
+      { _id: preferences.id, user_id },
+      preferences,
+      { new: true },
+    );
+    return updatedPreferences?.toObject() || null;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deletePreferences = async (
+  user_id: string | Id,
+): Promise<IPreferences | null> => {
+  try {
+    const deletedPreferences = await PreferencesModel.findOneAndDelete({
+      user_id,
+    });
+    return deletedPreferences?.toObject() || null;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\database/preferences/preferences.repository.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\types/preferences.type.ts ----
+import { Id } from "@/lib/database";
+import { NotificationNewsTypes } from "./notification.type";
+
+export const ProfileVisibility = ["public", "private"] as const;
+export const LastSeen = ["friends", "anyone"] as const;
+
+export type NotificationSettings = Record<
+  keyof typeof NotificationNewsTypes,
+  boolean
+>;
+
+export type PrivacySettings = {
+  profile_visibility: (typeof ProfileVisibility)[number];
+  last_seen: (typeof LastSeen)[number];
+};
+
+export type NotificationPreferences = {
+  push_notification: boolean;
+  email_notification: boolean;
+  in_app_notification: boolean;
+};
+
+export interface IPreferences {
+  id: Id | string;
+  user_id: Id | string;
+  language: string;
+  country: string;
+  category_updates: string[];
+  notification_settings: NotificationSettings;
+  notification_preferences: NotificationPreferences;
+  privacy_settings: PrivacySettings;
+  created_at: Date;
+  updated_at: Date;
+}
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\types/preferences.type.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\types\notification.type.ts ----
+import { Id } from "@/lib/database";
+
+type NotificationType =
+  | "INTERACTION"
+  | "RECOMMENDATION"
+  | "SYSTEM"
+  | "ACHIEVEMENT"
+  | "REMINDER"
+  | "MENTION";
+
+type NotificationSubtype =
+  // Interaction subtypes
+  | "POST_LIKE"
+  | "POST_COMMENT"
+  | "COMMENT_REPLY"
+  | "NEW_FOLLOWER"
+  | "SHARED_POST"
+
+  // Recommendation subtypes
+  | "TRENDING_CONTENT"
+  | "USER_SUGGESTED"
+  | "TOP_PICKS"
+
+  // System subtypes
+  | "ACCOUNT_UPDATE"
+  | "SECURITY_ALERT"
+  | "PAYMENT_STATUS"
+
+  // Achievement subtypes
+  | "BADGE_EARNED"
+  | "MILESTONE_REACHED"
+
+  // Reminder subtypes
+  | "SCHEDULED_REMINDER"
+  | "CUSTOM_REMINDER"
+
+  // Mention subtypes
+  | "COMMENT_MENTION"
+  | "POST_MENTION";
+
+type TargetObjectModel = "Post" | "Comment" | "User" | "Achievement" | "System";
+
+type NotificationPriority = "LOW" | "NORMAL" | "HIGH" | "URGENT";
+
+interface NotificationStatus {
+  isRead: boolean;
+  isArchived: boolean;
+  readAt?: Date;
+  archivedAt?: Date;
+}
+
+export interface NotificationContent {
+  title?: string;
+  body?: string;
+  thumbnail?: string;
+  url?: string;
+}
+
+interface TargetObject {
+  model: TargetObjectModel;
+  id: Id;
+  slug?: string;
+}
+
+export const NotificationNewsTypes = {
+  TRENDING_CONTENT: "trending_content",
+  TOP_PICKS: "top_picks",
+  // USER_SUGGESTED: "user_suggested",
+};
+
+export interface INotification {
+  _id?: Id;
+  recipient: Id;
+  type: NotificationType;
+  subtype: NotificationSubtype;
+  actors: Id[];
+  targetObject: TargetObject;
+  // metadata: Map<string, any>;
+  content: NotificationContent;
+  status: NotificationStatus;
+  priority: NotificationPriority;
+  // expiresAt?: Date;
+  created_at: Date;
+  updated_at: Date;
+
+  markAsRead(): Promise<INotification>;
+  archive(): Promise<INotification>;
+}
+
+export type Notification = Omit<INotification, "markAsRead" | "archive">;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\types\notification.type.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\database\preferences\preferences.model.ts ----
+import { Model, model, models, Schema } from "mongoose";
+import mongooseLeanVirtuals from "mongoose-lean-virtuals";
+
+import { IPreferences } from "@/types/preferences.type";
+
+const PreferencesSchema = new Schema<IPreferences>(
+  {
+    user_id: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+    language: {
+      type: String,
+      default: "en",
+    },
+    country: {
+      type: String,
+      default: "Nigeria",
+    },
+    category_updates: {
+      type: [String],
+      default: [
+        "Personal Finance",
+        "Politics",
+        "Breaking",
+        "Top US News",
+        "UK Top News",
+      ],
+    },
+    notification_settings: {
+      BREAKING: {
+        type: Boolean,
+        default: true,
+      },
+      TOP: {
+        type: Boolean,
+        default: true,
+      },
+      NEWS: {
+        type: Boolean,
+        default: true,
+      },
+    },
+    notification_preferences: {
+      push_notification: {
+        type: Boolean,
+        default: true,
+      },
+      email_notification: {
+        type: Boolean,
+        default: true,
+      },
+      in_app_notification: {
+        type: Boolean,
+        default: true,
+      },
+    },
+    privacy_settings: {
+      profile_visibility: {
+        enum: ["public", "private"],
+        type: String,
+        default: "public",
+      },
+      last_seen: {
+        type: Date,
+        default: Date.now(),
+      },
+    },
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
+    id: false,
+  },
+);
+
+PreferencesSchema.virtual("id").get(function () {
+  return this._id.toHexString();
+});
+
+PreferencesSchema.set("toObject", {
+  virtuals: true,
+});
+
+PreferencesSchema.plugin(mongooseLeanVirtuals);
+
+const PreferencesModel: Model<IPreferences> =
+  models.Preferences || model<IPreferences>("Preferences", PreferencesSchema);
+
+export default PreferencesModel;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\database\preferences\preferences.model.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\lib/auth/auth.ts ----
+import { Lucia } from "lucia";
+import type { Session, User } from "lucia";
+import { cookies } from "next/headers";
+import { cache } from "react";
+import { IUser } from "@/types/user.type";
+import { adapter } from "./adapter";
+import { Id } from "../database";
+
+export const lucia = new Lucia(adapter, {
+  sessionCookie: {
+    expires: false,
+    attributes: {
+      secure: process.env.NODE_ENV === "production",
+    },
+  },
+  getUserAttributes: (attributes) => {
+    return {
+      username: attributes.username,
+      email: attributes.email,
+      role: attributes.role,
+      display_name: attributes.display_name,
+      avatar: attributes.avatar,
+      country: attributes.location,
+      has_email_verified: attributes.has_email_verified,
+      bio: attributes.bio,
+    };
+  },
+});
+
+export const validateRequest = cache(
+  async (): Promise<
+    { user: User; session: Session } | { user: null; session: null }
+  > => {
+    const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
+    // console.log(cookies());
+
+    if (!sessionId) {
+      return {
+        user: null,
+        session: null,
+      };
+    }
+
+    const result = await lucia.validateSession(sessionId);
+
+    // next.js throws when you attempt to set cookie when rendering page
+    try {
+      if (result.session && result.session.fresh) {
+        const sessionCookie = lucia.createSessionCookie(result.session.id);
+        cookies().set(
+          sessionCookie.name,
+          sessionCookie.value,
+          sessionCookie.attributes,
+        );
+      }
+      if (!result.session) {
+        const sessionCookie = lucia.createBlankSessionCookie();
+        cookies().set(
+          sessionCookie.name,
+          sessionCookie.value,
+          sessionCookie.attributes,
+        );
+      }
+    } catch {}
+    return result;
+  },
+);
+
+declare module "lucia" {
+  interface Register {
+    Lucia: typeof lucia;
+    DatabaseUserAttributes: Partial<IUser>;
+    UserId: Id | string;
+  }
+}
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\lib/auth/auth.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\types/user.type.ts ----
+import { Id } from "@/lib/database";
+
+export const UserRoles = ["admin", "user", "writer"] as const;
+export type UserRole = (typeof UserRoles)[number];
+
+export const AuthProviders = ["email", "google"] as const;
+export type AuthProvider = (typeof AuthProviders)[number];
+
+export const Genders = ["male", "female", "unspecified"] as const;
+export type Gender = (typeof Genders)[number];
+
+export interface IUser {
+  id: Id | string;
+  email: string;
+  has_email_verified: boolean;
+  role: UserRole;
+  username: string;
+  auth_provider: AuthProvider;
+  birth_date: Date | null;
+  display_name: string;
+  gender: Gender;
+  avatar: string | null;
+  profile_banner: string | null;
+  is_disabled: boolean;
+  last_login_at: Date;
+  has_password: boolean;
+  upgrade_pending: boolean;
+  location: string;
+  ip_address: string;
+  bio: string | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface IUserWithPassword extends IUser {
+  password_hash: string;
+}
+
+export interface IUpdateUser extends Partial<IUser> {
+  id: Id | string;
+}
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\types/user.type.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\lib\auth\adapter.ts ----
+import { MongodbAdapter } from "@lucia-auth/adapter-mongodb";
+import { sessionCollection, userCollection } from "./mongodb";
+
+export const adapter = new MongodbAdapter(sessionCollection, userCollection);
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\lib\auth\adapter.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\lib\auth\mongodb.ts ----
+import { Collection, MongoClient } from "mongodb";
+import { Id } from "../database";
+
+const {
+  DB_USER,
+  DB_PASSWORD,
+  DB_IP,
+  DB_CLUSTER,
+  DB_NAME,
+  DB_PORT,
+  DB_REPLICA_SET,
+  DB_AUTH_SOURCE,
+} = process.env;
+
+interface UserDoc {
+  _id: Id | string;
+}
+interface SessionDoc {
+  _id: string;
+  expires_at: Date;
+  user_id: Id | string;
+}
+
+export let userCollection: Collection<UserDoc>;
+export let sessionCollection: Collection<SessionDoc>;
+
+export const getMongoDBURI = () => {
+  if (!DB_CLUSTER && !DB_USER && !DB_PASSWORD) {
+    if (!DB_NAME) {
+      throw new Error(
+        "Please define the DB_NAME environment variable inside .env.local",
+      );
+    }
+    return `mongodb://127.0.0.1:${DB_PORT || "27017"}/${DB_NAME}?retryWrites=true&w=majority`;
+  }
+  if (DB_IP && DB_PORT && DB_REPLICA_SET && DB_AUTH_SOURCE) {
+    return `mongodb://${DB_USER}:${DB_PASSWORD}@${DB_IP}:${DB_PORT}/${DB_NAME}?replicaSet=${DB_REPLICA_SET}&authSource=${DB_AUTH_SOURCE}&retryWrites=true&w=majority`;
+  }
+
+  return `mongodb+srv://${DB_USER}:${DB_PASSWORD}@${DB_CLUSTER}.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`;
+};
+
+const MONGODB_URI = getMongoDBURI();
+
+if (!MONGODB_URI) {
+  throw new Error(
+    "Wrong MONGODB_URI. Please define the environment variables inside .env.local",
+  );
+}
+
+const options = {};
+
+let client;
+let clientPromise: Promise<MongoClient>;
+
+if (process.env.NODE_ENV === "development") {
+  const globalWithMongo = global as typeof globalThis & {
+    _mongoClientPromise: Promise<MongoClient>;
+    _mongoUsersCollection: Collection<UserDoc>;
+    _mongoSessionsCollection: Collection<SessionDoc>;
+  };
+
+  if (!globalWithMongo._mongoClientPromise) {
+    client = new MongoClient(MONGODB_URI, options);
+    globalWithMongo._mongoClientPromise = client.connect();
+
+    globalWithMongo._mongoUsersCollection = client.db().collection("users");
+    globalWithMongo._mongoSessionsCollection = client
+      .db()
+      .collection("sessions");
+  }
+
+  clientPromise = globalWithMongo._mongoClientPromise;
+  sessionCollection = globalWithMongo._mongoSessionsCollection;
+  userCollection = globalWithMongo._mongoUsersCollection;
+} else {
+  client = new MongoClient(MONGODB_URI, options);
+  clientPromise = client.connect();
+
+  userCollection = client.db().collection("users");
+  sessionCollection = client.db().collection("sessions");
+}
+
+export default clientPromise;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\lib\auth\mongodb.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\lib\database.ts ----
+import mongoose, { Types } from "mongoose";
+
+export type Id = Types.ObjectId;
+export const newId = (idString?: string | Id) => new Types.ObjectId(idString);
+
+export type UpdateQueryOptions = {
+  newDocument?: boolean;
+  upsert?: boolean;
+};
+
+export type SortParams<D> = Partial<Record<keyof D, 1 | -1>>;
+
+export type QueryOptions<D> = {
+  sort?: SortParams<D>;
+  limit?: number;
+  skip?: number;
+};
+
+const {
+  DB_USER,
+  DB_PASSWORD,
+  DB_IP,
+  DB_CLUSTER,
+  DB_NAME,
+  DB_PORT,
+  DB_REPLICA_SET,
+  DB_AUTH_SOURCE,
+} = process.env;
+
+export const getMongoDBURI = () => {
+  if (!DB_CLUSTER && !DB_USER && !DB_PASSWORD) {
+    if (!DB_NAME) {
+      throw new Error(
+        "Please define the DB_NAME environment variable inside .env.local",
+      );
+    }
+    return `mongodb://127.0.0.1:${DB_PORT || "27017"}/${DB_NAME}?retryWrites=true&w=majority`;
+  }
+  if (DB_IP && DB_PORT && DB_REPLICA_SET && DB_AUTH_SOURCE) {
+    return `mongodb://${DB_USER}:${DB_PASSWORD}@${DB_IP}:${DB_PORT}/${DB_NAME}?replicaSet=${DB_REPLICA_SET}&authSource=${DB_AUTH_SOURCE}&retryWrites=true&w=majority`;
+  }
+  return `mongodb+srv://${DB_USER}:${DB_PASSWORD}@${DB_CLUSTER}.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`;
+};
+
+const MONGODB_URI = getMongoDBURI();
+
+if (!MONGODB_URI) {
+  throw new Error(
+    "Wrong MONGODB_URI. Please define the environment variables inside .env.local",
+  );
+}
+
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = {
+    conn: null,
+    promise: null,
+  };
+
+  global.mongoose = {
+    conn: null,
+    promise: null,
+  };
+}
+
+export const connectToDatabase = async () => {
+  try {
+    if (cached.conn) {
+      return cached.conn;
+    }
+
+    // if (!cached.promise) {
+    const opts = {
+      bufferCommands: true,
+    };
+
+    cached.promise = mongoose
+      .connect(MONGODB_URI, opts)
+      .then((mongoose) => {
+        console.info("Connected to MongoDB successfully.");
+        cached.conn = mongoose;
+        return mongoose;
+      })
+      .catch((error) => {
+        if (
+          error.name === "MongoNetworkError" ||
+          error.name === "MongoServerSelectionError"
+        ) {
+          console.error(
+            "MongoDB connection error. Please make sure MongoDB is running!!!!!!!!!!!!!!",
+          );
+        }
+        cached.promise = null;
+        throw error;
+      });
+    // }
+
+    // cached.conn = await cached.promise;
+    // return cached.conn;
+    return await cached.promise;
+  } catch (error) {
+    console.error("MONGODB CONNECTION ERROR >>>>>>>>>", error);
+    cached.promise = null;
+    cached.conn = null;
+    throw error;
+  }
+};
+
+// setInterval(() => {
+//   console.log(
+//     `Active connections: ${mongoose.connections.base.connections.length}`,
+//   );
+// }, 5000);
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\lib\database.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\ArticlesContainer.tsx ----
+import { ReactNode } from "react";
+import NewsIcon from "@/assets/svgs/utils/NewsIcon";
+import { Separator } from "@/components/ui/separator";
+
+const ContainerHeader = ({ header }: { header: string }) => {
+  if (header === "Trending") {
+    return (
+      <h2 className="flex items-center gap-4 text-2xl font-bold text-[#2F2D32]">
+        <NewsIcon /> {header}
+      </h2>
+    );
+  } else {
+    return (
+      <h1 className="flex items-center gap-4 text-2xl font-bold text-[#2F2D32]">
+        <NewsIcon /> {header}
+      </h1>
+    );
+  }
+};
+
+const ArticlesContainer = ({
+  children,
+  title,
+  className,
+}: {
+  children?: ReactNode;
+  title: string;
+  className?: string;
+}) => {
+  return (
+    <section
+      className={`mb-3 flex h-fit w-full min-w-[45%] flex-1 flex-col gap-2 rounded-[20px] bg-white px-3 py-4 shadow-sm ${className}`}
+    >
+      <ContainerHeader header={title} />
+      <Separator />
+      {children}
+    </section>
+  );
+};
+
+export default ArticlesContainer;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\ArticlesContainer.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\assets/svgs/utils/NewsIcon.tsx ----
+const NewsIcon = ({ className }: { className?: string }) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="25"
+      viewBox="0 0 16 25"
+      fill="none"
+      className={className}
+    >
+      <path
+        d="M1.24083 8.43563L0.218851 9.46891C-0.0168258 9.70719 -0.0796953 10.0922 0.117116 10.3641C0.550747 10.9637 0.806999 11.7022 0.806999 12.5C0.806999 13.2979 0.550747 14.0364 0.117116 14.6359C-0.0796953 14.9078 -0.0168258 15.2928 0.218851 15.5311L1.24083 16.5643C1.55383 16.8809 2.06513 16.8321 2.3355 16.4776C3.17566 15.3757 3.67593 13.9959 3.67593 12.5C3.67593 11.0041 3.17566 9.62425 2.3355 8.52237C2.06513 8.16784 1.55383 8.11909 1.24083 8.43563Z"
+        fill="#FF1C02"
+      />
+      <path
+        d="M6.34921 4.33563C6.07957 4.02766 5.59941 4.02888 5.31183 4.31972L4.29704 5.34572C4.02519 5.62051 4.02774 6.05241 4.27889 6.34651C5.69032 7.99898 6.54494 10.1505 6.54494 12.5C6.54494 14.8495 5.69032 17.0009 4.27889 18.6536C4.02768 18.9476 4.02526 19.3794 4.29704 19.6542L5.31183 20.6802C5.59941 20.9711 6.07957 20.9723 6.34934 20.6644C8.25533 18.4884 9.41381 15.6284 9.41381 12.5C9.41381 9.37157 8.25533 6.51157 6.34921 4.33563Z"
+        fill="#FEA52F"
+      />
+      <path
+        d="M10.407 0.226902C10.1325 -0.074265 9.65716 -0.0733812 9.37086 0.21616L8.35472 1.24353C8.0822 1.51906 8.08354 1.95402 8.34349 2.24186C10.7894 4.95032 12.2831 8.55222 12.2831 12.5C12.2831 16.4478 10.7894 20.0497 8.34349 22.7582C8.08361 23.046 8.08213 23.481 8.35472 23.7565L9.37086 24.7838C9.65723 25.0734 10.1326 25.0742 10.407 24.7731C13.3515 21.5419 15.152 17.2296 15.152 12.5C15.152 7.77041 13.3515 3.45802 10.407 0.226902Z"
+        fill="#2F7830"
+      />
+    </svg>
+  );
+};
+
+export default NewsIcon;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\assets/svgs/utils/NewsIcon.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\Headlines.tsx ----
+import { PostsResponse } from "@/hooks/post/useFetchPosts";
+import ArticleCard from "./ArticleCard";
+import HeadlineArticle from "./HeadlineArticle";
+import ResponsiveHeadlines from "./ResponsiveHeadlines";
+import { cleanObject } from "@/utils/cleanObject.utils";
+
+interface HeadlinesProps {
+  headlines: PostsResponse[];
+}
+
+const Headlines = ({ headlines }: HeadlinesProps) => {
+  headlines.forEach((headline) => {
+    headline.id = headline._id!.toString();
+  });
+
+  const headline = headlines.shift();
+
+  const wideHeadlines = headlines.slice(0, 3);
+
+  return (
+    <div className="flex gap-6 max-[900px]:flex-col">
+      <div className="flex-1">
+        <HeadlineArticle article={headline} />
+      </div>
+      <div className="flex flex-1 flex-col gap-2">
+        <ResponsiveHeadlines
+          headlines={headlines.map((post) => cleanObject(post))}
+        >
+          {wideHeadlines.map((_, index) => (
+            <ArticleCard
+              // className="max-[800px]:min-w-[450px]"
+              article={headlines[index]}
+              key={index}
+            />
+          ))}
+        </ResponsiveHeadlines>
+      </div>
+    </div>
+  );
+};
+
+export default Headlines;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\Headlines.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\hooks/post/useFetchPosts.tsx ----
+import { useSearchParams } from "next/navigation";
+import useSWR from "swr";
+
+import { fetcher } from "@/lib/fetcher";
+import { IPost } from "@/types/post.type";
+import { Id } from "@/lib/database";
+
+export type PostsResponse = Omit<
+  IPost,
+  "created_at" | "updated_at" | "content"
+> & {
+  _id?: string | Id;
+};
+
+export type PostsCursor = {
+  next_cursor: string | null;
+  previous_cursor: string | null;
+};
+
+export type FetchPostsResponse = {
+  posts: PostsResponse[];
+} & PostsCursor;
+
+const useFetchPosts = () => {
+  // const searchParams = useSearchParams();
+  const { data, error, isLoading, mutate } = useSWR<FetchPostsResponse>(
+    `/api/v1/posts`,
+    fetcher,
+  );
+
+  return {
+    data,
+    error,
+    isLoading,
+    refetch: mutate,
+  };
+};
+
+export default useFetchPosts;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\hooks/post/useFetchPosts.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\lib\fetcher\index.ts ----
+type FetcherOptions = RequestInit & {
+  hasPageCached?: boolean;
+};
+
+export const fetcher = async (
+  input: RequestInfo | URL,
+  options?: FetcherOptions,
+) => {
+  try {
+    const response = await fetch(input, {
+      ...options,
+      headers: {
+        ...options?.headers,
+        "Has-Page-Cached": options?.hasPageCached ? "true" : "false",
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw data;
+    }
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\lib\fetcher\index.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\ArticleCard.tsx ----
+import dynamic from "next/dynamic";
+import { Separator } from "@/components/ui/separator";
+import { PostsResponse } from "@/hooks/post/useFetchPosts";
+import { Link } from "@/i18n/routing";
+import { getPublishTimeStamp } from "@/utils/time.utils";
+import ArticleTitle from "./ArticleTitle";
+import { truncateString } from "@/utils/string.utils";
+// import BookmarkButton from "./BookmarkButton";
+
+const BookmarkButton = dynamic(() => import("./BookmarkButton"), {
+  ssr: false,
+});
+
+interface ArticleCardProps {
+  article?: PostsResponse;
+  className?: string;
+}
+
+const ArticleCard = ({ article, className }: ArticleCardProps) => {
+  if (!article?.image_url) {
+    return (
+      <div
+        className={`relative flex h-fit flex-1 rounded-[5px] p-4 shadow-sm transition-transform duration-700 hover:scale-[0.97] hover:shadow-md ${className}`}
+      >
+        <Link
+          href={`/post/${article?.slug}`}
+          className={`flex h-fit w-full flex-1 cursor-pointer gap-5 [&_h3]:hover:text-primary [&_h3]:hover:underline`}
+        >
+          <div className="flex flex-col justify-center">
+            <h3 className="text-md mb-2 font-semibold text-[#2F2D32]">
+              {truncateString(article?.title)}
+            </h3>
+            <div className="flex items-center gap-2 max-[400px]:flex-col max-[400px]:items-start">
+              <div className="flex items-center gap-2">
+                <img
+                  className="size-3 rounded-full object-cover"
+                  alt="article source icon"
+                  src={article?.source.icon}
+                />
+                <span className="text-xs font-normal text-[#696969]">
+                  {article?.source.name}
+                </span>
+              </div>
+              <div className="h-3 max-[400px]:hidden">
+                <Separator orientation="vertical" />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-normal text-[#696969]">
+                  {getPublishTimeStamp(article?.published_at as string)}
+                </span>
+                <div className="h-3">
+                  <Separator orientation="vertical" />
+                </div>
+                <span className="flex text-xs font-normal text-primary">
+                  {article?.ttr && `${article?.ttr} min read`}
+                </span>
+              </div>
+            </div>
+          </div>
+        </Link>
+        <BookmarkButton
+          id={article?.id as string}
+          bookmarked={article?.bookmarked}
+          imageExists={false}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`relative flex h-fit flex-1 rounded-[5px] p-2 shadow-sm transition-transform duration-700 hover:scale-[0.97] hover:shadow-md ${className}`}
+    >
+      <Link
+        href={`/post/${article?.slug}`}
+        className={`flex h-fit w-full flex-1 cursor-pointer gap-5 rounded-[5px] [&>div>img]:transition-transform [&>div>img]:duration-1000 [&>div>img]:hover:scale-110 [&_h3]:hover:text-primary [&_h3]:hover:underline`}
+      >
+        <div className="flex h-[90px] min-w-[200px] max-w-[200px] overflow-hidden rounded-[5px] max-[900px]:min-w-[160px] max-[900px]:max-w-[160px] max-[500px]:min-w-[100px] max-[500px]:max-w-[100px]">
+          <img
+            src={article?.image_url || article?.source.icon}
+            alt="article preview"
+            loading="lazy"
+            className="h-[90px] min-w-[200px] max-w-[200px] object-cover max-[900px]:min-w-[160px] max-[900px]:max-w-[160px] max-[500px]:min-w-[100px] max-[500px]:max-w-[100px]"
+          />
+        </div>
+        <div className="flex flex-col justify-center">
+          <ArticleTitle title={article?.title} />
+          <div className="mb-2 flex items-center gap-2">
+            <img
+              className="size-3 rounded-full object-cover"
+              alt="Article source Icon"
+              src={article?.source.icon}
+            />
+            <span className="text-xs font-normal text-[#696969]">
+              {article?.source.name}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-xs font-normal text-[#696969]">
+              {getPublishTimeStamp(article?.published_at as string)}
+            </span>
+            <div className="h-3">
+              <Separator orientation="vertical" />
+            </div>
+            <span
+              // className="absolute left-[40px] top-[0px] flex -translate-x-1/2 rounded-lg bg-white px-4 py-2 text-xs font-normal text-primary"
+              className="text-xs font-normal text-primary"
+            >
+              {article?.ttr && `${article?.ttr} min read`}
+            </span>
+          </div>
+        </div>
+      </Link>
+      <BookmarkButton
+        id={article?.id as string}
+        bookmarked={article?.bookmarked}
+      />
+    </div>
+  );
+};
+
+export default ArticleCard;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\ArticleCard.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\i18n/routing.ts ----
+import { createNavigation } from "next-intl/navigation";
+import { defineRouting } from "next-intl/routing";
+
+export const routing = defineRouting({
+  // A list of all locales that are supported
+  locales: ["en", "fr"],
+
+  // Used when no locale matches
+  defaultLocale: "en",
+});
+
+// Lightweight wrappers around Next.js' navigation APIs
+// that will consider the routing configuration
+export const { Link, redirect, usePathname, useRouter } =
+  createNavigation(routing);
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\i18n/routing.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\utils/time.utils.ts ----
+import { formatDistanceToNowStrict } from "date-fns";
+
+export function formatDistanceToNow(date: Date): string {
+  return formatDistanceToNowStrict(date, { addSuffix: true });
+}
+
+// example time string "2024-08-23 10:44:59"
+export const getPublishTimeStamp = (timestamp: string): string => {
+  if (!timestamp) {
+    return timestamp;
+  }
+
+  const date = new Date(timestamp);
+  const now = new Date();
+
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  const intervals: { [key: string]: number } = {
+    year: 31536000,
+    month: 2592000,
+    week: 604800,
+    day: 86400,
+    hour: 3600,
+    minute: 60,
+    second: 1,
+  };
+
+  for (const [key, value] of Object.entries(intervals)) {
+    const count = Math.floor(seconds / value);
+    if (count >= 1) {
+      return `${count} ${key}${count > 1 ? "s" : ""} ago`;
+    }
+  }
+
+  return "Just now";
+};
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\utils/time.utils.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\ArticleTitle.tsx ----
+"use client";
+import { useEffect, useState } from "react";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { truncateString } from "@/utils/string.utils";
+
+const ArticleTitle = ({ title }: { title: string }) => {
+  const matches = useMediaQuery("(max-width: 1000px)");
+  const smallerMatches = useMediaQuery("(max-width: 900px)");
+  const smallestMatches = useMediaQuery("(max-width: 500px)");
+
+  const [size, setSize] = useState(91);
+
+  const handleResize = () => {
+    if (smallestMatches) {
+      setSize(40);
+      return 40;
+    } else if (smallerMatches) {
+      setSize(100);
+      return 100;
+    } else if (matches) {
+      setSize(40);
+      return 40;
+    } else {
+      setSize(91);
+      return 91;
+    }
+  };
+
+  useEffect(() => {
+    handleResize();
+  }, [matches, smallerMatches, smallestMatches]);
+
+  return (
+    <h3
+      className="mb-2 text-sm font-semibold text-[#2F2D32]"
+      suppressHydrationWarning
+    >
+      {truncateString(title.replaceAll("\\u0020", " "), size)}
+    </h3>
+  );
+};
+
+export default ArticleTitle;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\ArticleTitle.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\hooks/useMediaQuery.tsx ----
+import { useState, useEffect } from "react";
+
+type UseMediaQueryOptions = {
+  defaultValue?: boolean;
+  initializeWithValue?: boolean;
+};
+
+const IS_SERVER = typeof window === "undefined";
+
+export function useMediaQuery(
+  query: string,
+  {
+    defaultValue = false,
+    initializeWithValue = true,
+  }: UseMediaQueryOptions = {},
+): boolean {
+  const getMatches = (query: string): boolean => {
+    if (IS_SERVER) {
+      return defaultValue;
+    }
+    return window.matchMedia(query).matches;
+  };
+
+  const [matches, setMatches] = useState<boolean>(() => {
+    if (initializeWithValue) {
+      return getMatches(query);
+    }
+    return defaultValue;
+  });
+
+  // Handles the change event of the media query.
+  function handleChange() {
+    setMatches(getMatches(query));
+  }
+
+  useEffect(() => {
+    const matchMedia = window.matchMedia(query);
+
+    // Triggered at the first client-side load and if query changes
+    handleChange();
+
+    // Use deprecated `addListener` and `removeListener` to support Safari < 14 (#135)
+    if (matchMedia.addListener) {
+      matchMedia.addListener(handleChange);
+    } else {
+      matchMedia.addEventListener("change", handleChange);
+    }
+
+    return () => {
+      if (matchMedia.removeListener) {
+        matchMedia.removeListener(handleChange);
+      } else {
+        matchMedia.removeEventListener("change", handleChange);
+      }
+    };
+  }, [query]);
+
+  return matches;
+}
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\hooks/useMediaQuery.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\utils/string.utils.ts ----
+import isEnglish from "is-english";
+
+export const stripExtraWhitespace = (str: string) => {
+  return str.replace(/\s+/g, " ").trim();
+};
+
+export function removeCharacters(str: string, charsToRemove: string[]) {
+  const regex = new RegExp(`[${charsToRemove.join("")}]`, "g");
+  return str.replace(regex, "");
+}
+
+export const isTextEnglish = (str: string) => {
+  if (
+    isEnglish(
+      removeCharacters(str, [
+        "‘",
+        "’",
+        "…",
+        "₦",
+        "—",
+        "™",
+        "“",
+        "”",
+        "|",
+        "★",
+        "☆",
+      ]),
+    )
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
+export function truncateString(str?: string, num = 91) {
+  if (!str) return str;
+
+  if (str.length <= num) {
+    return str;
+  }
+  return str.slice(0, num) + "...";
+}
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\utils/string.utils.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\HeadlineArticle.tsx ----
+import { Link } from "@/i18n/routing";
+import { Separator } from "@/components/ui/separator";
+import { PostsResponse } from "@/hooks/post/useFetchPosts";
+import { getPublishTimeStamp } from "@/utils/time.utils";
+
+interface HeadlineArticleProps {
+  article?: PostsResponse;
+}
+
+const HeadlineArticle = ({ article }: HeadlineArticleProps) => {
+  return (
+    <Link
+      href={`/post/${article?.slug}`}
+      className="flex flex-col rounded-md p-2 pb-6 hover:shadow-xl [&>div>img]:transition-transform [&>div>img]:duration-1000 [&>div>img]:hover:scale-110 [&_h3]:hover:text-primary [&_h3]:hover:underline"
+    >
+      <div className="mb-6 overflow-hidden rounded-[15px]">
+        <img
+          src={article?.image_url || article?.source.icon}
+          alt="article preview"
+          fetchPriority="high"
+          className="h-[190px] w-full object-cover max-[450px]:h-[140px]"
+        />
+      </div>
+      <h3 className="mb-4 text-lg font-semibold text-[#2F2D32] max-[450px]:text-base">
+        {article?.title}
+      </h3>
+      <div className="flex items-center gap-3">
+        <span className="text-sm font-normal text-[#696969]">
+          {article?.source.name}
+        </span>
+        <div className="h-3">
+          <Separator orientation="vertical" />
+        </div>
+        <span className="text-sm font-normal text-[#696969]">
+          {getPublishTimeStamp(article?.published_at as string)}
+        </span>
+        <div className="h-3">
+          <Separator orientation="vertical" />
+        </div>
+        <span className="text-sm font-normal text-[#696969]">
+          {article?.ttr} min read
+        </span>
+      </div>
+    </Link>
+  );
+};
+
+export default HeadlineArticle;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\HeadlineArticle.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\ResponsiveHeadlines.tsx ----
+"use client";
+import { PostsResponse } from "@/hooks/post/useFetchPosts";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import HeadlinesCarousel from "./HeadlinesCarousel";
+import { Link } from "@/i18n/routing";
+import { Separator } from "@/components/ui/separator";
+import { getPublishTimeStamp } from "@/utils/time.utils";
+import { useEffect, useState } from "react";
+import BookmarkButton from "./BookmarkButton";
+import ArticleTitle from "./ArticleTitle";
+
+const ResponsiveHeadlines = ({
+  children,
+  headlines,
+}: {
+  children: React.ReactNode;
+  headlines: PostsResponse[];
+}) => {
+  const [carousel, setCarousel] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 800px)");
+
+  useEffect(() => {
+    setCarousel(isMobile);
+  }, [isMobile]);
+
+  if (carousel) {
+    return (
+      <HeadlinesCarousel>
+        {headlines.map((article, index) => {
+          return (
+            <div
+              key={article?._id?.toString()}
+              className={`relative flex h-fit min-w-full flex-1 rounded-[5px] p-2 shadow-sm hover:scale-[0.97] hover:shadow-md`}
+            >
+              <Link
+                href={`/post/${article?.slug}`}
+                className={`flex h-fit w-full flex-1 cursor-pointer gap-5 rounded-[5px] [&>div>img]:transition-transform [&>div>img]:duration-1000 [&>div>img]:hover:scale-110 [&_h3]:hover:text-primary [&_h3]:hover:underline`}
+              >
+                <div className="flex h-[90px] min-w-[200px] max-w-[200px] overflow-hidden rounded-[5px] max-[900px]:min-w-[160px] max-[900px]:max-w-[160px] max-[500px]:min-w-[100px] max-[500px]:max-w-[100px]">
+                  <img
+                    src={article?.image_url || article?.source.icon}
+                    alt="article preview"
+                    loading={index === 0 ? "eager" : "lazy"}
+                    className="h-[90px] min-w-[200px] max-w-[200px] object-cover max-[900px]:min-w-[160px] max-[900px]:max-w-[160px] max-[500px]:min-w-[100px] max-[500px]:max-w-[100px]"
+                  />
+                </div>
+                <div className="flex flex-col justify-center">
+                  <ArticleTitle title={article?.title} />
+                  <div className="mb-2 flex items-center gap-2">
+                    <img
+                      className="size-3 rounded-full object-cover"
+                      alt="Article source Icon"
+                      src={article?.source.icon}
+                    />
+                    <span className="text-xs font-normal text-[#696969]">
+                      {article?.source.name}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs font-normal text-[#696969]">
+                      {getPublishTimeStamp(article?.published_at as string)}
+                    </span>
+                    <div className="h-3">
+                      <Separator orientation="vertical" />
+                    </div>
+                    <span
+                      // className="absolute left-[40px] top-[0px] flex -translate-x-1/2 rounded-lg bg-white px-4 py-2 text-xs font-normal text-primary"
+                      className="text-xs font-normal text-primary"
+                    >
+                      {article?.ttr && `${article?.ttr} min read`}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+              <BookmarkButton
+                id={article?._id?.toString() as string}
+                bookmarked={article?.bookmarked}
+              />
+            </div>
+          );
+        })}
+      </HeadlinesCarousel>
+    );
+  }
+
+  return <>{children}</>;
+};
+
+export default ResponsiveHeadlines;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\ResponsiveHeadlines.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\HeadlinesCarousel.tsx ----
+import useEmblaCarousel, { UseEmblaCarouselType } from "embla-carousel-react";
+import { ComponentPropsWithRef, useCallback, useEffect, useState } from "react";
+// import { useMediaQuery } from "react-responsive";
+
+type UseDotButtonType = {
+  selectedIndex: number;
+  scrollSnaps: number[];
+  onDotButtonClick: (index: number) => void;
+};
+
+export const useDotButton = (
+  emblaApi: UseEmblaCarouselType[1] | undefined,
+): UseDotButtonType => {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+
+  const onDotButtonClick = useCallback(
+    (index: number) => {
+      if (!emblaApi) return;
+      emblaApi.scrollTo(index);
+    },
+    [emblaApi],
+  );
+
+  const onInit = useCallback((emblaApi: UseEmblaCarouselType[1]) => {
+    setScrollSnaps(emblaApi!.scrollSnapList());
+  }, []);
+
+  const onSelect = useCallback((emblaApi: UseEmblaCarouselType[1]) => {
+    setSelectedIndex(emblaApi!.selectedScrollSnap());
+  }, []);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    onInit(emblaApi);
+    onSelect(emblaApi);
+    emblaApi.on("reInit", onInit).on("reInit", onSelect).on("select", onSelect);
+  }, [emblaApi, onInit, onSelect]);
+
+  return {
+    selectedIndex,
+    scrollSnaps,
+    onDotButtonClick,
+  };
+};
+
+type PropType = ComponentPropsWithRef<"button">;
+
+export const DotButton: React.FC<PropType> = (props) => {
+  const { children, ...restProps } = props;
+
+  return (
+    <button type="button" {...restProps}>
+      {children}
+    </button>
+  );
+};
+
+export default function HeadlinesCarousel({
+  children,
+  timer = 5000,
+  hideSnaps = false,
+}: {
+  children: React.ReactNode;
+  timer: number;
+  hideSnaps?: boolean;
+}) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: true,
+  });
+
+  const { selectedIndex, scrollSnaps, onDotButtonClick } =
+    useDotButton(emblaApi);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    emblaApi.reInit();
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    const interval = setInterval(() => {
+      emblaApi.scrollNext();
+    }, timer);
+
+    return () => clearInterval(interval);
+  });
+
+  return (
+    <div className="w-full">
+      <div className="overflow-hidden" ref={emblaRef}>
+        <div className="flex">{children}</div>
+      </div>
+      <div className="embla__dots">
+        {!hideSnaps &&
+          scrollSnaps.map((_, index) => (
+            <DotButton
+              key={index}
+              onClick={() => onDotButtonClick(index)}
+              className={`embla__dot ${index === selectedIndex ? "embla__dot--selected" : ""}`}
+            />
+          ))}
+      </div>
+    </div>
+  );
+}
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\HeadlinesCarousel.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\BookmarkButton.tsx ----
+"use client";
+import { usePathname } from "@/i18n/routing";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import revalidatePathAction from "@/app/actions/revalidatePath";
+import BookmarkIcon from "@/assets/svgs/utils/BookmarkIcon";
+import { Button } from "@/components/ui/button";
+import useAuth from "@/context/auth/useAuth";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { fetcher } from "@/lib/fetcher";
+import revalidateTagAction from "@/app/actions/revalidateTag";
+
+const BookmarkButton = ({
+  id,
+  bookmarked,
+  imageExists = true,
+}: {
+  id: string;
+  bookmarked: boolean | null | undefined;
+  imageExists?: boolean;
+}) => {
+  const { user } = useAuth();
+  const [isBookmarked, setIsBookmarked] = useState(bookmarked);
+  const [isMatch, setIsMatch] = useState(false);
+  const pathName = usePathname();
+
+  const matches = useMediaQuery("(max-width: 1000px)");
+
+  useEffect(() => {
+    if (user) {
+      setIsMatch(matches);
+    }
+  }, [matches, user]);
+
+  if (!user) {
+    return null;
+  }
+
+  const handleBookmark = async () => {
+    const currentBookmarkedState = isBookmarked;
+    try {
+      setIsBookmarked(!isBookmarked);
+
+      if (!isBookmarked) {
+        toast.success("Bookmarked successfully");
+      } else {
+        toast.success("Unbookmarked successfully");
+      }
+
+      await fetcher(`/api/v1/bookmark/${id}`, {
+        method: "POST",
+      });
+
+      // await revalidatePathAction("/bookmarks");
+      // await revalidateTagAction(`bookmarks-${user?.id.toString()}`);
+
+      if (pathName === "/bookmarks") {
+        return;
+      }
+    } catch (error) {
+      setIsBookmarked(currentBookmarkedState);
+      toast.error("Bookmarking failed");
+    }
+  };
+
+  return (
+    <Button
+      className={`absolute bottom-1 right-2 rounded-full bg-white p-3 shadow-lg hover:stroke-primary ${
+        isBookmarked ? "stroke-primary" : ""
+      } ${isMatch && imageExists ? "" : "bottom-1 right-2"}`}
+      variant="unstyled"
+      size="unstyled"
+      onClick={handleBookmark}
+    >
+      <BookmarkIcon />
+    </Button>
+  );
+};
+
+export default BookmarkButton;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\BookmarkButton.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\app/actions/revalidatePath.ts ----
+"use server";
+
+import { revalidatePath } from "next/cache";
+
+export default async function revalidatePathAction(
+  path: string,
+  option?: "page" | "layout",
+) {
+  revalidatePath(path, option);
+}
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\app/actions/revalidatePath.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\assets/svgs/utils/BookmarkIcon.tsx ----
+const BookmarkIcon = ({ className }: { className?: string }) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="15"
+      height="15"
+      viewBox="0 0 15 15"
+      fill="none"
+      className={className}
+    >
+      <path
+        d="M11.405 14.1238C11.0828 14.1229 10.7674 14.0312 10.495 13.8593L7.83113 12.1942C7.73163 12.1326 7.6169 12.0999 7.49986 12.0999C7.38281 12.0999 7.26809 12.1326 7.16859 12.1942L4.5047 13.8593C4.24453 14.0219 3.94557 14.1119 3.63886 14.12C3.33214 14.1281 3.02886 14.0539 2.7605 13.9051C2.49214 13.7564 2.26849 13.5385 2.11278 13.2742C1.95707 13.0098 1.87496 12.7086 1.875 12.4017V2.8125C1.8757 2.23255 2.10639 1.67656 2.51648 1.26648C2.92656 0.856395 3.48255 0.625701 4.0625 0.625H10.9375C11.5174 0.625701 12.0734 0.856395 12.4835 1.26648C12.8936 1.67656 13.1243 2.23255 13.125 2.8125V12.4017C13.1273 12.709 13.0462 13.0112 12.8902 13.2759C12.7342 13.5407 12.5093 13.7581 12.2394 13.905C11.9844 14.0478 11.6972 14.1231 11.405 14.1238ZM7.5 10.8511C7.85123 10.8504 8.19557 10.9486 8.49365 11.1343L11.1578 12.7991C11.2288 12.8434 11.3103 12.8679 11.3939 12.8701C11.4775 12.8723 11.5602 12.8521 11.6334 12.8115C11.7066 12.771 11.7676 12.7116 11.81 12.6396C11.8525 12.5675 11.875 12.4854 11.875 12.4017V2.8125C11.8747 2.56394 11.7759 2.32564 11.6001 2.14989C11.4244 1.97413 11.1861 1.87527 10.9375 1.875H4.0625C3.81394 1.87527 3.57564 1.97413 3.39989 2.14989C3.22413 2.32564 3.12527 2.56394 3.125 2.8125V12.4017C3.12502 12.4854 3.14744 12.5676 3.18994 12.6397C3.23244 12.7118 3.29347 12.7712 3.36669 12.8118C3.4399 12.8523 3.52264 12.8725 3.60631 12.8703C3.68997 12.8681 3.77152 12.8435 3.84247 12.7991L6.50635 11.134C6.80454 10.9485 7.14883 10.8505 7.5 10.8511Z"
+        fill="#696969"
+      />
+      <path
+        d="M10 5H5C4.83424 5 4.67527 4.93415 4.55806 4.81694C4.44085 4.69973 4.375 4.54076 4.375 4.375C4.375 4.20924 4.44085 4.05027 4.55806 3.93306C4.67527 3.81585 4.83424 3.75 5 3.75H10C10.1658 3.75 10.3247 3.81585 10.4419 3.93306C10.5592 4.05027 10.625 4.20924 10.625 4.375C10.625 4.54076 10.5592 4.69973 10.4419 4.81694C10.3247 4.93415 10.1658 5 10 5Z"
+        fill="#696969"
+      />
+    </svg>
+  );
+};
+
+export default BookmarkIcon;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\assets/svgs/utils/BookmarkIcon.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\components/ui/button.tsx ----
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+import * as React from "react";
+
+import { cn } from "@/lib/utils";
+
+const buttonVariants = cva(
+  "flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-green-900",
+        destructive:
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline:
+          "shadow-basic bg-background hover:bg-accent hover:text-accent-foreground",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+        unstyled: "bg-none hover:bg-gray-100",
+      },
+      size: {
+        default: "h-10 px-4 py-2",
+        sm: "h-9 rounded-md px-3",
+        lg: "h-11 rounded-md px-8",
+        icon: "size-10",
+        unstyled: "size-fit p-0",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  },
+);
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button";
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      />
+    );
+  },
+);
+Button.displayName = "Button";
+
+export { Button, buttonVariants };
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\components/ui/button.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\context/auth/useAuth.tsx ----
+import { useContext } from "react";
+
+import AuthContext from ".";
+
+const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === null) {
+    throw new Error("useAuth is null");
+  }
+  if (context === undefined) {
+    throw new Error("useAuth was used outside of its Provider");
+  }
+  return context;
+};
+
+export default useAuth;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\context/auth/useAuth.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\context\auth\index.tsx ----
+"use client";
+import { IPreferences } from "@/types/preferences.type";
+import { User } from "lucia";
+import { createContext } from "react";
+
+export type Permission = "Write" | "Admin";
+
+export type AuthContextValue = {
+  user: User | null;
+  // can: (action: Permission) => boolean;
+  canWrite: boolean;
+  canAdmin: boolean;
+  preferences: IPreferences | null;
+  // loading: LoadingState;
+  // error: string | null;
+  // status: "authenticated" | "loading" | "unauthenticated";
+};
+
+const AuthContext = createContext<AuthContextValue | null>(null);
+export default AuthContext;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\context\auth\index.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\app/actions/revalidateTag.ts ----
+"use server";
+
+import { revalidateTag } from "next/cache";
+
+export default async function revalidateTagAction(tag: string) {
+  revalidateTag(tag);
+}
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\app/actions/revalidateTag.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\utils/cleanObject.utils.ts ----
+// To fix "Warning: Only plain objects can be passed to Client Components from Server Components"
+export const cleanObject = <T>(response: T) => {
+  return JSON.parse(JSON.stringify(response));
+};
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\utils/cleanObject.utils.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\HomepageScroll.tsx ----
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import Categories from "@/categories";
+import { flattenCategories } from "@/utils/category.utils";
+
+type LoadMoreAction = (selection: string[]) => Promise<JSX.Element[]>;
+
+const HomepageScroll = ({
+  children,
+  currentSelection,
+  loadMoreAction,
+}: {
+  children: React.ReactNode;
+  currentSelection: string[];
+  loadMoreAction: LoadMoreAction;
+}) => {
+  const loadRef = useRef<HTMLDivElement>(null);
+  const [loadedNodes, setLoadedNodes] = useState<JSX.Element[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const remainingCategories = flattenCategories(Categories)
+    .filter((category) => !currentSelection.includes(category))
+    .filter((category) => category !== "Home")
+    .filter((category) => category !== "Headlines")
+    .filter((category) => category !== "Entrepreneurship")
+    .filter((category) => category !== "Hot Interviews")
+    .filter((category) => category !== "Viral Videos");
+
+  useEffect(() => {
+    const handleLoad = async () => {
+      if (loaded) return;
+
+      try {
+        const newNodes = await loadMoreAction(remainingCategories);
+
+        setLoadedNodes(newNodes);
+        setLoaded(true);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const element = loadRef.current;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry!.isIntersecting) {
+        handleLoad();
+      }
+    });
+
+    if (element) {
+      observer.observe(element);
+    }
+
+    if (loaded) {
+      observer.disconnect();
+    }
+
+    return () => {
+      if (element) {
+        observer.unobserve(element);
+      }
+    };
+  }, [loadMoreAction, loaded, remainingCategories]);
+
+  return (
+    <>
+      <div className="flex flex-wrap gap-3 max-[900px]:flex-col">
+        {children}
+        {loadedNodes}
+      </div>
+      {!loaded && (
+        <div ref={loadRef} className="text-center">
+          Loading...
+        </div>
+      )}
+    </>
+  );
+};
+
+export default HomepageScroll;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\HomepageScroll.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\categories\index.tsx ----
+export type Category = {
+  name: string;
+  path?: string;
+  sub?: Category[];
+};
+
+export type Categories = Category[];
+
+const Categories: Categories = [
+  {
+    name: "Home",
+    path: "/",
+  },
+  {
+    name: "Breaking",
+    path: "/breaking",
+  },
+  // {
+  //   name: "Viral Videos",
+  //   path: "/viral",
+  // },
+  {
+    name: "Local News",
+    sub: [
+      {
+        name: "Politics",
+        path: "/politics",
+      },
+      {
+        name: "Headlines",
+        path: "/headlines",
+      },
+      {
+        name: "Weather",
+        path: "/weather",
+      },
+    ],
+  },
+  {
+    name: "African News",
+    sub: [
+      {
+        name: "Top West African News",
+        path: "/top-west-african-news",
+      },
+      {
+        name: "Top East African News",
+        path: "/top-east-african-news",
+      },
+      {
+        name: "Top Southern Africa News",
+        path: "/top-southern-africa-news",
+      },
+    ],
+  },
+  {
+    name: "Global News",
+    sub: [
+      {
+        name: "Top US News",
+        path: "/us-news",
+      },
+      {
+        name: "UK Top News",
+        path: "/uk-news",
+      },
+      {
+        name: "EU News",
+        path: "/eu-news",
+      },
+      {
+        name: "Asian News",
+        path: "/asian-news",
+      },
+    ],
+  },
+  {
+    name: "Entertainment",
+    sub: [
+      {
+        name: "Celebrity News",
+        path: "/celebrity-news",
+      },
+      {
+        name: "Top Movies",
+        path: "/top-movies",
+      },
+      {
+        name: "Trending Music",
+        path: "/trending-music",
+      },
+      {
+        name: "Hot Interviews",
+        path: "/hot-interviews",
+      },
+    ],
+  },
+  {
+    name: "Business",
+    sub: [
+      {
+        name: "Economy",
+        path: "/economy",
+      },
+      {
+        name: "Personal Finance",
+        path: "/personal-finance",
+      },
+      {
+        name: "Market Watch",
+        path: "/market-watch",
+      },
+      {
+        name: "Startup News",
+        path: "/startup-news",
+      },
+      {
+        name: "Entrepreneurship",
+        path: "/entrepreneurship",
+      },
+      {
+        name: "E-Commerce",
+        path: "/e-commerce",
+      },
+    ],
+  },
+  {
+    name: "Technology",
+    sub: [
+      {
+        name: "Latest Tech News",
+        path: "/latest-tech-news",
+      },
+      { name: "Artificial Intelligence", path: "/artificial-intelligence" },
+      {
+        name: "Crypto",
+        path: "/crypto",
+      },
+      {
+        name: "Fintech",
+        path: "/fintech",
+      },
+      {
+        name: "Cartech",
+        path: "/cartech",
+      },
+      {
+        name: "Gadgets Buying Guide",
+        path: "/gadgets",
+      },
+    ],
+  },
+  {
+    name: "Lifestyle",
+    sub: [
+      {
+        name: "Health News",
+        path: "/health-news",
+      },
+      {
+        name: "Food & Nutrition",
+        path: "/food-nutrition",
+      },
+      {
+        name: "Travel & Tourism",
+        path: "/travel-tourism",
+      },
+      {
+        name: "Style & Beauty",
+        path: "/style-beauty",
+      },
+      {
+        name: "Family & Parenting",
+        path: "/family-parenting",
+      },
+    ],
+  },
+  {
+    name: "Sports",
+    sub: [
+      {
+        name: "Top Sports News",
+        path: "/top-sports-news",
+      },
+      {
+        name: "UK Premiership",
+        path: "/uk-premiership",
+      },
+      {
+        name: "Basketball",
+        path: "/basketball",
+      },
+      {
+        name: "Gaming",
+        path: "/gaming",
+      },
+    ],
+  },
+  {
+    name: "Career / Jobs",
+    sub: [
+      {
+        name: "Latest Job News",
+        path: "/latest-job-news",
+      },
+      {
+        name: "Career Tips",
+        path: "/career-tips",
+      },
+      {
+        name: "Top Global Jobs",
+        path: "/top-global-jobs",
+      },
+    ],
+  },
+];
+
+export default Categories;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\categories\index.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\utils/category.utils.ts ----
+import Categories, { Category } from "@/categories";
+
+export const flattenCategories = (arr: Category[]) => {
+  const result: string[] = [];
+
+  arr.forEach((item) => {
+    if (item.path) {
+      result.push(item.name);
+    } else if (item.sub) {
+      result.push(...flattenCategories(item.sub));
+    }
+  });
+
+  return result;
+};
+
+export const findSiblings = (targetName: string): string[] => {
+  for (const category of Categories) {
+    if (category.sub) {
+      const subNames = category.sub.map((sub) => sub.name);
+      if (subNames.includes(targetName)) {
+        return subNames.filter((name) => name !== targetName);
+      }
+    }
+  }
+
+  return [];
+};
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\utils/category.utils.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\Trending.tsx ----
+import { unstable_cache } from "next/cache";
+import BookmarkModel from "@/database/bookmark/bookmark.model";
+import PostModel from "@/database/post/post.model";
+import { PostsResponse } from "@/hooks/post/useFetchPosts";
+import { validateRequest } from "@/lib/auth/auth";
+import { connectToDatabase } from "@/lib/database";
+import { IPost } from "@/types/post.type";
+import ArticleCard from "./ArticleCard";
+import ScrollContainer from "./ScrollContainer";
+
+interface TrendingProps {
+  articles: PostsResponse[];
+  category?: string;
+  partial?: boolean;
+  query?: boolean;
+  filter?: boolean;
+}
+
+async function getNextPosts(offset: number, category: string) {
+  "use server";
+  await connectToDatabase();
+
+  const { user } = await validateRequest();
+
+  const News: IPost[] = await PostModel.find({
+    category: {
+      $in: [category],
+    },
+  })
+    .sort({ published_at: -1 })
+    .skip(offset * 4)
+    .limit(4);
+
+  if (user) {
+    const bookmarkedNews = await unstable_cache(
+      async () => {
+        return await BookmarkModel.find({
+          user_id: user?.id,
+          article_id: { $in: News.map((article) => article._id) },
+        });
+      },
+      [`bookmarks-${user?.id.toString()}`],
+      {
+        revalidate: 60 * 60,
+        tags: [`bookmarks-${user?.id.toString()}`],
+      },
+    )();
+
+    const bookmarkedNewsIds = new Set(
+      bookmarkedNews
+        .map((bookmark) => bookmark.article_id)
+        .map((id) => id.toString()),
+    );
+
+    News.forEach((article) => {
+      if (bookmarkedNewsIds.has(article._id!.toString())) {
+        article.bookmarked = true;
+      }
+    });
+  }
+
+  return (
+    <>
+      {News.map((news, index) => {
+        return (
+          <ArticleCard
+            className="min-w-[40%] flex-1 basis-2/5"
+            article={news}
+            key={index}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+const Trending = ({
+  articles,
+  category,
+  partial = false,
+  query = false,
+  filter = false,
+}: TrendingProps) => {
+  // TODO
+  if (articles.length === 0) {
+    if (query || filter) {
+      return (
+        <span className="text-lg">There are no results for this search</span>
+      );
+    }
+    return (
+      <span className="text-lg">There are no posts under this category.</span>
+    );
+  }
+
+  if (category) {
+    return (
+      <div
+        className={`flex flex-wrap gap-5 max-[800px]:flex-col ${partial ? "flex-col" : ""}`}
+      >
+        <ScrollContainer category={category} loadMoreAction={getNextPosts}>
+          {articles.map((_, index) => {
+            return (
+              <ArticleCard
+                className={
+                  partial
+                    ? "w-full"
+                    : "min-w-[45%] max-w-[50%] max-[800px]:max-w-full"
+                }
+                article={articles[index]}
+                key={index}
+              />
+            );
+          })}
+        </ScrollContainer>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`flex flex-wrap gap-5 max-[800px]:flex-col ${partial ? "flex-col" : ""}`}
+    >
+      {articles.map((_, index) => {
+        return (
+          <ArticleCard
+            className={
+              partial
+                ? "w-full"
+                : "min-w-[45%] max-w-[50%] max-[800px]:max-w-full"
+            }
+            article={articles[index]}
+            key={index}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
+export default Trending;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\Trending.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\ScrollContainer.tsx ----
+"use client";
+
+import { useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+
+type LoadMoreAction = (
+  offset: number,
+  category: string,
+) => Promise<JSX.Element>;
+
+const ScrollContainer = ({
+  children,
+  category,
+  loadMoreAction,
+}: {
+  children: React.ReactNode;
+  category: string;
+  loadMoreAction: LoadMoreAction;
+}) => {
+  const [loadedNodes, setLoadedNodes] = useState<JSX.Element[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const offsetRef = useRef(1);
+
+  const handleLoad = async () => {
+    try {
+      setIsLoading(true);
+      const newNode = await loadMoreAction(offsetRef.current, category);
+
+      offsetRef.current++;
+      setLoadedNodes((nodes) => [...nodes, newNode]);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <>
+      {children}
+      {loadedNodes}
+      <div className="mt-2 flex w-full items-center justify-center">
+        <Button variant="outline" className="py-1" onClick={handleLoad}>
+          {isLoading ? <span>Loading...</span> : <span>View More</span>}
+        </Button>
+      </div>
+    </>
+  );
+};
+
+export default ScrollContainer;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\ScrollContainer.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\TodayInHistory.tsx ----
+"use client";
+
+import type React from "react";
+import { useCallback, useRef } from "react";
+import { toPng } from "html-to-image";
+import { useEffect, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Calendar, ChevronLeft, ChevronRight, Clock, Star } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import HeadlinesCarousel from "./HeadlinesCarousel";
+import ZealLogo2 from "@/assets/ZealLogo2";
+import { createHash } from "crypto";
+
+interface HistoricalEvent {
+  event: string;
+  year: string;
+}
+
+// Mock function to fetch historical data
+
+export const TodayInHistory: React.FC = () => {
+  const [events, setEvents] = useState<HistoricalEvent[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [showLogo, setShowLogo] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchTodayInHistory = async (): Promise<HistoricalEvent[]> => {
+      const response = await fetch(`/api/v1/history`);
+      const events: HistoricalEvent[] = await response.json();
+      setEvents(events);
+      return events;
+    };
+
+    fetchTodayInHistory();
+  }, []);
+
+  const generateHash = (length: number = 5): string => {
+    const timestamp = Date.now().toString();
+    const data = `${timestamp}${length}${Math.random()}`;
+    return createHash("sha256")
+      .update(data)
+      .digest("base64")
+      .replace(/[+/=]/g, "")
+      .substring(0, length);
+  };
+
+  const onButtonClick = useCallback(() => {
+    if (ref.current === null) {
+      return;
+    }
+
+    setShowLogo(true);
+
+    toPng(ref.current, { cacheBust: true })
+      .then((dataUrl) => {
+        const link = document.createElement("a");
+        link.download = `today-in-history-${generateHash()}.png`;
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setShowLogo(false);
+      });
+  }, [ref]);
+
+  const handlePrev = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex > 0 ? prevIndex - 1 : events.length - 1,
+    );
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex < events.length - 1 ? prevIndex + 1 : 0,
+    );
+  };
+
+  if (events.length === 0) {
+    return <div id="today-in-history"></div>;
+    // return null;
+  }
+
+  return (
+    // <div className="w-full bg-gradient-to-r from-gray-100 to-gray-200 p-4 dark:from-gray-800 dark:to-gray-900 sm:p-6 md:p-8">
+    <Card
+      id="today-in-history"
+      ref={ref}
+      className="mx-auto w-full max-w-6xl overflow-hidden bg-white shadow-lg dark:bg-gray-800"
+    >
+      <CardContent className="p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Calendar className="size-4 text-primary" />
+            <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">
+              Today in History
+            </h2>
+          </div>
+          {!showLogo ? (
+            <Button variant="outline" onClick={onButtonClick}>
+              Download
+            </Button>
+          ) : (
+            // <ZealLogo2 />
+            <ZealLogo2 className="size-12" />
+          )}
+          {/* <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handlePrev}
+              className="size-fit p-1"
+            >
+              <ChevronLeft className="size-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleNext}
+              className="size-fit p-1"
+            >
+              <ChevronRight className="size-4" />
+            </Button>
+          </div> */}
+        </div>
+
+        {/* <div className="relative mb-4 h-1 rounded-full bg-gray-200 dark:bg-gray-700">
+          <div
+            className="absolute h-1 rounded-full bg-primary transition-all duration-300 ease-in-out"
+            style={{
+              width: `${((currentIndex + 1) / events.length) * 100}%`,
+            }}
+          />
+        </div> */}
+
+        <HeadlinesCarousel timer={8000} hideSnaps={showLogo}>
+          {events.map((event, index) => {
+            return (
+              <div
+                key={event.event}
+                className="mb-2 flex min-w-full cursor-grab flex-col items-start justify-between space-x-4 sm:flex-row sm:items-center"
+              >
+                <div className="mb-4 flex items-center space-x-4 sm:mb-0">
+                  <div className="rounded-lg bg-primary px-2 py-1 text-base font-bold text-white">
+                    {event?.year}
+                  </div>
+                  <Clock className="size-4 text-gray-400" />
+                </div>
+                <p className="pointer-events-none flex-1 text-base text-gray-700 dark:text-gray-300">
+                  {event?.event}
+                </p>
+              </div>
+            );
+          })}
+        </HeadlinesCarousel>
+
+        {/* <AnimatePresence mode="wait">
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col items-start justify-between space-x-4 sm:flex-row sm:items-center"
+          >
+            <div className="mb-4 flex items-center space-x-4 sm:mb-0">
+              <div className="rounded-lg bg-primary px-2 py-1 text-base font-bold text-white">
+                {events[currentIndex]?.year}
+              </div>
+              <Clock className="size-4 text-gray-400" />
+            </div>
+            <p className="flex-1 text-base text-gray-700 dark:text-gray-300">
+              {events[currentIndex]?.event}
+            </p>
+          </motion.div>
+        </AnimatePresence> */}
+
+        {/* <div className="mt-8 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+          <div className="flex items-center space-x-2">
+            <Star className="h-4 w-4" />
+            <span>Use arrows to navigate</span>
+          </div>
+          <div>
+            {currentIndex + 1} of {events.length}
+          </div>
+        </div> */}
+      </CardContent>
+    </Card>
+    // </div>
+  );
+};
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\TodayInHistory.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\components/ui/card.tsx ----
+import * as React from "react";
+
+import { cn } from "@/lib/utils";
+
+const Card = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "rounded-lg border bg-card text-card-foreground shadow-sm",
+      className,
+    )}
+    {...props}
+  />
+));
+Card.displayName = "Card";
+
+const CardHeader = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex flex-col space-y-1.5 p-6", className)}
+    {...props}
+  />
+));
+CardHeader.displayName = "CardHeader";
+
+const CardTitle = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "text-2xl font-semibold leading-none tracking-tight",
+      className,
+    )}
+    {...props}
+  />
+));
+CardTitle.displayName = "CardTitle";
+
+const CardDescription = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+));
+CardDescription.displayName = "CardDescription";
+
+const CardContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+));
+CardContent.displayName = "CardContent";
+
+const CardFooter = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex items-center p-6 pt-0", className)}
+    {...props}
+  />
+));
+CardFooter.displayName = "CardFooter";
+
+export {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent,
+};
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\components/ui/card.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\assets/ZealLogo2.tsx ----
+const ZealLogo2 = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    xmlSpace="preserve"
+    id="Layer_1"
+    x={0}
+    y={0}
+    style={
+      {
+        //   enableBackground: "new 0 0 2235 1794.55",
+      }
+    }
+    viewBox="0 0 2235 1794.55"
+    {...props}
+  >
+    <style>
+      {
+        ".st0,.st1,.st2,.st3,.st4{fill:none;stroke:#231f20;stroke-width:8;stroke-miterlimit:10}.st1,.st2,.st3,.st4{stroke-width:7.8095}.st2,.st3,.st4{stroke-width:7.619}.st3,.st4{stroke-width:7.4286}.st4{stroke-width:7.2381}.st10,.st11,.st12,.st13,.st5,.st6,.st7,.st8,.st9{fill:none;stroke:#231f20;stroke-width:7.0476;stroke-miterlimit:10}.st10,.st11,.st12,.st13,.st6,.st7,.st8,.st9{stroke-width:6.8571}.st10,.st11,.st12,.st13,.st7,.st8,.st9{stroke-width:6.6667}.st10,.st11,.st12,.st13,.st8,.st9{stroke-width:6.4762}.st10,.st11,.st12,.st13,.st9{stroke-width:6.2857}.st10,.st11,.st12,.st13{stroke-width:6.0952}.st11,.st12,.st13{stroke-width:5.9048}.st12,.st13{stroke-width:5.7143}.st13{stroke-width:5.5238}.st14,.st15,.st16,.st17,.st18,.st19,.st20,.st21{fill:none;stroke:#231f20;stroke-width:5.3333;stroke-miterlimit:10}.st15,.st16,.st17,.st18,.st19,.st20,.st21{stroke-width:5.1429}.st16,.st17,.st18,.st19,.st20,.st21{stroke-width:4.9524}.st17,.st18,.st19,.st20,.st21{stroke-width:4.7619}.st18,.st19,.st20,.st21{stroke-width:4.5714}.st19,.st20,.st21{stroke-width:4.381}.st20,.st21{stroke-width:4.1905}.st21{stroke-width:4}.st22{fill:#231f20}.st23{fill:#fdc100}.st24{fill:red}.st25{fill:#ef7411}.st26{fill:#27c622}.st27{fill:#0a5438}.st28{fill:#009b5f}.st29{fill:#cd003b}.st30{fill:#00794d}.st31,.st32{fill:none;stroke:#231f20;stroke-width:1.5346;stroke-miterlimit:10}.st32{stroke-width:1.8943}.st39{fill:url(#SVGID_6_)}.st40{fill:url(#SVGID_7_)}.st41{fill:url(#SVGID_8_)}.st42{fill:#fff}.st43{fill:url(#SVGID_9_)}.st44{fill:url(#SVGID_10_)}.st45{fill:url(#SVGID_11_)}.st46{fill:none;stroke:#231f20;stroke-miterlimit:10}.st47{fill:url(#SVGID_12_)}.st48{fill:url(#SVGID_13_)}.st49{fill:url(#SVGID_14_)}.st50{fill:url(#SVGID_15_)}.st51{fill:url(#SVGID_16_)}.st52{fill:url(#SVGID_17_)}.st53{fill:url(#SVGID_18_)}.st54{fill:url(#SVGID_19_)}.st55{fill:url(#SVGID_20_)}.st56{fill:url(#SVGID_21_)}.st57{fill:url(#SVGID_22_)}.st58{fill:url(#SVGID_23_)}.st59{fill:url(#SVGID_24_)}.st60{fill:url(#SVGID_25_)}.st61{fill:url(#SVGID_26_)}.st62{fill:url(#SVGID_27_)}.st63{fill:url(#SVGID_28_)}.st64{fill:url(#SVGID_29_)}.st65{fill:url(#SVGID_30_)}.st66{fill:url(#SVGID_31_)}.st67{fill:url(#SVGID_32_)}.st68{fill:url(#SVGID_33_)}.st69{fill:none;stroke:#231f20;stroke-width:8.6656;stroke-miterlimit:10}.st70{fill:url(#SVGID_34_)}.st71{fill:url(#SVGID_35_)}.st72{fill:url(#SVGID_36_)}.st73{fill:url(#SVGID_37_)}.st74{fill:url(#SVGID_38_)}.st75{fill:url(#SVGID_39_)}.st76{fill:url(#SVGID_40_)}.st77{fill:url(#SVGID_41_)}.st78{fill:url(#SVGID_42_)}.st79{fill:url(#SVGID_43_)}.st80{fill:url(#SVGID_44_)}.st81{fill:url(#SVGID_45_)}.st82{fill:url(#SVGID_46_)}.st83{fill:url(#SVGID_47_)}.st84{fill:url(#SVGID_48_)}.st85{fill:url(#SVGID_49_)}.st86{fill:url(#SVGID_50_)}.st87{fill:url(#SVGID_51_)}.st88{fill:url(#SVGID_52_)}.st89{fill:url(#SVGID_53_)}.st90{fill:url(#SVGID_54_)}.st91{fill:url(#SVGID_55_)}.st92{fill:url(#SVGID_56_)}.st93{fill:url(#SVGID_57_)}.st94{fill:url(#SVGID_58_)}"
+      }
+    </style>
+    <path d="M155.21 1514.36c-.77 1.1-1.55 2.2-2.32 3.31h3.96c-.53-1.11-1.1-2.2-1.64-3.31zM210.28 1619.57c-.77 1.1-1.55 2.2-2.32 3.31h3.96c-.53-1.11-1.1-2.2-1.64-3.31zM335.24 1683.44h131.31v37.12H278.53v-19.94l130.28-183.9H288.84v-36.78H466.2v19.25l-130.96 184.25zM663.51 1650.1H527.73c3.09 24.75 23.72 40.56 53.62 40.56 19.25 0 38.84-6.87 48.81-17.53l23.37 22.69c-16.84 18.22-44.34 29.56-73.22 29.56-27.84 0-50.18-8.25-67.03-24.41-16.84-16.16-25.09-38.15-25.09-65.31 0-26.47 8.25-47.78 24.41-63.93 16.16-16.16 37.12-24.41 63.59-24.41 59.47.01 92.82 39.19 87.32 102.78zm-135.43-29.9h98.65c-2.75-24.41-21.66-39.53-49.5-39.53-26.47 0-44 14.43-49.15 39.53zM833.99 1550.76h34.37v169.8h-34.37l-.34-22.69c-14.09 17.53-34.72 26.47-61.87 26.47-25.09 0-45.37-8.25-60.84-24.75-15.47-16.5-23.37-37.81-23.37-63.93s7.91-47.44 23.37-63.93c15.47-16.5 35.75-24.75 60.84-24.75 27.15 0 47.78 8.94 61.87 26.47l.34-22.69zm-56.03 138.53c15.47 0 27.84-5.16 37.47-15.12 9.62-9.97 14.44-22.69 14.44-38.5s-4.81-28.87-14.44-38.84c-9.62-9.97-22-14.78-37.47-14.78-15.47 0-27.84 4.81-37.47 14.78-9.62 9.97-14.44 23.03-14.44 38.84s4.81 28.53 14.44 38.5c9.63 9.96 22 15.12 37.47 15.12zM915.1 1720.57v-240.61h38.5v240.61h-38.5zM1188.71 1479.95h10.66v240.61h-12.38l-163.27-225.83v225.83h-10.66v-240.61h13.06l162.59 224.8v-224.8zM1399.07 1573.45c15.81 17.19 22.34 39.19 19.94 66h-159.15c3.09 45.72 31.97 74.25 74.59 74.25 26.12 0 51.9-11.69 65.31-29.22l7.91 5.84c-16.16 20.97-42.97 33.34-73.22 33.34-24.41 0-44.69-8.25-60.84-24.75s-24.06-37.47-24.06-63.25 7.91-46.75 23.72-63.25c15.81-16.5 36.09-24.75 61.18-24.75 27.16.01 48.47 8.6 64.62 25.79zm-139.55 56.03h149.52c.34-21.31-6.53-38.5-20.28-51.9-13.75-13.41-31.97-19.94-54.31-19.94-42.62 0-71.84 28.87-74.93 71.84zM1679.9 1550.76h11l-59.12 169.8h-11l-16.84-48.12-36.78-104.15-37.12 104.15-16.84 48.12h-11l-59.47-169.8h11l24.75 71.5 29.56 83.18 54.65-154.68h8.94l54.65 155.37 29.22-83.87 24.4-71.5zM1715.3 1692.04l7.22-6.53c13.75 16.84 38.5 27.84 66 27.84 35.4 0 58.78-15.12 58.78-37.47 0-9.97-4.12-17.87-12.37-23.03-8.59-5.16-24.75-10.31-48.81-15.12-25.09-5.16-42.28-10.66-51.22-16.84-9.28-6.19-13.75-15.47-13.75-27.84 0-27.84 25.78-45.03 68.06-45.03 25.44 0 47.09 7.56 64.97 22.69l-6.88 7.22c-16.16-13.41-35.4-19.94-58.09-19.94-36.78 0-57.75 12.72-57.75 35.06 0 9.62 3.78 16.84 11.69 21.31 7.91 4.81 22.69 9.28 45.03 13.75 25.78 5.16 44 11 54.31 17.87 9.97 7.22 15.12 17.19 15.12 30.25 0 28.53-27.5 47.09-69.09 47.09-31.28 0-59.81-13.41-73.22-31.28z" />
+    <linearGradient
+      id="SVGID_1_"
+      x1={714.687}
+      x2={1819.455}
+      y1={1263.538}
+      y2={1037.917}
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop
+        offset={0}
+        style={{
+          stopColor: "#0a5438",
+        }}
+      />
+      <stop
+        offset={1}
+        style={{
+          stopColor: "#27c622",
+        }}
+      />
+    </linearGradient>
+    <path
+      d="M1856.31 835.95c-301.55 599.26-990.01 596.86-1318.15 557.44-24.13-2.89-46.24-5.93-66.18-8.98 15.12-44.98 32.91-93.35 53.66-144.21l239.27-174.46 2.58.73c665.15 190.73 1088.82-230.52 1088.82-230.52z"
+      style={{
+        fill: "url(#SVGID_1_)",
+      }}
+    />
+    <linearGradient
+      id="SVGID_2_"
+      x1={1834.491}
+      x2={786.348}
+      y1={623.219}
+      y2={1405.755}
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop
+        offset={0}
+        style={{
+          stopColor: "#fff",
+        }}
+      />
+      <stop
+        offset={0.122}
+        style={{
+          stopColor: "#fff7e0",
+          stopOpacity: 0.8782,
+        }}
+      />
+      <stop
+        offset={1}
+        style={{
+          stopColor: "#fdc100",
+          stopOpacity: 0,
+        }}
+      />
+    </linearGradient>
+    <path
+      d="M1856.27 836.05c-301.6 599.17-989.96 596.74-1318.09 557.36-24.15-2.93-46.25-5.95-66.19-9.01 15.1-44.97 32.89-93.32 53.66-144.19l21.18-15.42c835.93 203.89 1303.22-380.96 1309.44-388.74z"
+      style={{
+        fill: "url(#SVGID_2_)",
+      }}
+    />
+    <path
+      d="M1935.04 204.59S651.07 1137.65 479.44 1373.51C766.81 761.76 1436.7 282.63 1677.68 124.54c81.38 20.22 167.11 46.57 257.36 80.05z"
+      style={{
+        fill: "none",
+      }}
+    />
+    <linearGradient
+      id="SVGID_3_"
+      x1={1050.857}
+      x2={1495.319}
+      y1={770.121}
+      y2={1537.828}
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop
+        offset={0}
+        style={{
+          stopColor: "#0a5438",
+        }}
+      />
+      <stop
+        offset={0.193}
+        style={{
+          stopColor: "#0b5837",
+        }}
+      />
+      <stop
+        offset={0.379}
+        style={{
+          stopColor: "#0e6335",
+        }}
+      />
+      <stop
+        offset={0.563}
+        style={{
+          stopColor: "#137731",
+        }}
+      />
+      <stop
+        offset={0.745}
+        style={{
+          stopColor: "#1a922c",
+        }}
+      />
+      <stop
+        offset={0.925}
+        style={{
+          stopColor: "#23b525",
+        }}
+      />
+      <stop
+        offset={1}
+        style={{
+          stopColor: "#27c622",
+        }}
+      />
+    </linearGradient>
+    <path
+      d="M1856.27 836.01v.05c-6.22 7.78-473.5 592.62-1309.45 388.74l218.07-159.05 2.61.73c660.87 189.47 1083.42-225.17 1088.77-230.47z"
+      style={{
+        fill: "url(#SVGID_3_)",
+      }}
+    />
+    <linearGradient
+      id="SVGID_4_"
+      x1={1698.497}
+      x2={776.991}
+      y1={-852.563}
+      y2={1178.785}
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop
+        offset={0.038}
+        style={{
+          stopColor: "#cd003b",
+        }}
+      />
+      <stop
+        offset={0.471}
+        style={{
+          stopColor: "red",
+        }}
+      />
+      <stop
+        offset={0.906}
+        style={{
+          stopColor: "#fdc100",
+        }}
+      />
+    </linearGradient>
+    <path
+      d="M1935.02 204.57S609.3 1168 471.98 1384.41c15.12-44.98 32.91-93.35 53.66-144.21 108.31-264.62 298.21-596.69 626.4-879.67-217.94-59.83-535.6-80.06-779.24 130.72 7.37-12.31 431.34-706.07 1562.22-286.68z"
+      style={{
+        fill: "url(#SVGID_4_)",
+      }}
+    />
+    <linearGradient
+      id="SVGID_5_"
+      x1={178.482}
+      x2={1424.846}
+      y1={-8.606}
+      y2={1052.439}
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop
+        offset={0}
+        style={{
+          stopColor: "#fff",
+        }}
+      />
+      <stop
+        offset={0.184}
+        style={{
+          stopColor: "#fff5d5",
+          stopOpacity: 0.8163,
+        }}
+      />
+      <stop
+        offset={0.594}
+        style={{
+          stopColor: "#fedb6d",
+          stopOpacity: 0.4061,
+        }}
+      />
+      <stop
+        offset={1}
+        style={{
+          stopColor: "#fdc100",
+          stopOpacity: 0,
+        }}
+      />
+    </linearGradient>
+    <path
+      d="M1677.68 124.54C1436.7 282.63 766.81 761.76 479.44 1373.51c-.05.05-.05.05-.05.09-2.79 3.8-5.26 7.36-7.41 10.8 15.1-44.97 32.89-93.32 53.66-144.19 108.32-264.63 298.21-596.7 626.38-879.67-217.92-59.84-535.57-80.06-779.21 130.73 6.77-11.34 366.32-599.76 1304.87-366.73z"
+      style={{
+        fill: "url(#SVGID_5_)",
+      }}
+    />
+  </svg>
+);
+export default ZealLogo2;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\assets/ZealLogo2.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\NewsRecap.tsx ----
+"use client";
+
+import type React from "react";
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  ChevronDown,
+  ChevronRight,
+  ChevronUp,
+  ExternalLink,
+} from "lucide-react";
+import { format } from "date-fns";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { IBatch } from "@/types/batch.type";
+import { Id } from "@/lib/database";
+
+type ClientBatch = IBatch & { summary?: string; _id: Id };
+
+const NewsRecapCard: React.FC<{ batch: ClientBatch }> = ({ batch }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isArticlesExpanded, setIsArticlesExpanded] = useState(false);
+
+  return (
+    <Card className="h-full select-none overflow-hidden bg-white shadow-lg">
+      <CardHeader className="bg-gradient-to-r from-primary to-primary text-white">
+        <CardTitle className="text-lg font-semibold">{batch.name}</CardTitle>
+        <CardDescription className="text-white">
+          {format(new Date(batch.updated_at), "MMM d, yyyy")}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-6">
+        <ScrollArea
+          type="auto"
+          className={`mb-4 transition-all ${isExpanded ? "h-[350px]" : "h-[210px]"}`}
+        >
+          <p className="pr-2 text-sm font-semibold leading-relaxed text-muted-foreground">
+            {isExpanded ? batch.summary : `${batch.summary!.slice(0, 300)}...`}
+          </p>
+        </ScrollArea>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="mb-4 text-[#696969]"
+        >
+          {isExpanded ? (
+            <>
+              Show Less <ChevronUp className="ml-2 h-4 w-4" />
+            </>
+          ) : (
+            <>
+              Read More <ChevronDown className="ml-2 h-4 w-4" />
+            </>
+          )}
+        </Button>
+        <Separator className="my-4" />
+        <div className="relative">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsArticlesExpanded(!isArticlesExpanded)}
+            className="mb-1 w-full justify-between"
+          >
+            <span>Related Articles</span>
+            {isArticlesExpanded ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <div className="flex items-center">
+                <div className="mr-2 flex -space-x-3">
+                  {batch.articles.slice(0, 3).map((article, index) => (
+                    <div
+                      key={article.id.toString()}
+                      className="relative overflow-hidden rounded-full border-2 border-white bg-[#fff]"
+                      style={{ zIndex: 3 - index }}
+                    >
+                      <img
+                        src={article.source_icon || "/placeholder.svg"}
+                        alt={article.source_name}
+                        width={24}
+                        height={24}
+                        className="rounded-full"
+                      />
+                    </div>
+                  ))}
+                </div>
+                {batch.articles.length > 3 && (
+                  <Badge variant="secondary" className="ml-1">
+                    +{batch.articles.length - 3}
+                  </Badge>
+                )}
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </div>
+            )}
+          </Button>
+          <AnimatePresence>
+            {isArticlesExpanded && (
+              <ScrollArea type="auto" className="h-[300px]">
+                <motion.ul
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="mt-3 space-y-3 overflow-hidden pr-2"
+                >
+                  {batch.articles.map((article) => (
+                    <motion.li
+                      key={article.id.toString()}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Link
+                        href={article.source_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-3 rounded-md p-2 transition-colors hover:bg-gray-100"
+                      >
+                        <div className="flex-shrink-0">
+                          <img
+                            src={article.source_icon || "/placeholder.svg"}
+                            alt={article.source_name}
+                            width={24}
+                            height={24}
+                            className="rounded-full"
+                          />
+                        </div>
+                        <div className="flex-grow">
+                          <p className="text-xs font-medium text-[#2F2D32]">
+                            {article.title}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {article.source_name}
+                          </p>
+                        </div>
+                        <ExternalLink className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                      </Link>
+                    </motion.li>
+                  ))}
+                </motion.ul>
+              </ScrollArea>
+            )}
+          </AnimatePresence>
+        </div>
+      </CardContent>
+      {/* <CardFooter className="bg-gray-50 p-4">
+        {batch.related && batch.related.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {batch.related.map((tag, index) => (
+              <Badge key={index} variant="secondary">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )}
+      </CardFooter> */}
+    </Card>
+  );
+};
+
+const NewsRecapSection: React.FC<{ batches: ClientBatch[] }> = ({
+  batches,
+}) => {
+  return (
+    <section className="w-full">
+      <div className="container mx-auto px-4">
+        <motion.div
+          className="mb-6 text-center"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h2 className="mb-4 text-2xl font-bold text-primary">
+            Recap of the Day
+          </h2>
+          <p className="text-lg text-muted-foreground">
+            The latest updates, consolidated for your pleasure
+          </p>
+        </motion.div>
+        <Carousel className="w-full" opts={{ loop: true }}>
+          <CarouselContent>
+            {batches.map((batch, index) => (
+              <CarouselItem
+                key={batch._id?.toString()}
+                className="pl-4 md:basis-1/2 lg:basis-1/3"
+              >
+                <AnimatePresence>
+                  <motion.div
+                    key={batch._id?.toString()}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <NewsRecapCard batch={batch} />
+                  </motion.div>
+                </AnimatePresence>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="hidden md:flex" />
+          <CarouselNext className="hidden md:flex" />
+        </Carousel>
+        {/* <div className="mt-12 text-center">
+          <Button
+            variant="default"
+            size="lg"
+            className="bg-gradient-to-r from-red-600 to-orange-500 text-white transition-all duration-300 hover:from-red-700 hover:to-orange-600"
+          >
+            View All Breaking News <ChevronRight className="ml-2 h-5 w-5" />
+          </Button>
+        </div> */}
+      </div>
+    </section>
+  );
+};
+
+export default NewsRecapSection;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\app\[locale]\(app)\(home)\_components\NewsRecap.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\components/ui/carousel.tsx ----
+"use client";
+
+import * as React from "react";
+import useEmblaCarousel, {
+  type UseEmblaCarouselType,
+} from "embla-carousel-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+
+type CarouselApi = UseEmblaCarouselType[1];
+type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
+type CarouselOptions = UseCarouselParameters[0];
+type CarouselPlugin = UseCarouselParameters[1];
+
+type CarouselProps = {
+  opts?: CarouselOptions;
+  plugins?: CarouselPlugin;
+  orientation?: "horizontal" | "vertical";
+  setApi?: (api: CarouselApi) => void;
+};
+
+type CarouselContextProps = {
+  carouselRef: ReturnType<typeof useEmblaCarousel>[0];
+  api: ReturnType<typeof useEmblaCarousel>[1];
+  scrollPrev: () => void;
+  scrollNext: () => void;
+  canScrollPrev: boolean;
+  canScrollNext: boolean;
+} & CarouselProps;
+
+const CarouselContext = React.createContext<CarouselContextProps | null>(null);
+
+function useCarousel() {
+  const context = React.useContext(CarouselContext);
+
+  if (!context) {
+    throw new Error("useCarousel must be used within a <Carousel />");
+  }
+
+  return context;
+}
+
+const Carousel = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & CarouselProps
+>(
+  (
+    {
+      orientation = "horizontal",
+      opts,
+      setApi,
+      plugins,
+      className,
+      children,
+      ...props
+    },
+    ref,
+  ) => {
+    const [carouselRef, api] = useEmblaCarousel(
+      {
+        ...opts,
+        axis: orientation === "horizontal" ? "x" : "y",
+      },
+      plugins,
+    );
+    const [canScrollPrev, setCanScrollPrev] = React.useState(false);
+    const [canScrollNext, setCanScrollNext] = React.useState(false);
+
+    const onSelect = React.useCallback((api: CarouselApi) => {
+      if (!api) {
+        return;
+      }
+
+      setCanScrollPrev(api.canScrollPrev());
+      setCanScrollNext(api.canScrollNext());
+    }, []);
+
+    const scrollPrev = React.useCallback(() => {
+      api?.scrollPrev();
+    }, [api]);
+
+    const scrollNext = React.useCallback(() => {
+      api?.scrollNext();
+    }, [api]);
+
+    const handleKeyDown = React.useCallback(
+      (event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          scrollPrev();
+        } else if (event.key === "ArrowRight") {
+          event.preventDefault();
+          scrollNext();
+        }
+      },
+      [scrollPrev, scrollNext],
+    );
+
+    React.useEffect(() => {
+      if (!api || !setApi) {
+        return;
+      }
+
+      setApi(api);
+    }, [api, setApi]);
+
+    React.useEffect(() => {
+      if (!api) {
+        return;
+      }
+
+      onSelect(api);
+      api.on("reInit", onSelect);
+      api.on("select", onSelect);
+
+      return () => {
+        api?.off("select", onSelect);
+      };
+    }, [api, onSelect]);
+
+    return (
+      <CarouselContext.Provider
+        value={{
+          carouselRef,
+          api: api,
+          opts,
+          orientation:
+            orientation || (opts?.axis === "y" ? "vertical" : "horizontal"),
+          scrollPrev,
+          scrollNext,
+          canScrollPrev,
+          canScrollNext,
+        }}
+      >
+        <div
+          ref={ref}
+          onKeyDownCapture={handleKeyDown}
+          className={cn("relative", className)}
+          role="region"
+          aria-roledescription="carousel"
+          {...props}
+        >
+          {children}
+        </div>
+      </CarouselContext.Provider>
+    );
+  },
+);
+Carousel.displayName = "Carousel";
+
+const CarouselContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => {
+  const { carouselRef, orientation } = useCarousel();
+
+  return (
+    <div ref={carouselRef} className="overflow-hidden">
+      <div
+        ref={ref}
+        className={cn(
+          "flex",
+          orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
+          className,
+        )}
+        {...props}
+      />
+    </div>
+  );
+});
+CarouselContent.displayName = "CarouselContent";
+
+const CarouselItem = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => {
+  const { orientation } = useCarousel();
+
+  return (
+    <div
+      ref={ref}
+      role="group"
+      aria-roledescription="slide"
+      className={cn(
+        "min-w-0 shrink-0 grow-0 basis-full",
+        orientation === "horizontal" ? "pl-4" : "pt-4",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+CarouselItem.displayName = "CarouselItem";
+
+const CarouselPrevious = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<typeof Button>
+>(({ className, variant = "outline", size = "icon", ...props }, ref) => {
+  const { orientation, scrollPrev, canScrollPrev } = useCarousel();
+
+  return (
+    <Button
+      ref={ref}
+      variant={variant}
+      size={size}
+      className={cn(
+        "absolute h-8 w-8 rounded-full",
+        orientation === "horizontal"
+          ? "-left-12 top-1/2 -translate-y-1/2"
+          : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
+        className,
+      )}
+      disabled={!canScrollPrev}
+      onClick={scrollPrev}
+      {...props}
+    >
+      <ArrowLeft className="h-4 w-4" />
+      <span className="sr-only">Previous slide</span>
+    </Button>
+  );
+});
+CarouselPrevious.displayName = "CarouselPrevious";
+
+const CarouselNext = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<typeof Button>
+>(({ className, variant = "outline", size = "icon", ...props }, ref) => {
+  const { orientation, scrollNext, canScrollNext } = useCarousel();
+
+  return (
+    <Button
+      ref={ref}
+      variant={variant}
+      size={size}
+      className={cn(
+        "absolute h-8 w-8 rounded-full",
+        orientation === "horizontal"
+          ? "-right-12 top-1/2 -translate-y-1/2"
+          : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
+        className,
+      )}
+      disabled={!canScrollNext}
+      onClick={scrollNext}
+      {...props}
+    >
+      <ArrowRight className="h-4 w-4" />
+      <span className="sr-only">Next slide</span>
+    </Button>
+  );
+});
+CarouselNext.displayName = "CarouselNext";
+
+export {
+  type CarouselApi,
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+};
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\components/ui/carousel.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\components/ui/badge.tsx ----
+import { cva, type VariantProps } from "class-variance-authority";
+import * as React from "react";
+
+import { cn } from "@/lib/utils";
+
+const badgeVariants = cva(
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  {
+    variants: {
+      variant: {
+        default:
+          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        secondary:
+          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        destructive:
+          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+        outline: "text-foreground",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  },
+);
+
+export interface BadgeProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof badgeVariants> {}
+
+function Badge({ className, variant, ...props }: BadgeProps) {
+  return (
+    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+  );
+}
+
+export { Badge, badgeVariants };
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\components/ui/badge.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\components/ui/scroll-area.tsx ----
+"use client";
+
+import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
+import * as React from "react";
+
+import { cn } from "@/lib/utils";
+
+const ScrollArea = React.forwardRef<
+  React.ElementRef<typeof ScrollAreaPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>
+>(({ className, children, ...props }, ref) => (
+  <ScrollAreaPrimitive.Root
+    ref={ref}
+    className={cn("relative overflow-hidden", className)}
+    {...props}
+  >
+    <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">
+      {children}
+    </ScrollAreaPrimitive.Viewport>
+    <ScrollBar />
+    <ScrollAreaPrimitive.Corner />
+  </ScrollAreaPrimitive.Root>
+));
+ScrollArea.displayName = ScrollAreaPrimitive.Root.displayName;
+
+const ScrollBar = React.forwardRef<
+  React.ElementRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>,
+  React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>
+>(({ className, orientation = "vertical", ...props }, ref) => (
+  <ScrollAreaPrimitive.ScrollAreaScrollbar
+    ref={ref}
+    orientation={orientation}
+    className={cn(
+      "flex touch-none select-none transition-colors",
+      orientation === "vertical" &&
+        "h-full w-2.5 border-l border-l-transparent p-[1px]",
+      orientation === "horizontal" &&
+        "h-2.5 flex-col border-t border-t-transparent p-[1px]",
+      className,
+    )}
+    {...props}
+  >
+    <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-border" />
+  </ScrollAreaPrimitive.ScrollAreaScrollbar>
+));
+ScrollBar.displayName = ScrollAreaPrimitive.ScrollAreaScrollbar.displayName;
+
+export { ScrollArea, ScrollBar };
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\components/ui/scroll-area.tsx ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\types/batch.type.ts ----
+import { Id } from "@/lib/database";
+
+export interface IBatchArticle {
+  id: Id | string;
+  title: string;
+  slug: string;
+  source_url: string;
+  source_name: string;
+  source_icon: string;
+}
+
+export interface IBatch {
+  _id?: Id;
+  id?: Id | string;
+  name: string;
+  summary?: string;
+  related?: Id[];
+  articles: IBatchArticle[];
+  created_at: Date;
+  updated_at: Date;
+}
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\types/batch.type.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\lib/cache.ts ----
+import { unstable_cache } from "next/cache";
+
+type CacheOptions = Parameters<typeof unstable_cache>[2];
+
+interface CacheManagerOptions<T> {
+  key: string | (() => string | Promise<string>);
+  fetcher: () => Promise<T>;
+  options?: CacheOptions;
+  tags?: string[];
+}
+
+export async function cacheManager<T>(
+  options: CacheManagerOptions<T>,
+): Promise<T> {
+  const { key, fetcher, options: cacheOptions, tags } = options;
+
+  const cacheKey = typeof key === "function" ? await key() : key;
+
+  try {
+    return await unstable_cache(
+      async () => {
+        const data = await fetcher();
+        return data;
+      },
+      [cacheKey],
+      {
+        ...cacheOptions,
+        tags: tags,
+      },
+    )();
+  } catch (error) {
+    console.error(`Error in cacheWrapper for key "${cacheKey}":`, error);
+    throw error;
+  }
+}
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\lib/cache.ts ----
+
+
+// ---- FILE: C:\Users\X1\Desktop\zeal-demo\database/batch/batch.model.ts ----
+import { Model, model, models, Schema } from "mongoose";
+
+import mongooseLeanVirtuals from "mongoose-lean-virtuals";
+
+import { IBatch } from "@/types/batch.type";
+
+const BatchArticleSchema = new Schema(
+  {
+    id: {
+      type: Schema.Types.ObjectId,
+      ref: "Post",
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    slug: {
+      type: String,
+      required: true,
+    },
+    source_url: {
+      type: String,
+      required: true,
+    },
+    source_name: {
+      type: String,
+      required: true,
+    },
+    source_icon: {
+      type: String,
+      required: true,
+    },
+  },
+  { _id: true },
+);
+
+const BatchSchema = new Schema<IBatch>(
+  {
+    name: { type: String, required: true, index: true, unique: true },
+    summary: { type: String, default: null },
+    related: { type: [Schema.Types.ObjectId], ref: "Batch", default: [] },
+    articles: {
+      type: [BatchArticleSchema],
+      default: [],
+    },
+  },
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
+    id: false,
+  },
+);
+
+BatchSchema.virtual("id").get(function () {
+  return this._id.toHexString();
+});
+
+BatchSchema.set("toJSON", {
+  virtuals: true,
+});
+
+BatchSchema.set("toObject", {
+  virtuals: true,
+});
+
+BatchSchema.plugin(mongooseLeanVirtuals);
+
+const BatchModel: Model<IBatch> =
+  models.Batch || model<IBatch>("Batch", BatchSchema);
+
+export default BatchModel;
+
+// ---- END: C:\Users\X1\Desktop\zeal-demo\database/batch/batch.model.ts ----
+
