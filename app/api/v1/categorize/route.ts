@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import BatchModel from "@/database/batch/batch.model";
 import PostModel from "@/database/post/post.model";
 import { Id } from "@/lib/database";
-import { IBatch } from "@/types/batch.type";
+import { IBatch, IBatchArticle } from "@/types/batch.type";
 
 export const POST = async () => {
   const batchResults: { [key: string]: Id[] } = {};
@@ -143,7 +143,7 @@ export const POST = async () => {
 
       for (const generatedBatch of generated_batches) {
         const { batch, articles } = generatedBatch;
-        const batchedArticles = [];
+        const batchedArticles: IBatchArticle[] = [];
 
         for (const article of articles) {
           const post = posts.find((post) => post.title === article);
@@ -153,19 +153,33 @@ export const POST = async () => {
               id: post._id,
               title: post.title,
               slug: post.slug,
-              source_url: post.link,
-              source_name: post.source.name,
-              source_icon: post.source.icon,
+              source_url: post.link as string,
+              source_name: post.source.name as string,
+              source_icon: post.source.icon as string,
             });
           }
         }
 
         if (existingBatchesList.includes(batch)) {
-          await BatchModel.findOneAndUpdate(
-            { name: batch },
-            { $push: { articles: { $each: batchedArticles } } },
-            { new: true },
-          );
+          const existingBatch = await BatchModel.findOne({
+            name: batch,
+          }).exec();
+
+          if (!existingBatch) {
+            continue;
+          }
+
+          existingBatch.articles = [
+            ...new Set([...existingBatch.articles, ...batchedArticles]),
+          ];
+
+          await existingBatch.save();
+
+          // await BatchModel.findOneAndUpdate(
+          //   { name: batch },
+          //   { $push: { articles: { $each: batchedArticles } } },
+          //   { new: true },
+          // );
           continue;
         }
 
@@ -177,9 +191,12 @@ export const POST = async () => {
         batches.push(newBatch);
       }
 
-      const createdBatches: IBatch[] = await BatchModel.create(batches, {
-        ordered: false,
-      });
+      let createdBatches: IBatch[] = [];
+      try {
+        createdBatches = await BatchModel.create(batches, {
+          ordered: false,
+        });
+      } catch {}
 
       if (createdBatches.length === 0) {
         continue;

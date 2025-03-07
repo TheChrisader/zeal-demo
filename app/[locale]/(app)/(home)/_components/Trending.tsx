@@ -116,7 +116,9 @@ const Trending = ({
       {articles.map((_, index) => {
         return (
           <ArticleCard
-            className={"min-w-[40%] flex-1 basis-2/5"}
+            className={
+              "min-w-[calc(40vw-20px)] flex-1 basis-[calc(40vw-20px)] max-[750px]:min-w-full"
+            }
             article={articles[index]}
             key={index}
           />
