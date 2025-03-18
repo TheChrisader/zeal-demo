@@ -64,7 +64,7 @@ async function shuffleArray(array?: string[]) {
 }
 
 const ZealPostBlock = async ({ user }: { user: User | null }) => {
-  let category = "Zeal News Studio";
+  const category = "Zeal News Studio";
   const fetcher = async () => {
     return await getPostsByFilters({
       categories: [category],
@@ -496,11 +496,15 @@ export default async function Home({
         currentSelection={preferences!.category_updates!}
         loadMoreAction={loadMoreAction}
       >
-        {(await shuffleArray(preferences?.category_updates))?.map(
-          (category, i) => {
-            return <PostBlock key={category} category={category} user={user} />;
-          },
-        )}
+        {(
+          await shuffleArray(
+            preferences?.category_updates?.filter(
+              (category) => category !== "Viral Videos",
+            ),
+          )
+        )?.map((category, i) => {
+          return <PostBlock key={category} category={category} user={user} />;
+        })}
       </HomepageScroll>
     </main>
   );

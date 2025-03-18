@@ -57,7 +57,8 @@ export const POST = async () => {
         properties: {
           batch: {
             type: SchemaType.STRING,
-            description: "Descriptive and specific name of the batch",
+            description:
+              "Descriptive and specific name of the batch, intended to be used as the title of a professional news article",
             nullable: false,
           },
           articles: {
@@ -106,7 +107,7 @@ export const POST = async () => {
         //     $in: ["Nigeria"],
         //   },
         published_at: {
-          $gte: new Date(new Date().setHours(new Date().getHours() - 24)),
+          $gte: new Date(new Date().setHours(new Date().getHours() - 7)),
           $lt: new Date(),
         },
       })

@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import NotificationModel from "@/database/notification/notification.model";
-import { Id, newId } from "@/lib/database";
-import { INotification, NotificationContent } from "@/types/notification.type";
+import PostModel from "@/database/post/post.model";
 import {
   deleteSubscription,
-  deleteSubscriptionsByUserId,
   findSubscriptionsByUserId,
 } from "@/database/subscription/subscription.repository";
-import { webPush } from "@/lib/web-push";
-import PostModel from "@/database/post/post.model";
-import connectionManager from "@/lib/connection-manager";
 import UserModel from "@/database/user/user.model";
+import connectionManager from "@/lib/connection-manager";
+import { Id, newId } from "@/lib/database";
+import { webPush } from "@/lib/web-push";
+import { INotification, NotificationContent } from "@/types/notification.type";
 
 async function createRecommendationNotification(
   recipientId: Id,
@@ -112,8 +111,11 @@ export async function POST(request: NextRequest) {
             }),
           );
         } catch (error) {
-          console.log("Push notification error:", error.body);
-          if (error.statusCode === 410) {
+          console.log(
+            "Push notification error:",
+            (error as { body?: unknown }).body,
+          );
+          if ((error as { statusCode?: number }).statusCode === 410) {
             await deleteSubscription(subscription.endpoint);
           }
         }

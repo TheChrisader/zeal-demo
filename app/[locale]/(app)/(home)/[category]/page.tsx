@@ -1,3 +1,4 @@
+import { getPostsByFilters } from "@/database/post/post.repository";
 import { redirect } from "@/i18n/routing";
 import { Suspense } from "react";
 import { FetchPostsResponse } from "@/hooks/post/useFetchPosts";
@@ -5,12 +6,13 @@ import { CATEGORIES, TCategory } from "@/types/utils/category.type";
 import { getCategoryFromPath } from "@/utils/path.utils";
 import ArticlesContainer from "../_components/ArticlesContainer";
 import Trending from "../_components/Trending";
-import { getPostsByFilters } from "@/database/post/post.repository";
 import { connectToDatabase } from "@/lib/database";
 import BookmarkModel from "@/database/bookmark/bookmark.model";
 import { validateRequest } from "@/lib/auth/auth";
 import { findSiblings } from "@/utils/category.utils";
 import { IPost } from "@/types/post.type";
+import VideoInterface from "./_components/VideoInterface";
+import DiscoverPage from "./_components/Discover";
 
 const whitelist = ["headlines"];
 
@@ -77,6 +79,10 @@ export default async function CategoryPage({
         });
       }),
     );
+  }
+
+  if (pageCategory === "Viral Videos") {
+    return <DiscoverPage />;
   }
 
   return (

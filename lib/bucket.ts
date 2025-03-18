@@ -9,6 +9,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import { IFile } from "@/types/file.type";
 import { generateUniqueNameFromFileName } from "@/utils/file.utils";
+import { validateRequest } from "./auth/auth";
 
 const config = {
   credentials: {
@@ -112,6 +113,22 @@ export const getFieldSignedURL = async (
   });
   const url = await getSignedUrl(bucket, command, { expiresIn: expires });
   return url;
+};
+
+export const generatePresignedPutUrl = async (
+  key: string,
+  fileType: string,
+  metadata: { userId: string },
+  expires: number = 60 * 10,
+): Promise<string> => {
+  const command = new PutObjectCommand({
+    Bucket: process.env.BUCKET_NAME as string,
+    Key: key,
+    ContentType: fileType,
+    Metadata: metadata,
+  });
+
+  return await getSignedUrl(bucket, command, { expiresIn: expires });
 };
 
 export default bucket;
