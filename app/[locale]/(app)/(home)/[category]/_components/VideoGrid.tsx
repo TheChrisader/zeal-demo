@@ -68,8 +68,8 @@ export function VideoGrid({
 
               {/* Hover Overlay */}
               <div
-                className={`absolute inset-0 flex items-center justify-center bg-black/20 transition-opacity duration-200 ${
-                  hoveredVideo === video.id ? "opacity-100" : "opacity-0"
+                className={`absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity duration-200 ${
+                  hoveredVideo === video.id ? "opacity-100" : "opacity-70"
                 }`}
               >
                 <Play className="size-10 text-white opacity-80" />
