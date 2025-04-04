@@ -10,39 +10,63 @@ const HomepageScroll = ({
   children,
   currentSelection,
   loadMoreAction,
+  preferences = [],
 }: {
   children: React.ReactNode;
   currentSelection: string[];
   loadMoreAction: LoadMoreAction;
+  preferences?: string[];
 }) => {
   const loadRef = useRef<HTMLDivElement>(null);
   const [loadedNodes, setLoadedNodes] = useState<JSX.Element[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const batchCounterRef = useRef(0);
+
   const remainingCategories = flattenCategories(Categories)
     .filter((category) => !currentSelection.includes(category))
+    .filter((category) => !preferences.includes(category))
     .filter((category) => category !== "Home")
     .filter((category) => category !== "Headlines")
     .filter((category) => category !== "Entrepreneurship")
     .filter((category) => category !== "Hot Interviews")
     .filter((category) => category !== "Viral Videos");
 
+  const categoryBatchesToLoad = [remainingCategories];
+  if (preferences.length > 0) {
+    categoryBatchesToLoad.unshift(preferences);
+  }
+
   useEffect(() => {
     const handleLoad = async () => {
       if (loaded) return;
 
       try {
-        const newNodes = await loadMoreAction(remainingCategories);
+        setIsLoading(true);
+        const currentBatchToLoad = categoryBatchesToLoad[
+          batchCounterRef.current
+        ] as string[];
+
+        const newNodes = await loadMoreAction(currentBatchToLoad);
 
         setLoadedNodes(newNodes);
-        setLoaded(true);
+
+        if (batchCounterRef.current >= categoryBatchesToLoad.length - 1) {
+          setLoaded(true);
+        }
+
+        batchCounterRef.current++;
       } catch (error) {
         console.log(error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     const element = loadRef.current;
     const observer = new IntersectionObserver(([entry]) => {
-      if (entry!.isIntersecting) {
+      if (entry!.isIntersecting && !isLoading) {
         handleLoad();
       }
     });
@@ -60,7 +84,7 @@ const HomepageScroll = ({
         observer.unobserve(element);
       }
     };
-  }, [loadMoreAction, loaded, remainingCategories]);
+  }, [loadMoreAction, loaded, remainingCategories, categoryBatchesToLoad]);
 
   return (
     <>

@@ -2,24 +2,31 @@ import { User } from "lucia";
 import { unstable_cache } from "next/cache";
 import { headers } from "next/headers";
 import { Suspense } from "react";
-import { Separator } from "@/components/ui/separator";
 import BookmarkModel from "@/database/bookmark/bookmark.model";
 import PostModel from "@/database/post/post.model";
 import { getPostsByFilters } from "@/database/post/post.repository";
 import { getPreferencesByUserId } from "@/database/preferences/preferences.repository";
 import { validateRequest } from "@/lib/auth/auth";
+import { cacheManager } from "@/lib/cache";
 import { connectToDatabase } from "@/lib/database";
 import { IPreferences } from "@/types/preferences.type";
+import ArticleCard from "./_components/ArticleCard";
 import ArticlesContainer from "./_components/ArticlesContainer";
 import Headlines from "./_components/Headlines";
 import HomepageScroll from "./_components/HomepageScroll";
-import Trending from "./_components/Trending";
 import ScrollContainer from "./_components/ScrollContainer";
-import ArticleCard from "./_components/ArticleCard";
 import { TodayInHistory } from "./_components/TodayInHistory";
-import NewsRecapSection from "./_components/NewsRecap";
-import { cacheManager } from "@/lib/cache";
-import BatchModel from "@/database/batch/batch.model";
+import Trending from "./_components/Trending";
+
+const ZEAL_CATEGORIES = [
+  // "Zeal Headline News",
+  "Zeal Global",
+  "Zeal Entertainment",
+  "Business 360",
+  "Zeal Lifestyle",
+  "Zeal Tech",
+  "Zeal Sports",
+];
 
 function createTimedRandomGenerator(timeout: number) {
   let lastGeneratedValue: number | null = null;
@@ -288,6 +295,15 @@ const HeadlinesBlock = async ({
   const preferences: Partial<IPreferences> | null =
     await getPreferencesByUserId(user?.id as string);
 
+  const countryFilter =
+    category === "Headlines"
+      ? {
+          country: {
+            $in: [preferences?.country || "Nigeria"],
+          },
+        }
+      : {};
+
   const daysAgo = new Date();
   daysAgo.setDate(daysAgo.getDate() - 5);
 
@@ -304,6 +320,7 @@ const HeadlinesBlock = async ({
             // country: {
             //   $in: [preferences?.country || "Nigeria"],
             // },
+            ...countryFilter,
             created_at: {
               $gte: daysAgo,
             },
@@ -378,7 +395,9 @@ const HeadlinesBlock = async ({
   }
   return (
     <ArticlesContainer
-      title={category === "Headlines" ? "Headlines" : "Zeal Headline News"}
+      title={
+        category === "Headlines" ? "News Across Africa" : "Zeal Headline News"
+      }
     >
       <Headlines headlines={HeadlinesPosts} />
       <ScrollContainer loadMoreAction={loadMoreHeadlines} category={category}>
@@ -386,24 +405,6 @@ const HeadlinesBlock = async ({
       </ScrollContainer>
     </ArticlesContainer>
   );
-};
-
-const RecapSection = async () => {
-  const fetchBatch = async () => {
-    return await BatchModel.find({})
-      .sort({ updated_at: -1 })
-      .limit(5)
-      .lean()
-      .exec();
-  };
-  const batchedNews = await cacheManager({
-    fetcher: fetchBatch,
-    key: "batchedNews",
-    options: {
-      revalidate: 60 * 60,
-    },
-  });
-  return <NewsRecapSection batches={batchedNews} />;
 };
 
 export default async function Home({
@@ -490,19 +491,21 @@ export default async function Home({
       <HeadlinesBlock user={user} category="Zeal Headline News" />
       <TodayInHistory />
       <HeadlinesBlock user={user} category="Headlines" />
-      {/* {process.env.NODE_ENV === "development" && <ZealPostBlock user={user} />} */}
 
       <HomepageScroll
-        currentSelection={preferences!.category_updates!}
+        // currentSelection={preferences!.category_updates!}
+        currentSelection={ZEAL_CATEGORIES}
         loadMoreAction={loadMoreAction}
+        preferences={preferences.category_updates}
       >
         {(
           await shuffleArray(
-            preferences?.category_updates?.filter(
-              (category) => category !== "Viral Videos",
-            ),
+            ZEAL_CATEGORIES,
+            // preferences?.category_updates?.filter(
+            //   (category) => category !== "Viral Videos",
+            // ),
           )
-        )?.map((category, i) => {
+        )?.map((category) => {
           return <PostBlock key={category} category={category} user={user} />;
         })}
       </HomepageScroll>
