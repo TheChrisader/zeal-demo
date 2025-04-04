@@ -40,7 +40,7 @@ const HomepageScroll = ({
 
   useEffect(() => {
     const handleLoad = async () => {
-      if (loaded) return;
+      if (loaded || isLoading) return;
 
       try {
         setIsLoading(true);
@@ -50,7 +50,7 @@ const HomepageScroll = ({
 
         const newNodes = await loadMoreAction(currentBatchToLoad);
 
-        setLoadedNodes(newNodes);
+        setLoadedNodes((nodes) => [...nodes, ...newNodes]);
 
         if (batchCounterRef.current >= categoryBatchesToLoad.length - 1) {
           setLoaded(true);
