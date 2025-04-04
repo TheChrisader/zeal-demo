@@ -1,9 +1,32 @@
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import BatchModel from "@/database/batch/batch.model";
 import PostModel from "@/database/post/post.model";
 import { Id } from "@/lib/database";
 import { IBatch, IBatchArticle } from "@/types/batch.type";
+
+function mergeArraysWithUniqueSourceUrls(
+  sourceArray: IBatchArticle[],
+  targetArray: IBatchArticle[] = [],
+) {
+  const existingUrls = new Set(targetArray.map((item) => item.source_url));
+  const uniqueItems = [];
+  const sourceUrlsAdded = new Set();
+
+  for (const item of sourceArray) {
+    if (
+      item.source_url &&
+      !existingUrls.has(item.source_url) &&
+      !sourceUrlsAdded.has(item.source_url)
+    ) {
+      uniqueItems.push(item);
+      sourceUrlsAdded.add(item.source_url);
+    }
+  }
+
+  targetArray.push(...uniqueItems);
+  return targetArray;
+}
 
 export const POST = async () => {
   const batchResults: { [key: string]: Id[] } = {};
@@ -20,6 +43,17 @@ export const POST = async () => {
         "Top Movies",
         "Trending Music",
         "Hot Interviews",
+      ],
+    },
+    {
+      title: "Business 360",
+      groups: [
+        "Economy",
+        "Personal Finance",
+        "Market Watch",
+        "Startup News",
+        "Entrepreneurship",
+        "E-commerce",
       ],
     },
     {
@@ -170,9 +204,13 @@ export const POST = async () => {
             continue;
           }
 
-          existingBatch.articles = [
-            ...new Set([...existingBatch.articles, ...batchedArticles]),
-          ];
+          existingBatch.articles = mergeArraysWithUniqueSourceUrls(
+            batchedArticles,
+            existingBatch.articles,
+          );
+          // [
+          //   ...new Set([...existingBatch.articles, ...batchedArticles]),
+          // ];
 
           await existingBatch.save();
 
@@ -186,7 +224,7 @@ export const POST = async () => {
 
         const newBatch = {
           name: batch,
-          articles: batchedArticles,
+          articles: mergeArraysWithUniqueSourceUrls(batchedArticles),
         };
 
         batches.push(newBatch);

@@ -1,7 +1,6 @@
 import { unstable_cache } from "next/cache";
 import BookmarkModel from "@/database/bookmark/bookmark.model";
 import PostModel from "@/database/post/post.model";
-import { PostsResponse } from "@/hooks/post/useFetchPosts";
 import { validateRequest } from "@/lib/auth/auth";
 import { connectToDatabase } from "@/lib/database";
 import { IPost } from "@/types/post.type";
@@ -9,7 +8,7 @@ import ArticleCard from "./ArticleCard";
 import ScrollContainer from "./ScrollContainer";
 
 interface TrendingProps {
-  articles: PostsResponse[];
+  articles: IPost[];
   category?: string;
   partial?: boolean;
   query?: boolean;

@@ -1,10 +1,9 @@
 import dynamic from "next/dynamic";
 import { Separator } from "@/components/ui/separator";
-import { PostsResponse } from "@/hooks/post/useFetchPosts";
 import { Link } from "@/i18n/routing";
+import { IPost } from "@/types/post.type";
 import { getPublishTimeStamp } from "@/utils/time.utils";
 import ArticleTitle from "../../(home)/_components/ArticleTitle";
-// import BookmarkButton from "./BookmarkButton";
 
 const BookmarkButton = dynamic(
   () => import("../../(home)/_components/BookmarkButton"),
@@ -14,7 +13,7 @@ const BookmarkButton = dynamic(
 );
 
 interface RecArticleCardProps {
-  article?: PostsResponse;
+  article?: IPost;
   className?: string;
 }
 

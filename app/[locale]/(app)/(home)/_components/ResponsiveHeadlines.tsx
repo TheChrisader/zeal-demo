@@ -1,20 +1,20 @@
 "use client";
-import { PostsResponse } from "@/hooks/post/useFetchPosts";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import HeadlinesCarousel from "./HeadlinesCarousel";
-import { Link } from "@/i18n/routing";
-import { Separator } from "@/components/ui/separator";
-import { getPublishTimeStamp } from "@/utils/time.utils";
 import { useEffect, useState } from "react";
-import BookmarkButton from "./BookmarkButton";
+import { Separator } from "@/components/ui/separator";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { Link } from "@/i18n/routing";
+import { IPost } from "@/types/post.type";
+import { getPublishTimeStamp } from "@/utils/time.utils";
 import ArticleTitle from "./ArticleTitle";
+import BookmarkButton from "./BookmarkButton";
+import HeadlinesCarousel from "./HeadlinesCarousel";
 
 const ResponsiveHeadlines = ({
   children,
   headlines,
 }: {
   children: React.ReactNode;
-  headlines: PostsResponse[];
+  headlines: IPost[];
 }) => {
   const [carousel, setCarousel] = useState(false);
   const isMobile = useMediaQuery("(max-width: 800px)");

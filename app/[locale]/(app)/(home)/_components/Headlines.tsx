@@ -1,11 +1,11 @@
-import { PostsResponse } from "@/hooks/post/useFetchPosts";
+import { IPost } from "@/types/post.type";
+import { cleanObject } from "@/utils/cleanObject.utils";
 import ArticleCard from "./ArticleCard";
 import HeadlineArticle from "./HeadlineArticle";
 import ResponsiveHeadlines from "./ResponsiveHeadlines";
-import { cleanObject } from "@/utils/cleanObject.utils";
 
 interface HeadlinesProps {
-  headlines: PostsResponse[];
+  headlines: IPost[];
 }
 
 const Headlines = ({ headlines }: HeadlinesProps) => {

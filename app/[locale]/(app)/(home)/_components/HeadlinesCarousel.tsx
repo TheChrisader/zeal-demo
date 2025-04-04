@@ -63,7 +63,7 @@ export default function HeadlinesCarousel({
   hideSnaps = false,
 }: {
   children: React.ReactNode;
-  timer: number;
+  timer?: number;
   hideSnaps?: boolean;
 }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({

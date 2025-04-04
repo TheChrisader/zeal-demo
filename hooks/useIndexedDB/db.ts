@@ -16,7 +16,7 @@ function validateStore(db: IDBDatabase, storeName: string) {
 export function validateBeforeTransaction(
   db: IDBDatabase,
   storeName: string,
-  reject: Function,
+  reject: (reason: string) => void,
 ) {
   if (!db) {
     reject("Queried before opening connection");
@@ -32,7 +32,7 @@ export function createTransaction(
   currentStore: string,
   //   type resolve
 ): IDBTransaction {
-  let tx: IDBTransaction = db.transaction(currentStore, dbMode);
+  const tx: IDBTransaction = db.transaction(currentStore, dbMode);
   tx.onerror = (ev: Event) => {
     console.log("Transaction error: ", ev);
   };
@@ -71,12 +71,12 @@ export async function getConnection(
         resolve(request.result);
       };
 
-      request.onerror = (e: any) => {
-        reject(e.target.error.name);
+      request.onerror = (e: Event) => {
+        reject((e.target as IDBRequest)?.error?.name);
       };
 
-      request.onupgradeneeded = (e: any) => {
-        const db = e.target.result;
+      request.onupgradeneeded = (e: Event) => {
+        const db = (e.target as IDBRequest)?.result;
         config!.stores.forEach((s) => {
           if (!db.objectStoreNames.contains(s.name)) {
             const store = db.createObjectStore(s.name, s.id);
@@ -101,11 +101,11 @@ export function getActions<T>(currentStore: string) {
         getConnection()
           .then((db) => {
             validateBeforeTransaction(db!, currentStore, reject);
-            let tx = createTransaction(db!, "readonly", currentStore);
-            let objectStore = tx.objectStore(currentStore);
-            let request = objectStore.get(id);
-            request.onsuccess = (e: any) => {
-              resolve(e.target.result as T);
+            const tx = createTransaction(db!, "readonly", currentStore);
+            const objectStore = tx.objectStore(currentStore);
+            const request = objectStore.get(id);
+            request.onsuccess = (e: Event) => {
+              resolve((e.target as IDBRequest).result as T);
             };
           })
           .catch(reject);
@@ -116,12 +116,12 @@ export function getActions<T>(currentStore: string) {
         getConnection()
           .then((db) => {
             validateBeforeTransaction(db!, currentStore, reject);
-            let tx = createTransaction(db!, "readonly", currentStore);
-            let objectStore = tx.objectStore(currentStore);
-            let index = objectStore.index(keyPath);
-            let request = index.get(value);
-            request.onsuccess = (e: any) => {
-              resolve(e.target.result);
+            const tx = createTransaction(db!, "readonly", currentStore);
+            const objectStore = tx.objectStore(currentStore);
+            const index = objectStore.index(keyPath);
+            const request = index.get(value);
+            request.onsuccess = (e: Event) => {
+              resolve((e.target as IDBRequest).result as T);
             };
           })
           .catch(reject);
@@ -132,12 +132,12 @@ export function getActions<T>(currentStore: string) {
         getConnection()
           .then((db) => {
             validateBeforeTransaction(db!, currentStore, reject);
-            let tx = createTransaction(db!, "readonly", currentStore);
-            let objectStore = tx.objectStore(currentStore);
-            let index = objectStore.index(keyPath);
-            let request = index.getAll(value);
-            request.onsuccess = (e: any) => {
-              resolve(e.target.result);
+            const tx = createTransaction(db!, "readonly", currentStore);
+            const objectStore = tx.objectStore(currentStore);
+            const index = objectStore.index(keyPath);
+            const request = index.getAll(value);
+            request.onsuccess = (e: Event) => {
+              resolve((e.target as IDBRequest).result as T[]);
             };
           })
           .catch(reject);
@@ -148,92 +148,92 @@ export function getActions<T>(currentStore: string) {
         getConnection()
           .then((db) => {
             validateBeforeTransaction(db!, currentStore, reject);
-            let tx = createTransaction(db!, "readonly", currentStore);
-            let objectStore = tx.objectStore(currentStore);
-            let request = objectStore.getAll();
-            request.onsuccess = (e: any) => {
-              resolve(e.target.result as T[]);
+            const tx = createTransaction(db!, "readonly", currentStore);
+            const objectStore = tx.objectStore(currentStore);
+            const request = objectStore.getAll();
+            request.onsuccess = (e: Event) => {
+              resolve((e.target as IDBRequest)?.result as T[]);
             };
           })
           .catch(reject);
       });
     },
 
-    add(value: T, key?: any) {
-      return new Promise<number>((resolve, reject) => {
+    add(value: T, key?: string | number) {
+      return new Promise<string | number>((resolve, reject) => {
         getConnection()
           .then((db) => {
             validateBeforeTransaction(db!, currentStore, reject);
-            let tx = createTransaction(db!, "readwrite", currentStore);
-            let objectStore = tx.objectStore(currentStore);
-            let request = objectStore.add(value, key);
-            request.onsuccess = (e: any) => {
-              (tx as any)?.commit?.();
-              resolve(e.target.result);
+            const tx = createTransaction(db!, "readwrite", currentStore);
+            const objectStore = tx.objectStore(currentStore);
+            const request = objectStore.add(value, key);
+            request.onsuccess = (e: Event) => {
+              (tx as IDBTransaction)?.commit?.();
+              resolve((e.target as IDBRequest)?.result);
             };
           })
           .catch(reject);
       });
     },
 
-    update(value: T, key?: any) {
-      return new Promise<any>((resolve, reject) => {
+    update(value: T, key?: string | number) {
+      return new Promise<string | number>((resolve, reject) => {
         getConnection()
           .then((db) => {
             validateBeforeTransaction(db!, currentStore, reject);
-            let tx = createTransaction(db!, "readwrite", currentStore);
-            let objectStore = tx.objectStore(currentStore);
-            let request = objectStore.put(value, key);
-            request.onsuccess = (e: any) => {
-              (tx as any)?.commit?.();
-              resolve(e.target.result);
+            const tx = createTransaction(db!, "readwrite", currentStore);
+            const objectStore = tx.objectStore(currentStore);
+            const request = objectStore.put(value, key);
+            request.onsuccess = (e: Event) => {
+              (tx as IDBTransaction)?.commit?.();
+              resolve((e.target as IDBRequest).result);
             };
           })
           .catch(reject);
       });
     },
 
-    deleteByID(id: any) {
-      return new Promise<any>((resolve, reject) => {
+    deleteByID(id: string | number) {
+      return new Promise<undefined>((resolve, reject) => {
         getConnection()
           .then((db) => {
             validateBeforeTransaction(db!, currentStore, reject);
-            let tx = createTransaction(db!, "readwrite", currentStore);
-            let objectStore = tx.objectStore(currentStore);
-            let request = objectStore.delete(id);
-            request.onsuccess = (e: any) => {
-              (tx as any)?.commit?.();
-              resolve(e);
+            const tx = createTransaction(db!, "readwrite", currentStore);
+            const objectStore = tx.objectStore(currentStore);
+            const request = objectStore.delete(id);
+            request.onsuccess = (e: Event) => {
+              (tx as IDBTransaction)?.commit?.();
+              resolve((e.target as IDBRequest)?.result);
             };
           })
           .catch(reject);
       });
     },
     deleteAll() {
-      return new Promise<any>((resolve, reject) => {
+      return new Promise<undefined>((resolve, reject) => {
         getConnection()
           .then((db) => {
             validateBeforeTransaction(db!, currentStore, reject);
-            let tx = createTransaction(db!, "readwrite", currentStore);
-            let objectStore = tx.objectStore(currentStore);
-            let request = objectStore.clear();
-            request.onsuccess = (e: any) => {
-              (tx as any)?.commit?.();
-              resolve(e);
+            const tx = createTransaction(db!, "readwrite", currentStore);
+            const objectStore = tx.objectStore(currentStore);
+            const request = objectStore.clear();
+            request.onsuccess = (e: Event) => {
+              (tx as IDBTransaction)?.commit?.();
+              resolve((e.target as IDBRequest)?.result);
             };
           })
           .catch(reject);
       });
     },
 
-    openCursor(cursorCallback: (e: Event) => {}, keyRange?: IDBKeyRange) {
+    openCursor(cursorCallback: (e: Event) => void, keyRange?: IDBKeyRange) {
       return new Promise<IDBCursorWithValue | void>((resolve, reject) => {
         getConnection()
           .then((db) => {
             validateBeforeTransaction(db!, currentStore, reject);
-            let tx = createTransaction(db!, "readonly", currentStore);
-            let objectStore = tx.objectStore(currentStore);
-            let request = objectStore.openCursor(keyRange);
+            const tx = createTransaction(db!, "readonly", currentStore);
+            const objectStore = tx.objectStore(currentStore);
+            const request = objectStore.openCursor(keyRange);
             request.onsuccess = (e) => {
               cursorCallback(e);
               resolve();

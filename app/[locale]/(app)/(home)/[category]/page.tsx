@@ -1,18 +1,17 @@
+import { Suspense } from "react";
+import BookmarkModel from "@/database/bookmark/bookmark.model";
 import { getPostsByFilters } from "@/database/post/post.repository";
 import { redirect } from "@/i18n/routing";
-import { Suspense } from "react";
-import { FetchPostsResponse } from "@/hooks/post/useFetchPosts";
+import { validateRequest } from "@/lib/auth/auth";
+import { connectToDatabase } from "@/lib/database";
+import { IPost } from "@/types/post.type";
 import { CATEGORIES, TCategory } from "@/types/utils/category.type";
+import { findSiblings } from "@/utils/category.utils";
 import { getCategoryFromPath } from "@/utils/path.utils";
+import DiscoverPage from "./_components/Discover";
+import VideoInterface from "./_components/VideoInterface";
 import ArticlesContainer from "../_components/ArticlesContainer";
 import Trending from "../_components/Trending";
-import { connectToDatabase } from "@/lib/database";
-import BookmarkModel from "@/database/bookmark/bookmark.model";
-import { validateRequest } from "@/lib/auth/auth";
-import { findSiblings } from "@/utils/category.utils";
-import { IPost } from "@/types/post.type";
-import VideoInterface from "./_components/VideoInterface";
-import DiscoverPage from "./_components/Discover";
 
 const whitelist = ["headlines"];
 

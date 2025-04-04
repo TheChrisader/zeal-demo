@@ -8,7 +8,10 @@ interface WaitUntilProps {
   timeout?: number;
 }
 
-export const waitUntil = (condition: Function, options?: WaitUntilProps) => {
+export const waitUntil = (
+  condition: () => boolean,
+  options?: WaitUntilProps,
+) => {
   return new Promise<void>((resolve, reject) => {
     const interval = setInterval(() => {
       if (!condition()) return;

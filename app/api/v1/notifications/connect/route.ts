@@ -1,4 +1,3 @@
-import { NextRequest } from "next/server";
 import { validateRequest } from "@/lib/auth/auth";
 import connectionManager from "@/lib/connection-manager";
 
