@@ -1,3 +1,20 @@
 {
-  "name": "Serwist"
+  "name": "Serwist",
+  "Auth": {
+    "resetPassword": "Reset Password",
+    "resetPasswordDescription": "Reset your password to regain access to your account",
+    "forgotPassword": "Forgot Password?",
+    "sendResetInstructions": "Send Reset Instructions",
+    "sending": "Sending...",
+    "verifyAndSetNewPassword": "Verify & Set New Password",
+    "otpCode": "OTP Code",
+    "enterOtp": "Enter the OTP sent to your email",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "resetPasswordButton": "Reset Password",
+    "resetting": "Resetting...",
+    "backToRequest": "Back to Request",
+    "rememberPassword": "Remember your password?",
+    "signIn": "Sign in"
+  }
 }

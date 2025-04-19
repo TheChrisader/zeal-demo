@@ -158,6 +158,8 @@ const PostSchema = new Schema<IPost>(
   },
 );
 
+PostSchema.index({ keywords: 1, createdAt: -1 });
+
 PostSchema.virtual("id").get(function () {
   return this._id.toHexString();
 });

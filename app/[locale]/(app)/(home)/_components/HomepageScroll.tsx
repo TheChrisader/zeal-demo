@@ -93,7 +93,8 @@ const HomepageScroll = ({
         {loadedNodes}
       </div>
       {!loaded && (
-        <div ref={loadRef} className="text-center">
+        <div className="text-center">
+          {!isLoading && <div ref={loadRef} />}
           Loading...
         </div>
       )}

@@ -124,11 +124,17 @@ const RecommendedArticles = async ({
   //   keywords: keywords,
   // });
 
+  const X_DAYS_AGO = new Date();
+  X_DAYS_AGO.setDate(X_DAYS_AGO.getDate() - 90);
+
   let RecommendedArticles = await PostModel.aggregate([
     {
       $match: {
         keywords: {
           $in: keywords,
+        },
+        created_at: {
+          $gte: X_DAYS_AGO,
         },
       },
     },

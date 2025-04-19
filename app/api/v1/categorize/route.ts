@@ -28,6 +28,16 @@ function mergeArraysWithUniqueSourceUrls(
   return targetArray;
 }
 
+const categoryTypeMap: Record<string, string> = {
+  "Zeal Headline News": "Headlines around Africa (priority), and the world",
+  "Zeal Global": "Top Global News",
+  "Zeal Entertainment": "Celebrity News, Music, Movies and TV",
+  "Business 360": "Economy, Finance and Business",
+  "Zeal Lifestyle": "Health, Fitness, Family, Style and Travel",
+  "Zeal Tech": "Latest Tech News",
+  "Zeal Sports": "Latest Sports News",
+};
+
 export const POST = async () => {
   const batchResults: { [key: string]: Id[] } = {};
   const categories: { title: string; groups: string[] }[] = [
@@ -124,9 +134,9 @@ export const POST = async () => {
 
       const existingBatches = await BatchModel.find({
         category: title,
-        //   updated_at: {
-        //     $gte: new Date(new Date().setHours(new Date().getHours() - 6)),
-        //   },
+        created_at: {
+          $gte: new Date(new Date().setHours(new Date().getHours() - 6)),
+        },
       })
         .select("_id name")
         .exec();
@@ -137,11 +147,8 @@ export const POST = async () => {
         category: {
           $in: groups,
         },
-        //   country: {
-        //     $in: ["Nigeria"],
-        //   },
         published_at: {
-          $gte: new Date(new Date().setHours(new Date().getHours() - 7)),
+          $gte: new Date(new Date().setHours(new Date().getHours() - 20)),
           $lt: new Date(),
         },
       })
@@ -149,17 +156,22 @@ export const POST = async () => {
         .exec();
 
       const postsList = posts.map((post) => post.title).join(" \n");
+      console.log(postsList);
 
       const prompt = `
     Pre: Be extremely strict, detailed, and cautiously specific. Think carefully before responding, and recheck your work.
     Instructions: 
     Batch these news articles based off if their titles indicate content referring to the same event. 
     Tend towards caution and disregard articles that do not fit clearly under a batch. 
-    To qualify for a batch, there must be at least two articles. 
-    If there are none, return an empty array.
+    To qualify for a batch, there must be at least two articles.
+    
+    IMPORTANT: If none fit the criteria outlined above select what looks like the most interesting or important articles. In this case, and only this case, a single article is enough to qualify for a batch, a single article to each batch made.
+    
+    Ensure that all the articles in this collection generally fall under the same category: ${categoryTypeMap[title]}
+    You must always return, at least, five.
 
-    Existing Batches (Create new batches if necessary, disregard if no new articles fit):
-    ${existingBatchesList.join(" \n")}
+    
+    
     
     Articles:
     ${postsList}
@@ -196,6 +208,7 @@ export const POST = async () => {
         }
 
         if (existingBatchesList.includes(batch)) {
+          console.log("Batch caught");
           const existingBatch = await BatchModel.findOne({
             name: batch,
           }).exec();

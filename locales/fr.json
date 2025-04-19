@@ -1,4 +1,21 @@
 {
   "name": "Next.js",
-  "short_name": "Next.js"
+  "short_name": "Next.js",
+  "Auth": {
+    "resetPassword": "Réinitialiser le mot de passe",
+    "resetPasswordDescription": "Réinitialisez votre mot de passe pour récupérer l'accès à votre compte",
+    "forgotPassword": "Mot de passe oublié ?",
+    "sendResetInstructions": "Envoyer les instructions",
+    "sending": "Envoi en cours...",
+    "verifyAndSetNewPassword": "Vérifier et définir un nouveau mot de passe",
+    "otpCode": "Code OTP",
+    "enterOtp": "Entrez le code OTP envoyé à votre email",
+    "newPassword": "Nouveau mot de passe",
+    "confirmNewPassword": "Confirmer le nouveau mot de passe",
+    "resetPasswordButton": "Réinitialiser le mot de passe",
+    "resetting": "Réinitialisation...",
+    "backToRequest": "Retour à la demande",
+    "rememberPassword": "Vous vous souvenez de votre mot de passe ?",
+    "signIn": "Se connecter"
+  }
 }

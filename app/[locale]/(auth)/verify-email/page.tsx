@@ -22,6 +22,7 @@ import { VerifyEmail } from "@/services/auth.services";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { IUser } from "@/types/user.type";
 
 const ConfirmEmailPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -49,18 +50,16 @@ const ConfirmEmailPage = () => {
     setIsLoading(true);
     const { otp } = data;
     try {
-      await VerifyEmail(otp);
+      const user: IUser = await VerifyEmail(otp);
       if (forgotPasswordParam) {
-        router.push("/reset-password");
+        router.push(`/reset-password?email=${user.email}`);
       } else {
         router.push("/onboarding");
       }
     } catch (err) {
       console.log(err);
-      // @ts-ignore
-      if (err.status === 500) toast.error("Something went wrong");
-      // @ts-ignore
-      setError(err.message);
+      toast.error("Something went wrong");
+      setError("Something went wrong.");
     } finally {
       setIsLoading(false);
     }
