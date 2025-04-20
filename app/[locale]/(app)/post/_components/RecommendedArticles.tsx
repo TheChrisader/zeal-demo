@@ -138,15 +138,15 @@ const RecommendedArticles = async ({
         },
       },
     },
-    {
-      $addFields: {
-        matchCount: {
-          $size: {
-            $setIntersection: ["$keywords", keywords],
-          },
-        },
-      },
-    },
+    // {
+    //   $addFields: {
+    //     matchCount: {
+    //       $size: {
+    //         $setIntersection: ["$keywords", keywords],
+    //       },
+    //     },
+    //   },
+    // },
     {
       $sort: {
         matchCount: -1,
