@@ -147,11 +147,11 @@ const RecommendedArticles = async ({
     //     },
     //   },
     // },
-    {
-      $sort: {
-        matchCount: -1,
-      },
-    },
+    // {
+    //   $sort: {
+    //     matchCount: -1,
+    //   },
+    // },
     {
       $limit: 6,
     },

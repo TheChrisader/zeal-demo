@@ -42,55 +42,55 @@ export const POST = async () => {
   const batchResults: { [key: string]: Id[] } = {};
   const categories: { title: string; groups: string[] }[] = [
     { title: "Zeal Headline News", groups: ["Headlines"] },
-    {
-      title: "Zeal Global",
-      groups: ["Top US News", "UK Top News", "EU News", "Asian News"],
-    },
-    {
-      title: "Zeal Entertainment",
-      groups: [
-        "Celebrity News",
-        "Top Movies",
-        "Trending Music",
-        "Hot Interviews",
-      ],
-    },
-    {
-      title: "Business 360",
-      groups: [
-        "Economy",
-        "Personal Finance",
-        "Market Watch",
-        "Startup News",
-        "Entrepreneurship",
-        "E-commerce",
-      ],
-    },
-    {
-      title: "Zeal Lifestyle",
-      groups: [
-        "Health News",
-        "Food & Nutrition",
-        "Travel & Tourism",
-        "Style & Beauty",
-        "Family & Parenting",
-      ],
-    },
-    {
-      title: "Zeal Tech",
-      groups: [
-        "Latest Tech News",
-        "Artificial Intelligence",
-        "Crypto",
-        "Fintech",
-        "Cartech",
-        "Gadgets Buying Guide",
-      ],
-    },
-    {
-      title: "Zeal Sports",
-      groups: ["Top Sports News", "UK Premiereship", "Basketball", "Gaming"],
-    },
+    // {
+    //   title: "Zeal Global",
+    //   groups: ["Top US News", "UK Top News", "EU News", "Asian News"],
+    // },
+    // {
+    //   title: "Zeal Entertainment",
+    //   groups: [
+    //     "Celebrity News",
+    //     "Top Movies",
+    //     "Trending Music",
+    //     "Hot Interviews",
+    //   ],
+    // },
+    // {
+    //   title: "Business 360",
+    //   groups: [
+    //     "Economy",
+    //     "Personal Finance",
+    //     "Market Watch",
+    //     "Startup News",
+    //     "Entrepreneurship",
+    //     "E-commerce",
+    //   ],
+    // },
+    // {
+    //   title: "Zeal Lifestyle",
+    //   groups: [
+    //     "Health News",
+    //     "Food & Nutrition",
+    //     "Travel & Tourism",
+    //     "Style & Beauty",
+    //     "Family & Parenting",
+    //   ],
+    // },
+    // {
+    //   title: "Zeal Tech",
+    //   groups: [
+    //     "Latest Tech News",
+    //     "Artificial Intelligence",
+    //     "Crypto",
+    //     "Fintech",
+    //     "Cartech",
+    //     "Gadgets Buying Guide",
+    //   ],
+    // },
+    // {
+    //   title: "Zeal Sports",
+    //   groups: ["Top Sports News", "UK Premiereship", "Basketball", "Gaming"],
+    // },
   ];
   try {
     const schema = {
