@@ -6,8 +6,8 @@ const BookmarkBar = ({ number = 0 }: { number?: number }) => {
     <div>
       <div className="my-3 flex w-full items-center gap-5 px-[100px] max-[900px]:flex-col max-[900px]:gap-2 max-[900px]:px-7">
         <div className="flex w-full items-center justify-between">
-          <h1 className="text-2xl font-bold text-[#2F2D32]">Bookmarks</h1>
-          <span className="text-sm font-normal text-[#696969]">({number})</span>
+          <h1 className="text-foreground-alt text-2xl font-bold">Bookmarks</h1>
+          <span className="text-muted-alt text-sm font-normal">({number})</span>
         </div>
         <div className="h-8 max-[900px]:hidden">
           <Separator orientation="vertical" />

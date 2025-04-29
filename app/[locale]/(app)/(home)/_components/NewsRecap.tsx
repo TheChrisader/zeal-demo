@@ -41,10 +41,10 @@ const NewsRecapCard: React.FC<{ batch: ClientBatch }> = ({ batch }) => {
   const [isArticlesExpanded, setIsArticlesExpanded] = useState(false);
 
   return (
-    <Card className="h-full select-none overflow-hidden bg-white shadow-lg">
-      <CardHeader className="bg-gradient-to-r from-primary to-primary text-white">
+    <Card className="bg-card-alt-bg h-full select-none overflow-hidden shadow-lg">
+      <CardHeader className="text-special-text bg-gradient-to-r from-primary to-primary">
         <CardTitle className="text-lg font-semibold">{batch.name}</CardTitle>
-        <CardDescription className="text-white">
+        <CardDescription className="text-special-text">
           {format(new Date(batch.updated_at), "MMM d, yyyy")}
         </CardDescription>
       </CardHeader>
@@ -61,7 +61,7 @@ const NewsRecapCard: React.FC<{ batch: ClientBatch }> = ({ batch }) => {
           variant="ghost"
           size="sm"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="mb-4 text-[#696969]"
+          className="text-muted-alt mb-4"
         >
           {isExpanded ? (
             <>
@@ -134,7 +134,7 @@ const NewsRecapCard: React.FC<{ batch: ClientBatch }> = ({ batch }) => {
                         href={article.source_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center space-x-3 rounded-md p-2 transition-colors hover:bg-gray-100"
+                        className="hover:bg-subtle-hover-bg flex items-center space-x-3 rounded-md p-2 transition-colors"
                       >
                         <div className="flex-shrink-0">
                           <img
@@ -146,7 +146,7 @@ const NewsRecapCard: React.FC<{ batch: ClientBatch }> = ({ batch }) => {
                           />
                         </div>
                         <div className="flex-grow">
-                          <p className="text-xs font-medium text-[#2F2D32]">
+                          <p className="text-foreground-alt text-xs font-medium">
                             {article.title}
                           </p>
                           <p className="text-xs text-gray-500">
@@ -225,7 +225,7 @@ const NewsRecapSection: React.FC<{ batches: ClientBatch[] }> = ({
           <Button
             variant="default"
             size="lg"
-            className="bg-gradient-to-r from-red-600 to-orange-500 text-white transition-all duration-300 hover:from-red-700 hover:to-orange-600"
+            className="bg-gradient-to-r from-red-600 to-orange-500 text-special-text transition-all duration-300 hover:from-red-700 hover:to-orange-600"
           >
             View All Breaking News <ChevronRight className="ml-2 h-5 w-5" />
           </Button>

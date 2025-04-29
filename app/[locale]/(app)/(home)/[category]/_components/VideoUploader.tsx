@@ -90,7 +90,7 @@ export function VideoUploader({
 
   return (
     <div className="fixed inset-0 z-50 flex max-h-screen items-center justify-center overflow-y-scroll bg-black/80">
-      <div className="relative w-full max-w-md rounded-lg bg-gray-900 p-6 text-white">
+      <div className="text-special-text relative w-full max-w-md rounded-lg bg-gray-900 p-6">
         <Button
           variant="ghost"
           size="icon"
@@ -170,7 +170,7 @@ export function VideoUploader({
               type="button"
               variant="outline"
               onClick={onClose}
-              className="border-gray-600 text-white hover:bg-gray-800"
+              className="text-special-text border-gray-600 hover:bg-gray-800"
             >
               Cancel
             </Button>

@@ -40,7 +40,7 @@ const UserAvatar = ({
         y: 3,
         transition: { type: "spring", duration: 0.2 },
       }}
-      className={`relative flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-white shadow-basic ${overlap ? "z-10 ml-[-14px]" : ""}`}
+      className={`bg-card-alt-bg relative flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-full shadow-basic ${overlap ? "z-10 ml-[-14px]" : ""}`}
     >
       <Image
         src={image}

@@ -109,7 +109,7 @@ const SignInPage = () => {
         <AuthHeader title="Sign In">
           <span className="text-sm font-normal text-[#9CA3AF]">
             Don&apos;t have an account?{" "}
-            <Link className="font-bold text-[#2F7830]" href="/signup">
+            <Link className="text-success font-bold" href="/signup">
               Sign Up
             </Link>
           </span>
@@ -166,7 +166,7 @@ const SignInPage = () => {
         <SocialProviders />
         <Separator className="mb-4 mt-3" />
         <Link
-          className="text-end font-bold text-[#2F7830]"
+          className="text-success text-end font-bold"
           href="/forgot-password"
         >
           Forgot Password?

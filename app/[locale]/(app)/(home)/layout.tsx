@@ -20,7 +20,7 @@ const HomeLayout = async ({ children }: { children?: ReactNode }) => {
   const { user } = await validateRequest();
 
   return (
-    <div className="flex flex-col gap-5 bg-blue-50/60">
+    <div className="bg-background-alt flex flex-col gap-5">
       <Navbar />
       <div className="px-[100px] max-[1024px]:px-7 max-[500px]:px-0">
         {children}

@@ -43,7 +43,7 @@ const ListItem = React.forwardRef<
           href={props.href!}
           ref={ref}
           className={cn(
-            `block select-none space-y-1 rounded-md p-3 leading-none text-[#696969] no-underline outline-none transition-colors hover:bg-accent hover:text-primary focus:bg-accent focus:text-accent-foreground ${current ? "text-primary" : ""}`,
+            `text-muted-alt block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-primary focus:bg-accent focus:text-accent-foreground ${current ? "text-primary" : ""}`,
             className,
           )}
           {...props}
@@ -99,7 +99,7 @@ const Navbar = () => {
   const MotionSearch = motion(Search);
 
   return (
-    <div className="sticky top-[60.5px] z-20 bg-white max-[750px]:top-[59px] max-[400px]:top-[55px]">
+    <div className="bg-card-alt-bg sticky top-[60.5px] z-20 max-[750px]:top-[59px] max-[400px]:top-[55px]">
       <div
         className={`relative flex items-center justify-between gap-5 px-[100px] max-[900px]:px-7 max-[600px]:gap-2 max-[500px]:flex-col`}
       >
@@ -127,7 +127,7 @@ const Navbar = () => {
                         className={`z-20 flex h-auto gap-1 rounded-[12px] bg-transparent p-1 px-2 shadow-none hover:bg-transparent focus:bg-transparent`}
                       >
                         <span
-                          className={`text-sm font-medium ${selected !== item.name ? "text-[#696969]" : "text-primary"}`}
+                          className={`text-sm font-medium ${selected !== item.name ? "text-muted-alt" : "text-primary"}`}
                         >
                           {item.name}
                         </span>
@@ -161,7 +161,7 @@ const Navbar = () => {
                       className={`z-20 flex h-auto gap-1 rounded-[12px] bg-transparent p-1 px-2 shadow-none hover:bg-transparent focus:bg-transparent`}
                     >
                       <span
-                        className={`text-sm font-medium ${selected !== item.name ? "text-[#696969]" : "text-primary"}`}
+                        className={`text-sm font-medium ${selected !== item.name ? "text-muted-alt" : "text-primary"}`}
                       >
                         {item.name}
                       </span>
@@ -241,12 +241,12 @@ const Navbar = () => {
             }}
           >
             <motion.button
-              className="flex rounded-full bg-white p-1 shadow-basic"
+              className="bg-card-alt-bg flex rounded-full p-1 shadow-basic"
               onClick={() => {
                 setHideSearch(false);
               }}
             >
-              <MotionSearch className="text-[#696969]" />
+              <MotionSearch className="text-muted-alt" />
             </motion.button>
           </motion.div>
         ) : (

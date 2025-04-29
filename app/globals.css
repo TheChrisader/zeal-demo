@@ -20,7 +20,7 @@
     --card-foreground: 222.2 47.4% 11.2%;
 
     /* --primary: 222.2 47.4% 11.2%; */
-    --primary: 121, 44%, 33%;
+    --primary: 121 44% 33%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -35,6 +35,22 @@
     --ring: 215 20.2% 65.1%;
 
     --radius: 0.5rem;
+
+    /* New semantic variables (Light Mode - placeholders/guesses) */
+    --success: 121 44% 33%; /* Corresponds to dark .text-[#2F7830] / .bg-[#2F7830] */
+    --success-bg: 121 44% 33%; /* Corresponds to dark .bg-[#2F7830] */
+    --success-subtle-bg: 121 44% 90%; /* Corresponds to dark .bg-[#e1ffe8] */
+    --card-alt-bg: 0 0% 100%; /* Corresponds to dark .bg-white */
+    --subtle-bg: 210 40% 98%; /* Corresponds to dark .bg-[#FAFAFA] */
+    --subtle-bg-alt: 210 40% 96.1%; /* Corresponds to dark .bg-slate-100 */
+    --background-alt: 210 40% 96.1%; /* Corresponds to dark .bg-blue-50/60 */
+    --foreground-alt: 222.2 47.4% 11.2%; /* Corresponds to dark .text-[#2F2D32] */
+    --foreground-alt-p: 222.2 47.4% 11.2%; /* Corresponds to dark .[&_p]:text-[#0C0C0C] p */
+    --muted-alt: 215.4 16.3% 46.9%; /* Corresponds to dark .text-[#696969] */
+    --hover-subtle-bg: 210 40% 94%; /* Corresponds to dark .hover:bg-gray-100:hover */
+    --hover-success-bg: 121 44% 28%; /* Corresponds to dark .hover:bg-green-900:hover */
+    --special-text: 0 0% 100%; /* Corresponds to dark .text-white */
+    --nprogress-bar: var(--success); /* Corresponds to dark #nprogress .bar */
   }
 
   .dark {
@@ -69,6 +85,24 @@
 
     --radius: 0.5rem;
 
+    /* New semantic variables (Dark Mode) */
+    --success: 121 89% 71%; /* Replaces .text-[#2F7830] / .bg-[#2F7830]: rgb(115, 247, 117) */
+    --success-bg: 121 89% 71%; /* Replaces .bg-[#2F7830]: rgb(115, 247, 117) */
+    --success-subtle-bg: 121 80% 5%; /* Replaces .bg-[#e1ffe8]: #020f0d */
+    --card-alt-bg: 219 34% 17%; /* Replaces .bg-white: rgb(29, 40, 58) */
+    --subtle-bg: 225 27% 15%; /* Replaces .bg-[#FAFAFA]: rgb(26, 31, 45) */
+    --subtle-bg-alt: 240 29% 9%; /* Replaces .bg-slate-100: rgb(17 17 31 / 51%) */
+    --background-alt: 220 38% 13%; /* Replaces .bg-blue-50/60: rgb(21, 31, 46) */
+    --foreground-alt: 225 8% 80%; /* Replaces .text-[#2F2D32]: rgb(207, 204, 211) */
+    --foreground-alt-p: 231 48% 91%; /* Replaces .[&_p]:text-[#0C0C0C] p: rgb(229 231 245) */
+    --muted-alt: 0 0% 71%; /* Replaces .text-[#696969]: rgb(180, 180, 180) */
+    --hover-subtle-bg: 233 23% 17%; /* Replaces .hover:bg-gray-100:hover: rgb(34, 37, 54) */
+    --hover-success-bg: 139 58% 41%; /* Replaces .hover:bg-green-900:hover: rgb(44, 174, 77) */
+    --special-text: 240 38% 18%; /* Replaces .text-white: rgb(29, 29, 65) */
+    --nprogress-bar: var(
+      --success
+    ); /* Replaces #nprogress .bar: rgb(115, 247, 117) */
+
     .prose {
       /* make it white */
       --tw-prose-body: #8fb2d1;
@@ -88,73 +122,78 @@
       --tw-prose-th-borders: 215 20.2% 65.1%;
     }
 
-    #nprogress .bar {
-      background-color: rgb(115, 247, 117);
-    }
+    /* #nprogress .bar {
+      background-color: hsl(var(--nprogress-bar));
+    } */
 
-    .bg-slate-100 {
+    /* .bg-slate-100 {
       background-color: rgb(17 17 31 / 51%);
-    }
+    } */
 
-    .bg-blue-50\/60 {
+    /* .bg-blue-50\/60 {
       background-color: rgb(21, 31, 46);
       opacity: 1;
-    }
+    } */
 
-    .bg-white {
+    /* .bg-white {
       background-color: rgb(29, 40, 58);
-    }
+    } */
 
-    .text-\[\#2F7830\] {
+    /* .text-\[\#2F7830\] {
       color: rgb(115, 247, 117);
-    }
+    } */
 
-    .bg-\[\#2F7830\] {
+    /* .bg-\[\#2F7830\] {
       background-color: rgb(115, 247, 117);
-    }
+    } */
 
-    .bg-\[\#FAFAFA\] {
+    /* .bg-\[\#FAFAFA\] {
       background-color: rgb(26, 31, 45);
-    }
+    } */
 
-    .text-\[\#2F2D32\] {
+    /* .text-\[\#2F2D32\] {
       color: rgb(207, 204, 211);
-    }
+    } */
 
-    .text-\[\#696969\] {
+    /* .text-\[\#696969\] {
       color: rgb(180, 180, 180);
-    }
+    } */
 
-    .\[\&_p\]\:text-\[\#696969\] p {
+    /* .\[\&_p\]\:text-\[\#696969\] p {
       color: rgb(180, 180, 180);
-    }
+    } */
 
-    .hover\:bg-gray-100:hover {
+    /* .hover\:bg-gray-100:hover {
       background-color: rgb(34, 37, 54);
-    }
+    } */
     .to-white {
       --tw-gradient-to: hsl(var(--background)) var(--tw-gradient-to-position);
     }
 
-    .bg-\[\#e1ffe8\] {
+    /* .bg-\[\#e1ffe8\] {
       background-color: #020f0d;
-    }
+    } */
 
-    .hover\:bg-green-900:hover {
+    /* .hover\:bg-green-900:hover {
       background-color: rgb(44, 174, 77);
-    }
+    } */
 
-    .text-white {
+    /* .text-white {
       color: rgb(29, 29, 65);
-    }
+    } */
 
-    .\[\&_p\]\:text-\[\#0C0C0C\] p {
+    /* .\[\&_p\]\:text-\[\#0C0C0C\] p {
       color: rgb(229 231 245);
-    }
+    } */
 
     /* .bg-background {
       background-color: rgb(21, 31, 46);
     } */
+  }
+
+  /* Moved NProgress styling out of .dark */
+  div#nprogress > div.bar {
+    background: hsl(var(--nprogress-bar));
   }
 }
 

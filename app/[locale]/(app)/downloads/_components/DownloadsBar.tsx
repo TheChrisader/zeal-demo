@@ -6,7 +6,7 @@ const DownloadsBar = () => {
     <div>
       <div className="my-3 flex w-full items-center gap-5 px-[100px] max-[900px]:px-7">
         <div className="flex w-full items-center justify-between">
-          <h1 className="text-2xl font-bold text-[#2F2D32]">Downloads</h1>
+          <h1 className="text-foreground-alt text-2xl font-bold">Downloads</h1>
         </div>
         <div className="h-8">
           <Separator orientation="vertical" />

@@ -7,7 +7,8 @@ export async function DELETE(
   { params }: { params: { id: string } },
 ) {
   try {
-    const decision: "approved" | "rejected" = await request.json();
+    // const decision: "approved" | "rejected" = await request.json();
+    const { decision } = await request.json();
 
     if (!decision) {
       return NextResponse.json({ error: "Missing decision" }, { status: 400 });

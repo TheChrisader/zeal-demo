@@ -27,7 +27,7 @@ const DraftItem = ({ draft, className }: DraftItemProps) => {
           className={`flex h-fit w-full flex-1 cursor-pointer gap-5 [&_h3]:hover:text-primary [&_h3]:hover:underline`}
         >
           <div className="flex flex-col justify-center">
-            <h3 className="text-md mb-2 font-semibold text-[#2F2D32]">
+            <h3 className="text-md text-foreground-alt mb-2 font-semibold">
               {truncateString(draft?.title)}
             </h3>
           </div>

@@ -65,7 +65,7 @@ const BookmarkButton = ({
 
   return (
     <Button
-      className={`absolute bottom-1 right-2 rounded-full bg-white p-3 shadow-lg hover:stroke-primary ${
+      className={`bg-card-alt-bg absolute bottom-1 right-2 rounded-full p-3 shadow-lg hover:stroke-primary ${
         isBookmarked ? "stroke-primary" : ""
       } ${isMatch && imageExists ? "" : "bottom-1 right-2"}`}
       variant="unstyled"

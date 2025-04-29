@@ -312,9 +312,9 @@ export default function VideoInterface({ videoId }: { videoId?: string }) {
                       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
                         <div className="animate-fade-out rounded-full bg-black/30 p-6">
                           {videoRefs.current[index]?.paused ? (
-                            <Pause className="size-12 text-white" />
+                            <Pause className="text-special-text size-12" />
                           ) : (
-                            <Play className="size-12 text-white" />
+                            <Play className="text-special-text size-12" />
                           )}
                         </div>
                       </div>
@@ -357,7 +357,7 @@ export default function VideoInterface({ videoId }: { videoId?: string }) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="rounded-full bg-transparent hover:bg-white/10"
+                        className="rounded-full bg-transparent hover:bg-card-alt-bg/10"
                       >
                         <Heart className="h-7 w-7" />
                       </Button>
@@ -369,7 +369,7 @@ export default function VideoInterface({ videoId }: { videoId?: string }) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="rounded-full bg-transparent hover:bg-white/10"
+                        className="rounded-full bg-transparent hover:bg-card-alt-bg/10"
                       >
                         <MessageCircle className="h-7 w-7" />
                       </Button>
@@ -381,7 +381,7 @@ export default function VideoInterface({ videoId }: { videoId?: string }) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="rounded-full bg-transparent hover:bg-white/10"
+                        className="rounded-full bg-transparent hover:bg-card-alt-bg/10"
                       >
                         <Share2 className="h-7 w-7" />
                       </Button>
@@ -393,7 +393,7 @@ export default function VideoInterface({ videoId }: { videoId?: string }) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="rounded-full bg-transparent hover:bg-white/10"
+                        className="rounded-full bg-transparent hover:bg-card-alt-bg/10"
                       >
                         <Bookmark className="h-7 w-7" />
                       </Button>
@@ -436,7 +436,7 @@ export default function VideoInterface({ videoId }: { videoId?: string }) {
   };
 
   return (
-    <div className="flex h-[calc(100vh-60px)] flex-col overflow-hidden text-white">
+    <div className="text-special-text flex h-[calc(100vh-60px)] flex-col overflow-hidden">
       {/* Video Uploader Modal */}
       {showUploader && (
         <VideoUploader
@@ -457,13 +457,13 @@ export default function VideoInterface({ videoId }: { videoId?: string }) {
           <Home
             className={cn(
               "h-6 w-6",
-              activeTab === "home" ? "text-white" : "text-gray-400",
+              activeTab === "home" ? "text-special-text" : "text-gray-400",
             )}
           />
           <span
             className={cn(
               "mt-1 text-xs",
-              activeTab === "home" ? "text-white" : "text-gray-400",
+              activeTab === "home" ? "text-special-text" : "text-gray-400",
             )}
           >
             Home
@@ -476,13 +476,13 @@ export default function VideoInterface({ videoId }: { videoId?: string }) {
           <Search
             className={cn(
               "h-6 w-6",
-              activeTab === "discover" ? "text-white" : "text-gray-400",
+              activeTab === "discover" ? "text-special-text" : "text-gray-400",
             )}
           />
           <span
             className={cn(
               "mt-1 text-xs",
-              activeTab === "discover" ? "text-white" : "text-gray-400",
+              activeTab === "discover" ? "text-special-text" : "text-gray-400",
             )}
           >
             Discover
@@ -493,7 +493,7 @@ export default function VideoInterface({ videoId }: { videoId?: string }) {
           onClick={() => handleTabChange("create")}
         >
           <div className="flex h-8 w-12 items-center justify-center rounded-md bg-gradient-to-r from-blue-500 to-red-500">
-            <PlusSquare className="h-5 w-5 text-white" />
+            <PlusSquare className="h-5 w-5 text-special-text" />
           </div>
         </button>
         <button
@@ -503,13 +503,13 @@ export default function VideoInterface({ videoId }: { videoId?: string }) {
           <MessageSquare
             className={cn(
               "h-6 w-6",
-              activeTab === "inbox" ? "text-white" : "text-gray-400",
+              activeTab === "inbox" ? "text-special-text" : "text-gray-400",
             )}
           />
           <span
             className={cn(
               "mt-1 text-xs",
-              activeTab === "inbox" ? "text-white" : "text-gray-400",
+              activeTab === "inbox" ? "text-special-text" : "text-gray-400",
             )}
           >
             Inbox
@@ -522,13 +522,13 @@ export default function VideoInterface({ videoId }: { videoId?: string }) {
           <User
             className={cn(
               "h-6 w-6",
-              activeTab === "profile" ? "text-white" : "text-gray-400",
+              activeTab === "profile" ? "text-special-text" : "text-gray-400",
             )}
           />
           <span
             className={cn(
               "mt-1 text-xs",
-              activeTab === "profile" ? "text-white" : "text-gray-400",
+              activeTab === "profile" ? "text-special-text" : "text-gray-400",
             )}
           >
             Profile

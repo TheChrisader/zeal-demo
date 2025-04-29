@@ -90,7 +90,7 @@ export const TodayInHistory: React.FC = () => {
     <Card
       id="today-in-history"
       ref={ref}
-      className="mx-auto w-full max-w-6xl overflow-hidden bg-white shadow-lg dark:bg-gray-800"
+      className="bg-card-alt-bg mx-auto w-full max-w-6xl overflow-hidden shadow-lg dark:bg-gray-800"
     >
       <CardContent className="p-6">
         <div className="mb-4 flex items-center justify-between">
@@ -145,7 +145,7 @@ export const TodayInHistory: React.FC = () => {
                 className="mb-2 flex min-w-full cursor-grab flex-col items-start justify-between space-x-4 sm:flex-row sm:items-center"
               >
                 <div className="mb-4 flex items-center space-x-4 sm:mb-0">
-                  <div className="rounded-lg bg-primary px-2 py-1 text-base font-bold text-white">
+                  <div className="text-special-text rounded-lg bg-primary px-2 py-1 text-base font-bold">
                     {event?.year}
                   </div>
                   <Clock className="size-4 text-gray-400" />
@@ -168,7 +168,7 @@ export const TodayInHistory: React.FC = () => {
             className="flex flex-col items-start justify-between space-x-4 sm:flex-row sm:items-center"
           >
             <div className="mb-4 flex items-center space-x-4 sm:mb-0">
-              <div className="rounded-lg bg-primary px-2 py-1 text-base font-bold text-white">
+              <div className="rounded-lg bg-primary px-2 py-1 text-base font-bold text-special-text">
                 {events[currentIndex]?.year}
               </div>
               <Clock className="size-4 text-gray-400" />

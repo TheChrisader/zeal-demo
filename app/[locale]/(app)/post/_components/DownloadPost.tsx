@@ -65,7 +65,7 @@ const DownloadPost = ({ article }: { article: PostToDownload }) => {
 
   return (
     <Button variant={"unstyled"} onClick={() => insertPost(article)}>
-      <Download className="text-[#696969]" />
+      <Download className="text-muted-alt" />
     </Button>
   );
 };

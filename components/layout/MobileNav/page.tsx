@@ -15,7 +15,7 @@ const MobileNav = () => {
         <li>
           <Link href="/">
             <div
-              className={`flex flex-col items-center gap-1 ${pathname === "/" ? "text-primary" : "text-[#696969]"}`}
+              className={`flex flex-col items-center gap-1 ${pathname === "/" ? "text-primary" : "text-muted-alt"}`}
             >
               <Newspaper />
               <span className="text-xs">Feed</span>
@@ -25,7 +25,7 @@ const MobileNav = () => {
         <li>
           <Link href="/bookmarks">
             <div
-              className={`flex flex-col items-center gap-1 ${pathname === "/bookmarks" ? "text-primary" : "text-[#696969]"}`}
+              className={`flex flex-col items-center gap-1 ${pathname === "/bookmarks" ? "text-primary" : "text-muted-alt"}`}
             >
               <Bookmark />
               <span className="text-xs">Bookmarks</span>
@@ -35,7 +35,7 @@ const MobileNav = () => {
         <li>
           <Link href="/downloads">
             <div
-              className={`flex flex-col items-center gap-1 ${pathname === "/downloads" ? "text-primary" : "text-[#696969]"}`}
+              className={`flex flex-col items-center gap-1 ${pathname === "/downloads" ? "text-primary" : "text-muted-alt"}`}
             >
               <Download />
               <span className="text-xs">Downloads</span>
@@ -45,7 +45,7 @@ const MobileNav = () => {
         <li>
           <Link href="/settings/profile">
             <div
-              className={`flex flex-col items-center gap-1 ${pathname.includes("/settings") ? "text-primary" : "text-[#696969]"}`}
+              className={`flex flex-col items-center gap-1 ${pathname.includes("/settings") ? "text-primary" : "text-muted-alt"}`}
             >
               <Settings />
               <span className="text-xs">Settings</span>

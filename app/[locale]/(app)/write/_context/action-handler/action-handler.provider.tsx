@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, useRef, useState } from "react";
+import React, { ReactNode, useState } from "react";
 import ActionHandlerContext, { ActionHandlerContextValue } from ".";
 
 const ActionHandlerProvider = ({ children }: { children: ReactNode }) => {
@@ -11,6 +11,8 @@ const ActionHandlerProvider = ({ children }: { children: ReactNode }) => {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState<string | null>(null);
   const [category, setCategory] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const value: ActionHandlerContextValue = {
     draftRef,
@@ -27,7 +29,12 @@ const ActionHandlerProvider = ({ children }: { children: ReactNode }) => {
     setTitle,
     category,
     setCategory,
+    isLoading,
+    setIsLoading,
+    error,
+    setError,
   };
+
   return (
     <ActionHandlerContext.Provider value={value}>
       {children}

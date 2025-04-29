@@ -32,7 +32,9 @@ const NotificationsDropdown = ({ children }: { children: React.ReactNode }) => {
         align="end"
         sideOffset={12}
       >
-        <h3 className="text-lg font-semibold text-[#2F2D32]">Notifications</h3>
+        <h3 className="text-foreground-alt text-lg font-semibold">
+          Notifications
+        </h3>
         <Separator className="my-3" />
         <NotificationList
           notifications={notifications}

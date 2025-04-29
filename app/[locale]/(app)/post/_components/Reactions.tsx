@@ -128,7 +128,7 @@ const Reactions = ({
     <div className="flex items-center gap-5">
       <Button
         variant="unstyled"
-        className={`p-0 text-[#696969] hover:bg-transparent has-[svg]:hover:text-[#2F2D32]`}
+        className={`text-muted-alt has-[svg]:hover:text-foreground-alt p-0 hover:bg-transparent`}
         onClick={handleLike}
       >
         <ThumbsUp
@@ -137,7 +137,7 @@ const Reactions = ({
       </Button>
       <Button
         variant="unstyled"
-        className={`p-0 text-[#696969] hover:bg-transparent has-[svg]:hover:text-[#2F2D32]`}
+        className={`text-muted-alt has-[svg]:hover:text-foreground-alt p-0 hover:bg-transparent`}
         onClick={handleDislike}
       >
         <ThumbsDown

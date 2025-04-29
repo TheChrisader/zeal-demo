@@ -123,7 +123,7 @@ const SignUpPage = () => {
         <AuthHeader title="Sign Up">
           <span className="text-sm font-normal text-[#9CA3AF]">
             Already have an account?{" "}
-            <Link className="font-bold text-[#2F7830]" href="/signin">
+            <Link className="text-success font-bold" href="/signin">
               Sign In
             </Link>
           </span>

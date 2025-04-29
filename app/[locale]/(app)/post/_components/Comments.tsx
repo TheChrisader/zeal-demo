@@ -11,7 +11,7 @@ const Comments = async ({ postID }: { postID: string }) => {
 
   return (
     <section className="flex w-full flex-col gap-5">
-      {/* <h3 className="text-2xl font-extrabold text-[#2F2D32]">
+      {/* <h3 className="text-2xl font-extrabold text-foreground-alt">
         {comments.length} Comments
       </h3>
       <div>

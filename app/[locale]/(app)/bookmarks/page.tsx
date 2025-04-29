@@ -37,16 +37,16 @@ export default async function BookmarksPage() {
         <BookmarkBar />
         <div className="my-auto flex flex-col items-center justify-center gap-9 px-[100px] max-[1024px]:px-7 max-[500px]:px-2">
           <div className="flex flex-col items-center justify-center gap-3">
-            <h2 className="text-center text-2xl font-bold text-[#2F2D32]">
+            <h2 className="text-foreground-alt text-center text-2xl font-bold">
               Your bookmarks will appear here
             </h2>
-            <span className="max-w-[50vw] text-center text-sm font-normal text-[#696969] max-[500px]:max-w-full">
+            <span className="text-muted-alt max-w-[50vw] text-center text-sm font-normal max-[500px]:max-w-full">
               Enim tempus tincidunt et facilisis amet et feugiat. Scelerisque at
               eget sed auctor non eget rhoncus. Morbi sit sumassa quis a. Velit.
             </span>
           </div>
           <Link
-            className="flex h-[35px] w-[138px] items-center justify-center rounded-[30px] bg-[#2F7830] px-[10px] py-[5px] text-sm font-normal text-white shadow-basic"
+            className="bg-success text-special-text flex h-[35px] w-[138px] items-center justify-center rounded-[30px] px-[10px] py-[5px] text-sm font-normal shadow-basic"
             href={"/"}
           >
             Return to Feed

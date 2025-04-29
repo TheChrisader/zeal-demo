@@ -56,7 +56,7 @@ const ForgotPasswordPage = () => {
             Go back
           </Button>
         </AuthHeader>
-        <span className="mb-7 text-sm font-normal text-[#696969]">
+        <span className="text-muted-alt mb-7 text-sm font-normal">
           Kindly provide your email address to reset your password
         </span>
         <div className="mb-7">

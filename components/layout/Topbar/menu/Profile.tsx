@@ -51,7 +51,7 @@ const ProfileDropdown = ({
       <PopoverContent className="w-[250px] p-4" align="end" sideOffset={12}>
         <div className="flex items-center gap-3">
           <UserAvatar user={user} />
-          <h3 className="text-lg font-semibold text-[#2F2D32]">
+          <h3 className="text-foreground-alt text-lg font-semibold">
             {user.display_name}
           </h3>
         </div>
@@ -60,7 +60,7 @@ const ProfileDropdown = ({
           {canWrite && (
             <Link
               href={"/drafts"}
-              className="flex items-center justify-between rounded-md px-1 py-2 hover:bg-gray-100"
+              className="hover:bg-subtle-hover-bg flex items-center justify-between rounded-md px-1 py-2"
             >
               <div className="flex items-center gap-3">
                 <PenIcon />
@@ -72,7 +72,7 @@ const ProfileDropdown = ({
           )}
           <Link
             href={"/settings/profile"}
-            className="flex items-center justify-between rounded-md px-1 py-2 hover:bg-gray-100"
+            className="hover:bg-subtle-hover-bg flex items-center justify-between rounded-md px-1 py-2"
           >
             <div className="flex items-center gap-3">
               <SettingsIcon />
@@ -83,7 +83,7 @@ const ProfileDropdown = ({
           </Link>
           <Link
             href={"/downloads"}
-            className="flex items-center justify-between rounded-md px-1 py-2 hover:bg-gray-100"
+            className="hover:bg-subtle-hover-bg flex items-center justify-between rounded-md px-1 py-2"
           >
             <div className="flex items-center gap-3">
               <Download className="text-[#959595]" />

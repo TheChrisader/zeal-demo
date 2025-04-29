@@ -147,10 +147,10 @@ const PreferencesSettings = () => {
       <div className="mb-8 w-full">
         <div className="mb-4 flex w-full items-center justify-between">
           <div className="flex flex-col">
-            <h3 className="text-lg font-bold text-[#2F2D32]">
+            <h3 className="text-foreground-alt text-lg font-bold">
               News Preferences
             </h3>
-            <span className="text-sm font-normal text-[#696969]">
+            <span className="text-muted-alt text-sm font-normal">
               Select the news topics you wish to be featured on your home page
             </span>
           </div>

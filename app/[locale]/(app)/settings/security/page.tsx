@@ -35,10 +35,10 @@ const SecuritySettings = () => {
     <div className="w-full">
       <div className="mb-4 flex w-full items-center justify-between">
         <div className="flex flex-col">
-          <h3 className="text-lg font-bold text-[#2F2D32]">
+          <h3 className="text-foreground-alt text-lg font-bold">
             Security Settings
           </h3>
-          <span className="text-sm font-normal text-[#696969]">
+          <span className="text-muted-alt text-sm font-normal">
             Change Passwords, Enable 2FA to make your account more secure
           </span>
         </div>
@@ -48,15 +48,15 @@ const SecuritySettings = () => {
         <PasswordModal>
           <div className="flex items-center gap-2">
             <LockIcon />
-            <span className="text-sm font-normal text-[#2F2D32]">
+            <span className="text-foreground-alt text-sm font-normal">
               Change Password
             </span>
           </div>
           <CaretRightIcon />
         </PasswordModal>
-        <label className="flex cursor-pointer items-center justify-between py-2 hover:bg-gray-100">
+        <label className="hover:bg-subtle-hover-bg flex cursor-pointer items-center justify-between py-2">
           <div className="flex">
-            <span className="text-sm font-normal text-[#2F2D32]">
+            <span className="text-foreground-alt text-sm font-normal">
               Enable Login 2FA
             </span>
           </div>

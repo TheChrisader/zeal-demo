@@ -39,7 +39,7 @@ const RecommendedArticles = async ({
 
     return (
       <>
-        <h1 className="mb-4 text-2xl font-bold text-[#2F2D32]">
+        <h1 className="text-foreground-alt mb-4 text-2xl font-bold">
           You may also like...
         </h1>
         {side ? (
@@ -59,7 +59,7 @@ const RecommendedArticles = async ({
 
   //   return (
   //     <>
-  //       <h1 className="text-2xl font-bold text-[#2F2D32]">Relevant Articles</h1>
+  //       <h1 className="text-2xl font-bold text-foreground-alt">Relevant Articles</h1>
   //       <Trending articles={RelevantArticles} />
   //     </>
   //   );
@@ -85,7 +85,7 @@ const RecommendedArticles = async ({
 
     return (
       <>
-        <h1 className="text-2xl font-bold text-[#2F2D32]">
+        <h1 className="text-foreground-alt text-2xl font-bold">
           More Articles from this Publisher
         </h1>
         <Trending articles={MoreArticles} />
@@ -165,7 +165,7 @@ const RecommendedArticles = async ({
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-[#2F2D32]">
+      <h1 className="text-foreground-alt text-2xl font-bold">
         Recommended Articles
       </h1>
       <Trending partial articles={RecommendedArticles} />

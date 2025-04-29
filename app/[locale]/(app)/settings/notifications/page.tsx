@@ -46,35 +46,35 @@ const NotificationsSettings = () => {
     <div className="w-full">
       <div className="mb-4 flex w-full items-center justify-between">
         <div className="flex flex-col">
-          <h3 className="text-lg font-bold text-[#2F2D32]">
+          <h3 className="text-foreground-alt text-lg font-bold">
             Notification Settings
           </h3>
-          <span className="text-sm font-normal text-[#696969]">
+          <span className="text-muted-alt text-sm font-normal">
             Configure your notification settings and preferences
           </span>
         </div>
       </div>
       <Separator className="mb-6" />
       <div className="flex w-full max-w-[40vw] flex-col gap-2 max-[500px]:max-w-full">
-        <label className="flex cursor-pointer items-center justify-between py-2 hover:bg-gray-100">
+        <label className="hover:bg-subtle-hover-bg flex cursor-pointer items-center justify-between py-2">
           <div className="flex">
-            <span className="text-sm font-normal text-[#2F2D32]">
+            <span className="text-foreground-alt text-sm font-normal">
               Push Notifications
             </span>
           </div>
           <Switch checked={push} onCheckedChange={() => setPush(!push)} />
         </label>
-        {/* <label className="flex cursor-pointer items-center justify-between py-2 hover:bg-gray-100">
+        {/* <label className="flex cursor-pointer items-center justify-between py-2 hover:bg-subtle-hover-bg">
           <div className="flex">
-            <span className="text-sm font-normal text-[#2F2D32]">
+            <span className="text-sm font-normal text-foreground-alt">
               In-App Notifications
             </span>
           </div>
           <Switch checked={inApp} onCheckedChange={() => setInApp(!inApp)} />
         </label> */}
-        <label className="flex cursor-pointer items-center justify-between py-2 hover:bg-gray-100">
+        <label className="hover:bg-subtle-hover-bg flex cursor-pointer items-center justify-between py-2">
           <div className="flex">
-            <span className="text-sm font-normal text-[#2F2D32]">
+            <span className="text-foreground-alt text-sm font-normal">
               Email Notifications
             </span>
           </div>

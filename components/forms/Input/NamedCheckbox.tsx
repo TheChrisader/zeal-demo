@@ -12,7 +12,7 @@ const NamedCheckbox = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
 >(({ className, children, ...props }, ref) => {
   return (
-    <Label className="flex cursor-pointer items-center justify-between rounded-md p-2 transition-colors hover:bg-gray-100 has-[button:focus-visible]:outline has-[button:focus]:outline-2 has-[button:focus]:outline-primary">
+    <Label className="hover:bg-subtle-hover-bg flex cursor-pointer items-center justify-between rounded-md p-2 transition-colors has-[button:focus-visible]:outline has-[button:focus]:outline-2 has-[button:focus]:outline-primary">
       {children}
       <CheckboxPrimitive.Root
         ref={ref}

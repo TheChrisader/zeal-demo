@@ -34,7 +34,7 @@ const SearchInput = ({
 
   return (
     <label
-      className={`relative flex items-center rounded-full bg-[#FAFAFA] px-3 shadow-basic has-[input:focus]:outline has-[input:focus]:outline-2 has-[input:focus]:outline-primary ${className}`}
+      className={`bg-subtle-bg relative flex items-center rounded-full px-3 shadow-basic has-[input:focus]:outline has-[input:focus]:outline-2 has-[input:focus]:outline-primary ${className}`}
     >
       <SearchIcon className="text-[#959595]" />
       <Input

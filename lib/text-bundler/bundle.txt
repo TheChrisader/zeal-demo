@@ -2138,13 +2138,13 @@ import { Separator } from "@/components/ui/separator";
 const ContainerHeader = ({ header }: { header: string }) => {
   if (header === "Trending") {
     return (
-      <h2 className="flex items-center gap-4 text-2xl font-bold text-[#2F2D32]">
+      <h2 className="flex items-center gap-4 text-2xl font-bold text-foreground-alt">
         <NewsIcon /> {header}
       </h2>
     );
   } else {
     return (
-      <h1 className="flex items-center gap-4 text-2xl font-bold text-[#2F2D32]">
+      <h1 className="flex items-center gap-4 text-2xl font-bold text-foreground-alt">
         <NewsIcon /> {header}
       </h1>
     );
@@ -2162,7 +2162,7 @@ const ArticlesContainer = ({
 }) => {
   return (
     <section
-      className={`mb-3 flex h-fit w-full min-w-[45%] flex-1 flex-col gap-2 rounded-[20px] bg-white px-3 py-4 shadow-sm ${className}`}
+      className={`mb-3 flex h-fit w-full min-w-[45%] flex-1 flex-col gap-2 rounded-[20px] bg-card-alt-bg px-3 py-4 shadow-sm ${className}`}
     >
       <ContainerHeader header={title} />
       <Separator />
@@ -2362,7 +2362,7 @@ const ArticleCard = ({ article, className }: ArticleCardProps) => {
           className={`flex h-fit w-full flex-1 cursor-pointer gap-5 [&_h3]:hover:text-primary [&_h3]:hover:underline`}
         >
           <div className="flex flex-col justify-center">
-            <h3 className="text-md mb-2 font-semibold text-[#2F2D32]">
+            <h3 className="text-md mb-2 font-semibold text-foreground-alt">
               {truncateString(article?.title)}
             </h3>
             <div className="flex items-center gap-2 max-[400px]:flex-col max-[400px]:items-start">
@@ -2372,7 +2372,7 @@ const ArticleCard = ({ article, className }: ArticleCardProps) => {
                   alt="article source icon"
                   src={article?.source.icon}
                 />
-                <span className="text-xs font-normal text-[#696969]">
+                <span className="text-xs font-normal text-muted-alt">
                   {article?.source.name}
                 </span>
               </div>
@@ -2380,7 +2380,7 @@ const ArticleCard = ({ article, className }: ArticleCardProps) => {
                 <Separator orientation="vertical" />
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-normal text-[#696969]">
+                <span className="text-xs font-normal text-muted-alt">
                   {getPublishTimeStamp(article?.published_at as string)}
                 </span>
                 <div className="h-3">
@@ -2426,19 +2426,19 @@ const ArticleCard = ({ article, className }: ArticleCardProps) => {
               alt="Article source Icon"
               src={article?.source.icon}
             />
-            <span className="text-xs font-normal text-[#696969]">
+            <span className="text-xs font-normal text-muted-alt">
               {article?.source.name}
             </span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="text-xs font-normal text-[#696969]">
+            <span className="text-xs font-normal text-muted-alt">
               {getPublishTimeStamp(article?.published_at as string)}
             </span>
             <div className="h-3">
               <Separator orientation="vertical" />
             </div>
             <span
-              // className="absolute left-[40px] top-[0px] flex -translate-x-1/2 rounded-lg bg-white px-4 py-2 text-xs font-normal text-primary"
+              // className="absolute left-[40px] top-[0px] flex -translate-x-1/2 rounded-lg bg-card-alt-bg px-4 py-2 text-xs font-normal text-primary"
               className="text-xs font-normal text-primary"
             >
               {article?.ttr && `${article?.ttr} min read`}
@@ -2555,7 +2555,7 @@ const ArticleTitle = ({ title }: { title: string }) => {
 
   return (
     <h3
-      className="mb-2 text-sm font-semibold text-[#2F2D32]"
+      className="mb-2 text-sm font-semibold text-foreground-alt"
       suppressHydrationWarning
     >
       {truncateString(title.replaceAll("\\u0020", " "), size)}
@@ -2704,23 +2704,23 @@ const HeadlineArticle = ({ article }: HeadlineArticleProps) => {
           className="h-[190px] w-full object-cover max-[450px]:h-[140px]"
         />
       </div>
-      <h3 className="mb-4 text-lg font-semibold text-[#2F2D32] max-[450px]:text-base">
+      <h3 className="mb-4 text-lg font-semibold text-foreground-alt max-[450px]:text-base">
         {article?.title}
       </h3>
       <div className="flex items-center gap-3">
-        <span className="text-sm font-normal text-[#696969]">
+        <span className="text-sm font-normal text-muted-alt">
           {article?.source.name}
         </span>
         <div className="h-3">
           <Separator orientation="vertical" />
         </div>
-        <span className="text-sm font-normal text-[#696969]">
+        <span className="text-sm font-normal text-muted-alt">
           {getPublishTimeStamp(article?.published_at as string)}
         </span>
         <div className="h-3">
           <Separator orientation="vertical" />
         </div>
-        <span className="text-sm font-normal text-[#696969]">
+        <span className="text-sm font-normal text-muted-alt">
           {article?.ttr} min read
         </span>
       </div>
@@ -2788,19 +2788,19 @@ const ResponsiveHeadlines = ({
                       alt="Article source Icon"
                       src={article?.source.icon}
                     />
-                    <span className="text-xs font-normal text-[#696969]">
+                    <span className="text-xs font-normal text-muted-alt">
                       {article?.source.name}
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-normal text-[#696969]">
+                    <span className="text-xs font-normal text-muted-alt">
                       {getPublishTimeStamp(article?.published_at as string)}
                     </span>
                     <div className="h-3">
                       <Separator orientation="vertical" />
                     </div>
                     <span
-                      // className="absolute left-[40px] top-[0px] flex -translate-x-1/2 rounded-lg bg-white px-4 py-2 text-xs font-normal text-primary"
+                      // className="absolute left-[40px] top-[0px] flex -translate-x-1/2 rounded-lg bg-card-alt-bg px-4 py-2 text-xs font-normal text-primary"
                       className="text-xs font-normal text-primary"
                     >
                       {article?.ttr && `${article?.ttr} min read`}
@@ -3009,7 +3009,7 @@ const BookmarkButton = ({
 
   return (
     <Button
-      className={`absolute bottom-1 right-2 rounded-full bg-white p-3 shadow-lg hover:stroke-primary ${
+      className={`absolute bottom-1 right-2 rounded-full bg-card-alt-bg p-3 shadow-lg hover:stroke-primary ${
         isBookmarked ? "stroke-primary" : ""
       } ${isMatch && imageExists ? "" : "bottom-1 right-2"}`}
       variant="unstyled"
@@ -3081,7 +3081,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-green-900",
+        default: "bg-primary text-primary-foreground hover:bg-success-hover-bg",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
@@ -3090,7 +3090,7 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        unstyled: "bg-none hover:bg-gray-100",
+        unstyled: "bg-none hover:bg-subtle-hover-bg",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -3835,7 +3835,7 @@ export const TodayInHistory: React.FC = () => {
     <Card
       id="today-in-history"
       ref={ref}
-      className="mx-auto w-full max-w-6xl overflow-hidden bg-white shadow-lg dark:bg-gray-800"
+      className="mx-auto w-full max-w-6xl overflow-hidden bg-card-alt-bg shadow-lg dark:bg-gray-800"
     >
       <CardContent className="p-6">
         <div className="mb-4 flex items-center justify-between">
@@ -3890,7 +3890,7 @@ export const TodayInHistory: React.FC = () => {
                 className="mb-2 flex min-w-full cursor-grab flex-col items-start justify-between space-x-4 sm:flex-row sm:items-center"
               >
                 <div className="mb-4 flex items-center space-x-4 sm:mb-0">
-                  <div className="rounded-lg bg-primary px-2 py-1 text-base font-bold text-white">
+                  <div className="rounded-lg bg-primary px-2 py-1 text-base font-bold text-special-text">
                     {event?.year}
                   </div>
                   <Clock className="size-4 text-gray-400" />
@@ -3913,7 +3913,7 @@ export const TodayInHistory: React.FC = () => {
             className="flex flex-col items-start justify-between space-x-4 sm:flex-row sm:items-center"
           >
             <div className="mb-4 flex items-center space-x-4 sm:mb-0">
-              <div className="rounded-lg bg-primary px-2 py-1 text-base font-bold text-white">
+              <div className="rounded-lg bg-primary px-2 py-1 text-base font-bold text-special-text">
                 {events[currentIndex]?.year}
               </div>
               <Clock className="size-4 text-gray-400" />
@@ -4306,10 +4306,10 @@ const NewsRecapCard: React.FC<{ batch: ClientBatch }> = ({ batch }) => {
   const [isArticlesExpanded, setIsArticlesExpanded] = useState(false);
 
   return (
-    <Card className="h-full select-none overflow-hidden bg-white shadow-lg">
-      <CardHeader className="bg-gradient-to-r from-primary to-primary text-white">
+    <Card className="h-full select-none overflow-hidden bg-card-alt-bg shadow-lg">
+      <CardHeader className="bg-gradient-to-r from-primary to-primary text-special-text">
         <CardTitle className="text-lg font-semibold">{batch.name}</CardTitle>
-        <CardDescription className="text-white">
+        <CardDescription className="text-special-text">
           {format(new Date(batch.updated_at), "MMM d, yyyy")}
         </CardDescription>
       </CardHeader>
@@ -4326,7 +4326,7 @@ const NewsRecapCard: React.FC<{ batch: ClientBatch }> = ({ batch }) => {
           variant="ghost"
           size="sm"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="mb-4 text-[#696969]"
+          className="mb-4 text-muted-alt"
         >
           {isExpanded ? (
             <>
@@ -4399,7 +4399,7 @@ const NewsRecapCard: React.FC<{ batch: ClientBatch }> = ({ batch }) => {
                         href={article.source_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center space-x-3 rounded-md p-2 transition-colors hover:bg-gray-100"
+                        className="flex items-center space-x-3 rounded-md p-2 transition-colors hover:bg-subtle-hover-bg"
                       >
                         <div className="flex-shrink-0">
                           <img
@@ -4411,7 +4411,7 @@ const NewsRecapCard: React.FC<{ batch: ClientBatch }> = ({ batch }) => {
                           />
                         </div>
                         <div className="flex-grow">
-                          <p className="text-xs font-medium text-[#2F2D32]">
+                          <p className="text-xs font-medium text-foreground-alt">
                             {article.title}
                           </p>
                           <p className="text-xs text-gray-500">
@@ -4490,7 +4490,7 @@ const NewsRecapSection: React.FC<{ batches: ClientBatch[] }> = ({
           <Button
             variant="default"
             size="lg"
-            className="bg-gradient-to-r from-red-600 to-orange-500 text-white transition-all duration-300 hover:from-red-700 hover:to-orange-600"
+            className="bg-gradient-to-r from-red-600 to-orange-500 text-special-text transition-all duration-300 hover:from-red-700 hover:to-orange-600"
           >
             View All Breaking News <ChevronRight className="ml-2 h-5 w-5" />
           </Button>

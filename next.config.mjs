@@ -12,6 +12,9 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 const NextConfig = async (phase) => {
   /** @type {import("next").NextConfig} */
   let nextConfig = {
+    experimental: {
+      instrumentationHook: true,
+    },
     typescript: {
       ignoreBuildErrors: true,
     },

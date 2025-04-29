@@ -23,7 +23,7 @@ interface QueryParams {
 interface QueryObject {
   $or?: [
     { title: { $regex: string; $options: "i" } },
-    { description: { $regex: string; $options: "i" } },
+    // { description: { $regex: string; $options: "i" } },
   ];
   category?: { $in: string };
   language?: string;
@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
     if (params.search) {
       query.$or = [
         { title: { $regex: params.search, $options: "i" } },
-        { description: { $regex: params.search, $options: "i" } },
+        // { description: { $regex: params.search, $options: "i" } },
       ];
     }
 

@@ -19,7 +19,7 @@ const ShareButton = ({ slug }: { slug: string }) => {
         await navigator.share({ url: generateLink(slug) });
       }}
     >
-      <Share2 className="text-[#696969]" />
+      <Share2 className="text-muted-alt" />
     </Button>
   );
 };

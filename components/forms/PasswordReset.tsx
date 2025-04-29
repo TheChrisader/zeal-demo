@@ -116,7 +116,7 @@ export default function PasswordReset() {
   };
 
   return (
-    <div className="mx-auto max-w-md rounded-lg bg-white p-6 shadow-md">
+    <div className="bg-card-alt-bg mx-auto max-w-md rounded-lg p-6 shadow-md">
       <h2 className="mb-6 text-center text-2xl font-bold">
         {step === "request" ? t("resetPassword") : t("verifyAndSetNewPassword")}
       </h2>
@@ -155,7 +155,7 @@ export default function PasswordReset() {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full rounded-md px-4 py-2 font-medium text-white ${loading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"}`}
+            className={`text-special-text w-full rounded-md px-4 py-2 font-medium ${loading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"}`}
           >
             {loading ? "Sending..." : "Send Reset Instructions"}
           </button>
@@ -234,7 +234,7 @@ export default function PasswordReset() {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full rounded-md px-4 py-2 font-medium text-white ${loading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"}`}
+            className={`text-special-text w-full rounded-md px-4 py-2 font-medium ${loading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"}`}
           >
             {loading ? "Resetting..." : "Reset Password"}
           </button>

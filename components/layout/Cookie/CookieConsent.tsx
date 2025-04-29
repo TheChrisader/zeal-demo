@@ -47,10 +47,10 @@ export default function CookieConsent() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             transition={{ duration: 0.3 }}
-            className="fixed bottom-4 right-4 z-50 w-[380px] rounded-lg bg-white p-6 shadow-lg max-[450px]:right-0 max-[450px]:w-full max-[450px]:px-5"
+            className="bg-card-alt-bg fixed bottom-4 right-4 z-50 w-[380px] rounded-lg p-6 shadow-lg max-[450px]:right-0 max-[450px]:w-full max-[450px]:px-5"
           >
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-[#2F2D32]">
+              <h2 className="text-foreground-alt text-lg font-semibold">
                 We use cookies!
               </h2>
               <button
@@ -74,7 +74,7 @@ export default function CookieConsent() {
               </button>
               <button
                 onClick={handleRejectAll}
-                className="w-full rounded border border-gray-300 bg-white py-3 text-xs font-medium text-[#2F2D32] hover:bg-gray-50"
+                className="bg-card-alt-bg text-foreground-alt w-full rounded border border-gray-300 py-3 text-xs font-medium hover:bg-gray-50"
               >
                 Reject all
               </button>
@@ -103,11 +103,11 @@ export default function CookieConsent() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ duration: 0.3 }}
-              className="flex max-h-screen w-full max-w-xl flex-col rounded-lg bg-white p-6 shadow-lg"
+              className="bg-card-alt-bg flex max-h-screen w-full max-w-xl flex-col rounded-lg p-6 shadow-lg"
             >
               <div className="mb-3">
                 <div className="mb-2 flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-[#2F2D32]">
+                  <h2 className="text-foreground-alt text-lg font-semibold">
                     Cookie Settings
                   </h2>
                   <button
@@ -164,7 +164,7 @@ export default function CookieConsent() {
                       )}
                     >
                       <motion.div
-                        className="absolute left-1 top-1 size-4 rounded-full bg-white"
+                        className="bg-card-alt-bg absolute left-1 top-1 size-4 rounded-full"
                         animate={{ x: strictlyNecessary ? 20 : 0 }}
                         transition={{
                           type: "spring",
@@ -218,7 +218,7 @@ export default function CookieConsent() {
                   </button>
                   <button
                     onClick={handleRejectAll}
-                    className="rounded border border-gray-300 bg-white px-4 py-2 text-xs font-medium text-[#2F2D32] hover:bg-gray-50"
+                    className="bg-card-alt-bg text-foreground-alt rounded border border-gray-300 px-4 py-2 text-xs font-medium hover:bg-gray-50"
                   >
                     Reject all
                   </button>

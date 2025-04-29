@@ -21,7 +21,7 @@ const EmailVerification = ({
 }: EmailVerificationProps) => {
   return (
     <Tailwind>
-      <Html className="bg-white font-sans">
+      <Html className="bg-card-alt-bg font-sans">
         <Head>
           {/* <title>`${appName} - Verify your email address`</title> */}
         </Head>

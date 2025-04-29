@@ -136,7 +136,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-black pb-16 text-white">
+    <div className="text-special-text min-h-screen bg-black pb-16">
       {/* Profile Header */}
       <div className="border-b border-gray-800 px-4 py-6">
         <div className="mb-4 flex items-center justify-between">
@@ -182,25 +182,25 @@ export default function ProfilePage() {
         <TabsList className="w-full border-b border-gray-800 bg-black">
           <TabsTrigger
             value="videos"
-            className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:text-white"
+            className="data-[state=active]:text-special-text flex-1 data-[state=active]:border-b-2 data-[state=active]:border-white"
           >
             <Grid className="h-5 w-5" />
           </TabsTrigger>
           <TabsTrigger
             value="liked"
-            className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:text-white"
+            className="data-[state=active]:text-special-text flex-1 data-[state=active]:border-b-2 data-[state=active]:border-white"
           >
             <Heart className="h-5 w-5" />
           </TabsTrigger>
           <TabsTrigger
             value="private"
-            className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:text-white"
+            className="data-[state=active]:text-special-text flex-1 data-[state=active]:border-b-2 data-[state=active]:border-white"
           >
             <Lock className="h-5 w-5" />
           </TabsTrigger>
           <TabsTrigger
             value="bookmarks"
-            className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:text-white"
+            className="data-[state=active]:text-special-text flex-1 data-[state=active]:border-b-2 data-[state=active]:border-white"
           >
             <Bookmark className="h-5 w-5" />
           </TabsTrigger>

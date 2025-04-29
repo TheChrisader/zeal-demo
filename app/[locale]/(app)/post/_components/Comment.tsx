@@ -24,13 +24,13 @@ const Comment = ({
       </div>
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-lg font-semibold text-[#696969]">{name}</span>
-          <span className="text-sm font-normal text-[#696969]">
+          <span className="text-muted-alt text-lg font-semibold">{name}</span>
+          <span className="text-muted-alt text-sm font-normal">
             {getPublishTimeStamp(date)}
           </span>
         </div>
         <div>
-          <span className="text-sm font-normal text-[#696969]">{content}</span>
+          <span className="text-muted-alt text-sm font-normal">{content}</span>
         </div>
       </div>
     </div>

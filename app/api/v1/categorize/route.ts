@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import { GoogleGenAI, Type } from "@google/genai";
 import { NextResponse } from "next/server";
 import BatchModel from "@/database/batch/batch.model";
 import PostModel from "@/database/post/post.model";
@@ -41,93 +41,71 @@ const categoryTypeMap: Record<string, string> = {
 export const POST = async () => {
   const batchResults: { [key: string]: Id[] } = {};
   const categories: { title: string; groups: string[] }[] = [
-    { title: "Zeal Headline News", groups: ["Headlines"] },
-    // {
-    //   title: "Zeal Global",
-    //   groups: ["Top US News", "UK Top News", "EU News", "Asian News"],
-    // },
-    // {
-    //   title: "Zeal Entertainment",
-    //   groups: [
-    //     "Celebrity News",
-    //     "Top Movies",
-    //     "Trending Music",
-    //     "Hot Interviews",
-    //   ],
-    // },
-    // {
-    //   title: "Business 360",
-    //   groups: [
-    //     "Economy",
-    //     "Personal Finance",
-    //     "Market Watch",
-    //     "Startup News",
-    //     "Entrepreneurship",
-    //     "E-commerce",
-    //   ],
-    // },
-    // {
-    //   title: "Zeal Lifestyle",
-    //   groups: [
-    //     "Health News",
-    //     "Food & Nutrition",
-    //     "Travel & Tourism",
-    //     "Style & Beauty",
-    //     "Family & Parenting",
-    //   ],
-    // },
-    // {
-    //   title: "Zeal Tech",
-    //   groups: [
-    //     "Latest Tech News",
-    //     "Artificial Intelligence",
-    //     "Crypto",
-    //     "Fintech",
-    //     "Cartech",
-    //     "Gadgets Buying Guide",
-    //   ],
-    // },
-    // {
-    //   title: "Zeal Sports",
-    //   groups: ["Top Sports News", "UK Premiereship", "Basketball", "Gaming"],
-    // },
+    { title: "Zeal Headline News", groups: ["Headlines", "Politics"] },
+    {
+      title: "Zeal Global",
+      groups: ["Top US News", "UK Top News", "EU News", "Asian News"],
+    },
+    {
+      title: "Zeal Entertainment",
+      groups: [
+        "Celebrity News",
+        "Top Movies",
+        "Trending Music",
+        "Hot Interviews",
+      ],
+    },
+    {
+      title: "Business 360",
+      groups: [
+        "Economy",
+        "Personal Finance",
+        "Market Watch",
+        "Startup News",
+        "Entrepreneurship",
+        "E-commerce",
+      ],
+    },
+    {
+      title: "Zeal Lifestyle",
+      groups: [
+        "Health News",
+        "Food & Nutrition",
+        "Travel & Tourism",
+        "Style & Beauty",
+        "Family & Parenting",
+      ],
+    },
+    {
+      title: "Zeal Tech",
+      groups: [
+        "Latest Tech News",
+        "Artificial Intelligence",
+        "Crypto",
+        "Fintech",
+        "Cartech",
+        "Gadgets Buying Guide",
+      ],
+    },
+    {
+      title: "Zeal Sports",
+      groups: ["Top Sports News", "UK Premiereship", "Basketball", "Gaming"],
+    },
   ];
-  try {
-    const schema = {
-      description: "List of recipes",
-      type: SchemaType.ARRAY,
-      items: {
-        type: SchemaType.OBJECT,
-        properties: {
-          batch: {
-            type: SchemaType.STRING,
-            description:
-              "Descriptive and specific name of the batch, intended to be used as the title of a professional news article",
-            nullable: false,
-          },
-          articles: {
-            type: SchemaType.ARRAY,
-            description: "List of articles that fit under a batch",
-            nullable: false,
-            items: {
-              type: SchemaType.STRING,
-              description: "Title of the article",
-              nullable: false,
-            },
-          },
-        },
-        // required: ["recipeName"],
-      },
-    };
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: schema,
-      },
+  try {
+    // const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
+    const ai = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY as string,
     });
+
+    // const model = genAI.getGenerativeModel({
+    //   model: "gemini-2.5-flash-preview-04-17",
+    //   generationConfig: {
+    //     responseMimeType: "application/json",
+    //     responseSchema: schema,
+    //   },
+    // });
 
     for (const category of categories) {
       const { title, groups } = category;
@@ -135,7 +113,7 @@ export const POST = async () => {
       const existingBatches = await BatchModel.find({
         category: title,
         created_at: {
-          $gte: new Date(new Date().setHours(new Date().getHours() - 6)),
+          $gte: new Date(new Date().setHours(new Date().getHours() - 1)),
         },
       })
         .select("_id name")
@@ -148,7 +126,7 @@ export const POST = async () => {
           $in: groups,
         },
         published_at: {
-          $gte: new Date(new Date().setHours(new Date().getHours() - 14)),
+          $gte: new Date(new Date().setHours(new Date().getHours() - 8)),
           $lt: new Date(),
         },
       })
@@ -159,28 +137,90 @@ export const POST = async () => {
       console.log(postsList);
 
       const prompt = `
-    Pre: Be extremely strict, detailed, and cautiously specific. Think carefully before responding, and recheck your work.
-    Instructions: 
-    Batch these news articles based off if their titles indicate content referring to the same event. 
-    Tend towards caution and disregard articles that do not fit clearly under a batch. 
-    To qualify for a batch, there must be at least two articles.
-    
-    IMPORTANT: If none fit the criteria outlined above select what looks like the most interesting or important articles. In this case, and only this case, a single article is enough to qualify for a batch, a single article to each batch made.
-    
-    Ensure that all the articles in this collection generally fall under the same category: ${categoryTypeMap[title]}
-    You must always return, at least, five.
+# Role & Goal
+Act as a meticulous and strict news analyst. Your task is to analyze a list of news article titles and group them into batches based on specific criteria. Be extremely cautious, detail-oriented, and prioritize accuracy according to the rules below. Double-check your reasoning before finalizing the output.
 
-    
-    
-    
-    Articles:
-    ${postsList}
-    `;
+# Input Data
+- **Article Titles:** A list of news article titles provided under "Article Titles".
+- **Category Context:** All provided articles belong to the category: ${categoryTypeMap[title]}. Your analysis should remain within this context.
 
-      const result = await model.generateContent(prompt);
+# Batching Rules & Logic
+
+## Primary Logic: Event-Based Batching
+1.  **Identify Same Event:** Scrutinize the titles to find groups where **two or more titles** clearly and unambiguously refer to the **exact same specific news event**. This requires more than just a similar topic; look for shared specific details like names, locations, specific actions, or outcomes implied in the titles.
+2.  **Strict Inclusion:** Be highly conservative. If a title's connection to a specific event batch is uncertain or merely topical, **do not include it** in that batch.
+3.  **Form Event Batches:** Create a distinct batch for each group of 2+ titles identified as covering the same specific event.
+
+## Fallback Logic: Single Important/Interesting Articles
+4.  **Trigger Condition:** Execute this step **only if** the Primary Logic (steps 1-3) results in **zero** event batches being formed.
+5.  **Select Singles:** From the original list, identify what appear to be the most **significant, impactful, or unique** news article titles based *only* on the information present in the title itself. Prioritize titles suggesting major developments, specific data, or unusual occurrences. This will, of course, be relative.
+6.  **Form Single-Article Batches:** Create a separate batch for **each** selected single article title. Each such batch will contain exactly one article title in its articles array.
+
+# Output Requirements
+
+7.  **Minimum Batch Count:** You **must** return a minimum of **five (5) batches, with their corresponding articles array,** in total. You are free to return less if you find it not possible to form at least five batches (not enough articles provided). Ideally, there should be more than 5.
+    *   **Scenario A (Sufficient Event Batches):** If the Primary Logic yields 2 or more event batches, return those event batches and their corresponding articles.
+    *   **Scenario B (Insufficient Event Batches):** If the Primary Logic yields 1 to 4 event batches, return those event batches. Then, supplement them by creating additional single-article batches (selecting articles as per step 5, ensuring they aren't already in an event batch) until the total number of batches, with their corresponding articles array, reaches five.
+    *   **Scenario C (No Event Batches):** If the Fallback Logic (step 4) is triggered, ensure you select and create *at least* five single-article batches according to steps 5 and 6.
+8.  **Batch Naming ("batch" field):**
+    *   For **event batches**, the name must be a concise, descriptive headline summarizing the specific event covered by the articles in that batch.
+    *   For **single-article batches**, the name should be a concise, descriptive headline capturing the essence of that single article's title. It can be a rephrasing or abstraction of the original title.
+
+**Correct for Anomalies:** Ensure you take care of any abnormality, mistake, or error in the synthesized result. If there are any errors, typos, or anomalies, correct them. Do not produce an abnormal output. This includes, but is not limited to, unnaturally long sequences of repeated text/characters, content/output that clearly does not conform to the goals of the request, unnaturally long batch titles, anything but article titles under the articles field, and broken responses too long to fit in your token window.
+**Batch Naming:** Each batch should be sufficiently, but reasonably, unique in its titling - without being overly so. It shouldn't be too generic, broad or vague. It should be specific and meaningful, to stand the test of time, so to speak.
+
+# Example Event Batch for an Example Category Context (Latest Tech News):
+{
+ "batch": "BB Biotech AG Reports Net Loss for Q1 2025",
+ "articles": [
+ "EQS-Adhoc: BB Biotech AG publishes its interim report",
+ "BB Biotech AG Reports CHF 241 Million Net Loss for Q1 2025",
+ "BB Biotech AG Reports Net Loss",
+ "BB Biotech AG fails to meet expectations in Q1 2025",
+ "Major Biotech Company, BB Biotech AG, faces major market challenges"
+ ]
+}
+
+# Example Single Article Batch for an Example Category Context (Latest Tech News):
+{
+ "batch": "BB Biotech AG Reports Net Loss for Q1 2025",
+ "articles": [
+ "Major Biotech Company, BB Biotech AG, faces major market challenges"
+ ]
+}
+
+# Category Context Value:
+${categoryTypeMap[title]}
+
+# Article Titles:
+${postsList}
+`;
+
+      const config = {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              batch: { type: Type.STRING },
+              articles: { type: Type.ARRAY, items: { type: Type.STRING } },
+            },
+            required: ["batch", "articles"],
+          },
+        },
+      };
+
+      const result = await ai.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: prompt,
+        config: config,
+      });
+
       let generated_batches = [];
       try {
-        generated_batches = JSON.parse(result.response.text());
+        console.log(result.text);
+        generated_batches = JSON.parse(result.text as string);
       } catch (error) {
         console.log(`Error parsing response: ${error}`);
         return NextResponse.json("Internal Server Error", { status: 500 });
@@ -245,9 +285,12 @@ export const POST = async () => {
 
       let createdBatches: IBatch[] = [];
       try {
-        createdBatches = await BatchModel.create(batches, {
-          ordered: false,
-        });
+        createdBatches = await BatchModel.create(
+          batches.filter((batch) => batch.articles.length > 0),
+          {
+            ordered: false,
+          },
+        );
       } catch {}
 
       if (createdBatches.length === 0) {

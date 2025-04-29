@@ -109,7 +109,7 @@ const OnboardingPage = (/* { children }: { children: ReactNode } */) => {
       <AuthHeader title="Personalize your news!">
         <OnboardingHeaderValue.stepTracker />
       </AuthHeader>
-      <span className="mb-3 text-sm font-normal text-[#696969]">
+      <span className="text-muted-alt mb-3 text-sm font-normal">
         {OnboardingHeaderValue.subheader}
       </span>
       <OnboardingContext.Provider value={OnboardingContextValue}>

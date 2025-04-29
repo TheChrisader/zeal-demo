@@ -29,7 +29,7 @@ export function VideoGrid({
   };
 
   return (
-    <div className="min-h-screen text-white">
+    <div className="text-special-text min-h-screen">
       <div className="px-4 py-3">
         {/* <h1 className="mb-4 text-xl font-bold">{title}</h1> */}
 
@@ -72,7 +72,7 @@ export function VideoGrid({
                   hoveredVideo === video.id ? "opacity-100" : "opacity-70"
                 }`}
               >
-                <Play className="size-10 text-white opacity-80" />
+                <Play className="text-special-text size-10 opacity-80" />
               </div>
 
               {/* Video Stats */}

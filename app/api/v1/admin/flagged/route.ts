@@ -13,6 +13,11 @@ export const GET = async () => {
         },
       },
       {
+        $sort: {
+          created_at: -1,
+        },
+      },
+      {
         $project: {
           _id: 1,
           title: 1,

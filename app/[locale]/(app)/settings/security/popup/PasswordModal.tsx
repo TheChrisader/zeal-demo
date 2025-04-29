@@ -211,7 +211,7 @@ export default function PasswordModal({
               return (
                 <div key={s.id} className="relative flex flex-col items-center">
                   <div
-                    className={`z-10 flex size-8 items-center justify-center rounded-full transition-colors ${isActive ? "bg-primary text-white" : "bg-gray-200 text-gray-500"}`}
+                    className={`z-10 flex size-8 items-center justify-center rounded-full transition-colors ${isActive ? "text-special-text bg-primary" : "bg-gray-200 text-gray-500"}`}
                   >
                     {index + 1}
                   </div>

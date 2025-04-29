@@ -37,7 +37,7 @@ const RecArticleCard = ({ article, className }: RecArticleCardProps) => {
           className={`flex h-fit w-full flex-1 cursor-pointer gap-5 [&_h3]:hover:text-primary [&_h3]:hover:underline`}
         >
           <div className="flex flex-col justify-center">
-            <h3 className="text-md mb-2 font-semibold text-[#2F2D32]">
+            <h3 className="text-md text-foreground-alt mb-2 font-semibold">
               {truncateString(article?.title)}
             </h3>
             <div className="flex items-center gap-2 max-[400px]:flex-col max-[400px]:items-start">
@@ -47,7 +47,7 @@ const RecArticleCard = ({ article, className }: RecArticleCardProps) => {
                   alt="article source icon"
                   src={article?.source.icon}
                 />
-                <span className="text-xs font-normal text-[#696969]">
+                <span className="text-muted-alt text-xs font-normal">
                   {article?.source.name}
                 </span>
               </div>
@@ -55,7 +55,7 @@ const RecArticleCard = ({ article, className }: RecArticleCardProps) => {
                 <Separator orientation="vertical" />
               </div>
               <div className="flex items-center gap-2">
-                {/* <span className="text-xs font-normal text-[#696969]">
+                {/* <span className="text-xs font-normal text-muted-alt">
                   {getPublishTimeStamp(article?.published_at as string)}
                 </span>
                 <div className="h-3">
@@ -101,19 +101,19 @@ const RecArticleCard = ({ article, className }: RecArticleCardProps) => {
               alt="Article source Icon"
               src={article?.source.icon}
             />
-            <span className="text-xs font-normal text-[#696969]">
+            <span className="text-muted-alt text-xs font-normal">
               {article?.source.name}
             </span>
           </div>
           <div className="flex items-center gap-1">
-            {/* <span className="text-xs font-normal text-[#696969]">
+            {/* <span className="text-xs font-normal text-muted-alt">
               {getPublishTimeStamp(article?.published_at as string)}
             </span>
             <div className="h-3">
               <Separator orientation="vertical" />
             </div> */}
             <span
-              // className="absolute left-[40px] top-[0px] flex -translate-x-1/2 rounded-lg bg-white px-4 py-2 text-xs font-normal text-primary"
+              // className="absolute left-[40px] top-[0px] flex -translate-x-1/2 rounded-lg bg-card-alt-bg px-4 py-2 text-xs font-normal text-primary"
               className="text-xs font-normal text-primary"
             >
               {article?.ttr && `${article?.ttr} min read`}

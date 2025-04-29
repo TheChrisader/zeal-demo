@@ -59,7 +59,7 @@ const DownloadedPage = ({ post }: { post: DownloadedPost }) => {
                 />
               </div>
             )}
-            <span className="text-xl font-semibold text-[#2F2D32]">
+            <span className="text-foreground-alt text-xl font-semibold">
               {post.source.name!}
             </span>
           </div>
@@ -68,16 +68,16 @@ const DownloadedPage = ({ post }: { post: DownloadedPost }) => {
       </div>
       <div className="flex flex-col gap-3">
         <AnimateTitle _key={post!.title}>
-          <h1 className="text-2xl font-extrabold text-[#2F2D32]">
+          <h1 className="text-foreground-alt text-2xl font-extrabold">
             {post.title}
           </h1>
         </AnimateTitle>
         <div>
           <div className="flex items-center gap-3">
-            <span className="text-sm font-normal text-[#696969]">
+            <span className="text-muted-alt text-sm font-normal">
               Published {getPublishTimeStamp(post.published_at as string)}
             </span>
-            <span className="text-sm font-normal text-[#696969]">
+            <span className="text-muted-alt text-sm font-normal">
               • {post.ttr} minute read
             </span>
           </div>
@@ -85,7 +85,7 @@ const DownloadedPage = ({ post }: { post: DownloadedPost }) => {
       </div>
 
       <div
-        className="rounded-[20px] p-1 [&_a]:text-blue-500 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:font-bold [&_figure>img]:mb-2 [&_figure>img]:mt-4 [&_figure>img]:max-h-[350px] [&_figure>img]:rounded-md [&_figure>p]:text-black [&_figure]:mb-7 [&_figure]:flex [&_figure]:w-full [&_figure]:flex-col [&_figure]:items-center [&_img]:mx-auto [&_img]:block [&_img]:max-h-[350px] [&_img]:w-1/2 [&_img]:rounded-md [&_img]:object-cover [&_img]:object-center [&_p]:mb-4 [&_p]:max-w-[100vw] [&_p]:text-base [&_p]:font-normal [&_p]:text-[#696969]"
+        className="[&_p]:text-muted-alt rounded-[20px] p-1 [&_a]:text-blue-500 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:font-bold [&_figure>img]:mb-2 [&_figure>img]:mt-4 [&_figure>img]:max-h-[350px] [&_figure>img]:rounded-md [&_figure>p]:text-black [&_figure]:mb-7 [&_figure]:flex [&_figure]:w-full [&_figure]:flex-col [&_figure]:items-center [&_img]:mx-auto [&_img]:block [&_img]:max-h-[350px] [&_img]:w-1/2 [&_img]:rounded-md [&_img]:object-cover [&_img]:object-center [&_p]:mb-4 [&_p]:max-w-[100vw] [&_p]:text-base [&_p]:font-normal"
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
     </main>

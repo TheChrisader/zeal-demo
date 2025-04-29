@@ -32,7 +32,7 @@ const ArticleTitle = ({ title }: { title: string }) => {
 
   return (
     <h3
-      className="mb-2 text-sm font-semibold text-[#2F2D32]"
+      className="text-foreground-alt mb-2 text-sm font-semibold"
       suppressHydrationWarning
     >
       {truncateString(title.replaceAll("\\u0020", " "), size)}

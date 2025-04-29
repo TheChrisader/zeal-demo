@@ -26,7 +26,7 @@ export default function SettingsBar() {
     <div>
       <div className="my-3 flex w-full items-center gap-5 px-[100px] max-[1024px]:px-7 max-[500px]:px-2">
         <div className="flex w-full items-center">
-          <h1 className="text-2xl font-bold text-[#2F2D32]">Settings</h1>
+          <h1 className="text-foreground-alt text-2xl font-bold">Settings</h1>
         </div>
         <div className="h-8">
           <Separator orientation="vertical" />

@@ -47,6 +47,29 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // New semantic colors mapped to CSS variables
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--primary-foreground))", // Assuming success text is often on primary-like bg
+          bg: "hsl(var(--success-bg))",
+          "subtle-bg": "hsl(var(--success-subtle-bg))",
+          "hover-bg": "hsl(var(--hover-success-bg))",
+        },
+        "card-alt": {
+          bg: "hsl(var(--card-alt-bg))",
+        },
+        subtle: {
+          bg: "hsl(var(--subtle-bg))",
+          "alt-bg": "hsl(var(--subtle-bg-alt))",
+          "hover-bg": "hsl(var(--hover-subtle-bg))",
+        },
+        "background-alt": "hsl(var(--background-alt))",
+        "foreground-alt": {
+          DEFAULT: "hsl(var(--foreground-alt))",
+          p: "hsl(var(--foreground-alt-p))", // For specific paragraph cases
+        },
+        "muted-alt": "hsl(var(--muted-alt))",
+        "special-text": "hsl(var(--special-text))",
       },
       borderRadius: {
         lg: `var(--radius)`,

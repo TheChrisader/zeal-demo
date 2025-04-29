@@ -17,6 +17,10 @@ export type ActionHandlerContextValue = {
   setTitle: React.Dispatch<React.SetStateAction<string | null>>;
   category: string | null;
   setCategory: React.Dispatch<React.SetStateAction<string | null>>;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  error: string | null;
+  setError: React.Dispatch<React.SetStateAction<string | null>>;
 };
 
 export const ActionHandlerContext =

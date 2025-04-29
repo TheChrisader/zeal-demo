@@ -75,7 +75,7 @@ const RelatedExternalArticles = ({
                     href={article.source_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center space-x-3 rounded-md p-2 transition-colors hover:bg-gray-100"
+                    className="hover:bg-subtle-hover-bg flex items-center space-x-3 rounded-md p-2 transition-colors"
                   >
                     <div className="flex-shrink-0">
                       <img
@@ -87,7 +87,7 @@ const RelatedExternalArticles = ({
                       />
                     </div>
                     <div className="flex-grow">
-                      <p className="text-xs font-medium text-[#2F2D32]">
+                      <p className="text-foreground-alt text-xs font-medium">
                         {article.title}
                       </p>
                       <p className="text-xs text-gray-500">

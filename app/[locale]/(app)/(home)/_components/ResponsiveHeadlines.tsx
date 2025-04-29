@@ -52,19 +52,19 @@ const ResponsiveHeadlines = ({
                       alt="Article source Icon"
                       src={article?.source.icon}
                     />
-                    <span className="text-xs font-normal text-[#696969]">
+                    <span className="text-muted-alt text-xs font-normal">
                       {article?.source.name}
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-normal text-[#696969]">
+                    <span className="text-muted-alt text-xs font-normal">
                       {getPublishTimeStamp(article?.published_at as string)}
                     </span>
                     <div className="h-3">
                       <Separator orientation="vertical" />
                     </div>
                     <span
-                      // className="absolute left-[40px] top-[0px] flex -translate-x-1/2 rounded-lg bg-white px-4 py-2 text-xs font-normal text-primary"
+                      // className="absolute left-[40px] top-[0px] flex -translate-x-1/2 rounded-lg bg-card-alt-bg px-4 py-2 text-xs font-normal text-primary"
                       className="text-xs font-normal text-primary"
                     >
                       {article?.ttr && `${article?.ttr} min read`}

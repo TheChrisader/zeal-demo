@@ -49,7 +49,7 @@ const DownloadedArticle = ({ article, className }: DownloadedArticleProps) => {
         /> */}
           <div className="flex flex-col justify-center">
             <AnimateTitle _key={article!.title}>
-              <h3 className="text-md mb-2 font-semibold text-[#2F2D32]">
+              <h3 className="text-md text-foreground-alt mb-2 font-semibold">
                 {truncateString(article?.title)}
               </h3>
             </AnimateTitle>
@@ -58,13 +58,13 @@ const DownloadedArticle = ({ article, className }: DownloadedArticleProps) => {
                 className="size-5 rounded-full object-cover"
                 src={article?.source.icon}
               />
-              <span className="text-sm font-normal text-[#696969]">
+              <span className="text-muted-alt text-sm font-normal">
                 {article?.source.name}
               </span>
               <div className="h-3">
                 <Separator orientation="vertical" />
               </div>
-              <span className="text-sm font-normal text-[#696969]">
+              <span className="text-muted-alt text-sm font-normal">
                 {getPublishTimeStamp(article?.published_at as string)}
               </span>
             </div>
@@ -115,7 +115,7 @@ const DownloadedArticle = ({ article, className }: DownloadedArticleProps) => {
       /> */}
         <div className="flex flex-col justify-center">
           <AnimateTitle _key={article!.title}>
-            <h3 className="mb-2 text-sm font-semibold text-[#2F2D32]">
+            <h3 className="text-foreground-alt mb-2 text-sm font-semibold">
               {truncateString(article?.title)}
             </h3>
           </AnimateTitle>
@@ -124,17 +124,17 @@ const DownloadedArticle = ({ article, className }: DownloadedArticleProps) => {
               className="size-5 rounded-full object-cover"
               src={article?.source.icon}
             />
-            <span className="text-sm font-normal text-[#696969]">
+            <span className="text-muted-alt text-sm font-normal">
               {article?.source.name}
             </span>
             <div className="h-3">
               <Separator orientation="vertical" />
             </div>
-            <span className="text-sm font-normal text-[#696969]">
+            <span className="text-muted-alt text-sm font-normal">
               {getPublishTimeStamp(article?.published_at as string)}
             </span>
           </div>
-          <span className="flex text-xs font-normal text-[#696969]">
+          <span className="text-muted-alt flex text-xs font-normal">
             {article?.ttr && `${article?.ttr} min read`}
           </span>
         </div>

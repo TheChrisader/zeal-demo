@@ -12,7 +12,7 @@ const AuthHeader = ({
   return (
     <>
       <div className="mb-1 flex w-full items-center justify-between gap-6">
-        <h1 className="text-nowrap text-[28px] font-semibold text-[#2F2D32]">
+        <h1 className="text-foreground-alt text-nowrap text-[28px] font-semibold">
           {title}
         </h1>
         {children}

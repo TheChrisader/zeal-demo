@@ -190,7 +190,7 @@ const ProfileSettings = () => {
           <CardHeader className="space-y-4 p-0 pb-6">
             <div>
               <div className="mb-4 flex items-center justify-between">
-                <CardTitle className="text-lg font-bold text-[#2F2D32]">
+                <CardTitle className="text-foreground-alt text-lg font-bold">
                   Profile Settings
                 </CardTitle>
                 {/* <Button variant="outline" onClick={() => setIsEditDialogOpen(true)}>
@@ -213,7 +213,7 @@ const ProfileSettings = () => {
                   htmlFor="avatar-upload"
                   className="absolute bottom-0 right-0 cursor-pointer"
                 >
-                  <div className="rounded-full bg-primary p-2 text-primary-foreground hover:bg-green-900">
+                  <div className="hover:bg-success-hover-bg rounded-full bg-primary p-2 text-primary-foreground">
                     <Camera className="h-4 w-4" />
                   </div>
                   <input

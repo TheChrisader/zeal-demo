@@ -41,7 +41,7 @@ const WritePage = () => {
   };
 
   return (
-    <main className="flex min-h-[calc(100vh-62px)] flex-col gap-3 bg-slate-100 pb-20">
+    <main className="bg-subtle-bg-alt flex min-h-[calc(100vh-62px)] flex-col gap-3 pb-20">
       <WriteBar />
       <div className="flex flex-col gap-9 px-[100px] py-4 max-[1024px]:px-7 max-[500px]:px-3">
         {/* TOP */}

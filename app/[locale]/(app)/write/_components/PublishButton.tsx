@@ -4,7 +4,7 @@ import useActionHandler from "../_context/action-handler/useActionHandler";
 import ConfirmationModal from "./ConfirmationModal";
 
 const PublishButton = ({ className }: { className?: string }) => {
-  const { publishRef } = useActionHandler();
+  const { publishRef, isLoading } = useActionHandler(); // Get isLoading from context
 
   return (
     <ConfirmationModal type="publish">
@@ -16,8 +16,9 @@ const PublishButton = ({ className }: { className?: string }) => {
             publishRef.click();
           }
         }}
+        disabled={isLoading} // Disable button when loading
       >
-        Publish
+        {isLoading ? "Publishing..." : "Publish"} {/* Show loading text */}
       </Button>
     </ConfirmationModal>
   );

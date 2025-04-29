@@ -78,7 +78,7 @@ const ConfirmEmailPage = () => {
             Go back
           </Button>
         </AuthHeader>
-        <span className="mb-6 text-sm font-normal text-[#696969]">
+        <span className="text-muted-alt mb-6 text-sm font-normal">
           Kindly provide the OTP that has been sent to the provided email
         </span>
         <div className="mb-10 flex w-full flex-col justify-center">
@@ -120,7 +120,7 @@ const ConfirmEmailPage = () => {
         </Button>
         <span className="mb-4 text-center text-sm font-normal text-[#959595]">
           Didn’t get a mail?{" "}
-          <span className="font-bold text-[#2F7830]">Resend</span>
+          <span className="text-success font-bold">Resend</span>
         </span>
       </form>
     </Form>

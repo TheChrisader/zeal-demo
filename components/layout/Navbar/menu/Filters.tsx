@@ -108,7 +108,7 @@ const Topics = ({
           return (
             <label
               key={item}
-              className="flex w-full cursor-pointer justify-between p-2 text-sm font-normal text-[#696969]"
+              className="text-muted-alt flex w-full cursor-pointer justify-between p-2 text-sm font-normal"
             >
               <span>{item}</span>
               <Checkbox
@@ -214,7 +214,7 @@ const FiltersDropdown = ({ children }: { children: React.ReactNode }) => {
           align="end"
           sideOffset={12}
         >
-          <h3 className="text-lg font-semibold text-[#2F2D32]">Filter</h3>
+          <h3 className="text-foreground-alt text-lg font-semibold">Filter</h3>
           <Separator />
           <Accordion
             defaultValue="item-1"
@@ -223,7 +223,7 @@ const FiltersDropdown = ({ children }: { children: React.ReactNode }) => {
             className="mb-4 w-full"
           >
             <AccordionItem value="item-1">
-              <AccordionTrigger className="text-sm font-normal text-[#2F2D32] hover:no-underline">
+              <AccordionTrigger className="text-foreground-alt text-sm font-normal hover:no-underline">
                 By News Topic
               </AccordionTrigger>
               <AccordionContent className="p-1">
@@ -236,7 +236,7 @@ const FiltersDropdown = ({ children }: { children: React.ReactNode }) => {
               </AccordionContent>
             </AccordionItem>
             {/* <AccordionItem value="item-2">
-              <AccordionTrigger className="text-sm font-normal text-[#2F2D32] hover:no-underline">
+              <AccordionTrigger className="text-sm font-normal text-foreground-alt hover:no-underline">
                 By News Source (Select up to 5)
               </AccordionTrigger>
               <AccordionContent className="p-1">
