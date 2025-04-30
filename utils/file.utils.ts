@@ -17,7 +17,7 @@ export const AUTHORIZED_IMAGE_MIME_TYPES = [
   "image/gif",
   "image/webp",
 ];
-export const AUTHORIZED_IMAGE_SIZE = 1024 * 1024 * 1; // 1 MB
+export const AUTHORIZED_IMAGE_SIZE = 1024 * 1024 * 5; // 5 MB
 
 export const getFileExtension = (fileName: string) => fileName.split(".").pop();
 

@@ -6,7 +6,7 @@ import useActionHandler from "../_context/action-handler/useActionHandler";
 import ConfirmationModal from "./ConfirmationModal";
 
 const WriteBar = () => {
-  const { draftRef, isLoading } = useActionHandler(); // Get isLoading from context
+  const { draftRef, isDraftLoading, draftError } = useActionHandler(); // Get specific draft loading/error state
   return (
     <div>
       <div className="my-3 flex w-full items-center gap-5 px-[100px] max-[1024px]:px-7 max-[500px]:px-2">
@@ -21,15 +21,20 @@ const WriteBar = () => {
             className=""
             variant="outline"
             onClick={() => {
+              console.log("xcrew");
               if (draftRef) {
+                console.log("ths");
                 draftRef.click();
               }
             }}
-            disabled={isLoading} // Disable button when loading
+            disabled={isDraftLoading} // Disable button when draft is loading
           >
-            {isLoading ? "Saving..." : "Save to drafts"}{" "}
-            {/* Show loading text */}
+            {isDraftLoading ? "Saving..." : "Save to drafts"}{" "}
           </Button>
+          {/* {draftError && (
+              <p className="mt-1 text-sm text-red-500">{draftError}</p>
+            )}{" "} */}
+          {/* Display draft error */}
         </ConfirmationModal>
       </div>
       <Separator />

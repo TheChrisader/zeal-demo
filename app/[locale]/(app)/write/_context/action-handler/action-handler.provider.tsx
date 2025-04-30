@@ -11,8 +11,11 @@ const ActionHandlerProvider = ({ children }: { children: ReactNode }) => {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState<string | null>(null);
   const [category, setCategory] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [description, setDescription] = useState<string | null>(null);
+  const [isDraftLoading, setIsDraftLoading] = useState<boolean>(false);
+  const [isPublishLoading, setIsPublishLoading] = useState<boolean>(false);
+  const [draftError, setDraftError] = useState<string | null>(null);
+  const [publishError, setPublishError] = useState<string | null>(null);
 
   const value: ActionHandlerContextValue = {
     draftRef,
@@ -29,10 +32,16 @@ const ActionHandlerProvider = ({ children }: { children: ReactNode }) => {
     setTitle,
     category,
     setCategory,
-    isLoading,
-    setIsLoading,
-    error,
-    setError,
+    description,
+    setDescription,
+    isDraftLoading,
+    setIsDraftLoading,
+    isPublishLoading,
+    setIsPublishLoading,
+    draftError,
+    setDraftError,
+    publishError,
+    setPublishError,
   };
 
   return (

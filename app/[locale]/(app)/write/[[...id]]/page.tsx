@@ -13,12 +13,15 @@ import SelectCategory from "../_components/SelectCategory";
 import WriteBar from "../_components/WriteBar";
 import useActionHandler from "../_context/action-handler/useActionHandler";
 
+import { Textarea } from "@/components/ui/textarea";
+
 const WritePage = () => {
-  const { setTitle, file, setFile } = useActionHandler();
+  const { setTitle, file, setFile, setDescription } = useActionHandler();
   const [existingState, setExistingState] = useState<Partial<IDraft>>({
     title: "",
     category: [],
     image_url: "",
+    description: "",
   });
   const id = usePathname().split("/").pop();
 
@@ -28,6 +31,8 @@ const WritePage = () => {
       const doc = await getDraftData(id);
       setExistingState(doc);
       setTitle(doc.title);
+      setDescription(doc.description);
+      setFile(doc.image_url);
     };
     getDraft();
   }, [id, setTitle]);
@@ -58,6 +63,15 @@ const WritePage = () => {
             <SelectCategory draftCategory={existingState?.category?.[0]} />
           </div>
         </div>
+        {/* DESCRIPTION */}
+        <div className="flex flex-col gap-2">
+          <span>Description</span>
+          <Textarea
+            defaultValue={existingState?.description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Enter a short description for your post..."
+          />
+        </div>
         {/* MIDDLE */}
         <div className="flex flex-col gap-4">
           <span>Post Thumbnail</span>
@@ -72,7 +86,9 @@ const WritePage = () => {
               <img
                 className="size-full object-cover"
                 src={
-                  (file && URL.createObjectURL(file)) ||
+                  (file &&
+                    typeof file !== "string" &&
+                    URL.createObjectURL(file)) ||
                   existingState?.image_url
                 }
                 alt="user avatar"

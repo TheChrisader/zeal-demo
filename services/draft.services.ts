@@ -23,13 +23,15 @@ export const getDraftData = async (id: string) => {
 export const createDraft = async (draft: {
   title: string;
   content: string;
+  description: string; // Add description
   category: string;
-  image?: File;
+  image?: File | string;
 }) => {
   try {
     const formData = new FormData();
     formData.append("title", draft.title);
     formData.append("content", draft.content);
+    formData.append("description", draft.description); // Append description
     formData.append("category", draft.category);
 
     if (draft.image) {
@@ -51,14 +53,16 @@ export const updateDraft = async (
   draft: {
     title: string;
     content: string;
+    description: string;
     category: string;
-    image?: File;
+    image?: File | string;
   },
 ) => {
   try {
     const formData = new FormData();
     formData.append("title", draft.title);
     formData.append("content", draft.content);
+    formData.append("description", draft.description);
     formData.append("category", draft.category);
 
     if (draft.image) {

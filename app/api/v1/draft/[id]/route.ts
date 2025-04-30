@@ -119,6 +119,7 @@ export const PUT = async (
     const draftToUpdate: Partial<IDraft> = {
       // user_id: user.id,
       title: (formData.get("title") as string) || undefined,
+      description: (formData.get("description") as string) || undefined,
       content_hash: (formData.get("content") as string) || undefined,
       category: formData.get("category")
         ? [formData.get("category") as string]

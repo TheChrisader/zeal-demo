@@ -36,39 +36,49 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json({ message: "Unauthenticated" });
     }
 
-    const file = formData.get("image") as (Blob & { name: string }) | null;
+    const file = formData.get("image") as
+      | (Blob & { name: string })
+      | string
+      | null;
+    console.log("just file: ", file);
 
     let image_url: string | undefined = undefined;
 
     if (file) {
-      if (!AUTHORIZED_IMAGE_MIME_TYPES.includes(file.type)) {
-        return sendError(
-          buildError({
-            code: WRONG_FILE_FORMAT_ERROR,
-            message: "Wrong file format.",
-            status: 422,
-          }),
-        );
+      if (typeof file === "string") {
+        image_url = file;
+      } else {
+        if (!AUTHORIZED_IMAGE_MIME_TYPES.includes(file.type)) {
+          return sendError(
+            buildError({
+              code: WRONG_FILE_FORMAT_ERROR,
+              message: "Wrong file format.",
+              status: 422,
+            }),
+          );
+        }
+
+        if (file.size > AUTHORIZED_IMAGE_SIZE) {
+          return sendError(
+            buildError({
+              code: FILE_TOO_LARGE_ERROR,
+              message: "The file is too large.",
+              status: 422,
+            }),
+          );
+        }
+
+        const photoKey = await uploadImageToS3(file, "posts/");
+
+        if (!photoKey) {
+          return NextResponse.json({ error: "Failed to upload image." });
+        }
+
+        image_url = `${process.env.CLOUDFRONT_BASE_URL}/${photoKey}`;
       }
-
-      if (file.size > AUTHORIZED_IMAGE_SIZE) {
-        return sendError(
-          buildError({
-            code: FILE_TOO_LARGE_ERROR,
-            message: "The file is too large.",
-            status: 422,
-          }),
-        );
-      }
-
-      const photoKey = await uploadImageToS3(file, "posts/");
-
-      if (!photoKey) {
-        return NextResponse.json({ error: "Failed to upload image." });
-      }
-
-      image_url = `${process.env.CLOUDFRONT_BASE_URL}/${photoKey}`;
     }
+
+    console.log("two of them: ", file, image_url);
 
     const post: Partial<IPost> = {
       title: formData.get("title") as string,

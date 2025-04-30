@@ -4,7 +4,7 @@ import useActionHandler from "../_context/action-handler/useActionHandler";
 import ConfirmationModal from "./ConfirmationModal";
 
 const PublishButton = ({ className }: { className?: string }) => {
-  const { publishRef, isLoading } = useActionHandler(); // Get isLoading from context
+  const { publishRef, isPublishLoading, publishError } = useActionHandler(); // Get specific publish loading/error state
 
   return (
     <ConfirmationModal type="publish">
@@ -16,10 +16,15 @@ const PublishButton = ({ className }: { className?: string }) => {
             publishRef.click();
           }
         }}
-        disabled={isLoading} // Disable button when loading
+        disabled={isPublishLoading} // Disable button when publishing
       >
-        {isLoading ? "Publishing..." : "Publish"} {/* Show loading text */}
+        {isPublishLoading ? "Publishing..." : "Publish"}{" "}
+        {/* Show loading text */}
       </Button>
+      {/* {publishError && (
+          <p className="mt-1 text-sm text-red-500">{publishError}</p>
+        )}{" "} */}
+      {/* Display publish error */}
     </ConfirmationModal>
   );
 };
