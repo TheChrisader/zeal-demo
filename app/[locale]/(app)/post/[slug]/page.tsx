@@ -226,7 +226,7 @@ export default async function PostPage({
         </div>
       </div>
 
-      {isZealArticle(post.category) && post.image_url && (
+      {(isZealArticle(post.category) || !post.external) && post.image_url && (
         <img
           className="max-h-[350px] w-full rounded-md object-cover"
           src={post.image_url}

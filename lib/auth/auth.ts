@@ -23,6 +23,7 @@ export const lucia = new Lucia(adapter, {
       country: attributes.location,
       has_email_verified: attributes.has_email_verified,
       bio: attributes.bio,
+      upgrade_pending: attributes.upgrade_pending,
     };
   },
 });

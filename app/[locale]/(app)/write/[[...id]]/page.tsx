@@ -1,17 +1,17 @@
 "use client";
 
-import Editor from "@/lexical/Editor";
-import WriteBar from "../_components/WriteBar";
-import { Input } from "@/components/ui/input";
-import PublishButton from "../_components/PublishButton";
-import SelectCategory from "../_components/SelectCategory";
-import useActionHandler from "../_context/action-handler/useActionHandler";
+import { CircleX } from "lucide-react";
 import { ChangeEventHandler, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { CircleX } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { usePathname } from "@/i18n/routing";
+import Editor from "@/lexical/Editor";
 import { getDraftData } from "@/services/draft.services";
 import { IDraft } from "@/types/draft.type";
+import PublishButton from "../_components/PublishButton";
+import SelectCategory from "../_components/SelectCategory";
+import WriteBar from "../_components/WriteBar";
+import useActionHandler from "../_context/action-handler/useActionHandler";
 
 const WritePage = () => {
   const { setTitle, file, setFile } = useActionHandler();
@@ -30,7 +30,7 @@ const WritePage = () => {
       setTitle(doc.title);
     };
     getDraft();
-  }, [id]);
+  }, [id, setTitle]);
 
   const handleUpdateFile: ChangeEventHandler<HTMLInputElement> = (event) => {
     const { files } = event.target;

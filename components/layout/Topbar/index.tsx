@@ -12,6 +12,11 @@ import BellIcon from "@/assets/svgs/utils/BellIcon";
 import CollapseArrowIcon from "@/assets/svgs/utils/CollapseArrowIcon";
 import PenIcon from "@/assets/svgs/utils/PenIcon";
 import { Separator } from "@/components/ui/separator";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"; // Added Popover imports
 import useAuth from "@/context/auth/useAuth";
 import CountryDropdown, { useCountryContext } from "./menu/Country";
 import NotificationsDropdown from "./menu/Notifications";
@@ -138,6 +143,35 @@ const Write = () => {
         <PenIcon />
         <span className="text-muted-alt text-sm font-medium">Write</span>
       </Link>
+    );
+  }
+
+  // Add check for pending upgrade
+  if (user.upgrade_pending) {
+    return (
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className="flex h-auto cursor-default gap-2 rounded-full px-4 py-2 opacity-70 hover:bg-transparent"
+            // Disabled style to indicate pending status
+          >
+            <PenIcon />
+            <span className="text-muted-alt text-sm font-medium">Write</span>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[280px] p-4" align="end" sideOffset={12}>
+          <h4 className="font-semibold leading-none text-foreground">
+            Application Pending Review
+          </h4>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Your writer application is currently being reviewed! We're excited
+            about the possibility of you joining our platform. You'll receive a
+            notification or email once the review is complete. Thanks for your
+            patience!
+          </p>
+        </PopoverContent>
+      </Popover>
     );
   }
 
