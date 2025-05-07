@@ -9,7 +9,7 @@ import { CATEGORIES, TCategory } from "@/types/utils/category.type";
 import { findSiblings } from "@/utils/category.utils";
 import { getCategoryFromPath } from "@/utils/path.utils";
 import DiscoverPage from "./_components/Discover";
-import VideoInterface from "./_components/VideoInterface";
+import VideoFeed from "./_components/VideoFeed"; // Updated import from VideoInterface to VideoFeed
 import ArticlesContainer from "../_components/ArticlesContainer";
 import Trending from "../_components/Trending";
 

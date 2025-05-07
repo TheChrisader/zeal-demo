@@ -126,7 +126,7 @@ export const POST = async () => {
           $in: groups,
         },
         published_at: {
-          $gte: new Date(new Date().setHours(new Date().getHours() - 8)),
+          $gte: new Date(new Date().setHours(new Date().getHours() - 7)),
           $lt: new Date(),
         },
       })
@@ -291,7 +291,9 @@ ${postsList}
             ordered: false,
           },
         );
-      } catch {}
+      } catch {
+        console.log("????????????????????????????????????????");
+      }
 
       if (createdBatches.length === 0) {
         continue;
