@@ -226,6 +226,14 @@ export default async function PostPage({
         </div>
       </div>
 
+      {!post.external && post.author_id.toString() !== "Zeal News" && (
+        <div>
+          <span className="text-sm font-normal text-muted-alt">
+            Author: <strong>{post.source.name}</strong>
+          </span>
+        </div>
+      )}
+
       {(isZealArticle(post.category) || !post.external) && post.image_url && (
         <img
           className="w-full rounded-md object-cover"
