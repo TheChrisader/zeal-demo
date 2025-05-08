@@ -181,15 +181,15 @@ export default async function PostPage({
     // <main className="flex min-h-[calc(100vh-62px)] gap-4">
     <main className="flex min-h-[calc(100vh-60px)] w-[70vw] flex-col gap-3 px-12 py-4 max-[900px]:px-7 max-[750px]:w-auto max-[500px]:px-4">
       <div className="flex flex-col gap-3">
-        <h1 className="text-foreground-alt text-[22px] font-extrabold">
+        <h1 className="text-[22px] font-extrabold text-foreground-alt">
           {post.title}
         </h1>
         <div className="flex items-center justify-between max-[600px]:flex-col max-[600px]:items-start max-[600px]:justify-center">
           <div className="flex items-center gap-3">
-            <span className="text-muted-alt text-sm font-normal">
+            <span className="text-sm font-normal text-muted-alt">
               Published {getPublishTimeStamp(post.published_at as string)}
             </span>
-            <span className="text-muted-alt text-sm font-normal">
+            <span className="text-sm font-normal text-muted-alt">
               • {calculateReadingTime(post.content)} minute read
             </span>
           </div>
@@ -235,9 +235,10 @@ export default async function PostPage({
       )}
 
       <div
-        className="[&_p]:text-foreground-alt-p rounded-[20px] p-1 text-sm [&_a]:text-blue-500 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:font-bold [&_figure>img]:mb-2 [&_figure>img]:mt-4 [&_figure>img]:max-h-[350px] [&_figure>img]:rounded-md [&_figure>p]:text-black [&_figure]:mb-7 [&_figure]:flex [&_figure]:w-full [&_figure]:flex-col [&_figure]:items-center [&_img]:mx-auto [&_img]:block [&_img]:max-h-[350px] [&_img]:rounded-md [&_img]:object-cover [&_img]:object-center [&_p]:mb-4 [&_p]:max-w-[100vw] [&_p]:text-base [&_p]:font-normal [&_p]:leading-7"
+        className="rounded-[20px] p-1 text-sm [&_a]:text-blue-500 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:font-bold [&_figure>img]:mb-2 [&_figure>img]:mt-4 [&_figure>img]:max-h-[350px] [&_figure>img]:rounded-md [&_figure>p]:text-black [&_figure]:mb-7 [&_figure]:flex [&_figure]:w-full [&_figure]:flex-col [&_figure]:items-center [&_img]:mx-auto [&_img]:block [&_img]:rounded-md [&_img]:object-cover [&_img]:object-center [&_p]:mb-4 [&_p]:max-w-[100vw] [&_p]:text-base [&_p]:font-normal [&_p]:leading-7 [&_p]:text-foreground-alt-p"
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
+      {/* [&_img]:max-h-[350px] */}
       {isZealArticle(post.category) && (
         <div>
           <span className="flex items-center gap-2">
@@ -258,7 +259,7 @@ export default async function PostPage({
           target="_blank"
           className="ml-auto flex size-fit items-center gap-1 rounded-md px-4 py-2 outline outline-2 outline-[#2F7830]"
         >
-          <span className="text-muted-alt mr-2 text-base font-semibold">
+          <span className="mr-2 text-base font-semibold text-muted-alt">
             Origin:{" "}
           </span>
           {post.source.icon && (
@@ -270,7 +271,7 @@ export default async function PostPage({
               />
             </div>
           )}
-          <span className="text-foreground-alt text-base font-semibold max-[300px]:text-base">
+          <span className="text-base font-semibold text-foreground-alt max-[300px]:text-base">
             {post.source.name!}
           </span>
         </a>
