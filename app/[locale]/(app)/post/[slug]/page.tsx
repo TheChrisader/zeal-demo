@@ -228,17 +228,18 @@ export default async function PostPage({
 
       {(isZealArticle(post.category) || !post.external) && post.image_url && (
         <img
-          className="max-h-[350px] w-full rounded-md object-cover"
+          className="w-full rounded-md object-cover"
           src={post.image_url}
           alt={post.title}
         />
       )}
 
       <div
-        className="rounded-[20px] p-1 text-sm [&_a]:text-blue-500 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:font-bold [&_figure>img]:mb-2 [&_figure>img]:mt-4 [&_figure>img]:max-h-[350px] [&_figure>img]:rounded-md [&_figure>p]:text-black [&_figure]:mb-7 [&_figure]:flex [&_figure]:w-full [&_figure]:flex-col [&_figure]:items-center [&_img]:mx-auto [&_img]:block [&_img]:rounded-md [&_img]:object-cover [&_img]:object-center [&_p]:mb-4 [&_p]:max-w-[100vw] [&_p]:text-base [&_p]:font-normal [&_p]:leading-7 [&_p]:text-foreground-alt-p"
+        className="rounded-[20px] p-1 text-sm [&_a]:text-blue-500 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:font-bold [&_figure>img]:mb-2 [&_figure>img]:mt-4 [&_figure>img]:rounded-md [&_figure>p]:text-black [&_figure]:mb-7 [&_figure]:flex [&_figure]:w-full [&_figure]:flex-col [&_figure]:items-center [&_img]:mx-auto [&_img]:block [&_img]:rounded-md [&_img]:object-cover [&_img]:object-center [&_p]:mb-4 [&_p]:max-w-[100vw] [&_p]:text-base [&_p]:font-normal [&_p]:leading-7 [&_p]:text-foreground-alt-p"
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
-      {/* [&_img]:max-h-[350px] */}
+      {/* max-h-[350px] */}
+      {/* [&_img]:max-h-[350px] [&_figure>img]:max-h-[350px] */}
       {isZealArticle(post.category) && (
         <div>
           <span className="flex items-center gap-2">
