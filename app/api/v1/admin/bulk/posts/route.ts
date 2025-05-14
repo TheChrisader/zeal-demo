@@ -117,7 +117,10 @@ export async function GET(req: NextRequest) {
     console.dir(query, { depth: null });
 
     // Execute query with pagination and sorting
-    const posts = await PostModel.find(query)
+    const posts = await PostModel.find(
+      query,
+      "_id title category source author_id status published_at",
+    )
       .sort({ [params.sort!]: params.order! })
       .skip(skip)
       .limit(params.limit!)

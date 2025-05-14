@@ -158,8 +158,17 @@ const PostSchema = new Schema<IPost>(
   },
 );
 
+PostSchema.index({ category: 1 });
+// PostSchema.index({ country: 1 });
+PostSchema.index({ published_at: -1 });
+PostSchema.index({ title: "text", content: "text" });
+
+// Compound indexes
 PostSchema.index({ keywords: 1, createdAt: -1 });
 PostSchema.index({ status: 1, createdAt: -1 });
+// PostSchema.index({ category: 1, country: 1 });
+PostSchema.index({ category: 1, published_at: -1 });
+PostSchema.index({ title: "text", published_at: -1 });
 
 PostSchema.virtual("id").get(function () {
   return this._id.toHexString();

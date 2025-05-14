@@ -1,9 +1,10 @@
 import { Model, model, models, Schema } from "mongoose";
 
 import mongooseLeanVirtuals from "mongoose-lean-virtuals";
+import { Id } from "@/lib/database";
 import { IPermission } from "@/types/permission.type";
 
-const PermissionSchema = new Schema(
+const PermissionSchema = new Schema<IPermission>(
   {
     user_id: {
       type: Schema.Types.ObjectId,
@@ -37,10 +38,14 @@ const PermissionSchema = new Schema(
 PermissionSchema.index({ user_id: 1 }, { unique: true });
 
 PermissionSchema.virtual("id").get(function () {
-  return this._id.toHexString();
+  return (this._id as Id).toHexString();
 });
 
 PermissionSchema.set("toObject", {
+  virtuals: true,
+});
+
+PermissionSchema.set("toJSON", {
   virtuals: true,
 });
 

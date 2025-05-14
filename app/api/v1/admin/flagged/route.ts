@@ -36,6 +36,7 @@ export const GET = async () => {
                 _id: 1,
                 created_at: 1,
                 reason: 1,
+                description: 1,
               },
             },
           ],

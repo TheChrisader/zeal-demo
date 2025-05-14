@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import UserModel from "@/database/user/user.model";
-import { lucia } from "@/lib/auth/auth";
-import { connectToDatabase, newId } from "@/lib/database";
-import { verifyPassword } from "@/utils/password.utils";
+import ModeratorModel from "@/database/moderator/moderator.model";
+import { connectToDatabase } from "@/lib/database";
 import { createToken } from "@/lib/jwt";
+import { verifyPassword } from "@/utils/password.utils";
+import { findModeratorByEmail } from "@/database/moderator/moderator.repository";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,38 +11,53 @@ export async function POST(req: NextRequest) {
     const { email, password } = await req.json();
 
     if (!email || !password) {
-      return new Response("Invalid username or password", { status: 400 });
+      return NextResponse.json(
+        { message: "Invalid username or password" },
+        { status: 400 },
+      );
     }
 
-    // const user = await UserModel.findOne({ email: email}).select(
-    //   "-password_hash",
-    // );
+    const moderator = await findModeratorByEmail(email);
 
-    const user = await UserModel.findOne({ email: email }).lean();
-
-    if (!user || user.role !== "admin") {
-      return new Response("Invalid username or password", { status: 400 });
+    if (!moderator) {
+      console.log("problem");
+      return NextResponse.json(
+        { message: "Invalid username or password" },
+        { status: 400 },
+      );
     }
 
-    const isPasswordValid = await verifyPassword(password, user.password_hash);
+    const isPasswordValid = await verifyPassword(
+      password,
+      moderator.password_hash,
+    );
 
     if (!isPasswordValid) {
-      return new Response("Invalid username or password", { status: 400 });
+      return NextResponse.json(
+        { message: "Invalid username or password" },
+        { status: 400 },
+      );
     }
 
-    const { password_hash: _, ...userData } = user;
+    const { password_hash: _, ...moderatorData } = moderator;
 
-    const token = await createToken({ email, role: "admin" });
+    const token = await createToken({
+      email,
+      permissions: moderator.permissions,
+    });
 
     return NextResponse.json(
-      { user: userData, token, message: "Signed In" },
+      { user: moderatorData, token, message: "Signed In" },
       {
         status: 200,
       },
     );
   } catch (error) {
     console.log(`Admin signin error: ${error}`);
-    return new Response("Internal Server Error", { status: 500 });
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }
 

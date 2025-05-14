@@ -165,7 +165,9 @@ export default async function PostPage({
   }
 
   // console.log(post.content);
-  post.content = cleanContent(post.content, post.source.url!);
+  if (post.external) {
+    post.content = cleanContent(post.content, post.source.url!);
+  }
 
   const relatedExternalArticles =
     (

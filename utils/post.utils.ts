@@ -84,7 +84,7 @@ export const TOKENS = [
   ["<h2", "</h2>"],
   ["<h3", "</h3>"],
   ["<a", "</a>"],
-  // ["<strong", "</strong>"],
+  ["<strong", "</strong>"],
   ["<header", "</header>"],
 ];
 
