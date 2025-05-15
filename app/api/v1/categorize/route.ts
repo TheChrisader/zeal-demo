@@ -126,7 +126,7 @@ export const POST = async () => {
           $in: groups,
         },
         published_at: {
-          $gte: new Date(new Date().setHours(new Date().getHours() - 7)),
+          $gte: new Date(new Date().setHours(new Date().getHours() - 10)),
           $lt: new Date(),
         },
       })
