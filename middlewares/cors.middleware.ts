@@ -1,7 +1,11 @@
 import { NextFetchEvent, NextRequest, NextResponse } from "next/server";
 import { MiddlewareFactory } from "./middleware.type";
 
-const allowedOrigins = [process.env.ADMIN_DASHBOARD_URL];
+const allowedOrigins = [
+  process.env.ADMIN_DASHBOARD_URL,
+  "https://admin.zealnews.africa",
+  "http://localhost:5173",
+];
 console.log(allowedOrigins, "ALLOWED ORIGINS");
 
 const corsOptions = {
@@ -11,6 +15,7 @@ const corsOptions = {
 
 export const corsMiddleware: MiddlewareFactory = (next, response) => {
   return async (request: NextRequest, _next: NextFetchEvent) => {
+    console.log(allowedOrigins, "ALLOWED ORIGINS");
     if (
       request.nextUrl.pathname.startsWith("/api/v1/admin") ||
       request.nextUrl.pathname === "/api/v1/post/parse"
