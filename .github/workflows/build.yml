@@ -73,7 +73,6 @@ jobs:
           platforms: linux/amd64
           push: true
           image_name: ${{ env.REGISTRY }}/${{ env.AUTHOR }}/${{ env.REPO }}
-          pkgs: "nodejs_23"
 
       - name: Deploy to Coolify
         run: |

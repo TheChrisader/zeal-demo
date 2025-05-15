@@ -13,6 +13,9 @@
     "commit:all": "git add . && cz",
     "email": "email dev --dir utils/email/templates --port 3333"
   },
+  "engines": {
+    "node": ">=23"
+  },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.670.0",
     "@aws-sdk/s3-request-presigner": "^3.670.0",
