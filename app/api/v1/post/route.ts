@@ -92,6 +92,7 @@ export const POST = async (request: NextRequest) => {
       language: (formData.get("language") as "English" | "French") || "English",
       published: true,
       published_at: new Date().toISOString(),
+      generatedBy: "user",
       link:
         (formData.get("link") as string) ||
         `httyd://${generateRandomString(10)}`,

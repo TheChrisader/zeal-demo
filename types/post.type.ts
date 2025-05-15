@@ -18,6 +18,13 @@ export interface IPost {
   ttr: number;
   link: string | null;
   image_url: string | null;
+  image_key?: string;
+  image_metadata?: {
+    x: number;
+    y: number;
+    scale: number;
+    objectFit: "contain" | "cover" | "fill";
+  };
   video_url: string | null;
   source: Partial<IPostSource>;
   keywords: string[];
@@ -29,6 +36,7 @@ export interface IPost {
   external: boolean;
   top_feature?: string;
   status?: "active" | "removed" | "flagged";
+  generatedBy?: "auto" | "user" | "zeal";
   published_at: Date | string;
   created_at: string;
   updated_at: string;

@@ -3,13 +3,13 @@ import { createPost } from "@/database/post/post.repository";
 import { createReaction } from "@/database/reaction/reaction.repository";
 import { uploadImageToS3 } from "@/lib/bucket";
 import { connectToDatabase } from "@/lib/database";
+import { SlugGenerator } from "@/lib/slug";
 import { IPost } from "@/types/post.type";
 import {
   AUTHORIZED_IMAGE_MIME_TYPES,
   AUTHORIZED_IMAGE_SIZE,
 } from "@/utils/file.utils";
 import { calculateReadingTime } from "@/utils/post.utils";
-import { SlugGenerator } from "@/lib/slug";
 
 function generateRandomString(length: number) {
   const characters =
@@ -69,6 +69,7 @@ export const POST = async (request: NextRequest) => {
       description: formData.get("description") as string,
       country: [formData.get("country") as string],
       external: formData.get("external") ? true : false,
+      generatedBy: "auto",
       keywords: formData.get("keywords")
         ? (formData.get("keywords") as string).split(",")
         : [],

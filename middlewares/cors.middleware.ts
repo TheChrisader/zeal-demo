@@ -1,7 +1,7 @@
 import { NextFetchEvent, NextRequest, NextResponse } from "next/server";
 import { MiddlewareFactory } from "./middleware.type";
 
-const allowedOrigins = ["http://localhost:5173"];
+const allowedOrigins = [process.env.ADMIN_DASHBOARD_URL];
 
 const corsOptions = {
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",

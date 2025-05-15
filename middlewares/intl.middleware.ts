@@ -15,7 +15,6 @@ export const intlMiddleware: MiddlewareFactory = (next) => {
         return next(request, _next);
       }
     }
-    console.log("object");
 
     const defaultLocale =
       request.headers.get("x-set-locale") || routing.defaultLocale;

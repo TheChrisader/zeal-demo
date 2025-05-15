@@ -23,86 +23,20 @@ const getImageUrlFromArticles = (articles: IPost[]) => {
 };
 
 const ids = {
-  "Zeal Headline News": [
-    "682464cf1d44e90ada59f10a",
-    "682464cf1d44e90ada59f10c",
-    "682464cf1d44e90ada59f10f",
-    "682464cf1d44e90ada59f112",
-    "682464cf1d44e90ada59f115",
-    "682464cf1d44e90ada59f117",
-    "682464cf1d44e90ada59f119",
-    "682464cf1d44e90ada59f11b",
-  ],
-  "Zeal Global": [
-    "682464d51d44e90ada59f127",
-    "682464d51d44e90ada59f12a",
-    "682464d51d44e90ada59f12d",
-    "682464d51d44e90ada59f12f",
-    "682464d51d44e90ada59f131",
-    "682464d51d44e90ada59f133",
-    "682464d51d44e90ada59f135",
-    "682464d51d44e90ada59f137",
-  ],
-  "Zeal Entertainment": [
-    "682464db1d44e90ada59f143",
-    "682464db1d44e90ada59f145",
-    "682464db1d44e90ada59f148",
-    "682464db1d44e90ada59f14a",
-    "682464db1d44e90ada59f14c",
-    "682464db1d44e90ada59f14f",
-    "682464db1d44e90ada59f151",
-    "682464db1d44e90ada59f154",
-    "682464db1d44e90ada59f156",
-    "682464db1d44e90ada59f158",
-  ],
-  "Business 360": [
-    "682464e21d44e90ada59f166",
-    "682464e21d44e90ada59f169",
-    "682464e21d44e90ada59f16b",
-    "682464e21d44e90ada59f16d",
-    "682464e21d44e90ada59f16f",
-    "682464e21d44e90ada59f171",
-    "682464e21d44e90ada59f173",
-    "682464e21d44e90ada59f175",
-    "682464e21d44e90ada59f177",
-    "682464e21d44e90ada59f179",
-  ],
-  "Zeal Lifestyle": [
-    "682464e61d44e90ada59f187",
-    "682464e61d44e90ada59f18a",
-    "682464e61d44e90ada59f18c",
-    "682464e61d44e90ada59f18f",
-    "682464e61d44e90ada59f192",
-    "682464e61d44e90ada59f194",
-  ],
-  "Zeal Tech": [
-    "682464ec1d44e90ada59f19e",
-    "682464ec1d44e90ada59f1a2",
-    "682464ec1d44e90ada59f1a5",
-    "682464ec1d44e90ada59f1a7",
-    "682464ec1d44e90ada59f1a9",
-    "682464ec1d44e90ada59f1ac",
-    "682464ec1d44e90ada59f1ae",
-    "682464ec1d44e90ada59f1b0",
-    "682464ec1d44e90ada59f1b3",
-    "682464ec1d44e90ada59f1b5",
-  ],
   "Zeal Sports": [
-    "682464f31d44e90ada59f1c3",
-    "682464f31d44e90ada59f1c6",
-    "682464f31d44e90ada59f1cb",
-    "682464f31d44e90ada59f1cf",
-    "682464f31d44e90ada59f1d3",
-    "682464f31d44e90ada59f1d6",
-    "682464f31d44e90ada59f1d8",
-    "682464f31d44e90ada59f1da",
-    "682464f31d44e90ada59f1dc",
-    "682464f31d44e90ada59f1de",
+    "6825b3dbf5b8cef7ab0cea2f",
+    "6825b3dbf5b8cef7ab0cea33",
+    "6825b3dbf5b8cef7ab0cea36",
+    "6825b3dbf5b8cef7ab0cea38",
+    "6825b3dbf5b8cef7ab0cea3a",
+    "6825b3dbf5b8cef7ab0cea3c",
+    "6825b3dbf5b8cef7ab0cea3e",
+    "6825b3dbf5b8cef7ab0cea40",
   ],
 };
 
 export const POST = async (request: NextRequest) => {
-  console.log("object");
+  console.log("object1");
   try {
     const config = {
       responseMimeType: "application/json",
@@ -235,6 +169,7 @@ ${content}
           category: [category],
           external: false,
           published: true,
+          generatedBy: "zeal",
           keywords: result.keywords,
           source: {
             name: "Zeal News",

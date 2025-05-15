@@ -12,6 +12,7 @@ import {
 } from "@/database/user/user.repository";
 import { connectToDatabase } from "@/lib/database";
 import { getMMDB } from "@/lib/mmdb";
+import { sendModeratorOnboardingEmail } from "@/utils/email";
 import { hashPassword } from "@/utils/password.utils";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -76,6 +77,12 @@ export async function POST(request: NextRequest) {
         { status: 500 },
       );
     }
+
+    await sendModeratorOnboardingEmail({
+      email,
+      name: createdModerator.name,
+      password_plaintext: password,
+    });
 
     return NextResponse.json(createdModerator);
   } catch (error) {

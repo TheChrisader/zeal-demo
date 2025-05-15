@@ -585,6 +585,7 @@ const handlePosts = async (
       published_at: post.published,
       image_url: post.thread.main_image,
       video_url: undefined,
+      generatedBy: "auto",
       source: {
         id: extractDomain(post.url),
         name: parsedArticle.siteName || extractDomain(post.url),

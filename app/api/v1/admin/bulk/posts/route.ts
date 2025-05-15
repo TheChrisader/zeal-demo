@@ -1,8 +1,8 @@
 import { revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import PostModel from "@/database/post/post.model";
-import { connectToDatabase, Id, newId } from "@/lib/database";
 import ReactionModel from "@/database/reaction/reaction.model";
+import { connectToDatabase, Id, newId } from "@/lib/database";
 
 // Types for query parameters
 interface QueryParams {
@@ -12,6 +12,7 @@ interface QueryParams {
   order?: "asc" | "desc";
   search?: string;
   category?: string;
+  generatedBy?: "user" | "auto" | "zeal";
   language?: string;
   country?: string;
   fromDate?: string;
@@ -26,11 +27,16 @@ interface QueryObject {
     // { description: { $regex: string; $options: "i" } },
   ];
   category?: { $in: string };
+  generatedBy?: string;
   language?: string;
   country?: { $in: string };
   published_at?: { $gte?: Date; $lte?: Date };
   author_id?: Id;
   published?: boolean;
+}
+
+function isQueryEmpty(obj: QueryObject) {
+  return Object.keys(obj).length === 0;
 }
 
 export async function GET(req: NextRequest) {
@@ -47,6 +53,9 @@ export async function GET(req: NextRequest) {
       order: (searchParams.get("order") as "asc" | "desc") || "desc",
       search: searchParams.get("search") || undefined,
       category: searchParams.get("category") || undefined,
+      generatedBy:
+        (searchParams.get("generatedBy") as "user" | "auto" | "zeal") ||
+        undefined,
       language: searchParams.get("language") || undefined,
       country: searchParams.get("country") || undefined,
       fromDate: searchParams.get("fromDate") || undefined,
@@ -71,6 +80,10 @@ export async function GET(req: NextRequest) {
     // Category filter
     if (params.category && params.category.length > 0) {
       query.category = { $in: params.category };
+    }
+
+    if (params.generatedBy) {
+      query.generatedBy = params.generatedBy;
     }
 
     // Language filter
@@ -112,11 +125,19 @@ export async function GET(req: NextRequest) {
     const skip = (params.page! - 1) * params.limit!;
 
     // Get total count for pagination
-    const total = await PostModel.countDocuments(query);
+    console.time("Posts API Count time");
+    let total: number;
+    if (isQueryEmpty(query)) {
+      total = await PostModel.estimatedDocumentCount();
+    } else {
+      total = await PostModel.countDocuments(query);
+    }
+    console.timeEnd("Posts API Count time");
 
     console.dir(query, { depth: null });
 
     // Execute query with pagination and sorting
+    console.time("Posts API time");
     const posts = await PostModel.find(
       query,
       "_id title category source author_id status published_at",
@@ -125,6 +146,7 @@ export async function GET(req: NextRequest) {
       .skip(skip)
       .limit(params.limit!)
       .lean();
+    console.timeEnd("Posts API time");
 
     // Calculate pagination metadata
     const totalPages = Math.ceil(total / params.limit!);

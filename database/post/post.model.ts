@@ -72,6 +72,24 @@ const PostSchema = new Schema<IPost>(
       type: String || null,
       default: null,
     },
+    image_key: {
+      type: String,
+    },
+    image_metadata: {
+      x: {
+        type: Number,
+      },
+      y: {
+        type: Number,
+      },
+      scale: {
+        type: Number,
+      },
+      objectFit: {
+        type: String,
+        enum: ["contain", "cover", "fill"],
+      },
+    },
     video_url: {
       type: String || null,
       default: null,
@@ -143,6 +161,11 @@ const PostSchema = new Schema<IPost>(
       enum: ["active", "removed", "flagged"],
       default: "active",
     },
+    generatedBy: {
+      type: String,
+      enum: ["auto", "user", "zeal"],
+      required: true,
+    },
     published_at: {
       type: Date || String,
       default: Date.now,
@@ -164,10 +187,11 @@ PostSchema.index({ published_at: -1 });
 PostSchema.index({ title: "text", content: "text" });
 
 // Compound indexes
-PostSchema.index({ keywords: 1, createdAt: -1 });
-PostSchema.index({ status: 1, createdAt: -1 });
+PostSchema.index({ keywords: 1, published_at: -1 });
+PostSchema.index({ status: 1, published_at: -1 });
 // PostSchema.index({ category: 1, country: 1 });
 PostSchema.index({ category: 1, published_at: -1 });
+PostSchema.index({ generatedBy: 1, published_at: -1 });
 PostSchema.index({ title: "text", published_at: -1 });
 
 PostSchema.virtual("id").get(function () {
