@@ -1,4 +1,4 @@
-import { useRouter } from "@/app/_components/useRouter";
+import { useRouter } from "next-nprogress-bar";
 import { Button } from "@/components/ui/button";
 
 const SocialProvider = ({
