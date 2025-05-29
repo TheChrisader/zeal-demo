@@ -34,10 +34,12 @@ interface UserActionProps {
   user: User | null;
 }
 
+const excludeFromPaths = ["editor"];
+
 export const UserInitial = ({ userInitial }: { userInitial: string }) => {
   return (
-    <div className="bg-success flex size-5 items-center justify-center rounded-full">
-      <span className="text-special-text text-center text-sm font-medium">
+    <div className="flex size-5 items-center justify-center rounded-full bg-success">
+      <span className="text-center text-sm font-medium text-special-text">
         {userInitial}
       </span>
     </div>
@@ -98,7 +100,7 @@ const UserAction = ({ user }: UserActionProps) => {
         href={"/signin"}
         className="flex h-auto gap-2 rounded-full bg-background px-4 py-2 shadow-basic hover:bg-accent hover:text-accent-foreground"
       >
-        <span className="text-muted-alt text-sm font-medium">Log In</span>
+        <span className="text-sm font-medium text-muted-alt">Log In</span>
       </Link>
     );
   }
@@ -141,7 +143,7 @@ const Write = () => {
         href="/signup"
       >
         <PenIcon />
-        <span className="text-muted-alt text-sm font-medium">Write</span>
+        <span className="text-sm font-medium text-muted-alt">Write</span>
       </Link>
     );
   }
@@ -157,7 +159,7 @@ const Write = () => {
             // Disabled style to indicate pending status
           >
             <PenIcon />
-            <span className="text-muted-alt text-sm font-medium">Write</span>
+            <span className="text-sm font-medium text-muted-alt">Write</span>
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[280px] p-4" align="end" sideOffset={12}>
@@ -165,10 +167,10 @@ const Write = () => {
             Application Pending Review
           </h4>
           <p className="mt-2 text-sm text-muted-foreground">
-            Your writer application is currently being reviewed! We're excited
-            about the possibility of you joining our platform. You'll receive a
-            notification or email once the review is complete. Thanks for your
-            patience!
+            Your writer application is currently being reviewed! We&apos;re
+            excited about the possibility of you joining our platform.
+            You&apos;ll receive a notification or email once the review is
+            complete. Thanks for your patience!
           </p>
         </PopoverContent>
       </Popover>
@@ -183,7 +185,7 @@ const Write = () => {
           className="flex h-auto gap-2 rounded-full px-4 py-2"
         >
           <PenIcon />
-          <span className="text-muted-alt text-sm font-medium">Write</span>
+          <span className="text-sm font-medium text-muted-alt">Write</span>
         </Button>
       </WriterForm>
     );
@@ -192,10 +194,10 @@ const Write = () => {
   return (
     <Link
       className="flex h-auto gap-2 rounded-full bg-background px-4 py-2 shadow-basic hover:bg-accent hover:text-accent-foreground"
-      href="/write"
+      href="/editor"
     >
       <PenIcon />
-      <span className="text-muted-alt text-sm font-medium">Write</span>
+      <span className="text-sm font-medium text-muted-alt">Write</span>
     </Link>
   );
 };
@@ -223,9 +225,13 @@ const Topbar = () => {
     }
   }, [theme, colorScheme]);
 
+  if (excludeFromPaths.includes(pathname.split("/")[1] as string)) {
+    return null;
+  }
+
   return (
     <>
-      <header className="bg-card-alt-bg sticky top-0 z-50 flex h-fit items-center justify-between px-[100px] py-3 shadow-md max-[900px]:px-7">
+      <header className="sticky top-0 z-50 flex h-fit items-center justify-between bg-card-alt-bg px-[100px] py-3 shadow-md max-[900px]:px-7">
         <div className="flex gap-[100px]">
           <Link href="/">
             {/* <Image
@@ -247,19 +253,19 @@ const Topbar = () => {
           {user && showActions && (
             <div className="flex gap-6">
               <div className="relative flex">
-                <Link className="text-success text-sm font-semibold" href="/">
+                <Link className="text-sm font-semibold text-success" href="/">
                   Feed
                 </Link>
                 {pathname === "/" && (
                   <motion.span
                     layoutId="topbarUnderline"
-                    className="bg-success absolute bottom-[-19px] h-1 w-full rounded-full"
+                    className="absolute bottom-[-19px] h-1 w-full rounded-full bg-success"
                   />
                 )}
               </div>
               <div className="relative flex">
                 <Link
-                  className="text-success text-sm font-semibold"
+                  className="text-sm font-semibold text-success"
                   href="/for-you"
                 >
                   For you
@@ -267,7 +273,7 @@ const Topbar = () => {
                 {pathname === "/for-you" && (
                   <motion.span
                     layoutId="topbarUnderline"
-                    className="bg-success absolute bottom-[-19px] h-1 w-full rounded-full"
+                    className="absolute bottom-[-19px] h-1 w-full rounded-full bg-success"
                   />
                 )}
               </div>

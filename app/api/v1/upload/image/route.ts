@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       }
 
       try {
-        const photoKey = await uploadImageToS3(file, "uploads/images/"); // Using a generic path
+        const photoKey = await uploadImageToS3(file, "posts/"); // Using a generic path
 
         if (!photoKey) {
           return NextResponse.json(
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ imageUrl: image_url }, { status: 200 });
+    return NextResponse.json({ src: image_url }, { status: 200 });
   } catch (error) {
     console.log(`Error uploading image: ${error}`);
     return NextResponse.json(

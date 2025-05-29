@@ -1,34 +1,19 @@
 import { fetcher } from "@/lib/fetcher";
 
 import { IPost } from "@/types/post.type";
-import { createDraft } from "./draft.services";
+import { jsonToFormData } from "@/utils/converter.utils";
 
-export const createPost = async (post: {
-  title: string;
-  content: string;
-  description: string; // Add description
-  category: string;
-  image?: File | string;
-}): Promise<IPost> => {
+export const createPost = async (
+  post: Partial<IPost> & { image?: File | string },
+): Promise<IPost> => {
   try {
-    await createDraft({
-      title: post.title,
-      content: post.content,
-      description: post.description, // Add description
-      category: post.category,
-      image: post.image,
-    });
-    console.log("filee", post.image);
-
-    const formData = new FormData();
-    formData.append("title", post.title);
-    formData.append("content", post.content);
-    formData.append("description", post.description); // Append description
-    formData.append("category", post.category);
+    if (!post.title || !post.content || !post.description || !post.category) {
+      throw new Error("Missing required fields");
+    }
+    const formData = jsonToFormData(post);
 
     if (post.image) {
       formData.append("image", post.image);
-      console.log("fileeeeeeee", formData.get("image"));
     }
 
     const data = await fetcher("/api/v1/post", {
@@ -39,5 +24,65 @@ export const createPost = async (post: {
     return data;
   } catch (error) {
     throw error;
+  }
+};
+
+export const fetchPostsByAuthorId = async (
+  authorId: string,
+): Promise<IPost[]> => {
+  try {
+    const data = await fetcher(`/api/v1/post/author/${authorId}`, {
+      method: "GET",
+    });
+    return data;
+  } catch (error) {
+    // throw error;
+    return [];
+  }
+};
+
+export const fetchPostById = async (postId: string): Promise<IPost | null> => {
+  try {
+    const data = await fetcher(`/api/v1/post/${postId}`, {
+      method: "GET",
+    });
+    return data;
+  } catch (error) {
+    // throw error;
+    return null;
+  }
+};
+
+export const updatePostById = async (
+  postId: string,
+  post: Partial<IPost> & { image?: File | string },
+): Promise<IPost | null> => {
+  try {
+    const formData = jsonToFormData(post);
+    if (post.image) {
+      formData.append("image", post.image);
+    }
+
+    const data = await fetcher(`/api/v1/post/${postId}`, {
+      method: "PATCH",
+      body: jsonToFormData(post),
+    });
+
+    return data;
+  } catch (error) {
+    // throw error;
+    return null;
+  }
+};
+
+export const deletePostById = async (postId: string): Promise<IPost | null> => {
+  try {
+    const data = await fetcher(`/api/v1/post/${postId}`, {
+      method: "DELETE",
+    });
+    return data;
+  } catch (error) {
+    // throw error;
+    return null;
   }
 };

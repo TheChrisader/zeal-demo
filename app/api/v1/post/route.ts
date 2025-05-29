@@ -78,12 +78,11 @@ export const POST = async (request: NextRequest) => {
       }
     }
 
-    console.log("two of them: ", file, image_url);
-
     const post: Partial<IPost> = {
       title: formData.get("title") as string,
       slug: slugGenerator.generate(formData.get("title") as string),
       content: formData.get("content") as string,
+      description: formData.get("description") as string,
       category: [formData.get("category") as string],
       country: formData.get("country")
         ? [formData.get("country") as string]
@@ -104,7 +103,7 @@ export const POST = async (request: NextRequest) => {
         url: (formData.get("source_url") as string) || "",
         id: (formData.get("source_id") as string) || user.username,
       },
-      image_url,
+      image_url: image_url || (formData.get("image_url") as string),
       ttr: calculateReadingTime(formData.get("content") as string),
     };
 

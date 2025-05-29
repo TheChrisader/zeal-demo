@@ -14,6 +14,8 @@ import { Suspense } from "react";
 import ClearPushNotifications from "./(app)/_components/ClearPushNotifications";
 import GoogleAdsense from "./(app)/_components/GoogleAdsense";
 import { Footer } from "@/components/layout/Footer";
+import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const PageProgressBar = dynamic(
   () => import("@/components/layout/PageProgressBar"),
@@ -111,7 +113,9 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider defaultTheme="system" attribute="class" enableSystem>
             <PageProgressBar />
-            {children}
+            <ReactQueryProvider>
+              <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
+            </ReactQueryProvider>
             <Toaster position="top-center" />
             <CookieConsent />
           </ThemeProvider>

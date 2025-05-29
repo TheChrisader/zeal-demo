@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
+
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 type UseMediaQueryOptions = {
   defaultValue?: boolean;
@@ -7,6 +10,13 @@ type UseMediaQueryOptions = {
 
 const IS_SERVER = typeof window === "undefined";
 
+/**
+ * Hook for checking if a media query matches.
+ *
+ * @param {string} query - The media query to check.
+ * @param {UseMediaQueryOptions} options - Options for the hook.
+ * @returns {Boolean} matches - A boolean indicating whether the media query matches.
+ */
 export function useMediaQuery(
   query: string,
   {
@@ -33,7 +43,7 @@ export function useMediaQuery(
     setMatches(getMatches(query));
   }
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const matchMedia = window.matchMedia(query);
 
     // Triggered at the first client-side load and if query changes

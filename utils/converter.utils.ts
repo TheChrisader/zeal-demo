@@ -60,7 +60,7 @@ function convertValueToString(value: boolean | number | string): string {
 export function formDataToJson(formData: FormData): Record<string, unknown> {
   const result: Record<string, unknown> = {};
 
-  for (const [key, value] of formData.entries()) {
+  for (let [key, value] of formData.entries()) {
     // If the key already exists
     if (result.hasOwnProperty(key)) {
       // Convert to array if it isn't already
@@ -88,7 +88,11 @@ export function formDataToJson(formData: FormData): Record<string, unknown> {
         //   lastModified: value.lastModified,
         // };
       } else {
-        result[key] = value;
+        if (value === "null") {
+          result[key] = null;
+        } else {
+          result[key] = value;
+        }
       }
     }
   }

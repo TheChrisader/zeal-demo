@@ -27,6 +27,7 @@ export interface IPost {
   };
   video_url: string | null;
   source: Partial<IPostSource>;
+  short_url?: string;
   keywords: string[];
   language: Language;
   country: string[];

@@ -3,6 +3,17 @@ import { Id } from "@/lib/database";
 import { IDraft } from "@/types/draft.type";
 import DraftModel from "./draft.model";
 
+export const createInitialDraft = async (userId: string | Id) => {
+  try {
+    return await DraftModel.create({
+      user_id: userId,
+      title: "Untitled Document",
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const createDraft = async (draft: Partial<IDraft>) => {
   try {
     return await DraftModel.create({
@@ -15,7 +26,7 @@ export const createDraft = async (draft: Partial<IDraft>) => {
 
 export const getDraftById = async (id: string | Id): Promise<IDraft | null> => {
   try {
-    const draft = await DraftModel.findOne({ _id: id });
+    const draft = await DraftModel.findById(id);
     return draft?.toObject() || null;
   } catch (error) {
     throw error;

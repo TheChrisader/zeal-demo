@@ -4,6 +4,12 @@ import BatchModel from "@/database/batch/batch.model";
 import PostModel from "@/database/post/post.model";
 import { Id } from "@/lib/database";
 import { IBatch, IBatchArticle } from "@/types/batch.type";
+import {
+  MongoBatchReExecutionError,
+  MongoBulkWriteError,
+  MongoServerError,
+} from "mongodb";
+import { MongooseError } from "mongoose";
 
 function mergeArraysWithUniqueSourceUrls(
   sourceArray: IBatchArticle[],
@@ -126,7 +132,7 @@ export const POST = async () => {
           $in: groups,
         },
         published_at: {
-          $gte: new Date(new Date().setHours(new Date().getHours() - 10)),
+          $gte: new Date(new Date().setHours(new Date().getHours() - 14)),
           $lt: new Date(),
         },
       })
@@ -212,7 +218,7 @@ ${postsList}
       };
 
       const result = await ai.models.generateContent({
-        model: "gemini-2.0-flash",
+        model: "gemini-2.5-pro-preview-05-06",
         contents: prompt,
         config: config,
       });
@@ -291,7 +297,17 @@ ${postsList}
             ordered: false,
           },
         );
-      } catch {
+      } catch (error) {
+        if (error instanceof MongoBulkWriteError) {
+          console.log(error.insertedIds);
+          // error.insertedIds.forEach((id) => {
+          //   const batch = batches.find((batch) => batch._id === id);
+          //   if (batch) {
+          //     createdBatches.push(batch);
+          //   }
+          // })
+        }
+        // console.log(error);
         console.log("????????????????????????????????????????");
       }
 

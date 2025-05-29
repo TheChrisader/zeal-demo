@@ -2,7 +2,13 @@ import { NextFetchEvent, NextRequest, NextResponse } from "next/server";
 import { serverAuthGuard } from "@/lib/auth/serverAuthGuard";
 import { MiddlewareFactory } from "./middleware.type";
 
-const BLACKLIST_PATHNAMES = ["/bookmarks", "/settings", "/write", "/drafts"];
+const BLACKLIST_PATHNAMES = [
+  "/bookmarks",
+  "/settings",
+  "/write",
+  "/editor",
+  "/drafts",
+];
 
 export const authMiddleware: MiddlewareFactory = (next) => {
   return async (req: NextRequest, _next: NextFetchEvent) => {

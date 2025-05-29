@@ -119,6 +119,9 @@ const PostSchema = new Schema<IPost>(
       default: [],
       index: true,
     },
+    short_url: {
+      type: String,
+    },
     language: {
       type: String,
       default: "English",
@@ -184,7 +187,9 @@ const PostSchema = new Schema<IPost>(
 PostSchema.index({ category: 1 });
 // PostSchema.index({ country: 1 });
 PostSchema.index({ published_at: -1 });
+PostSchema.index({ author_id: -1 });
 PostSchema.index({ title: "text", content: "text" });
+PostSchema.index({ short_url: 1 }, { sparse: true });
 
 // Compound indexes
 PostSchema.index({ keywords: 1, published_at: -1 });

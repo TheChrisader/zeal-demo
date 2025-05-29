@@ -1,13 +1,15 @@
 import { fetcher } from "@/lib/fetcher";
 
 import { IDraft } from "@/types/draft.type";
+import { jsonToFormData } from "@/utils/converter.utils";
 
 export const getDraftsByUserId = async () => {
   try {
     const drafts = await fetcher(`/api/v1/draft`);
     return drafts;
   } catch (error) {
-    throw error;
+    // throw error;
+    return [];
   }
 };
 
@@ -16,23 +18,20 @@ export const getDraftData = async (id: string) => {
     const draft = await fetcher(`/api/v1/draft/${id}`);
     return draft;
   } catch (error) {
-    throw error;
+    // throw error;
+    return null;
   }
 };
 
-export const createDraft = async (draft: {
-  title: string;
-  content: string;
-  description: string; // Add description
-  category: string;
-  image?: File | string;
-}) => {
+export const createDraft = async (
+  draft: Partial<IDraft> & { image?: File | string },
+) => {
   try {
-    const formData = new FormData();
-    formData.append("title", draft.title);
-    formData.append("content", draft.content);
-    formData.append("description", draft.description); // Append description
-    formData.append("category", draft.category);
+    if (!draft.title) {
+      throw new Error("Title is required");
+    }
+
+    const formData = jsonToFormData(draft);
 
     if (draft.image) {
       formData.append("image", draft.image);
@@ -42,6 +41,7 @@ export const createDraft = async (draft: {
       method: "POST",
       body: formData,
     });
+
     return newDraft;
   } catch (error) {
     throw error;
@@ -50,30 +50,35 @@ export const createDraft = async (draft: {
 
 export const updateDraft = async (
   id: string,
-  draft: {
-    title: string;
-    content: string;
-    description: string;
-    category: string;
-    image?: File | string;
-  },
+  draft: Partial<IDraft> & { image?: File | string },
 ) => {
   try {
-    const formData = new FormData();
-    formData.append("title", draft.title);
-    formData.append("content", draft.content);
-    formData.append("description", draft.description);
-    formData.append("category", draft.category);
+    const formData = jsonToFormData(draft);
+
+    if (draft.image) {
+      formData.append("image", draft.image);
+    }
 
     if (draft.image) {
       formData.append("image", draft.image);
     }
 
     const updatedDraft = await fetcher(`/api/v1/draft/${id}`, {
-      method: "PUT",
+      method: "PATCH",
       body: formData,
     });
     return updatedDraft;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteDraftById = async (id: string) => {
+  try {
+    const deletedDraft = await fetcher(`/api/v1/draft/${id}`, {
+      method: "DELETE",
+    });
+    return deletedDraft;
   } catch (error) {
     throw error;
   }

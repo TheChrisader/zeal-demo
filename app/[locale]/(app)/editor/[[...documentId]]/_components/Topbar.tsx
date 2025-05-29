@@ -1,0 +1,156 @@
+"use client";
+
+import React, { useState } from "react";
+
+import { IPost } from "@/types/post.type";
+import { User } from "lucia";
+import { useIsMutating, useQuery } from "@tanstack/react-query";
+import useAuth from "@/context/auth/useAuth";
+import { createPost, fetchPostById } from "@/services/post.services";
+import EditableDocumentTitle from "./EditableDocumentTitle";
+import { getWordCount } from "@/utils/editor.utils";
+import { stripHtml } from "string-strip-html";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { fetchById } from "../_utils/composites";
+import { useEditorStore } from "@/context/editorStore/useEditorStore";
+import { Button } from "@/components/ui/button"; // Assuming you have a Button component
+import {
+  Menu,
+  PanelLeftClose,
+  PanelRightClose,
+  PanelLeftOpen,
+  PanelRightOpen,
+} from "lucide-react";
+import { toast } from "sonner";
+import { useRouter } from "@/app/_components/useRouter";
+
+interface TopbarProps {
+  toggleLeftSidebar: () => void;
+  toggleRightSidebar: () => void;
+  isLeftSidebarOpen: boolean;
+  isRightSidebarOpen: boolean;
+}
+
+const Topbar: React.FC<TopbarProps> = ({
+  toggleLeftSidebar,
+  toggleRightSidebar,
+  isLeftSidebarOpen,
+  isRightSidebarOpen,
+}) => {
+  const { user } = useAuth();
+  const isMutating = useIsMutating();
+  const [isPublishing, setIsPublishing] = useState(false);
+  const currentContent = useEditorStore((state) => state.currentContent);
+  const isContentUpdating = useEditorStore((state) => state.isContentUpdating);
+  const activeDocumentId = useEditorStore((state) => state.activeDocumentId);
+  const {
+    data: documentData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery<IPost | null, Error>({
+    queryKey: ["document", activeDocumentId],
+    queryFn: () => fetchById(activeDocumentId as string),
+    enabled: !!activeDocumentId,
+  });
+  const router = useRouter();
+
+  const wordCount = getWordCount(stripHtml(currentContent).result);
+
+  const validateBeforePublish = async (doc: IPost) => {
+    if (!doc.title.trim()) {
+      toast.error(`Title is required.`);
+      return;
+    }
+    if (!doc.content || !stripHtml(doc.content?.trim()).result?.trim()) {
+      toast.error(`Content is required.`);
+      return;
+    }
+    if (!doc.description || !doc.description.trim()) {
+      toast.error(`Preview is required.`);
+      return;
+    }
+    if (doc.category.length === 0) {
+      toast.error(`Category is required.`);
+      return;
+    }
+
+    setIsPublishing(true);
+    try {
+      const post = await createPost(doc);
+      toast.success(`Your post has been published successfully.`);
+      router.push(`/published/${post._id}`);
+    } catch (error) {
+      console.log(error);
+      toast.error(`Something went wrong. Please try again.`);
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  return (
+    <header className="flex h-16 shrink-0 items-center justify-between space-x-6 border-b border-border bg-background p-4">
+      <div className="flex items-center space-x-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleLeftSidebar}
+          className="md:hidden"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleLeftSidebar}
+          className="hidden md:inline-flex"
+        >
+          {isLeftSidebarOpen ? (
+            <PanelLeftClose className="h-5 w-5" />
+          ) : (
+            <PanelLeftOpen className="h-5 w-5" />
+          )}
+        </Button>
+        <EditableDocumentTitle />
+      </div>
+
+      {/* Right side: Actions (e.g., Word Count, Share, Publish) */}
+      <div className="flex items-center space-x-4">
+        <span className="flex gap-2 whitespace-nowrap text-sm text-muted-foreground">
+          {`${wordCount} words`}
+          <LoadingSpinner size={16} isLoading={isContentUpdating} />
+        </span>
+        <button
+          disabled={isMutating > 0}
+          onClick={() => validateBeforePublish(documentData as IPost)}
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isPublishing ? "Publishing..." : "Publish"}
+        </button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleRightSidebar}
+          className="hidden lg:inline-flex"
+        >
+          {isRightSidebarOpen ? (
+            <PanelRightClose className="h-5 w-5" />
+          ) : (
+            <PanelRightOpen className="h-5 w-5" />
+          )}
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleRightSidebar}
+          className="lg:hidden"
+        >
+          <Menu className="h-5 w-5" />{" "}
+          {/* Or a different icon for mobile right toggle if needed */}
+        </Button>
+      </div>
+    </header>
+  );
+};
+
+export default Topbar;

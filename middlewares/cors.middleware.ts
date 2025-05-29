@@ -15,7 +15,7 @@ const corsOptions = {
 
 export const corsMiddleware: MiddlewareFactory = (next, response) => {
   return async (request: NextRequest, _next: NextFetchEvent) => {
-    console.log(allowedOrigins, "ALLOWED ORIGINS");
+    // console.log(allowedOrigins, "ALLOWED ORIGINS");
     if (
       request.nextUrl.pathname.startsWith("/api/v1/admin") ||
       request.nextUrl.pathname === "/api/v1/post/parse"

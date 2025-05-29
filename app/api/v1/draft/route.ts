@@ -17,6 +17,7 @@ import {
 } from "@/utils/file.utils";
 import { uploadImageToS3 } from "@/lib/bucket";
 import { IDraft } from "@/types/draft.type";
+import { formDataToJson } from "@/utils/converter.utils";
 
 export const GET = async () => {
   try {
@@ -50,6 +51,12 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json({ message: "Post body cannot be empty" });
     }
 
+    const newDraft = formDataToJson(formData);
+
+    if (!newDraft.title) {
+      return NextResponse.json({ message: "Title cannot be empty" });
+    }
+
     await connectToDatabase();
     const { user } = await serverAuthGuard();
 
@@ -57,59 +64,37 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json({ message: "Unauthenticated" });
     }
 
-    const file = formData.get("image") as
-      | (Blob & { name: string })
-      | string
-      | null;
-
-    let image_url: string | undefined = undefined;
+    const file = formData.get("image") as (Blob & { name: string }) | null;
 
     if (file) {
-      if (typeof file === "string") {
-        image_url = file;
-      } else {
-        if (!AUTHORIZED_IMAGE_MIME_TYPES.includes(file.type)) {
-          return sendError(
-            buildError({
-              code: WRONG_FILE_FORMAT_ERROR,
-              message: "Wrong file format.",
-              status: 422,
-            }),
-          );
-        }
-
-        if (file.size > AUTHORIZED_IMAGE_SIZE) {
-          return sendError(
-            buildError({
-              code: FILE_TOO_LARGE_ERROR,
-              message: "The file is too large.",
-              status: 422,
-            }),
-          );
-        }
-
-        const photoKey = await uploadImageToS3(file, "posts/");
-
-        if (!photoKey) {
-          return NextResponse.json({ error: "Failed to upload image." });
-        }
-
-        image_url = `${process.env.CLOUDFRONT_BASE_URL}/${photoKey}`;
+      if (!AUTHORIZED_IMAGE_MIME_TYPES.includes(file.type)) {
+        return NextResponse.json(
+          { message: "Wrong file format." },
+          { status: 422 },
+        );
       }
+
+      if (file.size > AUTHORIZED_IMAGE_SIZE) {
+        return NextResponse.json(
+          { message: "File too large." },
+          { status: 422 },
+        );
+      }
+
+      const photoKey = await uploadImageToS3(file, "posts/");
+
+      if (!photoKey) {
+        return NextResponse.json({ error: "Failed to upload image." });
+      }
+
+      const image_url = `${process.env.CLOUDFRONT_BASE_URL}/${photoKey}`;
+
+      newDraft.image_url = image_url;
     }
 
-    const draft: Partial<IDraft> = {
-      user_id: user.id,
-      title: formData.get("title") as string,
-      description: formData.get("description") as string,
-      content_hash: formData.get("content") as string,
-      category: [formData.get("category") as string],
-      image_url,
-    };
+    const draft = await createDraft({ user_id: user.id, ...newDraft });
 
-    await createDraft(draft);
-
-    return NextResponse.json({ message: "Draft created" });
+    return NextResponse.json(draft);
   } catch (error) {
     return sendError(
       buildError({

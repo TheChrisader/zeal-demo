@@ -197,7 +197,7 @@ export default function FloatingWrite() {
         icon: <PenSquare className="h-4 w-4" />,
         label: "Write",
         onClick: () => {
-          router.push("/write");
+          router.push("/editor");
           setIsOpen(false);
         },
       },

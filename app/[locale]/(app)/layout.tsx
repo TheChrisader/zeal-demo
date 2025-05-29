@@ -19,7 +19,15 @@ const FloatingWrite = dynamic(() => import("./_components/FloatingWrite"), {
   ssr: false,
 });
 
-const AppLayout = async ({ children }: { children: ReactNode }) => {
+const AppLayout = async ({
+  children,
+  hideTopbar = false,
+  hideFooter = false,
+}: {
+  children: ReactNode;
+  hideTopbar?: boolean;
+  hideFooter?: boolean;
+}) => {
   await connectToDatabase();
 
   const { user } = cleanObject(await validateRequest());
@@ -33,11 +41,11 @@ const AppLayout = async ({ children }: { children: ReactNode }) => {
   return (
     <AuthProvider value={{ user, canWrite, canAdmin, preferences }}>
       <NotificationProvider>
-        <Topbar />
+        {!hideTopbar && <Topbar />}
         {user && <MobileNav />}
         {children}
         {user && <FloatingWrite />}
-        <Footer />
+        {!hideFooter && <Footer />}
         {user && <div className="max-[750px]:mb-20"></div>}
       </NotificationProvider>
     </AuthProvider>

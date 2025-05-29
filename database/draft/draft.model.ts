@@ -15,37 +15,53 @@ const DraftSchema = new Schema<IDraft>(
       type: String,
       required: true,
     },
-    content_hash: {
+    content: {
       type: String,
-      required: true,
+    },
+    description: {
+      type: String,
+    },
+    image_url: {
+      type: String,
+    },
+    image_key: {
+      type: String,
+    },
+    image_metadata: {
+      x: {
+        type: Number,
+      },
+      y: {
+        type: Number,
+      },
+      scale: {
+        type: Number,
+      },
+      objectFit: {
+        type: String,
+      },
+    },
+    video_url: {
+      type: String,
     },
     category: {
       type: [String],
-      required: true,
     },
     keywords: {
-      type: [String] || null,
-      default: null,
-    },
-    description: {
-      type: String || null,
-      default: null,
+      type: [String],
+      default: [],
     },
     country: {
-      type: [String] || null,
-      default: null,
+      type: [String],
+      default: [],
     },
     language: {
-      type: [String] || null,
-      default: null,
+      type: String,
+      default: "English",
     },
-    image_url: {
-      type: String || null,
-      default: null,
-    },
-    video_url: {
-      type: String || null,
-      default: null,
+    published: {
+      type: Boolean,
+      default: false,
     },
   },
   {
@@ -56,6 +72,8 @@ const DraftSchema = new Schema<IDraft>(
     id: false,
   },
 );
+
+DraftSchema.index({ user_id: 1, created_at: -1 });
 
 DraftSchema.virtual("id").get(function () {
   return this._id.toHexString();
