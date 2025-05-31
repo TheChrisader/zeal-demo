@@ -65,6 +65,9 @@ jobs:
           echo "VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }}" >> .env
           echo "NEXT_PUBLIC_GA_ID=${{ secrets.NEXT_PUBLIC_GA_ID }}" >> .env
           echo "NEXT_PUBLIC_GOOGLE_ADSENSE_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_ADSENSE_KEY }}" >> .env
+          echo "WIKIMEDIA_ACCESS_TOKEN=${{ secrets.WIKIMEDIA_ACCESS_TOKEN }}" >> .env
+          echo "WIKIMEDIA_USER_AGENT=${{ secrets.WIKIMEDIA_USER_AGENT }}" >> .env
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
         shell: bash
 
       - name: Build and push Docker image
