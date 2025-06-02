@@ -7,6 +7,7 @@ import PostPage from "./page";
 import InfinitePostScroll from "../_components/InfinitePostScroll";
 import ReadMoreWrapper from "../_components/ReadMoreWrapper";
 import RecommendedArticles from "../_components/RecommendedArticles";
+import { cookies } from "next/headers";
 // import DeferInstallPromptEvent from "@/app/[locale]/(app)/_components/DeferInstallPromptEvent";
 
 const DeferInstallPromptEvent = dynamic(
@@ -61,11 +62,16 @@ async function getNextPost() {
 }
 
 const PostLayout = ({ children }: { children: React.ReactNode }) => {
+  const cookieStore = cookies();
+  const isSubscribedInitially =
+    cookieStore.get("zealnews_subscribed_newsletter")?.value === "true";
   return (
     <>
       <main className="flex justify-between">
         <InfinitePostScroll loadMoreAction={getNextPost}>
-          <ReadMoreWrapper>{children}</ReadMoreWrapper>
+          <ReadMoreWrapper isSubscribedInitially={isSubscribedInitially}>
+            {children}
+          </ReadMoreWrapper>
           <div className="hidden px-2 max-[750px]:block">
             <RecommendedArticles generic keywords={[]} />
           </div>

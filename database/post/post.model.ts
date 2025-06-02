@@ -169,6 +169,10 @@ const PostSchema = new Schema<IPost>(
       enum: ["auto", "user", "zeal"],
       required: true,
     },
+    shouldShowCTA: {
+      type: Boolean,
+      default: false,
+    },
     published_at: {
       type: Date || String,
       default: Date.now,

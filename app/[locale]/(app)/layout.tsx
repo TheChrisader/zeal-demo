@@ -9,6 +9,7 @@ import { connectToDatabase } from "@/lib/database";
 import { cleanObject } from "@/utils/cleanObject.utils";
 import { NotificationProvider } from "@/context/notifications/NotificationsProvider";
 import { Footer } from "@/components/layout/Footer";
+import { StickyNewsletterBanner } from "@/components/layout/NewsletterForm/StickyNewsletterBanner";
 // import FloatingWrite from "./_components/FloatingWrite";
 
 const MobileNav = dynamic(() => import("@/components/layout/MobileNav/page"), {
@@ -44,6 +45,7 @@ const AppLayout = async ({
         {!hideTopbar && <Topbar />}
         {user && <MobileNav />}
         {children}
+        <StickyNewsletterBanner />
         {user && <FloatingWrite />}
         {!hideFooter && <Footer />}
         {user && <div className="max-[750px]:mb-20"></div>}

@@ -5,6 +5,10 @@ import React, { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import PwaInstall from "../../_components/PwaInstall";
 import { useEnhancedReadingProgress } from "@/hooks/useEnhancedReadingProgress";
+import { ArticleDisplayManager } from "@/components/layout/NewsletterForm/ArticleDisplayManager";
+import { usePathname } from "@/i18n/routing";
+import { getArticleBySlug } from "../_actions/getArticleBySlug";
+import { IPost } from "@/types/post.type";
 
 function getPWADisplayMode() {
   if (document.referrer.startsWith("android-app://")) return "twa";
@@ -51,12 +55,31 @@ function getWithExpiry(key: string) {
   return item.value;
 }
 
-const ReadMoreWrapper = ({ children }: { children: React.ReactNode }) => {
+const ReadMoreWrapper = ({
+  children,
+  isSubscribedInitially,
+}: {
+  children: React.ReactNode;
+  isSubscribedInitially?: boolean;
+}) => {
   const [open, setOpen] = React.useState(false);
+  const [post, setPost] = React.useState<IPost | null>(null);
   const pwaInstallRef = useRef<PWAInstallElement>(null);
   const handleOpen = () => {
     setOpen(true);
   };
+
+  const pathname = usePathname();
+  const slug = pathname.split("/")[2];
+
+  useEffect(() => {
+    const getAricle = async () => {
+      const article = await getArticleBySlug(slug || "");
+      setPost(article);
+    };
+
+    getAricle();
+  }, [slug]);
 
   useEnhancedReadingProgress(open);
 
@@ -80,6 +103,10 @@ const ReadMoreWrapper = ({ children }: { children: React.ReactNode }) => {
     return (
       <div>
         {children}
+        <ArticleDisplayManager
+          shouldDisplayWall={post?.shouldShowCTA || true}
+          isSubscribedInitially={isSubscribedInitially || false}
+        />
         <PwaInstall ref={pwaInstallRef} />
       </div>
     );

@@ -20,6 +20,8 @@ import dynamic from "next/dynamic";
 import ReportDialog from "../_components/ReportDialog";
 import BatchModel from "@/database/batch/batch.model";
 import RelatedExternalArticles from "../_components/RelatedExternalArticles";
+import { NewsletterSignUpForm } from "@/components/layout/NewsletterForm";
+import { StickyNewsletterBanner } from "@/components/layout/NewsletterForm/StickyNewsletterBanner";
 
 export async function generateMetadata({
   params,
@@ -182,6 +184,8 @@ export default async function PostPage({
   return (
     // <main className="flex min-h-[calc(100vh-62px)] gap-4">
     <main className="flex min-h-[calc(100vh-60px)] w-[70vw] flex-col gap-3 px-12 py-4 max-[900px]:px-7 max-[750px]:w-auto max-[500px]:px-4">
+      {/* <NewsletterSignUpForm />
+      <StickyNewsletterBanner /> */}
       <div className="flex flex-col gap-3">
         <h1 className="text-[22px] font-extrabold text-foreground-alt">
           {post.title}

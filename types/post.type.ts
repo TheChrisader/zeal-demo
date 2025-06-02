@@ -38,6 +38,7 @@ export interface IPost {
   top_feature?: string;
   status?: "active" | "removed" | "flagged";
   generatedBy?: "auto" | "user" | "zeal";
+  shouldShowCTA?: boolean;
   published_at: Date | string;
   created_at: string;
   updated_at: string;
