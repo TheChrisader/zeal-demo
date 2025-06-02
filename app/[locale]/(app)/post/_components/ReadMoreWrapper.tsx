@@ -104,7 +104,7 @@ const ReadMoreWrapper = ({
       <div>
         {children}
         <ArticleDisplayManager
-          shouldDisplayWall={post?.shouldShowCTA || true}
+          shouldDisplayWall={post?.shouldShowCTA || false}
           isSubscribedInitially={isSubscribedInitially || false}
         />
         <PwaInstall ref={pwaInstallRef} />
