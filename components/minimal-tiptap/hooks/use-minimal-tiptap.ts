@@ -23,6 +23,7 @@ import {
 } from "../extensions";
 import { useThrottle } from "../hooks/use-throttle";
 import { fileToBase64, getOutput, randomId } from "../utils";
+import { Slice } from "@tiptap/pm/model";
 
 export interface UseMinimalTiptapEditorProps extends UseEditorOptions {
   value?: Content;
@@ -210,6 +211,9 @@ export const useMinimalTiptapEditor = ({
         autocorrect: "off",
         autocapitalize: "off",
         class: cn("focus:outline-none", editorClassName),
+      },
+      transformPastedHTML(html) {
+        return html.replace(/style="[^"]*"/g, "");
       },
     },
     onUpdate: ({ editor }) => handleUpdate(editor),

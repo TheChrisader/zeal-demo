@@ -59,10 +59,6 @@ export const updateDraft = async (
       formData.append("image", draft.image);
     }
 
-    if (draft.image) {
-      formData.append("image", draft.image);
-    }
-
     const updatedDraft = await fetcher(`/api/v1/draft/${id}`, {
       method: "PATCH",
       body: formData,

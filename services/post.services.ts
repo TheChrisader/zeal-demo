@@ -59,13 +59,14 @@ export const updatePostById = async (
 ): Promise<IPost | null> => {
   try {
     const formData = jsonToFormData(post);
+
     if (post.image) {
       formData.append("image", post.image);
     }
 
     const data = await fetcher(`/api/v1/post/${postId}`, {
       method: "PATCH",
-      body: jsonToFormData(post),
+      body: formData,
     });
 
     return data;
