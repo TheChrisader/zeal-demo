@@ -184,7 +184,6 @@ const PostSchema = new Schema<IPost>(
       updatedAt: "updated_at",
     },
     id: false,
-    autoIndex: true,
   },
 );
 
@@ -192,7 +191,6 @@ PostSchema.index({ category: 1 });
 // PostSchema.index({ country: 1 });
 PostSchema.index({ published_at: -1 });
 PostSchema.index({ author_id: -1 });
-PostSchema.index({ title: "text", content: "text" });
 PostSchema.index({ short_url: 1 }, { sparse: true });
 
 // Compound indexes
