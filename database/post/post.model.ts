@@ -188,16 +188,16 @@ const PostSchema = new Schema<IPost>(
 );
 
 PostSchema.index({ category: 1 });
-// PostSchema.index({ country: 1 });
 PostSchema.index({ published_at: -1 });
+PostSchema.index({ created_at: -1 });
 PostSchema.index({ author_id: -1 });
 PostSchema.index({ short_url: 1 }, { sparse: true });
 
 // Compound indexes
 PostSchema.index({ keywords: 1, published_at: -1 });
 PostSchema.index({ status: 1, published_at: -1 });
-// PostSchema.index({ category: 1, country: 1 });
 PostSchema.index({ category: 1, published_at: -1 });
+PostSchema.index({ category: 1, created_at: -1 });
 PostSchema.index({ generatedBy: 1, published_at: -1 });
 PostSchema.index({ title: "text", published_at: -1 });
 
