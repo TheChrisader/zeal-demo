@@ -1,6 +1,6 @@
 # Explicitly add the 'curl' utility to our lean, professional kitchen
 [phases.setup]
-nixPkgs = ["...", "curl"]
+nixPkgs = ["...", "wget", "curl"]
 
 # Define the command to start the application
 [start]
