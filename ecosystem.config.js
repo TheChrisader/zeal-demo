@@ -4,6 +4,7 @@ module.exports = {
       name: "zeal-news",
       script: "node_modules/.bin/next",
       args: "start",
+      cwd: "./",
       // Tell PM2 to fork the app for each available CPU core
       instances: "max",
       exec_mode: "cluster",
