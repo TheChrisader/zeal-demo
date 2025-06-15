@@ -14,7 +14,8 @@
     "email": "email dev --dir utils/email/templates --port 3333"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20",
+    "npm": ">=9.0.0"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.670.0",
