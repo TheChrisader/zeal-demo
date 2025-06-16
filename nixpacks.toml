@@ -4,4 +4,4 @@ nixPkgs = ["...", "wget", "curl"]
 
 # Define the command to start the application
 [start]
-cmd = "pm2-runtime start ecosystem.config.js"
+cmd = "pm2 list && pm2-runtime start ecosystem.config.js"
