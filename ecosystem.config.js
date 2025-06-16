@@ -1,16 +1,15 @@
-console.log(__dirname, "!!!!!1");
 module.exports = {
   apps: [
     {
       name: "zeal-news",
-      //   script: `./node_modules/next/dist/bin/next`,
+      script: `./node_modules/next/dist/bin/next`,
       //   script: "./node_modules/.bin/next",
-      script: "next",
+      //   script: "next",
       //   script: "npm",
-      args: "start",
-      exec_interpreter: "bash",
+      args: "start ./",
+      //   exec_interpreter: "bash",
       //   args: "./node_modules/next/dist/bin/next start",
-      cwd: ".",
+      cwd: "./",
 
       // Tell PM2 to fork the app for each available CPU core
       instances: "max",
