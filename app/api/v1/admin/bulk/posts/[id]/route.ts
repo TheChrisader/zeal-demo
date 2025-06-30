@@ -160,6 +160,10 @@ export async function PUT(
       );
     }
 
+    if (updateData.top_feature) {
+      updateData.top_feature = new Date();
+    }
+
     if (file) {
       if (!AUTHORIZED_IMAGE_MIME_TYPES.includes(file.type)) {
         return NextResponse.json(

@@ -75,7 +75,7 @@ export const POST = async (request: NextRequest) => {
         : [],
       language: (formData.get("language") as "English" | "French") || "English",
       published: true,
-      // published_at: new Date(),
+      published_at: new Date(),
       link:
         (formData.get("link") as string) ||
         `httyd://${generateRandomString(10)}`,
@@ -88,9 +88,7 @@ export const POST = async (request: NextRequest) => {
       },
       image_url,
       top_feature:
-        formData.get("topFeature") === "true"
-          ? new Date().toISOString()
-          : undefined,
+        formData.get("topFeature") === "true" ? new Date() : undefined,
       status: "active",
       ttr: calculateReadingTime(formData.get("content") as string),
     };

@@ -132,7 +132,7 @@ export const POST = async () => {
           $in: groups,
         },
         published_at: {
-          $gte: new Date(new Date().setHours(new Date().getHours() - 11)),
+          $gte: new Date(new Date().setHours(new Date().getHours() - 13)),
           $lt: new Date(),
         },
       })
@@ -218,7 +218,7 @@ ${postsList}
       };
 
       const result = await ai.models.generateContent({
-        model: "gemini-2.5-pro-preview-05-06",
+        model: "gemini-2.5-flash-preview-05-20",
         contents: prompt,
         config: config,
       });

@@ -27,6 +27,7 @@
     "@lexical/file": "^0.18.0",
     "@lexical/react": "^0.18.0",
     "@lucia-auth/adapter-mongodb": "^1.0.3",
+    "@mailerlite/mailerlite-nodejs": "^1.4.0",
     "@mozilla/readability": "^0.5.0",
     "@next/third-parties": "^15.1.4",
     "@node-rs/argon2": "^1.8.3",

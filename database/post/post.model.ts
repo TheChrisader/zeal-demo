@@ -190,6 +190,7 @@ const PostSchema = new Schema<IPost>(
 // Indexes
 PostSchema.index({ category: 1 });
 PostSchema.index({ published_at: -1 });
+PostSchema.index({ top_feature: -1 });
 PostSchema.index({ created_at: -1 });
 PostSchema.index({ author_id: -1 });
 PostSchema.index({ short_url: 1 }, { sparse: true });

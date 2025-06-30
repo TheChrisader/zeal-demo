@@ -17,6 +17,7 @@ import HomepageScroll from "./_components/HomepageScroll";
 import ScrollContainer from "./_components/ScrollContainer";
 import { TodayInHistory } from "./_components/TodayInHistory";
 import Trending from "./_components/Trending";
+import { IPost } from "@/types/post.type";
 
 const ZEAL_CATEGORIES = [
   // "Zeal Headline News",
@@ -131,7 +132,7 @@ const PostBlock = async ({
   category: string;
   user: User | null;
 }) => {
-  const News = await unstable_cache(
+  let News = await unstable_cache(
     async () => {
       return await getPostsByFilters({
         categories: [category],
@@ -144,6 +145,32 @@ const PostBlock = async ({
       tags: [category],
     },
   )();
+
+  const date = new Date(new Date().setHours(new Date().getHours() - 2));
+
+  const featured = await cacheManager({
+    fetcher: async (): Promise<IPost[]> => {
+      return await PostModel.find({
+        category: {
+          $in: [category],
+        },
+        image_url: {
+          $ne: null,
+        },
+        top_feature: {
+          $gte: date,
+        },
+      });
+    },
+    key: category,
+    options: {
+      revalidate: 2,
+    },
+  });
+
+  console.log(featured, "!!!!!!!!!!!");
+
+  News = [...featured, ...News];
 
   if (user) {
     const bookmarkedNews = await unstable_cache(

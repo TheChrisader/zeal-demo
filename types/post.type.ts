@@ -35,7 +35,7 @@ export interface IPost {
   published: boolean;
   reactions: IReaction;
   external: boolean;
-  top_feature?: string;
+  top_feature?: Date;
   status?: "active" | "removed" | "flagged";
   generatedBy?: "auto" | "user" | "zeal";
   shouldShowCTA?: boolean;

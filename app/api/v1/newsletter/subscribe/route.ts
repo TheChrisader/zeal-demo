@@ -1,9 +1,10 @@
 // app/api/subscribe/route.ts
+import MailerLite from "@mailerlite/mailerlite-nodejs";
+import { serialize } from "cookie";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { serialize } from "cookie";
-import { connectToDatabase } from "@/lib/database";
 import SubscriberModel from "@/database/subscriber/subscriber.model";
+import { connectToDatabase } from "@/lib/database";
 
 // Zod schema for request body validation
 const subscribeSchema = z.object({
@@ -27,6 +28,10 @@ export async function POST(request: NextRequest) {
     }
 
     const { email, categories, source } = validation.data;
+
+    const mailerlite = new MailerLite({
+      api_key: process.env.MAILERLITE_API_KEY as string,
+    });
 
     // Check if email already exists
     const existingSubscriber = await SubscriberModel.findOne({ email });
@@ -61,6 +66,10 @@ export async function POST(request: NextRequest) {
       //   source,
     });
     await newSubscriber.save();
+
+    await mailerlite.subscribers.createOrUpdate({
+      email,
+    });
 
     // Set the subscription cookie
     const subscriptionCookie = serialize(
