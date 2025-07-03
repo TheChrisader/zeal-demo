@@ -23,46 +23,65 @@ const getImageUrlFromArticles = (articles: IPost[]) => {
 };
 
 const ids = {
-  "Zeal Headline News": [
-    "686253d8e1340e5bbe7ee47d",
-    "686253d8e1340e5bbe7ee48b",
-    "686253d8e1340e5bbe7ee496",
-    "686253d8e1340e5bbe7ee49d",
-    "686253d8e1340e5bbe7ee4a2",
-    "686253d8e1340e5bbe7ee4a5",
-    "686253d8e1340e5bbe7ee4a8",
-    "686253d8e1340e5bbe7ee4ab",
-  ],
-  "Zeal Global": [
-    "686253eae1340e5bbe7ee4b8",
-    "686253eae1340e5bbe7ee4bb",
-    "686253eae1340e5bbe7ee4bd",
-    "686253eae1340e5bbe7ee4bf",
-    "686253eae1340e5bbe7ee4c1",
-  ],
   "Zeal Entertainment": [
-    "68625400e1340e5bbe7ee4ca",
-    "68625400e1340e5bbe7ee4cd",
-    "68625400e1340e5bbe7ee4cf",
-    "68625400e1340e5bbe7ee4d1",
-    "68625400e1340e5bbe7ee4d3",
+    "68657c1be1340e5bbe7ef63e",
+    "68657c1be1340e5bbe7ef641",
+    "68657c1be1340e5bbe7ef645",
+    "68657c1be1340e5bbe7ef648",
+    "68657c1be1340e5bbe7ef64b",
+    "68657c1be1340e5bbe7ef650",
+    "68657c1be1340e5bbe7ef652",
+    "68657c1be1340e5bbe7ef656",
+    "68657c1be1340e5bbe7ef659",
   ],
   "Business 360": [
-    "68625410e1340e5bbe7ee4dc",
-    "68625410e1340e5bbe7ee4df",
-    "68625410e1340e5bbe7ee4e1",
-    "68625410e1340e5bbe7ee4e3",
-    "68625410e1340e5bbe7ee4e5",
+    "68657c3de1340e5bbe7ef667",
+    "68657c3de1340e5bbe7ef66a",
+    "68657c3de1340e5bbe7ef66d",
+    "68657c3de1340e5bbe7ef670",
+    "68657c3de1340e5bbe7ef672",
+    "68657c3de1340e5bbe7ef674",
+    "68657c3de1340e5bbe7ef676",
+    "68657c3de1340e5bbe7ef679",
+    "68657c3de1340e5bbe7ef67b",
+    "68657c3de1340e5bbe7ef67d",
   ],
   "Zeal Lifestyle": [
-    "68625415e1340e5bbe7ee4ee",
-    "68625415e1340e5bbe7ee4f0",
-    "68625415e1340e5bbe7ee4f2",
+    "68657c4fe1340e5bbe7ef68c",
+    "68657c4fe1340e5bbe7ef690",
+    "68657c4fe1340e5bbe7ef693",
+    "68657c4fe1340e5bbe7ef695",
+    "68657c4fe1340e5bbe7ef697",
+  ],
+  "Zeal Tech": [
+    "68657c77e1340e5bbe7ef6a0",
+    "68657c77e1340e5bbe7ef6a2",
+    "68657c77e1340e5bbe7ef6a4",
+    "68657c77e1340e5bbe7ef6a6",
+    "68657c77e1340e5bbe7ef6a9",
+    "68657c77e1340e5bbe7ef6ac",
+    "68657c77e1340e5bbe7ef6af",
+    "68657c77e1340e5bbe7ef6b1",
+    "68657c77e1340e5bbe7ef6b4",
+    "68657c77e1340e5bbe7ef6b6",
+    "68657c77e1340e5bbe7ef6b9",
+    "68657c77e1340e5bbe7ef6bc",
+    "68657c77e1340e5bbe7ef6bf",
+    "68657c77e1340e5bbe7ef6c2",
+    "68657c77e1340e5bbe7ef6c4",
+    "68657c77e1340e5bbe7ef6c8",
+    "68657c77e1340e5bbe7ef6cb",
+    "68657c77e1340e5bbe7ef6ce",
+    "68657c77e1340e5bbe7ef6d1",
+    "68657c77e1340e5bbe7ef6d4",
   ],
   "Zeal Sports": [
-    "68625422e1340e5bbe7ee4fb",
-    "68625422e1340e5bbe7ee4fd",
-    "68625422e1340e5bbe7ee4ff",
+    "68657c8ee1340e5bbe7ef6ed",
+    "68657c8ee1340e5bbe7ef6f0",
+    "68657c8ee1340e5bbe7ef6f3",
+    "68657c8ee1340e5bbe7ef6f7",
+    "68657c8ee1340e5bbe7ef6fc",
+    "68657c8ee1340e5bbe7ef6ff",
   ],
 };
 
@@ -176,6 +195,7 @@ ${content}
         });
 
         console.log(response.text);
+        if (!response.text || response.text === "undefined") continue;
         const result = JSON.parse(response.text as string);
 
         console.log("object");

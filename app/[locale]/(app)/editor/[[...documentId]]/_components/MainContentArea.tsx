@@ -162,7 +162,7 @@ const MainContentArea: React.FC<MainContentAreaProps> = ({}) => {
   return (
     <div className="flex-1">
       <RichTextEditor
-        className="h-screen text-muted-foreground"
+        className="h-screen text-gray-900/80 dark:text-muted-foreground"
         editorContentClassName="[&>div]:h-screen"
         value={currentContent} // Editor value comes from the store
         onChange={handleEditorChange}

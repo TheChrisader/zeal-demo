@@ -132,7 +132,7 @@ export const POST = async () => {
           $in: groups,
         },
         published_at: {
-          $gte: new Date(new Date().setHours(new Date().getHours() - 13)),
+          $gte: new Date(new Date().setHours(new Date().getHours() - 8)),
           $lt: new Date(),
         },
       })

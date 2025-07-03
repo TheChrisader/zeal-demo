@@ -1,20 +1,19 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
+import { User } from "lucia";
+import { ChevronLeft, ChevronRight, Menu } from "lucide-react"; // Example icons
+import React, { useEffect, useState } from "react"; // Added useState
+import { useEditorStore } from "@/context/editorStore/useEditorStore";
+import { useResizeDelta } from "@/hooks/useResizeDelta";
 import { IDraft } from "@/types/draft.type";
 import { IPost } from "@/types/post.type";
-import { User } from "lucia";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Menu } from "lucide-react"; // Example icons
 
-// Import the new components
-import Topbar from "./Topbar";
 import LeftSidebar from "./LeftSidebar";
 import MainContentArea from "./MainContentArea";
 import RightSidebar from "./RightSidebar";
-import React, { useEffect, useState } from "react"; // Added useState
-import { useQuery } from "@tanstack/react-query";
-import { useEditorStore } from "@/context/editorStore/useEditorStore";
-import { useResizeDelta } from "@/hooks/useResizeDelta";
+import Topbar from "./Topbar";
 
 interface EditorWorkspaceProps {
   activeDocumentId?: string;
@@ -109,7 +108,7 @@ const EditorWorkspace = ({ activeDocumentId }: EditorWorkspaceProps) => {
               initial={isMobile ? "closed" : "open"} // Start closed on mobile if initially open
               animate={isLeftSidebarOpen ? "open" : "closed"}
               exit="closed"
-              className={`flex-shrink-0 border-r border-border bg-background-alt md:flex md:flex-col ${isMobile ? "fixed left-0 top-0 z-40 h-full shadow-xl" : "relative"}`}
+              className={`shrink-0 border-r border-border bg-background-alt md:flex md:flex-col ${isMobile ? "fixed left-0 top-0 z-40 h-full shadow-xl" : "relative"}`}
               style={{ overflow: "hidden" }} // Prevents content spill during animation
             >
               <LeftSidebar
@@ -155,7 +154,7 @@ const EditorWorkspace = ({ activeDocumentId }: EditorWorkspaceProps) => {
               initial={isMobile ? "closed" : "open"} // Start closed on mobile if initially open
               animate={isRightSidebarOpen ? "open" : "closed"}
               exit="closed"
-              className={`flex-shrink-0 border-l border-border bg-background-alt lg:flex lg:flex-col ${isMobile ? "fixed right-0 top-0 z-40 h-full shadow-xl" : "relative"} xl:w-72`}
+              className={`shrink-0 border-l border-border bg-background-alt lg:flex lg:flex-col ${isMobile ? "fixed right-0 top-0 z-40 h-full shadow-xl" : "relative"} xl:w-72`}
               style={{ overflow: "hidden" }} // Prevents content spill during animation
             >
               <RightSidebar

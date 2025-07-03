@@ -7,10 +7,11 @@ const primaryLinks = [
 ];
 
 const secondaryLinks = [
+  { href: "/info/about-us", label: "About Us" },
   { href: "/info/terms-and-conditions", label: "Terms of Use" },
   { href: "/info/privacy-policy", label: "Privacy Policy" },
   { href: "/info/cookie-policy", label: "Cookie Policy" },
-  { href: "/info/partner-with-us", label: "Partner With Us" },
+  { href: "/info/advertise-with-us", label: "Partner With Us" },
   //   { href: "/ad-choices", label: "Ad Choices" },
   //   { href: "/accessibility", label: "Accessibility & CC" },
   //   { href: "/about", label: "About" },

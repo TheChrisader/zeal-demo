@@ -213,7 +213,16 @@ export const useMinimalTiptapEditor = ({
         class: cn("focus:outline-none", editorClassName),
       },
       transformPastedHTML(html) {
-        return html.replace(/style="[^"]*"/g, "");
+        return html.replace(/style="([^"]*)"/g, (match, styles) => {
+          const cleanedStyles = styles
+            .replace(
+              /(?:color|background-color|border-color|text-decoration-color)\s*:\s*[^;]+;?/gi,
+              "",
+            )
+            .trim();
+
+          return cleanedStyles ? `style="${cleanedStyles}"` : "";
+        });
       },
     },
     onUpdate: ({ editor }) => handleUpdate(editor),

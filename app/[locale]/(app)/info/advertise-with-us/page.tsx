@@ -1,8 +1,8 @@
-const PartnerWithUs = () => {
+const AdvertiseWithUs = () => {
   return (
     <div className="prose mx-auto flex flex-col px-3 py-4 lg:max-w-[80vw]">
       <h1>
-        <strong>Partner with Us: Reach Your Target Audience</strong>
+        <strong>Advertise with Us: Reach Your Target Audience</strong>
       </h1>
       <p>
         Are you looking to amplify your brand&#39;s message, drive website
@@ -125,7 +125,7 @@ const PartnerWithUs = () => {
         </li>
       </ul>
       <p>
-        <strong>Why Partner with Us?</strong>
+        <strong>Why Advertise with Us?</strong>
       </p>
       <p>
         We offer a unique opportunity to connect with a highly engaged and
@@ -211,4 +211,4 @@ const PartnerWithUs = () => {
   );
 };
 
-export default PartnerWithUs;
+export default AdvertiseWithUs;
