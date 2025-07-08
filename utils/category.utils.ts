@@ -4,14 +4,14 @@ export const flattenCategories = (arr: Category[]) => {
   const result: string[] = [];
 
   arr.forEach((item) => {
-    if (item.path) {
+    if (!item.sub) {
       result.push(item.name);
-    } else if (item.sub) {
+    } else {
       result.push(...flattenCategories(item.sub));
     }
   });
 
-  return result;
+  return result.filter((item) => item !== "Home");
 };
 
 export const findSiblings = (targetName: string): string[] => {
