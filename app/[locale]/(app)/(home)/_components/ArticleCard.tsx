@@ -131,7 +131,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
         <div className="flex-1 p-4">
           {/* Category */}
           <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-primary">
-            {article.category[0]}
+            <span>{article.category[0]}</span>
+            {article.category[1] && (
+              <>
+                <span className="mx-2">•</span>
+                <span>{article.category[1]}</span>
+              </>
+            )}
           </div>
 
           <div className="flex items-center justify-between gap-2">

@@ -7,11 +7,12 @@ export type Category = {
 export type Categories = Category[];
 
 export const categoryMap: Record<string, string[]> = {
-  Local: ["Headlines", "Zeal Headline News"],
+  Local: ["Headlines", "Zeal Headline News", "Local"],
   "Across Africa": [
     "Top West African News",
     "Top East African News",
     "Top Southern Africa News",
+    "Across Africa",
   ],
   Global: [
     "Top US News",
@@ -19,18 +20,26 @@ export const categoryMap: Record<string, string[]> = {
     "EU News",
     "Asian News",
     "Zeal Global",
+    "Global",
   ],
   Politics: ["Politics"],
-  Climate: ["Weather"],
-  Startup: ["Startup News"],
+  Climate: ["Weather", "Climate"],
+  Startup: ["Startup News", "Startup"],
   "Economy/Finance": [
     "Economy",
     "Personal Finance",
     "Market Watch",
     "Business 360",
+    "Economy/Finance",
   ],
   Crypto: ["Crypto"],
-  Career: ["Latest Job News", "Career Tips", "Top Global Jobs"],
+  Career: [
+    "Latest Job News",
+    "Career Tips",
+    "Top Global Jobs",
+    "Entrepreneurship",
+    "Career",
+  ],
   "Latest Tech News": [
     "Latest Tech News",
     "Cartech",
@@ -39,23 +48,35 @@ export const categoryMap: Record<string, string[]> = {
     "Zeal Tech",
   ],
   Fintech: ["Fintech"],
-  AI: ["Artificial Intelligence"],
-  Health: ["Health News", "Zeal Lifestyle"],
-  Food: ["Food & Nutrition"],
-  Travel: ["Travel & Tourism"],
-  Parenting: ["Family & Parenting"],
-  Fashion: ["Style & Beauty"],
+  AI: ["Artificial Intelligence", "AI"],
+  "Social Insight": ["Social Insight"],
+  // Culture: ["Culture"],
+  // History: ["History"],
+  // "Diaspora Connect": ["Diaspora Connect"],
+  // Science: ["Science"],
+  Health: ["Health News", "Zeal Lifestyle", "Health"],
+  Food: ["Food & Nutrition", "Food"],
+  Travel: ["Travel & Tourism", "Travel"],
+  Parenting: ["Family & Parenting", "Parenting"],
+  Fashion: ["Style & Beauty", "Fashion"],
   "Celebrity News": ["Celebrity News"],
-  Profiles: ["Hot Interviews", "Zeal Entertainment"],
-  Music: ["Trending Music"],
-  Movies: ["Top Movies"],
-  Sports: ["Top Sports News"],
+  Profiles: ["Hot Interviews", "Zeal Entertainment", "Profiles"],
+  Music: ["Trending Music", "Music"],
+  Movies: ["Top Movies", "Movies"],
+  Sports: ["Top Sports News", "Sports", "UK Premiership", "Basketball"],
 };
 
 export const topLevelCategoryMap: Record<string, string[]> = {
   News: ["Local", "Across Africa", "Global", "Politics", "Climate"],
   Business: ["Startup", "Economy/Finance", "Crypto", "Career"],
   Technology: ["Latest Tech News", "Fintech", "AI"],
+  Discovery: [
+    "Social Insight",
+    // "Culture",
+    // "History",
+    // "Diaspora Connect",
+    // "Science",
+  ],
   Lifestyle: ["Health", "Food", "Travel", "Parenting", "Fashion"],
   Entertainment: ["Celebrity News", "Profiles", "Music", "Movies", "Sports"],
 };
@@ -147,6 +168,32 @@ const Categories: Categories = [
         name: "Fintech",
         path: "/fintech",
       },
+    ],
+  },
+  {
+    name: "Discovery",
+    path: "/discovery",
+    sub: [
+      {
+        name: "Social Insight",
+        path: "/social-insight",
+      },
+      // {
+      //   name: "Culture",
+      //   path: "/culture",
+      // },
+      // {
+      //   name: "History",
+      //   path: "/history",
+      // },
+      // {
+      //   name: "Diaspora Connect",
+      //   path: "/diaspora-connect",
+      // },
+      // {
+      //   name: "Science",
+      //   path: "/science",
+      // },
     ],
   },
   {

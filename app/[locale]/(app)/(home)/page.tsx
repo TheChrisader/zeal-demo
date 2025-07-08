@@ -342,6 +342,8 @@ const HeadlinesBlock = async ({
   const daysAgo = new Date();
   daysAgo.setDate(daysAgo.getDate() - 5);
 
+  console.log(...getTopLevelCategoryList(category), "!!!!!!!!!!1");
+
   let HeadlinesPosts: IPost[] = user
     ? await unstable_cache(
         async () => {
