@@ -34,11 +34,11 @@ const SearchInput = ({
 
   return (
     <label
-      className={`bg-subtle-bg relative flex items-center rounded-full px-3 shadow-basic has-[input:focus]:outline has-[input:focus]:outline-2 has-[input:focus]:outline-primary ${className}`}
+      className={`relative flex items-center rounded-full bg-subtle-bg px-3 shadow-basic has-[input:focus]:outline has-[input:focus]:outline-2 has-[input:focus]:outline-primary ${className}`}
     >
       <SearchIcon className="text-[#959595]" />
       <Input
-        className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+        className="w-fit border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
         placeholder={placeholder}
         type="search"
         maxLength={512}

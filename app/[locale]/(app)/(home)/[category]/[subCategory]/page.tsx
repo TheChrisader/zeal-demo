@@ -8,23 +8,27 @@ import { IPost } from "@/types/post.type";
 import { CATEGORIES, TCategory } from "@/types/utils/category.type";
 import { findSiblings } from "@/utils/category.utils";
 import { getCategoryFromPath } from "@/utils/path.utils";
-import DiscoverPage from "./_components/Discover";
-import VideoFeed from "./_components/VideoFeed"; // Updated import from VideoInterface to VideoFeed
-import ArticlesContainer from "../_components/ArticlesContainer";
-import Trending from "../_components/Trending";
-import ScrollContainer from "../_components/ScrollContainer";
-import Headlines from "../_components/Headlines";
+import DiscoverPage from "../_components/Discover";
+import VideoFeed from "../_components/VideoFeed"; // Updated import from VideoInterface to VideoFeed
+import ArticlesContainer from "../../_components/ArticlesContainer";
+import Trending from "../../_components/Trending";
+import ScrollContainer from "../../_components/ScrollContainer";
+import Headlines from "../../_components/Headlines";
 import { unstable_cache } from "next/cache";
 import { deduplicateByKey } from "@/utils/object.utils";
-import Categories, { getTopLevelCategoryList } from "@/categories";
+import Categories, {
+  categoryMap,
+  getCategoryByPath,
+  getTopLevelCategoryList,
+} from "@/categories";
 import PostModel from "@/database/post/post.model";
 import { cacheManager } from "@/lib/cache";
 import { getPreferencesByUserId } from "@/database/preferences/preferences.repository";
 import { IPreferences } from "@/types/preferences.type";
 import { User } from "lucia";
-import ArticleCard from "../_components/ArticleCard";
+import ArticleCard from "../../_components/ArticleCard";
 import { notFound } from "next/navigation";
-import Navbar from "./_components/SubNav";
+import { isFirstDayOfMonth } from "date-fns";
 
 const whitelist = ["headlines"];
 
@@ -275,6 +279,33 @@ const HeadlinesBlock = async ({
     "_id",
   );
 
+  if (user) {
+    const bookmarkedHeadlinesPosts = await unstable_cache(
+      async () => {
+        return await BookmarkModel.find({
+          user_id: user?.id,
+          article_id: { $in: HeadlinesPosts.map((article) => article._id) },
+        });
+      },
+      [`bookmarks-${user?.id.toString()}`],
+      {
+        revalidate: 60 * 60,
+        tags: [`bookmarks-${user?.id.toString()}`],
+      },
+    )();
+
+    const bookmarkedHeadlinesPostsIds = new Set(
+      bookmarkedHeadlinesPosts
+        .map((bookmark) => bookmark.article_id)
+        .map((id) => id?.toString()),
+    );
+
+    HeadlinesPosts.forEach((article) => {
+      if (bookmarkedHeadlinesPostsIds.has(article._id!.toString())) {
+        article.bookmarked = true;
+      }
+    });
+  }
   return (
     <ArticlesContainer title={category}>
       <Headlines headlines={HeadlinesPosts} />
@@ -285,11 +316,11 @@ const HeadlinesBlock = async ({
   );
 };
 
-export default async function CategoryPage({
+export default async function SubCategoryPage({
   params,
   searchParams,
 }: {
-  params: { category: string };
+  params: { subCategory: string };
   searchParams?: {
     query?: string;
     page?: string;
@@ -298,16 +329,18 @@ export default async function CategoryPage({
   await connectToDatabase();
   const { user } = await validateRequest();
 
-  const sub = Categories.find(
-    (category) =>
-      category.name.toLowerCase() === params.category.trim().toLowerCase(),
-  )?.sub;
+  const category = getCategoryByPath(params.subCategory);
+  console.log(category, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
-  if (!sub) {
+  if (!category) {
     notFound();
   }
 
-  const categories = sub.map((category) => category.name).filter(Boolean);
+  const categories = categoryMap[category.name]?.filter(Boolean);
+
+  if (!categories || categories?.length === 0) {
+    notFound();
+  }
 
   // return (
   //   <main className="flex min-h-[calc(100vh-62px)] flex-col">
@@ -328,15 +361,8 @@ export default async function CategoryPage({
   //   </main>
   // );
 
-  console.log(categories, "This is the category being rendered");
-
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-7">
-      <Navbar
-        items={sub}
-        // activeItem={activeItem}
-        // onItemClick={handleNavClick}
-      />
       {categories.map((category) => {
         return (
           <HeadlinesBlock key={category} user={user} category={category} />

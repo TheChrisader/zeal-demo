@@ -67,7 +67,7 @@ const HomepageScroll = ({
     const element = loadRef.current;
     const observer = new IntersectionObserver(([entry]) => {
       if (entry!.isIntersecting && !isLoading) {
-        handleLoad();
+        // handleLoad();
       }
     });
 

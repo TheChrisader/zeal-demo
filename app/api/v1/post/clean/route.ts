@@ -6,34 +6,25 @@ export const POST = async () => {
   try {
     // Connect to MongoDB
     await connectToDatabase();
+    // Calculate the date 30 minutes ago
+    const thirtyMinutesAgo = new Date(Date.now() - 35 * 60 * 1000);
 
-    const posts = await PostModel.find({
-      generatedBy: "user",
-    });
+    // Find and update all posts created in the last 30 minutes with keyword: null
+    const result = await PostModel.updateMany(
+      {
+        created_at: { $gte: thirtyMinutesAgo },
+        keywords: null,
+      },
+      {
+        $set: { keywords: [] },
+      },
+    );
 
-    // Process each post
-    for (const post of posts) {
-      if (post.content && typeof post.content === "string") {
-        // Create a regex with the exact substring (case-sensitive)
-        const regex = new RegExp("d3h4b588jh7zgi", "g");
-
-        // Perform replacement only if substring exists
-        if (regex.test(post.content)) {
-          const newContent = post.content.replace(regex, "d3hovs1ug0rvor");
-
-          // Update only if content actually changed
-          if (newContent !== post.content) {
-            post.content = newContent;
-            await post.save();
-            console.log(`Updated content for post: ${post._id}`);
-          }
-        }
-      }
-    }
+    console.log(`Successfully updated ${result.modifiedCount} documents.`);
 
     console.log("Content update process completed");
     return NextResponse.json({
-      message: `Successfully updated ${posts.length} posts`,
+      message: `Successfully updated ${result.modifiedCount} posts`,
     });
   } catch (error) {
     console.error("Error updating posts:", error);

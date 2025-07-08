@@ -18,16 +18,24 @@ import ScrollContainer from "./_components/ScrollContainer";
 import { TodayInHistory } from "./_components/TodayInHistory";
 import Trending from "./_components/Trending";
 import { IPost } from "@/types/post.type";
+import {
+  categoryMap,
+  getTopLevelCategoryList,
+  TOP_LEVEL_CATEGORIES,
+} from "@/categories";
+import { deduplicateByKey } from "@/utils/object.utils";
 
-const ZEAL_CATEGORIES = [
-  // "Zeal Headline News",
-  "Zeal Global",
-  "Zeal Entertainment",
-  "Business 360",
-  "Zeal Lifestyle",
-  "Zeal Tech",
-  "Zeal Sports",
-];
+// const ZEAL_CATEGORIES = [
+//   // "Zeal Headline News",
+//   "Zeal Global",
+//   "Zeal Entertainment",
+//   "Business 360",
+//   "Zeal Lifestyle",
+//   "Zeal Tech",
+//   "Zeal Sports",
+// ];
+
+const ZEAL_CATEGORIES = TOP_LEVEL_CATEGORIES;
 
 function createTimedRandomGenerator(timeout: number) {
   let lastGeneratedValue: number | null = null;
@@ -135,7 +143,7 @@ const PostBlock = async ({
   let News = await unstable_cache(
     async () => {
       return await getPostsByFilters({
-        categories: [category],
+        categories: [...getTopLevelCategoryList(category)!],
         limit: 4,
       });
     },
@@ -232,7 +240,7 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
     ? await (async () => {
         return await PostModel.find({
           category: {
-            $in: [category],
+            $in: [...getTopLevelCategoryList(category)!],
           },
           // country: {
           //   $in: [preferences?.country || "Nigeria"],
@@ -251,7 +259,7 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
     : await (async () => {
         return await PostModel.find({
           category: {
-            $in: [category],
+            $in: [...getTopLevelCategoryList(category)!],
           },
           // country: {
           //   $in: ["Nigeria"],
@@ -323,7 +331,7 @@ const HeadlinesBlock = async ({
     await getPreferencesByUserId(user?.id as string);
 
   const countryFilter =
-    category === "Headlines"
+    category === "Local"
       ? {
           country: {
             $in: [preferences?.country || "Nigeria"],
@@ -334,12 +342,12 @@ const HeadlinesBlock = async ({
   const daysAgo = new Date();
   daysAgo.setDate(daysAgo.getDate() - 5);
 
-  const HeadlinesPosts = user
+  let HeadlinesPosts: IPost[] = user
     ? await unstable_cache(
         async () => {
           return await PostModel.find({
             category: {
-              $in: [category],
+              $in: [...getTopLevelCategoryList(category)!],
             },
             image_url: {
               $ne: null,
@@ -366,7 +374,7 @@ const HeadlinesBlock = async ({
         async () => {
           return await PostModel.find({
             category: {
-              $in: [category],
+              $in: [...getTopLevelCategoryList(category)!],
             },
             image_url: {
               $ne: null,
@@ -393,6 +401,79 @@ const HeadlinesBlock = async ({
     return <></>;
   }
 
+  const featureDate = new Date(new Date().setHours(new Date().getHours() - 2));
+
+  const featured = await cacheManager({
+    fetcher: async (): Promise<IPost[]> => {
+      return await PostModel.find({
+        category: {
+          $in: [...getTopLevelCategoryList(category)!],
+        },
+        image_url: {
+          $ne: null,
+        },
+        top_feature: {
+          $gt: featureDate,
+        },
+      });
+    },
+    key: `${category}-featured`,
+    options: {
+      revalidate: 2,
+    },
+  });
+
+  const prioritizedDate = new Date(
+    new Date().setHours(new Date().getHours() - 8),
+  );
+
+  const prioritizedUser = await cacheManager({
+    fetcher: async (): Promise<IPost[]> => {
+      return await PostModel.find({
+        category: {
+          $in: [...getTopLevelCategoryList(category)],
+        },
+        image_url: {
+          $ne: null,
+        },
+        generatedBy: "user",
+        published_at: {
+          $gt: prioritizedDate,
+        },
+      }).limit(5);
+    },
+    key: `${category}-user`,
+    options: {
+      revalidate: 60 * 60,
+    },
+  });
+
+  const prioritizedZeal = await cacheManager({
+    fetcher: async (): Promise<IPost[]> => {
+      return await PostModel.find({
+        category: {
+          $in: [...getTopLevelCategoryList(category)],
+        },
+        image_url: {
+          $ne: null,
+        },
+        generatedBy: "zeal",
+        published_at: {
+          $gt: prioritizedDate,
+        },
+      }).limit(5);
+    },
+    key: `${category}-zeal`,
+    options: {
+      revalidate: 60 * 60,
+    },
+  });
+
+  HeadlinesPosts = deduplicateByKey(
+    [...featured, ...prioritizedUser, ...prioritizedZeal, ...HeadlinesPosts],
+    "_id",
+  );
+
   if (user) {
     const bookmarkedHeadlinesPosts = await unstable_cache(
       async () => {
@@ -415,17 +496,13 @@ const HeadlinesBlock = async ({
     );
 
     HeadlinesPosts.forEach((article) => {
-      if (bookmarkedHeadlinesPostsIds.has(article._id.toString())) {
+      if (bookmarkedHeadlinesPostsIds.has(article._id!.toString())) {
         article.bookmarked = true;
       }
     });
   }
   return (
-    <ArticlesContainer
-      title={
-        category === "Headlines" ? "News Across Africa" : "Zeal Headline News"
-      }
-    >
+    <ArticlesContainer title={category}>
       <Headlines headlines={HeadlinesPosts} />
       <ScrollContainer loadMoreAction={loadMoreHeadlines} category={category}>
         <></>
@@ -515,27 +592,30 @@ export default async function Home({
 
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-7">
-      <HeadlinesBlock user={user} category="Zeal Headline News" />
+      <HeadlinesBlock user={user} category="News" />
       <TodayInHistory />
-      <HeadlinesBlock user={user} category="Headlines" />
+      <HeadlinesBlock user={user} category="Across Africa" />
 
-      <HomepageScroll
+      {/* <HomepageScroll
         // currentSelection={preferences!.category_updates!}
         currentSelection={ZEAL_CATEGORIES}
         loadMoreAction={loadMoreAction}
         preferences={preferences.category_updates}
-      >
-        {(
-          await shuffleArray(
-            ZEAL_CATEGORIES,
-            // preferences?.category_updates?.filter(
-            //   (category) => category !== "Viral Videos",
-            // ),
-          )
-        )?.map((category) => {
-          return <PostBlock key={category} category={category} user={user} />;
-        })}
-      </HomepageScroll>
+      > */}
+      {(
+        await shuffleArray(
+          ZEAL_CATEGORIES,
+          // preferences?.category_updates?.filter(
+          //   (category) => category !== "Viral Videos",
+          // ),
+        )
+      )?.map((category) => {
+        // return <PostBlock key={category} category={category} user={user} />;
+        return (
+          <HeadlinesBlock key={category} user={user} category={category} />
+        );
+      })}
+      {/* </HomepageScroll> */}
     </main>
   );
 }

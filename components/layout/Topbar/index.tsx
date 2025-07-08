@@ -29,6 +29,8 @@ import { Button } from "@/components/ui/button";
 import { useNotificationContext } from "@/context/notifications/NotificationsProvider";
 import { GH, KE, NG, UG, ZA, ZM } from "country-flag-icons/react/3x2";
 import ZealLogo from "@/assets/ZealLogo";
+import { BurgerMenu, Sidebar } from "../Sidebar";
+import { LogIn } from "lucide-react";
 
 interface UserActionProps {
   user: User | null;
@@ -100,7 +102,8 @@ const UserAction = ({ user }: UserActionProps) => {
         href={"/signin"}
         className="flex h-auto gap-2 rounded-full bg-background px-4 py-2 shadow-basic hover:bg-accent hover:text-accent-foreground"
       >
-        <span className="text-sm font-medium text-muted-alt">Log In</span>
+        {/* <span className="text-sm font-medium text-muted-alt">Log In</span> */}
+        <LogIn className="size-5 text-muted-foreground" />
       </Link>
     );
   }
@@ -143,7 +146,7 @@ const Write = () => {
         href="/signup"
       >
         <PenIcon />
-        <span className="text-sm font-medium text-muted-alt">Write</span>
+        {/* <span className="text-sm font-medium text-muted-alt">Write</span> */}
       </Link>
     );
   }
@@ -159,7 +162,7 @@ const Write = () => {
             // Disabled style to indicate pending status
           >
             <PenIcon />
-            <span className="text-sm font-medium text-muted-alt">Write</span>
+            {/* <span className="text-sm font-medium text-muted-alt">Write</span> */}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[280px] p-4" align="end" sideOffset={12}>
@@ -185,7 +188,7 @@ const Write = () => {
           className="flex h-auto gap-2 rounded-full px-4 py-2"
         >
           <PenIcon />
-          <span className="text-sm font-medium text-muted-alt">Write</span>
+          {/* <span className="text-sm font-medium text-muted-alt">Write</span> */}
         </Button>
       </WriterForm>
     );
@@ -197,7 +200,7 @@ const Write = () => {
       href="/editor"
     >
       <PenIcon />
-      <span className="text-sm font-medium text-muted-alt">Write</span>
+      {/* <span className="text-sm font-medium text-muted-alt">Write</span> */}
     </Link>
   );
 };
@@ -207,6 +210,9 @@ const Topbar = () => {
   const { user } = useAuth();
   const [isDark, setIsDark] = useState(false);
   const [showActions, setShowActions] = useState(false);
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [currentPath, setCurrentPath] = useState("/");
 
   const { theme } = useTheme();
 
@@ -229,25 +235,35 @@ const Topbar = () => {
     return null;
   }
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const closeSidebar = () => {
+    setIsSidebarOpen(false);
+  };
+
   return (
     <>
-      <header className="sticky top-0 z-50 flex h-fit items-center justify-between bg-card-alt-bg px-[100px] py-3 shadow-md max-[900px]:px-7">
-        <div className="flex gap-[100px]">
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={closeSidebar}
+        currentPath={currentPath}
+      />
+      <header className="sticky top-0 z-50 flex h-fit items-center justify-between bg-card-alt-bg px-[100px] py-3 shadow-md max-[900px]:px-7 max-[350px]:px-2">
+        <div className="relative flex w-full items-center justify-between">
+          <BurgerMenu
+            isOpen={isSidebarOpen}
+            onToggle={toggleSidebar}
+            className="mr-4"
+          />
+          <div className="absolute left-1/2 top-1/2 flex grow -translate-x-1/2 -translate-y-1/2 transform items-center justify-center">
+            <Link href="/">
+              <ZealLogo className={`${isDark ? "fill-white" : ""}`} />
+            </Link>
+          </div>
+          {/* <div className="flex gap-[100px]">
           <Link href="/">
-            {/* <Image
-              // src={theme === "dark" ? ZealLogoDark : ZealLogo}
-              src={logo}
-              alt="logo"
-              // height={20.4}
-              priority
-              unoptimized
-              className="h-[20.4px] w-[117px] object-cover"
-            /> */}
-            {/* <img
-              src={logo}
-              className="h-[20.4px] w-[117px] object-cover"
-              alt="logo"
-            /> */}
             <ZealLogo className={`${isDark ? "fill-white" : ""}`} />
           </Link>
           {user && showActions && (
@@ -277,35 +293,22 @@ const Topbar = () => {
                   />
                 )}
               </div>
-              {/* <div className="relative flex">
-                <Link
-                  className="text-sm font-semibold text-success"
-                  href="/bookmarks"
-                >
-                  Bookmarks
-                </Link>
-                {pathname === "/bookmarks" && (
-                  <motion.span
-                    layoutId="topbarUnderline"
-                    className="absolute bottom-[-21px] h-1 w-full rounded-full bg-success"
-                  />
-                )}
-              </div> */}
             </div>
           )}
-        </div>
-        <div className="flex h-fit items-center gap-5 max-[510px]:gap-2">
-          <div className="max-[400px]:hidden">
-            <Write />
-            {/* <WriterForm>
+        </div> */}
+          <div className="flex h-fit items-center gap-5 max-[510px]:gap-2">
+            <div className="max-[400px]:hidden">
+              <Write />
+              {/* <WriterForm>
               <PenIcon />
               <span className="text-sm font-medium text-muted-alt">Write</span>
             </WriterForm> */}
+            </div>
+            <div className="h-8">
+              <Separator orientation="vertical" />
+            </div>
+            <UserAction user={user} />
           </div>
-          <div className="h-8">
-            <Separator orientation="vertical" />
-          </div>
-          <UserAction user={user} />
         </div>
       </header>
       {/* <Separator /> */}

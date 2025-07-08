@@ -19,21 +19,23 @@ const Headlines = ({ headlines }: HeadlinesProps) => {
 
   return (
     <div className="flex gap-6 max-[900px]:flex-col">
-      <div className="flex-1">
-        <HeadlineArticle article={headline} />
+      <div className="basis-3/5">
+        <HeadlineArticle article={headline!} />
       </div>
-      <div className="flex flex-1 flex-col gap-2">
-        <ResponsiveHeadlines
-          headlines={headlines.map((post) => cleanObject(post))}
-        >
-          {wideHeadlines.map((_, index) => (
-            <ArticleCard
-              // className="max-[800px]:min-w-[450px]"
-              article={headlines[index]}
-              key={index}
-            />
-          ))}
-        </ResponsiveHeadlines>
+      <div className="basis-2/5">
+        <div className="flex flex-col gap-2">
+          <ResponsiveHeadlines
+            headlines={headlines.map((post) => cleanObject(post))}
+          >
+            {wideHeadlines.map((_, index) => (
+              <ArticleCard
+                // className="max-[800px]:min-w-[450px]"
+                article={headlines[index]!}
+                key={index}
+              />
+            ))}
+          </ResponsiveHeadlines>
+        </div>
       </div>
     </div>
   );

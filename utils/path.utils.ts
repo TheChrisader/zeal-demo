@@ -6,10 +6,9 @@ export const getCategoryFromPath = (path: string) => {
   let category: Category | undefined = undefined;
   let subcategory: string | undefined = undefined;
 
-  const index = Categories.findIndex((item) => item.name === "Local News");
+  // const index = Categories.findIndex((item) => item.name === "Local News");
   const cats: Category[] = deepClone(Categories);
-  cats[index]!.sub![1]!.name = "Zeal Headline News";
-  console.log(cats[index]!.sub![1]!.name);
+  // cats[index]!.sub![1]!.name = "Zeal Headline News";
 
   category = cats.find(
     (item) =>

@@ -161,7 +161,7 @@ export async function PUT(
     }
 
     if (updateData.top_feature) {
-      updateData.top_feature = new Date();
+      updateData.top_feature = new Date().toISOString();
     }
 
     if (file) {

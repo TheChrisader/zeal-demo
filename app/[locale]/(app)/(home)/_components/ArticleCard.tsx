@@ -11,11 +11,11 @@ const BookmarkButton = dynamic(() => import("./BookmarkButton"), {
 });
 
 interface ArticleCardProps {
-  article?: IPost;
+  article: IPost;
   className?: string;
 }
 
-const ArticleCard = ({ article, className }: ArticleCardProps) => {
+const ArticleCards = ({ article, className }: ArticleCardProps) => {
   if (!article?.image_url) {
     return (
       <div
@@ -26,7 +26,7 @@ const ArticleCard = ({ article, className }: ArticleCardProps) => {
           className={`flex h-fit w-full flex-1 cursor-pointer gap-5 [&_h3]:hover:text-primary [&_h3]:hover:underline`}
         >
           <div className="flex flex-col justify-center">
-            <h3 className="text-md text-foreground-alt mb-2 font-semibold">
+            <h3 className="text-md mb-2 font-semibold text-foreground-alt">
               {truncateString(article?.title)}
             </h3>
             <div className="flex items-center gap-2 max-[400px]:flex-col max-[400px]:items-start">
@@ -36,7 +36,7 @@ const ArticleCard = ({ article, className }: ArticleCardProps) => {
                   alt="article source icon"
                   src={article?.source.icon}
                 />
-                <span className="text-muted-alt text-xs font-normal">
+                <span className="text-xs font-normal text-muted-alt">
                   {article?.source.name}
                 </span>
               </div>
@@ -44,7 +44,7 @@ const ArticleCard = ({ article, className }: ArticleCardProps) => {
                 <Separator orientation="vertical" />
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-muted-alt text-xs font-normal">
+                <span className="text-xs font-normal text-muted-alt">
                   {getPublishTimeStamp(article?.published_at as string)}
                 </span>
                 <div className="h-3">
@@ -90,12 +90,12 @@ const ArticleCard = ({ article, className }: ArticleCardProps) => {
               alt="Article source Icon"
               src={article?.source.icon}
             />
-            <span className="text-muted-alt text-xs font-normal">
+            <span className="text-xs font-normal text-muted-alt">
               {article?.source.name}
             </span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="text-muted-alt text-xs font-normal">
+            <span className="text-xs font-normal text-muted-alt">
               {getPublishTimeStamp(article?.published_at as string)}
             </span>
             <div className="h-3">
@@ -115,6 +115,54 @@ const ArticleCard = ({ article, className }: ArticleCardProps) => {
         bookmarked={article?.bookmarked}
       />
     </div>
+  );
+};
+
+const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
+  const imageUrl = article?.image_url || "./public/placeholder.png";
+
+  return (
+    <Link
+      href={`/post/${article.slug}`}
+      className="w-full overflow-hidden rounded-lg border shadow-sm transition-all duration-700 hover:scale-[0.97] hover:border-primary hover:shadow-md [&_h3]:hover:text-primary [&_h3]:hover:underline"
+    >
+      <div className="flex">
+        {/* Content Section */}
+        <div className="flex-1 p-4">
+          {/* Category */}
+          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-primary">
+            {article.category[0]}
+          </div>
+
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="mb-3 cursor-pointer text-base font-bold leading-tight text-foreground-alt">
+              {article.title}
+            </h3>
+
+            {/* Image Section */}
+            <div className="size-12 min-w-12 overflow-hidden rounded-md">
+              <img
+                src={imageUrl}
+                alt={article.title}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </div>
+
+          <p className="mb-3 text-sm leading-relaxed text-muted-foreground">
+            {truncateString(article.description, 120)}
+          </p>
+
+          {/* Author Info */}
+          <div className="text-xs text-muted-foreground">
+            <span>By </span>
+            <span className="cursor-pointer font-semibold text-primary hover:underline">
+              {article.source.name}
+            </span>
+          </div>
+        </div>
+      </div>
+    </Link>
   );
 };
 
