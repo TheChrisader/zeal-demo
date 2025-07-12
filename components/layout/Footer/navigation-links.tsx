@@ -11,7 +11,7 @@ const secondaryLinks = [
   { href: "/info/terms-and-conditions", label: "Terms of Use" },
   { href: "/info/privacy-policy", label: "Privacy Policy" },
   { href: "/info/cookie-policy", label: "Cookie Policy" },
-  { href: "/info/advertise-with-us", label: "Partner With Us" },
+  { href: "/info/advertise-with-us", label: "Advertise With Us" },
   //   { href: "/ad-choices", label: "Ad Choices" },
   //   { href: "/accessibility", label: "Accessibility & CC" },
   //   { href: "/about", label: "About" },

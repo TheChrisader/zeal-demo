@@ -51,6 +51,7 @@ interface MainArticleCardProps {
 }
 
 const MainArticleCard: React.FC<MainArticleCardProps> = ({ article }) => {
+  if (!article) return null;
   const imageUrl = article?.image_url || "./public/placeholder.png";
 
   return (

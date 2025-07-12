@@ -40,7 +40,7 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
     ? await (async () => {
         return await PostModel.find({
           category: {
-            $in: [...getTopLevelCategoryList(category)!],
+            $in: [category],
           },
           // country: {
           //   $in: [preferences?.country || "Nigeria"],
@@ -59,7 +59,7 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
     : await (async () => {
         return await PostModel.find({
           category: {
-            $in: [...getTopLevelCategoryList(category)!],
+            $in: [category],
           },
           // country: {
           //   $in: ["Nigeria"],
@@ -148,7 +148,7 @@ const HeadlinesBlock = async ({
         async () => {
           return await PostModel.find({
             category: {
-              $in: [...getTopLevelCategoryList(category)!],
+              $in: [category],
             },
             image_url: {
               $ne: null,
@@ -175,7 +175,7 @@ const HeadlinesBlock = async ({
         async () => {
           return await PostModel.find({
             category: {
-              $in: [...getTopLevelCategoryList(category)!],
+              $in: [category],
             },
             image_url: {
               $ne: null,
@@ -208,7 +208,7 @@ const HeadlinesBlock = async ({
     fetcher: async (): Promise<IPost[]> => {
       return await PostModel.find({
         category: {
-          $in: [...getTopLevelCategoryList(category)!],
+          $in: [category],
         },
         image_url: {
           $ne: null,
@@ -232,7 +232,7 @@ const HeadlinesBlock = async ({
     fetcher: async (): Promise<IPost[]> => {
       return await PostModel.find({
         category: {
-          $in: [...getTopLevelCategoryList(category)],
+          $in: [category],
         },
         image_url: {
           $ne: null,
@@ -253,7 +253,7 @@ const HeadlinesBlock = async ({
     fetcher: async (): Promise<IPost[]> => {
       return await PostModel.find({
         category: {
-          $in: [...getTopLevelCategoryList(category)],
+          $in: [category],
         },
         image_url: {
           $ne: null,

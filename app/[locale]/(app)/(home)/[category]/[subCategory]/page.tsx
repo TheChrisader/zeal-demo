@@ -17,7 +17,6 @@ import Headlines from "../../_components/Headlines";
 import { unstable_cache } from "next/cache";
 import { deduplicateByKey } from "@/utils/object.utils";
 import Categories, {
-  categoryMap,
   getCategoryByPath,
   getTopLevelCategoryList,
 } from "@/categories";
@@ -44,7 +43,7 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
     ? await (async () => {
         return await PostModel.find({
           category: {
-            $in: [...getTopLevelCategoryList(category)!],
+            $in: [category],
           },
           // country: {
           //   $in: [preferences?.country || "Nigeria"],
@@ -63,7 +62,7 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
     : await (async () => {
         return await PostModel.find({
           category: {
-            $in: [...getTopLevelCategoryList(category)!],
+            $in: [category],
           },
           // country: {
           //   $in: ["Nigeria"],
@@ -152,7 +151,7 @@ const HeadlinesBlock = async ({
         async () => {
           return await PostModel.find({
             category: {
-              $in: [...getTopLevelCategoryList(category)!],
+              $in: [category],
             },
             image_url: {
               $ne: null,
@@ -179,7 +178,7 @@ const HeadlinesBlock = async ({
         async () => {
           return await PostModel.find({
             category: {
-              $in: [...getTopLevelCategoryList(category)!],
+              $in: [category],
             },
             image_url: {
               $ne: null,
@@ -212,7 +211,7 @@ const HeadlinesBlock = async ({
     fetcher: async (): Promise<IPost[]> => {
       return await PostModel.find({
         category: {
-          $in: [...getTopLevelCategoryList(category)!],
+          $in: [category],
         },
         image_url: {
           $ne: null,
@@ -236,7 +235,7 @@ const HeadlinesBlock = async ({
     fetcher: async (): Promise<IPost[]> => {
       return await PostModel.find({
         category: {
-          $in: [...getTopLevelCategoryList(category)],
+          $in: [category],
         },
         image_url: {
           $ne: null,
@@ -257,7 +256,7 @@ const HeadlinesBlock = async ({
     fetcher: async (): Promise<IPost[]> => {
       return await PostModel.find({
         category: {
-          $in: [...getTopLevelCategoryList(category)],
+          $in: [category],
         },
         image_url: {
           $ne: null,
@@ -336,12 +335,6 @@ export default async function SubCategoryPage({
     notFound();
   }
 
-  const categories = categoryMap[category.name]?.filter(Boolean);
-
-  if (!categories || categories?.length === 0) {
-    notFound();
-  }
-
   // return (
   //   <main className="flex min-h-[calc(100vh-62px)] flex-col">
   //     <ArticlesContainer title={pageSubcategory || pageCategory!}>
@@ -363,11 +356,7 @@ export default async function SubCategoryPage({
 
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-7">
-      {categories.map((category) => {
-        return (
-          <HeadlinesBlock key={category} user={user} category={category} />
-        );
-      })}
+      <HeadlinesBlock user={user} category={category.name} />
     </main>
   );
 }

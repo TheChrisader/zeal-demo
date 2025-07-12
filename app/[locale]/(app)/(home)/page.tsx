@@ -1,39 +1,24 @@
 import { User } from "lucia";
 import { unstable_cache } from "next/cache";
-import { headers } from "next/headers";
-import { Suspense } from "react";
 import BookmarkModel from "@/database/bookmark/bookmark.model";
 import PostModel from "@/database/post/post.model";
 import { getPostsByFilters } from "@/database/post/post.repository";
-import { getPreferencesByUserId } from "@/database/preferences/preferences.repository";
 import { validateRequest } from "@/lib/auth/auth";
 import { cacheManager } from "@/lib/cache";
 import { connectToDatabase } from "@/lib/database";
-import { IPreferences } from "@/types/preferences.type";
 import ArticleCard from "./_components/ArticleCard";
 import ArticlesContainer from "./_components/ArticlesContainer";
 import Headlines from "./_components/Headlines";
-import HomepageScroll from "./_components/HomepageScroll";
 import ScrollContainer from "./_components/ScrollContainer";
 import { TodayInHistory } from "./_components/TodayInHistory";
 import Trending from "./_components/Trending";
 import { IPost } from "@/types/post.type";
 import {
-  categoryMap,
   getTopLevelCategoryList,
   TOP_LEVEL_CATEGORIES,
+  TopLevelCategory,
 } from "@/categories";
 import { deduplicateByKey } from "@/utils/object.utils";
-
-// const ZEAL_CATEGORIES = [
-//   // "Zeal Headline News",
-//   "Zeal Global",
-//   "Zeal Entertainment",
-//   "Business 360",
-//   "Zeal Lifestyle",
-//   "Zeal Tech",
-//   "Zeal Sports",
-// ];
 
 const ZEAL_CATEGORIES = TOP_LEVEL_CATEGORIES;
 
@@ -79,155 +64,6 @@ async function shuffleArray(array?: string[]) {
   return array;
 }
 
-const ZealPostBlock = async ({ user }: { user: User | null }) => {
-  const category = "Zeal News Studio";
-  const fetcher = async () => {
-    return await getPostsByFilters({
-      categories: [category],
-      limit: 6,
-    });
-  };
-
-  const News = await cacheManager({
-    fetcher,
-    key: category,
-    options: {
-      revalidate: 60,
-    },
-  });
-
-  if (user) {
-    const bookmarkedNews = await unstable_cache(
-      async () => {
-        return await BookmarkModel.find({
-          user_id: user?.id,
-          article_id: { $in: News.map((article) => article._id) },
-        });
-      },
-      [`bookmarks-${user?.id.toString()}`],
-      {
-        revalidate: 60 * 60,
-        tags: [`bookmarks-${user?.id.toString()}`],
-      },
-    )();
-
-    const bookmarkedNewsIds = new Set(
-      bookmarkedNews
-        .map((bookmark) => bookmark.article_id)
-        .map((id) => id.toString()),
-    );
-
-    News.forEach((article) => {
-      if (bookmarkedNewsIds.has(article._id!.toString())) {
-        article.bookmarked = true;
-      }
-    });
-  }
-
-  return (
-    <div className="flex flex-wrap">
-      <ArticlesContainer title={category}>
-        <Trending articles={News} category={category} />
-      </ArticlesContainer>
-    </div>
-  );
-};
-
-const PostBlock = async ({
-  category,
-  user,
-}: {
-  category: string;
-  user: User | null;
-}) => {
-  let News = await unstable_cache(
-    async () => {
-      return await getPostsByFilters({
-        categories: [...getTopLevelCategoryList(category)!],
-        limit: 4,
-      });
-    },
-    [category],
-    {
-      revalidate: 60 * 60,
-      tags: [category],
-    },
-  )();
-
-  const date = new Date(new Date().setHours(new Date().getHours() - 2));
-
-  const featured = await cacheManager({
-    fetcher: async (): Promise<IPost[]> => {
-      return await PostModel.find({
-        category: {
-          $in: [category],
-        },
-        image_url: {
-          $ne: null,
-        },
-        top_feature: {
-          $gte: date,
-        },
-      });
-    },
-    key: category,
-    options: {
-      revalidate: 2,
-    },
-  });
-
-  console.log(featured, "!!!!!!!!!!!");
-
-  News = [...featured, ...News];
-
-  if (user) {
-    const bookmarkedNews = await unstable_cache(
-      async () => {
-        return await BookmarkModel.find({
-          user_id: user?.id,
-          article_id: { $in: News.map((article) => article._id) },
-        });
-      },
-      [`bookmarks-${user?.id.toString()}`],
-      {
-        revalidate: 60 * 60,
-        tags: [`bookmarks-${user?.id.toString()}`],
-      },
-    )();
-
-    const bookmarkedNewsIds = new Set(
-      bookmarkedNews
-        .map((bookmark) => bookmark.article_id)
-        .map((id) => id.toString()),
-    );
-
-    News.forEach((article) => {
-      if (bookmarkedNewsIds.has(article._id!.toString())) {
-        article.bookmarked = true;
-      }
-    });
-  }
-
-  return (
-    <ArticlesContainer title={category}>
-      <Trending articles={News} category={category} partial />
-    </ArticlesContainer>
-  );
-};
-
-const loadMoreAction = async (selection: string[]) => {
-  "use server";
-  const { user } = await validateRequest();
-
-  return selection.map((category) => {
-    return (
-      <Suspense key={category}>
-        <PostBlock category={category} user={user} />
-      </Suspense>
-    );
-  });
-};
-
 const loadMoreHeadlines = async (offset: number, category: string) => {
   "use server";
 
@@ -240,7 +76,7 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
     ? await (async () => {
         return await PostModel.find({
           category: {
-            $in: [...getTopLevelCategoryList(category)!],
+            $in: [...getTopLevelCategoryList(category as TopLevelCategory)],
           },
           // country: {
           //   $in: [preferences?.country || "Nigeria"],
@@ -259,7 +95,7 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
     : await (async () => {
         return await PostModel.find({
           category: {
-            $in: [...getTopLevelCategoryList(category)!],
+            $in: [...getTopLevelCategoryList(category as TopLevelCategory)],
           },
           // country: {
           //   $in: ["Nigeria"],
@@ -275,34 +111,6 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
           .limit(5)
           .exec();
       })();
-
-  if (user) {
-    const bookmarkedHeadlinesPosts = await unstable_cache(
-      async () => {
-        return await BookmarkModel.find({
-          user_id: user?.id,
-          article_id: { $in: HeadlinesPosts.map((article) => article._id) },
-        });
-      },
-      [`bookmarks-${user?.id.toString()}`],
-      {
-        revalidate: 60 * 60,
-        tags: [`bookmarks-${user?.id.toString()}`],
-      },
-    )();
-
-    const bookmarkedHeadlinesPostsIds = new Set(
-      bookmarkedHeadlinesPosts
-        .map((bookmark) => bookmark.article_id)
-        .map((id) => id?.toString()),
-    );
-
-    HeadlinesPosts.forEach((article) => {
-      if (bookmarkedHeadlinesPostsIds.has(article._id.toString())) {
-        article.bookmarked = true;
-      }
-    });
-  }
 
   return (
     <>
@@ -325,24 +133,10 @@ const HeadlinesBlock = async ({
   category,
 }: {
   user: User | null;
-  category: string;
+  category: TopLevelCategory;
 }) => {
-  const preferences: Partial<IPreferences> | null =
-    await getPreferencesByUserId(user?.id as string);
-
-  const countryFilter =
-    category === "Local"
-      ? {
-          country: {
-            $in: [preferences?.country || "Nigeria"],
-          },
-        }
-      : {};
-
   const daysAgo = new Date();
   daysAgo.setDate(daysAgo.getDate() - 5);
-
-  console.log(...getTopLevelCategoryList(category), "!!!!!!!!!!1");
 
   let HeadlinesPosts: IPost[] = user
     ? await unstable_cache(
@@ -354,10 +148,7 @@ const HeadlinesBlock = async ({
             image_url: {
               $ne: null,
             },
-            // country: {
-            //   $in: [preferences?.country || "Nigeria"],
-            // },
-            ...countryFilter,
+            // ...countryFilter,
             created_at: {
               $gte: daysAgo,
             },
@@ -376,14 +167,14 @@ const HeadlinesBlock = async ({
         async () => {
           return await PostModel.find({
             category: {
-              $in: [...getTopLevelCategoryList(category)!],
+              $in: [...getTopLevelCategoryList(category)],
             },
             image_url: {
               $ne: null,
             },
-            country: {
-              $in: ["Nigeria"],
-            },
+            // country: {
+            //   $in: ["Nigeria"],
+            // },
             created_at: {
               $gte: daysAgo,
             },
@@ -399,17 +190,13 @@ const HeadlinesBlock = async ({
         },
       )();
 
-  if (!HeadlinesPosts) {
-    return <></>;
-  }
-
   const featureDate = new Date(new Date().setHours(new Date().getHours() - 2));
 
   const featured = await cacheManager({
     fetcher: async (): Promise<IPost[]> => {
       return await PostModel.find({
         category: {
-          $in: [...getTopLevelCategoryList(category)!],
+          $in: [...getTopLevelCategoryList(category)],
         },
         image_url: {
           $ne: null,
@@ -426,7 +213,7 @@ const HeadlinesBlock = async ({
   });
 
   const prioritizedDate = new Date(
-    new Date().setHours(new Date().getHours() - 8),
+    new Date().setHours(new Date().getHours() - 1000),
   );
 
   const prioritizedUser = await cacheManager({
@@ -442,7 +229,7 @@ const HeadlinesBlock = async ({
         published_at: {
           $gt: prioritizedDate,
         },
-      }).limit(5);
+      }).limit(8);
     },
     key: `${category}-user`,
     options: {
@@ -476,33 +263,6 @@ const HeadlinesBlock = async ({
     "_id",
   );
 
-  if (user) {
-    const bookmarkedHeadlinesPosts = await unstable_cache(
-      async () => {
-        return await BookmarkModel.find({
-          user_id: user?.id,
-          article_id: { $in: HeadlinesPosts.map((article) => article._id) },
-        });
-      },
-      [`bookmarks-${user?.id.toString()}`],
-      {
-        revalidate: 60 * 60,
-        tags: [`bookmarks-${user?.id.toString()}`],
-      },
-    )();
-
-    const bookmarkedHeadlinesPostsIds = new Set(
-      bookmarkedHeadlinesPosts
-        .map((bookmark) => bookmark.article_id)
-        .map((id) => id?.toString()),
-    );
-
-    HeadlinesPosts.forEach((article) => {
-      if (bookmarkedHeadlinesPostsIds.has(article._id!.toString())) {
-        article.bookmarked = true;
-      }
-    });
-  }
   return (
     <ArticlesContainer title={category}>
       <Headlines headlines={HeadlinesPosts} />
@@ -526,34 +286,9 @@ export default async function Home({
   await connectToDatabase();
   const { user } = await validateRequest();
 
-  let preferences: Partial<IPreferences> | null = await getPreferencesByUserId(
-    user?.id as string,
-  );
-
-  if (!preferences) {
-    preferences = {
-      category_updates: [
-        "Politics",
-        "Breaking",
-        "Celebrity News",
-        "Market Watch",
-      ],
-    };
-  }
-
   const query = searchParams?.query || "";
   const topics = searchParams?.topics || "";
   const sources = searchParams?.sources || "";
-
-  const header = headers();
-  const ip = header.get("x-forwarded-for");
-  console.log(
-    "Cloudflare ip: " + ip + "\n",
-    "Client IP (hopefully): ",
-    header.get("client-ip") + "\n",
-    "CF-Connecting-IP: ",
-    header.get("cf-connecting-ip"),
-  );
 
   if (query || topics || sources) {
     const articles = await getPostsByFilters({
@@ -596,28 +331,15 @@ export default async function Home({
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-7">
       <HeadlinesBlock user={user} category="News" />
       <TodayInHistory />
-      <HeadlinesBlock user={user} category="Across Africa" />
-
-      {/* <HomepageScroll
-        // currentSelection={preferences!.category_updates!}
-        currentSelection={ZEAL_CATEGORIES}
-        loadMoreAction={loadMoreAction}
-        preferences={preferences.category_updates}
-      > */}
-      {(
-        await shuffleArray(
-          ZEAL_CATEGORIES,
-          // preferences?.category_updates?.filter(
-          //   (category) => category !== "Viral Videos",
-          // ),
-        )
-      )?.map((category) => {
-        // return <PostBlock key={category} category={category} user={user} />;
+      {(await shuffleArray(ZEAL_CATEGORIES))?.map((category) => {
         return (
-          <HeadlinesBlock key={category} user={user} category={category} />
+          <HeadlinesBlock
+            key={category}
+            user={user}
+            category={category as TopLevelCategory}
+          />
         );
       })}
-      {/* </HomepageScroll> */}
     </main>
   );
 }

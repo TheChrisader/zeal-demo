@@ -44,6 +44,82 @@ const categoryTypeMap: Record<string, string> = {
   "Zeal Sports": "Latest Sports News",
 };
 
+export const categoryMap: { title: string; groups: string[] }[] = [
+  { title: "Local", groups: ["Headlines", "Zeal Headline News", "Local"] },
+  {
+    title: "Across Africa",
+    groups: [
+      "Top West African News",
+      "Top East African News",
+      "Top Southern Africa News",
+      "Across Africa",
+    ],
+  },
+  {
+    title: "Global",
+    groups: [
+      "Top US News",
+      "UK Top News",
+      "EU News",
+      "Asian News",
+      "Zeal Global",
+      "Global",
+    ],
+  },
+  { title: "Politics", groups: ["Politics"] },
+  { title: "Climate", groups: ["Weather", "Climate"] },
+  { title: "Startup", groups: ["Startup News", "Startup"] },
+  {
+    title: "Economy/Finance",
+    groups: [
+      "Economy",
+      "Personal Finance",
+      "Market Watch",
+      "Business 360",
+      "Economy/Finance",
+    ],
+  },
+  { title: "Crypto", groups: ["Crypto"] },
+  {
+    title: "Career",
+    groups: [
+      "Latest Job News",
+      "Career Tips",
+      "Top Global Jobs",
+      "Entrepreneurship",
+      "Career",
+    ],
+  },
+  {
+    title: "Latest Tech News",
+    groups: [
+      "Latest Tech News",
+      "Cartech",
+      "Gadgets Buying Guide",
+      "Gaming",
+      "Zeal Tech",
+    ],
+  },
+  { title: "Fintech", groups: ["Fintech"] },
+  { title: "AI", groups: ["Artificial Intelligence", "AI"] },
+  { title: "Health", groups: ["Health News", "Zeal Lifestyle", "Health"] },
+  { title: "Food", groups: ["Food & Nutrition", "Food"] },
+  { title: "Travel", groups: ["Travel & Tourism", "Travel"] },
+  { title: "Parenting", groups: ["Family & Parenting", "Parenting"] },
+  { title: "Fashion", groups: ["Style & Beauty", "Fashion"] },
+  { title: "Celebrity News", groups: ["Celebrity News"] },
+  {
+    title: "Profiles",
+    groups: ["Hot Interviews", "Zeal Entertainment", "Profiles"],
+  },
+  { title: "Music", groups: ["Trending Music", "Music"] },
+  { title: "Movies", groups: ["Top Movies", "Movies"] },
+  {
+    title: "Sports",
+    groups: ["Top Sports News", "Sports", "UK Premiership", "Basketball"],
+  },
+];
+
 export const POST = async () => {
   const batchResults: { [key: string]: Id[] } = {};
   const categories: { title: string; groups: string[] }[] = [
@@ -113,7 +189,7 @@ export const POST = async () => {
     //   },
     // });
 
-    for (const category of categories) {
+    for (const category of categoryMap) {
       const { title, groups } = category;
 
       const existingBatches = await BatchModel.find({
@@ -132,11 +208,12 @@ export const POST = async () => {
           $in: groups,
         },
         published_at: {
-          $gte: new Date(new Date().setHours(new Date().getHours() - 8)),
+          $gte: new Date(new Date().setHours(new Date().getHours() - 48)),
           $lt: new Date(),
         },
       })
         .select("_id title source slug link")
+        .limit(50)
         .exec();
 
       const postsList = posts.map((post) => post.title).join(" \n");
@@ -168,6 +245,7 @@ Act as a meticulous and strict news analyst. Your task is to analyze a list of n
     *   **Scenario A (Sufficient Event Batches):** If the Primary Logic yields 2 or more event batches, return those event batches and their corresponding articles.
     *   **Scenario B (Insufficient Event Batches):** If the Primary Logic yields 1 to 4 event batches, return those event batches. Then, supplement them by creating additional single-article batches (selecting articles as per step 5, ensuring they aren't already in an event batch) until the total number of batches, with their corresponding articles array, reaches five.
     *   **Scenario C (No Event Batches):** If the Fallback Logic (step 4) is triggered, ensure you select and create *at least* five single-article batches according to steps 5 and 6.
+    *   **Maximum Batch Count:** You are **not allowed** to return more than **ten (10) batches** in total. So, ensure to prioritize sensibly.
 8.  **Batch Naming ("batch" field):**
     *   For **event batches**, the name must be a concise, descriptive headline summarizing the specific event covered by the articles in that batch.
     *   For **single-article batches**, the name should be a concise, descriptive headline capturing the essence of that single article's title. It can be a rephrasing or abstraction of the original title.
