@@ -70,7 +70,8 @@ const cnnSansDisplay = localFont({
 
 export const metadata: Metadata = {
   title: "Zeal News Africa",
-  description: "Sharing Africa's story around the world.",
+  description:
+    "Get the latest African news headlines, in-depth analysis, and breaking stories from across the continent. Zeal News Africa covers politics, business, tech, culture, sports, and more, connecting Africa and the diaspora with unfiltered, authentic reporting.",
   category: "website",
   generator: "Next.js",
   manifest: "/manifest.json",
