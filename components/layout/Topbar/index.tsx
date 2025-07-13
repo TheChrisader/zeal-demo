@@ -248,7 +248,7 @@ const Topbar = () => {
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={closeSidebar}
-        currentPath={currentPath}
+        currentPath={pathname}
       />
       <header className="sticky top-0 z-50 flex h-fit items-center justify-between bg-card-alt-bg px-[100px] py-3 shadow-md max-[900px]:px-7 max-[350px]:px-2">
         <div className="relative flex w-full items-center justify-between">

@@ -45,6 +45,7 @@ interface NavItemProps {
   level: number;
   isOpen: boolean;
   currentPath?: string;
+  onClick?: () => void;
   isLast?: boolean;
   parentIsLast?: boolean[];
 }
@@ -54,15 +55,20 @@ const NavItem: React.FC<NavItemProps> = ({
   level,
   isOpen,
   currentPath,
+  onClick,
   isLast = false,
   parentIsLast = [],
 }) => {
   const hasSubItems = category.sub && category.sub.length > 0;
   const hasPath = Boolean(category.path);
-  const isActive = currentPath === category.path;
+  const isActive = currentPath === extractPath(category.name);
 
   const handleNavigate = (e: React.MouseEvent) => {
-    e.preventDefault();
+    // e.preventDefault();
+    if (onClick) {
+      onClick();
+      console.log("closed");
+    }
     if (category.path) {
       console.log(`Navigate to: ${extractPath(category.name)}`);
     }
@@ -103,6 +109,7 @@ const NavItem: React.FC<NavItemProps> = ({
           {hasPath ? (
             <Link
               href={extractPath(category.name) || "/"}
+              onClick={handleNavigate}
               className={`group flex w-full items-center rounded-lg px-3 py-2 text-left transition-all duration-200 ${
                 isActive
                   ? "font-medium text-primary shadow-sm"
@@ -182,6 +189,7 @@ const NavItem: React.FC<NavItemProps> = ({
               level={level + 1}
               isOpen={isOpen}
               currentPath={currentPath}
+              onClick={onClick}
               isLast={index === category.sub!.length - 1}
               parentIsLast={[...parentIsLast, isLast]}
             />
@@ -242,6 +250,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 level={0}
                 isOpen={isOpen}
                 currentPath={currentPath}
+                onClick={onClose}
                 isLast={index === Categories.length - 1}
                 parentIsLast={[]}
               />
