@@ -249,9 +249,18 @@ export default async function PostPage({
             <span className="text-sm font-normal text-muted-alt">
               <strong>{post.source.name}</strong>
             </span>
-            <CategoryListClient
+            <div className="flex flex-wrap gap-1 text-sm font-normal text-muted-alt">
+              <span>
+                {post.category.map((category, index) => (
+                  <Badge key={index}>
+                    <Link href={extractPath(category)}>{category}</Link>
+                  </Badge>
+                ))}
+              </span>
+            </div>
+            {/* <CategoryListClient
               categories={getCategoriesByWriter(post.source.name!)}
-            />
+            /> */}
           </div>
         </div>
       )}
