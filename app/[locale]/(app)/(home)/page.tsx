@@ -19,6 +19,8 @@ import {
   TopLevelCategory,
 } from "@/categories";
 import { deduplicateByKey } from "@/utils/object.utils";
+import Player from "@/components/video/Player";
+import VideoCarousel from "@/components/video/VideoCarousel";
 
 const ZEAL_CATEGORIES = TOP_LEVEL_CATEGORIES;
 
@@ -135,9 +137,7 @@ const HeadlinesBlock = async ({
   user: User | null;
   category: TopLevelCategory;
 }) => {
-  const daysAgo = new Date();
-  daysAgo.setDate(daysAgo.getDate() - 5);
-
+  console.log(category, getTopLevelCategoryList(category));
   let HeadlinesPosts: IPost[] = user
     ? await unstable_cache(
         async () => {
@@ -148,10 +148,8 @@ const HeadlinesBlock = async ({
             image_url: {
               $ne: null,
             },
+            generatedBy: "user",
             // ...countryFilter,
-            created_at: {
-              $gte: daysAgo,
-            },
           })
             .sort({ published_at: -1 })
             .limit(13)
@@ -172,12 +170,10 @@ const HeadlinesBlock = async ({
             image_url: {
               $ne: null,
             },
+            generatedBy: "user",
             // country: {
             //   $in: ["Nigeria"],
             // },
-            created_at: {
-              $gte: daysAgo,
-            },
           })
             .sort({ published_at: -1 })
             .limit(13)
@@ -189,6 +185,29 @@ const HeadlinesBlock = async ({
           tags: [category],
         },
       )();
+
+  if (category === "Opinion") {
+    console.log(
+      (
+        await PostModel.find({
+          category: {
+            $in: [...getTopLevelCategoryList(category)],
+          },
+          image_url: {
+            $ne: null,
+          },
+          generatedBy: "user",
+          // country: {
+          //   $in: ["Nigeria"],
+          // },
+        })
+          .sort({ published_at: -1 })
+          .limit(13)
+          .exec()
+      ).length,
+      "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+    );
+  }
 
   const featureDate = new Date(new Date().setHours(new Date().getHours() - 2));
 
@@ -212,56 +231,15 @@ const HeadlinesBlock = async ({
     },
   });
 
-  const prioritizedDate = new Date(
-    new Date().setHours(new Date().getHours() - 1000),
-  );
+  if (category === "Opinion") {
+    console.log(HeadlinesPosts, "HeadlinesPosts");
+  }
 
-  const prioritizedUser = await cacheManager({
-    fetcher: async (): Promise<IPost[]> => {
-      return await PostModel.find({
-        category: {
-          $in: [...getTopLevelCategoryList(category)],
-        },
-        image_url: {
-          $ne: null,
-        },
-        generatedBy: "user",
-        published_at: {
-          $gt: prioritizedDate,
-        },
-      }).limit(8);
-    },
-    key: `${category}-user`,
-    options: {
-      revalidate: 60 * 60,
-    },
-  });
+  HeadlinesPosts = deduplicateByKey([...featured, ...HeadlinesPosts], "_id");
 
-  const prioritizedZeal = await cacheManager({
-    fetcher: async (): Promise<IPost[]> => {
-      return await PostModel.find({
-        category: {
-          $in: [...getTopLevelCategoryList(category)],
-        },
-        image_url: {
-          $ne: null,
-        },
-        generatedBy: "zeal",
-        published_at: {
-          $gt: prioritizedDate,
-        },
-      }).limit(5);
-    },
-    key: `${category}-zeal`,
-    options: {
-      revalidate: 60 * 60,
-    },
-  });
-
-  HeadlinesPosts = deduplicateByKey(
-    [...featured, ...prioritizedUser, ...prioritizedZeal, ...HeadlinesPosts],
-    "_id",
-  );
+  if (category === "Opinion") {
+    console.log(HeadlinesPosts, "HeadlinesPosts");
+  }
 
   return (
     <ArticlesContainer title={category}>
@@ -329,6 +307,7 @@ export default async function Home({
 
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-7">
+      {/* <VideoCarousel /> */}
       <HeadlinesBlock user={user} category="News" />
       <TodayInHistory />
       {(await shuffleArray(ZEAL_CATEGORIES))?.map((category) => {

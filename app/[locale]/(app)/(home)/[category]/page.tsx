@@ -16,7 +16,10 @@ import ScrollContainer from "../_components/ScrollContainer";
 import Headlines from "../_components/Headlines";
 import { unstable_cache } from "next/cache";
 import { deduplicateByKey } from "@/utils/object.utils";
-import Categories, { getTopLevelCategoryList } from "@/categories";
+import Categories, {
+  getTopLevelCategoryList,
+  TopLevelCategory,
+} from "@/categories";
 import PostModel from "@/database/post/post.model";
 import { cacheManager } from "@/lib/cache";
 import { getPreferencesByUserId } from "@/database/preferences/preferences.repository";
@@ -128,20 +131,20 @@ const HeadlinesBlock = async ({
   category: string;
 }) => {
   if (!category) return null;
-  const preferences: Partial<IPreferences> | null =
-    await getPreferencesByUserId(user?.id as string);
+  // const preferences: Partial<IPreferences> | null =
+  //   await getPreferencesByUserId(user?.id as string);
 
-  const countryFilter =
-    category === "Local"
-      ? {
-          country: {
-            $in: [preferences?.country || "Nigeria"],
-          },
-        }
-      : {};
+  // const countryFilter =
+  //   category === "Local"
+  //     ? {
+  //         country: {
+  //           $in: [preferences?.country || "Nigeria"],
+  //         },
+  //       }
+  //     : {};
 
-  const daysAgo = new Date();
-  daysAgo.setDate(daysAgo.getDate() - 5);
+  // const daysAgo = new Date();
+  // daysAgo.setDate(daysAgo.getDate() - 5);
 
   let HeadlinesPosts: IPost[] = user
     ? await unstable_cache(
@@ -153,16 +156,13 @@ const HeadlinesBlock = async ({
             image_url: {
               $ne: null,
             },
+            generatedBy: "user",
             // country: {
-            //   $in: [preferences?.country || "Nigeria"],
+            //   $in: ["Nigeria"],
             // },
-            ...countryFilter,
-            created_at: {
-              $gte: daysAgo,
-            },
           })
             .sort({ published_at: -1 })
-            .limit(13)
+            .limit(10)
             .exec();
         },
         [`${category}-${user?.id.toString()}`],
@@ -180,15 +180,13 @@ const HeadlinesBlock = async ({
             image_url: {
               $ne: null,
             },
+            generatedBy: "user",
             // country: {
             //   $in: ["Nigeria"],
             // },
-            created_at: {
-              $gte: daysAgo,
-            },
           })
             .sort({ published_at: -1 })
-            .limit(13)
+            .limit(10)
             .exec();
         },
         [category],
@@ -201,6 +199,27 @@ const HeadlinesBlock = async ({
   if (!HeadlinesPosts) {
     return <></>;
   }
+
+  console.log(
+    (
+      await PostModel.find({
+        category: {
+          $in: [category],
+        },
+        image_url: {
+          $ne: null,
+        },
+        generatedBy: "user",
+        // country: {
+        //   $in: ["Nigeria"],
+        // },
+      })
+        .sort({ published_at: -1 })
+        .limit(10)
+        .exec()
+    ).length,
+    "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+  );
 
   const featureDate = new Date(new Date().setHours(new Date().getHours() - 2));
 
@@ -224,56 +243,7 @@ const HeadlinesBlock = async ({
     },
   });
 
-  const prioritizedDate = new Date(
-    new Date().setHours(new Date().getHours() - 8),
-  );
-
-  const prioritizedUser = await cacheManager({
-    fetcher: async (): Promise<IPost[]> => {
-      return await PostModel.find({
-        category: {
-          $in: [category],
-        },
-        image_url: {
-          $ne: null,
-        },
-        generatedBy: "user",
-        published_at: {
-          $gt: prioritizedDate,
-        },
-      }).limit(5);
-    },
-    key: `${category}-user`,
-    options: {
-      revalidate: 60 * 60,
-    },
-  });
-
-  const prioritizedZeal = await cacheManager({
-    fetcher: async (): Promise<IPost[]> => {
-      return await PostModel.find({
-        category: {
-          $in: [category],
-        },
-        image_url: {
-          $ne: null,
-        },
-        generatedBy: "zeal",
-        published_at: {
-          $gt: prioritizedDate,
-        },
-      }).limit(5);
-    },
-    key: `${category}-zeal`,
-    options: {
-      revalidate: 60 * 60,
-    },
-  });
-
-  HeadlinesPosts = deduplicateByKey(
-    [...featured, ...prioritizedUser, ...prioritizedZeal, ...HeadlinesPosts],
-    "_id",
-  );
+  HeadlinesPosts = deduplicateByKey([...featured, ...HeadlinesPosts], "_id");
 
   return (
     <ArticlesContainer title={category}>
@@ -298,14 +268,29 @@ export default async function CategoryPage({
   await connectToDatabase();
   const { user } = await validateRequest();
 
-  const sub = Categories.find(
+  const foundCategory = Categories.find(
     (category) =>
       category.name.toLowerCase() === params.category.trim().toLowerCase(),
-  )?.sub;
+  );
 
-  if (!sub) {
+  if (!foundCategory) {
     notFound();
   }
+
+  let sub = [foundCategory];
+
+  if (foundCategory.sub) {
+    sub = foundCategory.sub;
+  }
+
+  // const sub = Categories.find(
+  //   (category) =>
+  //     category.name.toLowerCase() === params.category.trim().toLowerCase(),
+  // )?.sub;
+
+  // if (!sub) {
+  //   notFound();
+  // }
 
   const categories = sub.map((category) => category.name).filter(Boolean);
 
@@ -338,6 +323,10 @@ export default async function CategoryPage({
         // onItemClick={handleNavClick}
       />
       {categories.map((category) => {
+        console.log(
+          category,
+          "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1",
+        );
         return (
           <HeadlinesBlock key={category} user={user} category={category} />
         );

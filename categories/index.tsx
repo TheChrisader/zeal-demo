@@ -17,6 +17,7 @@ export const topLevelCategoryMap: Record<string, string[]> = {
     "Diaspora Connect",
     "Science",
   ],
+  Opinion: ["Opinion"],
   Lifestyle: ["Health", "Food", "Travel", "Parenting", "Fashion"],
   Entertainment: ["Celebrity News", "Profiles", "Music", "Movies", "Sports"],
 };
@@ -27,6 +28,7 @@ export const getTopLevelCategoryList = (
     | "Business"
     | "Technology"
     | "Discovery"
+    | "Opinion"
     | "Lifestyle"
     | "Entertainment",
 ) => {
@@ -42,8 +44,19 @@ export type TopLevelCategory =
   | "Business"
   | "Technology"
   | "Discovery"
+  | "Opinion"
   | "Lifestyle"
   | "Entertainment";
+
+export const TOP_LEVEL_CATEGORIES_LIST: TopLevelCategory[] = [
+  "News",
+  "Business",
+  "Technology",
+  "Discovery",
+  "Opinion",
+  "Lifestyle",
+  "Entertainment",
+];
 
 const Categories: Categories = [
   {
@@ -141,6 +154,10 @@ const Categories: Categories = [
         path: "/science",
       },
     ],
+  },
+  {
+    name: "Opinion",
+    path: "/opinion",
   },
   {
     name: "Lifestyle",

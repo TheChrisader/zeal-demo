@@ -17,7 +17,7 @@ const MindsBehind = () => {
         </Avatar>
         <div className="flex flex-col">
           <h4 id="owobu-maureen-writer-editor">
-            <strong>Owobu Maureen, Writer/Editor</strong>
+            <strong>Owobu Maureen, Discovery & Opinion Writer/Editor</strong>
           </h4>
           <p>
             <strong>Owobu Maureen</strong> is a Nigerian writer and editor for{" "}
@@ -43,7 +43,9 @@ const MindsBehind = () => {
         </Avatar>
         <div className="flex flex-col">
           <h4 id="ibukun-oluwa-addy-writer">
-            <strong>Ibukun-Oluwa Addy, Writer</strong>
+            <strong>
+              Ibukun-Oluwa Addy, Entrepreneurship, Health & Lifestyle Writer
+            </strong>
           </h4>
           <p>
             <strong>Ibukun-Oluwa Addy</strong> is a writer for{" "}
@@ -51,8 +53,8 @@ const MindsBehind = () => {
             entrepreneurship, health, and lifestyle in the African context. She
             explores how innovation and wellness can drive sustainable growth.
             With a focus on practical solutions, she highlights entrepreneurial
-            stories, health issues, travel destinations, and business
-            strategies shaping modern Africa.
+            stories, health issues, travel destinations, and business strategies
+            shaping modern Africa.
           </p>
           <p>
             When not writing, Ibukun-Oluwa enjoys reading film and album
@@ -67,7 +69,7 @@ const MindsBehind = () => {
         </Avatar>
         <div className="flex flex-col">
           <h4 id="uche-emeka-writer">
-            <strong>Uche Emeka, Writer</strong>
+            <strong>Uche Emeka, Sports and Tech Writer</strong>
           </h4>
           <p>
             <strong>Uche Emeka</strong> is a Nigerian sports and tech writer
@@ -92,7 +94,7 @@ const MindsBehind = () => {
         </Avatar>
         <div className="flex flex-col">
           <h4 id="precious-writer">
-            <strong>Precious, Writer</strong>
+            <strong>Precious Eseaye, Lifestyle & Entertainment Writer</strong>
           </h4>
           <p>
             <strong>Precious</strong> is a lifestyle and entertainment writer
@@ -116,7 +118,7 @@ const MindsBehind = () => {
         </Avatar>
         <div className="flex flex-col">
           <h4 id="ebasa-joseph-writer">
-            <strong>Ebasa Joseph,  Writer</strong>
+            <strong>Ebasa Joseph,  Opinion Writer</strong>
           </h4>
           <p>
             <strong>Ebasa Joseph</strong> is a thoughtful observer of Africa’s
@@ -140,7 +142,7 @@ const MindsBehind = () => {
         </Avatar>
         <div className="flex flex-col">
           <h4 id="florence-idimone-writer">
-            <strong>Florence Idimone, Writer</strong>
+            <strong>Florence Idimone, Discovery & Opinion Writer</strong>
           </h4>
           <p>
             <strong>Florence Idimone</strong> is a writer at{" "}
@@ -166,21 +168,21 @@ const MindsBehind = () => {
         </Avatar>
         <div className="flex flex-col">
           <h4 id="david-isong-writer">
-            <strong>David Isong</strong>
+            <strong>David Isong, Fintech, Startups & Crypto Writer</strong>
           </h4>
           <p>
             <strong>David Isong</strong> is a writer at{" "}
             <strong>Zeal News Africa</strong> who tracks the pulse of Africa’s
-            fast-evolving digital economy. With a focus on fintech, startups, and
-            cryptocurrency, David unpacks the innovations, disruptions, and daring
-            ideas shaping the continent’s financial future.
+            fast-evolving digital economy. With a focus on fintech, startups,
+            and cryptocurrency, David unpacks the innovations, disruptions, and
+            daring ideas shaping the continent’s financial future.
           </p>
           <p>
-            His stories spotlight bold entrepreneurs, emerging tech ecosystems, and
-            the real-world impact of digital finance across African communities.
-            Whether he’s decoding blockchain trends or profiling founders on the
-            rise, David brings clarity, curiosity, and an eye for what’s next in
-            Africa’s tech frontier.
+            His stories spotlight bold entrepreneurs, emerging tech ecosystems,
+            and the real-world impact of digital finance across African
+            communities. Whether he’s decoding blockchain trends or profiling
+            founders on the rise, David brings clarity, curiosity, and an eye
+            for what’s next in Africa’s tech frontier.
           </p>
         </div>
       </div>
@@ -191,7 +193,7 @@ const MindsBehind = () => {
         </Avatar>
         <div className="flex flex-col">
           <h4 id="pelumi-ilesanmi-writer">
-            <strong>Pelumi Ilesanmi</strong>
+            <strong>Pelumi Ilesanmi, News & Discovery Writer</strong>
           </h4>
           <p>
             <strong>Pelumi Ilesanmi</strong> is a news writer at Zeal News

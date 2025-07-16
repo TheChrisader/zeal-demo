@@ -1,13 +1,17 @@
-import Categories, { Category } from "@/categories";
+import Categories, {
+  Category,
+  TOP_LEVEL_CATEGORIES_LIST,
+  TopLevelCategory,
+} from "@/categories";
 
 export const flattenCategories = (arr: Category[]) => {
   const result: string[] = [];
 
   arr.forEach((item) => {
-    if (!item.sub) {
-      result.push(item.name);
+    if (TOP_LEVEL_CATEGORIES_LIST.includes(item.name as TopLevelCategory)) {
+      result.push(...flattenCategories(item.sub!));
     } else {
-      result.push(...flattenCategories(item.sub));
+      result.push(item.name);
     }
   });
 
