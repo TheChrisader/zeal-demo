@@ -241,21 +241,20 @@ Act as a meticulous and strict news analyst. Your task is to analyze a list of n
 
 # Output Requirements
 
-7.  **Minimum Batch Count:** You **must** return a minimum of **five (5) batches, with their corresponding articles array,** in total. You are free to return less if you find it not possible to form at least five batches (not enough articles provided). Ideally, there should be more than 5.
-    *   **Scenario A (Sufficient Event Batches):** If the Primary Logic yields 2 or more event batches, return those event batches and their corresponding articles.
-    *   **Scenario B (Insufficient Event Batches):** If the Primary Logic yields 1 to 4 event batches, return those event batches. Then, supplement them by creating additional single-article batches (selecting articles as per step 5, ensuring they aren't already in an event batch) until the total number of batches, with their corresponding articles array, reaches five.
-    *   **Scenario C (No Event Batches):** If the Fallback Logic (step 4) is triggered, ensure you select and create *at least* five single-article batches according to steps 5 and 6.
-    *   **Maximum Batch Count:** You are **not allowed** to return more than **ten (10) batches** in total. So, ensure to prioritize sensibly.
+7.  **Minimum and Maximum Batch Count:** You **must** return a minimum of **one (1) batch, with its corresponding articles array,** and a maximum of **two**, in total.
+    *   **Scenario A (Sufficient Event Batches):** If the Primary Logic yields 2 or more event batches, return the top two hottest batches only.
+    *   **Scenario B (No Event Batches):** If the Fallback Logic (step 4) is triggered, ensure you select and create *at least* one single-article batch according to steps 5 and 6.
+    *   **Maximum Batch Count:** You are **not allowed** to return more than **two (2) batches** in total. So, ensure to prioritize sensibly.
 8.  **Batch Naming ("batch" field):**
-    *   For **event batches**, the name must be a concise, descriptive headline summarizing the specific event covered by the articles in that batch.
-    *   For **single-article batches**, the name should be a concise, descriptive headline capturing the essence of that single article's title. It can be a rephrasing or abstraction of the original title.
+    *   For **event batches**, the name must be a concise, descriptive headline summarizing the specific event covered by the articles in that batch. Tend more towards being sensational and interesting than a dry recap.
+    *   For **single-article batches**, the name should be a concise, descriptive headline capturing the essence of that single article's title. It can be a rephrasing or abstraction of the original title. Tend more towards being sensational and interesting than a dry recap.
 
 **Correct for Anomalies:** Ensure you take care of any abnormality, mistake, or error in the synthesized result. If there are any errors, typos, or anomalies, correct them. Do not produce an abnormal output. This includes, but is not limited to, unnaturally long sequences of repeated text/characters, content/output that clearly does not conform to the goals of the request, unnaturally long batch titles, anything but article titles under the articles field, and broken responses too long to fit in your token window.
 **Batch Naming:** Each batch should be sufficiently, but reasonably, unique in its titling - without being overly so. It shouldn't be too generic, broad or vague. It should be specific and meaningful, to stand the test of time, so to speak.
 
 # Example Event Batch for an Example Category Context (Latest Tech News):
 {
- "batch": "BB Biotech AG Reports Net Loss for Q1 2025",
+ "batch": "New in: Major Biotech Company, BB Biotech AG, Reports Net Loss for Q1 2025",
  "articles": [
  "EQS-Adhoc: BB Biotech AG publishes its interim report",
  "BB Biotech AG Reports CHF 241 Million Net Loss for Q1 2025",
@@ -267,7 +266,7 @@ Act as a meticulous and strict news analyst. Your task is to analyze a list of n
 
 # Example Single Article Batch for an Example Category Context (Latest Tech News):
 {
- "batch": "BB Biotech AG Reports Net Loss for Q1 2025",
+ "batch": "New in: Major Biotech Company, BB Biotech AG, Reports Net Loss for Q1 2025",
  "articles": [
  "Major Biotech Company, BB Biotech AG, faces major market challenges"
  ]

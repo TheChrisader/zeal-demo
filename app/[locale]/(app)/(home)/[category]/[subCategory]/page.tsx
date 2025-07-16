@@ -131,20 +131,18 @@ const HeadlinesBlock = async ({
   category: string;
 }) => {
   if (!category) return null;
-  const preferences: Partial<IPreferences> | null =
-    await getPreferencesByUserId(user?.id as string);
 
-  const countryFilter =
-    category === "Local"
-      ? {
-          country: {
-            $in: [preferences?.country || "Nigeria"],
-          },
-        }
-      : {};
+  // const countryFilter =
+  //   category === "Local"
+  //     ? {
+  //         country: {
+  //           $in: [preferences?.country || "Nigeria"],
+  //         },
+  //       }
+  //     : {};
 
-  const daysAgo = new Date();
-  daysAgo.setDate(daysAgo.getDate() - 5);
+  // const daysAgo = new Date();
+  // daysAgo.setDate(daysAgo.getDate() - 5);
 
   let HeadlinesPosts: IPost[] = user
     ? await unstable_cache(
@@ -156,13 +154,14 @@ const HeadlinesBlock = async ({
             image_url: {
               $ne: null,
             },
+            generatedBy: "user",
             // country: {
             //   $in: [preferences?.country || "Nigeria"],
             // },
-            ...countryFilter,
-            created_at: {
-              $gte: daysAgo,
-            },
+            // ...countryFilter,
+            // created_at: {
+            //   $gte: daysAgo,
+            // },
           })
             .sort({ published_at: -1 })
             .limit(13)
@@ -183,12 +182,13 @@ const HeadlinesBlock = async ({
             image_url: {
               $ne: null,
             },
+            generatedBy: "user",
             // country: {
             //   $in: ["Nigeria"],
             // },
-            created_at: {
-              $gte: daysAgo,
-            },
+            // created_at: {
+            //   $gte: daysAgo,
+            // },
           })
             .sort({ published_at: -1 })
             .limit(13)
@@ -227,84 +227,8 @@ const HeadlinesBlock = async ({
     },
   });
 
-  const prioritizedDate = new Date(
-    new Date().setHours(new Date().getHours() - 8),
-  );
+  HeadlinesPosts = deduplicateByKey([...featured, ...HeadlinesPosts], "_id");
 
-  const prioritizedUser = await cacheManager({
-    fetcher: async (): Promise<IPost[]> => {
-      return await PostModel.find({
-        category: {
-          $in: [category],
-        },
-        image_url: {
-          $ne: null,
-        },
-        generatedBy: "user",
-        published_at: {
-          $gt: prioritizedDate,
-        },
-      }).limit(5);
-    },
-    key: `${category}-user`,
-    options: {
-      revalidate: 60 * 60,
-    },
-  });
-
-  const prioritizedZeal = await cacheManager({
-    fetcher: async (): Promise<IPost[]> => {
-      return await PostModel.find({
-        category: {
-          $in: [category],
-        },
-        image_url: {
-          $ne: null,
-        },
-        generatedBy: "zeal",
-        published_at: {
-          $gt: prioritizedDate,
-        },
-      }).limit(5);
-    },
-    key: `${category}-zeal`,
-    options: {
-      revalidate: 60 * 60,
-    },
-  });
-
-  HeadlinesPosts = deduplicateByKey(
-    [...featured, ...prioritizedUser, ...prioritizedZeal, ...HeadlinesPosts],
-    "_id",
-  );
-
-  if (user) {
-    const bookmarkedHeadlinesPosts = await unstable_cache(
-      async () => {
-        return await BookmarkModel.find({
-          user_id: user?.id,
-          article_id: { $in: HeadlinesPosts.map((article) => article._id) },
-        });
-      },
-      [`bookmarks-${user?.id.toString()}`],
-      {
-        revalidate: 60 * 60,
-        tags: [`bookmarks-${user?.id.toString()}`],
-      },
-    )();
-
-    const bookmarkedHeadlinesPostsIds = new Set(
-      bookmarkedHeadlinesPosts
-        .map((bookmark) => bookmark.article_id)
-        .map((id) => id?.toString()),
-    );
-
-    HeadlinesPosts.forEach((article) => {
-      if (bookmarkedHeadlinesPostsIds.has(article._id!.toString())) {
-        article.bookmarked = true;
-      }
-    });
-  }
   return (
     <ArticlesContainer title={category}>
       <Headlines headlines={HeadlinesPosts} />

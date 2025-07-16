@@ -22,6 +22,9 @@ import BatchModel from "@/database/batch/batch.model";
 import RelatedExternalArticles from "../_components/RelatedExternalArticles";
 import { NewsletterSignUpForm } from "@/components/layout/NewsletterForm";
 import { StickyNewsletterBanner } from "@/components/layout/NewsletterForm/StickyNewsletterBanner";
+import { getCategoriesByWriter } from "@/constants/writers";
+import { Badge } from "@/components/ui/badge";
+import { extractPath } from "@/categories";
 
 export async function generateMetadata({
   params,
@@ -233,10 +236,28 @@ export default async function PostPage({
       </div>
 
       {!post.external && post.author_id.toString() !== "Zeal News" && (
-        <div>
-          <span className="text-sm font-normal text-muted-alt">
-            Author: <strong>{post.source.name}</strong>
-          </span>
+        <div className="flex gap-2">
+          <div className="size-12 overflow-hidden rounded-full">
+            <img
+              className="object-cover"
+              src={post.source.icon}
+              alt={post.source.name}
+            />
+          </div>
+          <div className="flex flex-col items-start gap-1">
+            <span className="text-sm font-normal text-muted-alt">
+              <strong>{post.source.name}</strong>
+            </span>
+            <div className="flex gap-1 text-sm font-normal text-muted-alt">
+              {" "}
+              <span>Writer for</span>
+              {getCategoriesByWriter(post.source.name!).map((category) => (
+                <Badge key={category} variant="secondary">
+                  <Link href={extractPath(category)}>{category}</Link>
+                </Badge>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 

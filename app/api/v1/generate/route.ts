@@ -8,6 +8,8 @@ import { generateRandomString } from "@/lib/utils";
 import { calculateReadingTime } from "@/utils/post.utils";
 import { IPost } from "@/types/post.type";
 import { newId } from "@/lib/database";
+import { WRITER_DISTRIBUTION } from "@/constants/writers";
+import UserModel from "@/database/user/user.model";
 
 const ensureDelay = async (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -23,223 +25,61 @@ const getImageUrlFromArticles = (articles: IPost[]) => {
 };
 
 const ids = {
-  Local: [
-    "6870d846eee1d779a8ed1aeb",
-    "6870d846eee1d779a8ed1aee",
-    "6870d846eee1d779a8ed1af1",
-    "6870d846eee1d779a8ed1af6",
-    "6870d846eee1d779a8ed1afa",
-  ],
-  "Across Africa": [
-    "6870d858eee1d779a8ed1b04",
-    "6870d858eee1d779a8ed1b07",
-    "6870d858eee1d779a8ed1b0a",
-    "6870d858eee1d779a8ed1b0d",
-    "6870d858eee1d779a8ed1b11",
-  ],
-  Global: [
-    "6870d86feee1d779a8ed1b1b",
-    "6870d86feee1d779a8ed1b1e",
-    "6870d86feee1d779a8ed1b20",
-    "6870d86feee1d779a8ed1b22",
-    "6870d86feee1d779a8ed1b24",
-    "6870d86feee1d779a8ed1b26",
-    "6870d86feee1d779a8ed1b28",
-    "6870d86feee1d779a8ed1b2a",
-    "6870d86feee1d779a8ed1b2c",
-    "6870d86feee1d779a8ed1b2e",
-  ],
-  Politics: [
-    "6870d887eee1d779a8ed1b3c",
-    "6870d887eee1d779a8ed1b3f",
-    "6870d887eee1d779a8ed1b43",
-    "6870d887eee1d779a8ed1b46",
-    "6870d887eee1d779a8ed1b49",
-  ],
-  Climate: [
-    "6870d89deee1d779a8ed1b53",
-    "6870d89deee1d779a8ed1b57",
-    "6870d89deee1d779a8ed1b5a",
-    "6870d89deee1d779a8ed1b5e",
-    "6870d89deee1d779a8ed1b62",
-    "6870d89deee1d779a8ed1b64",
-    "6870d89deee1d779a8ed1b66",
-    "6870d89deee1d779a8ed1b68",
-    "6870d89deee1d779a8ed1b6a",
-    "6870d89deee1d779a8ed1b6c",
-  ],
-  Startup: [
-    "6870d8b8eee1d779a8ed1b7a",
-    "6870d8b8eee1d779a8ed1b7c",
-    "6870d8b8eee1d779a8ed1b7f",
-    "6870d8b8eee1d779a8ed1b82",
-    "6870d8b8eee1d779a8ed1b85",
-    "6870d8b8eee1d779a8ed1b87",
-    "6870d8b8eee1d779a8ed1b89",
-    "6870d8b8eee1d779a8ed1b8b",
-    "6870d8b8eee1d779a8ed1b8d",
-    "6870d8b8eee1d779a8ed1b8f",
-  ],
-  "Economy/Finance": [
-    "6870d8daeee1d779a8ed1b9d",
-    "6870d8daeee1d779a8ed1ba6",
-    "6870d8daeee1d779a8ed1ba9",
-    "6870d8daeee1d779a8ed1bac",
-    "6870d8daeee1d779a8ed1baf",
-    "6870d8daeee1d779a8ed1bb1",
-    "6870d8daeee1d779a8ed1bb3",
-    "6870d8daeee1d779a8ed1bb5",
-    "6870d8daeee1d779a8ed1bb7",
-    "6870d8daeee1d779a8ed1bb9",
-  ],
-  Crypto: [
-    "6870d8eeeee1d779a8ed1bc7",
-    "6870d8eeeee1d779a8ed1bcb",
-    "6870d8eeeee1d779a8ed1bcf",
-    "6870d8eeeee1d779a8ed1bd4",
-    "6870d8eeeee1d779a8ed1bd7",
-    "6870d8eeeee1d779a8ed1bda",
-  ],
-  Career: [
-    "6870d909eee1d779a8ed1be5",
-    "6870d909eee1d779a8ed1be7",
-    "6870d909eee1d779a8ed1bea",
-    "6870d909eee1d779a8ed1bed",
-    "6870d909eee1d779a8ed1bef",
-    "6870d909eee1d779a8ed1bf1",
-    "6870d909eee1d779a8ed1bf3",
-    "6870d909eee1d779a8ed1bf5",
-  ],
-  "Latest Tech News": [
-    "6870d91ceee1d779a8ed1c01",
-    "6870d91ceee1d779a8ed1c03",
-    "6870d91ceee1d779a8ed1c05",
-    "6870d91ceee1d779a8ed1c07",
-    "6870d91ceee1d779a8ed1c09",
-    "6870d91ceee1d779a8ed1c0b",
-    "6870d91ceee1d779a8ed1c0d",
-    "6870d91ceee1d779a8ed1c0f",
-    "6870d91ceee1d779a8ed1c11",
-    "6870d91ceee1d779a8ed1c13",
-  ],
-  Fintech: [
-    "6870d92eeee1d779a8ed1c21",
-    "6870d92eeee1d779a8ed1c24",
-    "6870d92eeee1d779a8ed1c27",
-    "6870d92eeee1d779a8ed1c2a",
-    "6870d92eeee1d779a8ed1c2e",
-    "6870d92eeee1d779a8ed1c32",
-    "6870d92eeee1d779a8ed1c35",
-    "6870d92eeee1d779a8ed1c39",
-  ],
-  AI: [
-    "6870d945eee1d779a8ed1c46",
-    "6870d945eee1d779a8ed1c4a",
-    "6870d945eee1d779a8ed1c4c",
-    "6870d945eee1d779a8ed1c4f",
-    "6870d945eee1d779a8ed1c51",
-    "6870d945eee1d779a8ed1c53",
-    "6870d945eee1d779a8ed1c55",
-    "6870d945eee1d779a8ed1c57",
-    "6870d945eee1d779a8ed1c59",
-    "6870d945eee1d779a8ed1c5b",
-  ],
-  Health: [
-    "6870d95ceee1d779a8ed1c69",
-    "6870d95ceee1d779a8ed1c6b",
-    "6870d95ceee1d779a8ed1c6e",
-    "6870d95ceee1d779a8ed1c70",
-    "6870d95ceee1d779a8ed1c72",
-  ],
-  Food: [
-    "6870d970eee1d779a8ed1c7b",
-    "6870d970eee1d779a8ed1c7d",
-    "6870d970eee1d779a8ed1c7f",
-    "6870d970eee1d779a8ed1c82",
-    "6870d970eee1d779a8ed1c84",
-  ],
-  Travel: [
-    "6870d985eee1d779a8ed1c8d",
-    "6870d985eee1d779a8ed1c90",
-    "6870d985eee1d779a8ed1c93",
-    "6870d985eee1d779a8ed1c95",
-    "6870d985eee1d779a8ed1c97",
-    "6870d985eee1d779a8ed1c99",
-    "6870d985eee1d779a8ed1c9b",
-  ],
-  Parenting: [
-    "6870d99deee1d779a8ed1ca6",
-    "6870d99deee1d779a8ed1ca9",
-    "6870d99deee1d779a8ed1cb0",
-    "6870d99deee1d779a8ed1cb4",
-    "6870d99deee1d779a8ed1cba",
-  ],
-  Fashion: [
-    "6870d9bdeee1d779a8ed1cc3",
-    "6870d9bdeee1d779a8ed1cc5",
-    "6870d9bdeee1d779a8ed1cc8",
-    "6870d9bdeee1d779a8ed1cca",
-    "6870d9bdeee1d779a8ed1ccc",
-    "6870d9bdeee1d779a8ed1cce",
-    "6870d9bdeee1d779a8ed1cd1",
-    "6870d9bdeee1d779a8ed1cd6",
-    "6870d9bdeee1d779a8ed1cd8",
-    "6870d9bdeee1d779a8ed1cda",
-  ],
-  "Celebrity News": [
-    "6870d9d0eee1d779a8ed1ce8",
-    "6870d9d0eee1d779a8ed1ceb",
-    "6870d9d0eee1d779a8ed1cee",
-    "6870d9d0eee1d779a8ed1cf0",
-    "6870d9d0eee1d779a8ed1cf2",
-    "6870d9d0eee1d779a8ed1cf4",
-    "6870d9d0eee1d779a8ed1cf6",
-  ],
-  Profiles: [
-    "6870d9f1eee1d779a8ed1d01",
-    "6870d9f1eee1d779a8ed1d04",
-    "6870d9f1eee1d779a8ed1d07",
-    "6870d9f1eee1d779a8ed1d0a",
-    "6870d9f1eee1d779a8ed1d0e",
-    "6870d9f1eee1d779a8ed1d10",
-    "6870d9f1eee1d779a8ed1d12",
-    "6870d9f1eee1d779a8ed1d14",
-    "6870d9f1eee1d779a8ed1d16",
-    "6870d9f1eee1d779a8ed1d18",
-  ],
-  Music: [
-    "6870da0deee1d779a8ed1d26",
-    "6870da0deee1d779a8ed1d2a",
-    "6870da0deee1d779a8ed1d2d",
-    "6870da0deee1d779a8ed1d2f",
-    "6870da0deee1d779a8ed1d32",
-    "6870da0deee1d779a8ed1d34",
-    "6870da0deee1d779a8ed1d36",
-    "6870da0deee1d779a8ed1d38",
-    "6870da0deee1d779a8ed1d3a",
-    "6870da0deee1d779a8ed1d3c",
-  ],
-  Movies: [
-    "6870da28eee1d779a8ed1d4a",
-    "6870da28eee1d779a8ed1d4f",
-    "6870da28eee1d779a8ed1d51",
-    "6870da28eee1d779a8ed1d53",
-    "6870da28eee1d779a8ed1d57",
-    "6870da28eee1d779a8ed1d59",
-    "6870da28eee1d779a8ed1d5b",
-    "6870da28eee1d779a8ed1d5d",
-    "6870da28eee1d779a8ed1d5f",
-  ],
-  Sports: [
-    "6870da3eeee1d779a8ed1d6c",
-    "6870da3eeee1d779a8ed1d71",
-    "6870da3eeee1d779a8ed1d73",
-    "6870da3eeee1d779a8ed1d75",
-    "6870da3eeee1d779a8ed1d78",
-    "6870da3eeee1d779a8ed1d7b",
-    "6870da3eeee1d779a8ed1d7d",
-    "6870da3eeee1d779a8ed1d80",
-  ],
+  Local: ["687783a828e174813721b5a5", "687783a828e174813721b5a8"],
+  "Across Africa": ["687783b628e174813721b5b2", "687783b628e174813721b5b5"],
+  Global: ["687783ca28e174813721b5bb", "687783ca28e174813721b5be"],
+  Politics: ["687783d928e174813721b5c6", "687783d928e174813721b5cf"],
+  Climate: ["687783e428e174813721b5d7", "687783e428e174813721b5da"],
+  Startup: ["687783ed28e174813721b5e1", "687783ed28e174813721b5e4"],
+  "Economy/Finance": ["687783ff28e174813721b5eb"],
+  Crypto: ["6877840f28e174813721b5f1", "6877840f28e174813721b5f6"],
+  Career: ["6877841c28e174813721b5fd", "6877841c28e174813721b5ff"],
+  "Latest Tech News": ["6877842828e174813721b605", "6877842828e174813721b608"],
+  Fintech: ["6877843b28e174813721b60f", "6877843b28e174813721b614"],
+  AI: ["6877844728e174813721b61d", "6877844728e174813721b622"],
+  Health: ["6877845228e174813721b62a", "6877845228e174813721b62d"],
+  Food: ["6877845f28e174813721b633", "6877845f28e174813721b635"],
+  Travel: ["6877847028e174813721b63b", "6877847028e174813721b63e"],
+  Parenting: ["6877847d28e174813721b645", "6877847d28e174813721b648"],
+  Fashion: ["6877848928e174813721b64e", "6877848928e174813721b651"],
+  "Celebrity News": ["6877849828e174813721b658", "6877849828e174813721b65b"],
+  Profiles: ["687784a928e174813721b662", "687784a928e174813721b664"],
+  Music: ["687784ba28e174813721b66a", "687784ba28e174813721b66d"],
+  Movies: ["687784cd28e174813721b674", "687784cd28e174813721b67b"],
+  Sports: ["687784dc28e174813721b684", "687784dc28e174813721b687"],
+};
+
+const getWriterName = (category: string) => {
+  const writers = WRITER_DISTRIBUTION[category];
+  if (!writers?.length) {
+    return undefined;
+  }
+
+  const randomIndex = Math.floor(Math.random() * writers.length);
+  return writers[randomIndex];
+};
+
+const getUserId = async (username?: string) => {
+  try {
+    const user = await UserModel.findOne({
+      display_name: username,
+    });
+
+    if (!user)
+      return {
+        id: username,
+        name: username,
+        icon: "/favicon.ico",
+      };
+
+    return {
+      id: user.username,
+      name: user.display_name,
+      icon: user.avatar,
+    };
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const POST = async (request: NextRequest) => {
@@ -355,7 +195,6 @@ ${content}
         if (!response.text || response.text === "undefined") continue;
         const result = JSON.parse(response.text as string);
 
-        console.log("object");
         if (
           !result.article ||
           !result.preview ||
@@ -365,10 +204,12 @@ ${content}
         }
         console.log(result.article);
 
+        const userData = await getUserId(getWriterName(category));
+
         posts.push({
           title: existingBatch.name,
           slug: slugger.generate(existingBatch.name),
-          author_id: "Zeal News",
+          author_id: userData.id,
           content: result.article,
           description: result.preview,
           image_url: getImageUrlFromArticles(batchedPosts),
@@ -377,11 +218,12 @@ ${content}
           category: [category],
           external: false,
           published: true,
-          generatedBy: "zeal",
+          generatedBy: "user",
           keywords: result.keywords,
           source: {
-            name: "Zeal News",
-            icon: "/favicon.ico",
+            id: userData.id,
+            name: userData.name,
+            icon: userData.icon as string,
           },
         });
 
