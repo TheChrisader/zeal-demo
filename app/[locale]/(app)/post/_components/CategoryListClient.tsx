@@ -57,7 +57,7 @@ const CategoryListClient = ({ categories }: CategoryListProps) => {
               </PopoverTrigger>
             </div>
             <PopoverContent
-              className="flex w-auto flex-wrap gap-1 p-2 duration-200 animate-in zoom-in-50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-50"
+              className="flex w-auto max-w-[calc(100vw-40px)] flex-wrap gap-1 p-2 duration-200 animate-in zoom-in-50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-50"
               align="start"
               sideOffset={5}
               avoidCollisions
