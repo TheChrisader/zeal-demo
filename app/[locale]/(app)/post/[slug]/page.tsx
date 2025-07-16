@@ -25,6 +25,7 @@ import { StickyNewsletterBanner } from "@/components/layout/NewsletterForm/Stick
 import { getCategoriesByWriter } from "@/constants/writers";
 import { Badge } from "@/components/ui/badge";
 import { extractPath } from "@/categories";
+import CategoryListClient from "../_components/CategoryListClient";
 
 export async function generateMetadata({
   params,
@@ -248,15 +249,9 @@ export default async function PostPage({
             <span className="text-sm font-normal text-muted-alt">
               <strong>{post.source.name}</strong>
             </span>
-            <div className="flex gap-1 text-sm font-normal text-muted-alt">
-              {" "}
-              <span>Writer for</span>
-              {getCategoriesByWriter(post.source.name!).map((category) => (
-                <Badge key={category} variant="secondary">
-                  <Link href={extractPath(category)}>{category}</Link>
-                </Badge>
-              ))}
-            </div>
+            <CategoryListClient
+              categories={getCategoriesByWriter(post.source.name!)}
+            />
           </div>
         </div>
       )}
