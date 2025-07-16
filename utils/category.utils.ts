@@ -8,7 +8,7 @@ export const flattenCategories = (arr: Category[]) => {
   const result: string[] = [];
 
   arr.forEach((item) => {
-    if (TOP_LEVEL_CATEGORIES_LIST.includes(item.name as TopLevelCategory)) {
+    if (item.sub) {
       result.push(...flattenCategories(item.sub!));
     } else {
       result.push(item.name);
