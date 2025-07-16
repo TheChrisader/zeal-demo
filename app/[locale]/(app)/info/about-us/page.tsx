@@ -9,13 +9,17 @@ import MindsBehind from "./_components/MindsBehind";
 const AboutUs = () => {
   return (
     <div className="prose mx-auto flex flex-col px-3 py-4 lg:max-w-[80vw] [&_h2]:m-0 [&_h3]:m-0 [&_h4]:m-0 [&_strong]:text-primary">
-      <Accordion type="multiple" className="w-full">
+      <Accordion type="multiple" className="w-full" defaultValue={["about-us"]}>
         <AccordionItem value="about-us">
           <AccordionTrigger>
             <h2 className="text-xl font-bold">ABOUT US</h2>
           </AccordionTrigger>
           <AccordionContent className="pl-6">
-            <Accordion type="multiple" className="w-full">
+            <Accordion
+              type="multiple"
+              className="w-full"
+              defaultValue={["who-told-your-story"]}
+            >
               <AccordionItem value="who-told-your-story">
                 <AccordionTrigger>
                   <h3 className="text-lg font-semibold">
