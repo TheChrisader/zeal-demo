@@ -210,8 +210,8 @@ const AboutUs = () => {
                 </AccordionTrigger>
                 <AccordionContent>
                   <p>
-                    ZealNews Africa functions both as a content creator and a
-                    content curator:
+                    ZealNews Africa functions both as a content creation
+                    platform and a third party content aggregator:{" "}
                   </p>
                   <ul>
                     <li>
