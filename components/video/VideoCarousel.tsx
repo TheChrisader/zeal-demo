@@ -127,6 +127,7 @@ const VideoCarousel: React.FC = () => {
   const handleMouseLeave = () => setIsPaused(false);
   const handleFocus = () => setIsPaused(true);
   const handleBlur = () => setIsPaused(false);
+  const handleClick = () => setIsPaused(true);
 
   // Initialize interval on mount
   useEffect(() => {
@@ -168,6 +169,7 @@ const VideoCarousel: React.FC = () => {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onFocus={handleFocus}
+            onClick={handleClick}
             onBlur={handleBlur}
             tabIndex={0}
           >
