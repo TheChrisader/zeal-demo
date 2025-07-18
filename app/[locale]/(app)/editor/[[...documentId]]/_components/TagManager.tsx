@@ -9,10 +9,12 @@ import { fetchPostById, updatePostById } from "@/services/post.services";
 import { IPost } from "@/types/post.type";
 import { fetchById, updateById } from "../_utils/composites";
 import { useEditorStore } from "@/context/editorStore/useEditorStore";
+import useAuth from "@/context/auth/useAuth";
 
 interface TagManagerProps {}
 
 const TagManager = ({}: TagManagerProps) => {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const activeDocumentId = useEditorStore((state) => state.activeDocumentId);
   const [inputValue, setInputValue] = useState("");
@@ -31,7 +33,10 @@ const TagManager = ({}: TagManagerProps) => {
 
   const updatePostMutation = useMutation({
     mutationFn: (params: { id: string; data: Partial<IPost> }) =>
-      updateById(params.id, params.data, documentData?.published || false),
+      updateById(params.id, params.data, {
+        published: documentData?.published || false,
+        type: user?.role === "freelance_writer" ? "freelance_writer" : "writer",
+      }),
     onSuccess: (updatedPost) => {
       console.log(updatedPost);
       if (updatedPost && activeDocumentId) {

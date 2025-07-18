@@ -1,28 +1,28 @@
 "use client";
 
-import React, { useState } from "react";
-
-import { IPost } from "@/types/post.type";
-import { User } from "lucia";
 import { useIsMutating, useQuery } from "@tanstack/react-query";
-import useAuth from "@/context/auth/useAuth";
-import { createPost, fetchPostById } from "@/services/post.services";
-import EditableDocumentTitle from "./EditableDocumentTitle";
-import { getWordCount } from "@/utils/editor.utils";
-import { stripHtml } from "string-strip-html";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import { fetchById } from "../_utils/composites";
-import { useEditorStore } from "@/context/editorStore/useEditorStore";
-import { Button } from "@/components/ui/button"; // Assuming you have a Button component
+import { User } from "lucia";
 import {
   Menu,
   PanelLeftClose,
-  PanelRightClose,
   PanelLeftOpen,
+  PanelRightClose,
   PanelRightOpen,
 } from "lucide-react";
+import React, { useState } from "react";
+
 import { toast } from "sonner";
+import { stripHtml } from "string-strip-html";
 import { useRouter } from "@/app/_components/useRouter";
+import { Button } from "@/components/ui/button"; // Assuming you have a Button component
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import useAuth from "@/context/auth/useAuth";
+import { createPost, fetchPostById } from "@/services/post.services";
+import { IPost } from "@/types/post.type";
+import { getWordCount } from "@/utils/editor.utils";
+import EditableDocumentTitle from "./EditableDocumentTitle";
+import { fetchById } from "../_utils/composites";
+import { useEditorStore } from "@/context/editorStore/useEditorStore";
 
 interface TopbarProps {
   toggleLeftSidebar: () => void;
@@ -97,7 +97,7 @@ const Topbar: React.FC<TopbarProps> = ({
           onClick={toggleLeftSidebar}
           className="md:hidden"
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="size-5" />
         </Button>
         <Button
           variant="ghost"
@@ -106,9 +106,9 @@ const Topbar: React.FC<TopbarProps> = ({
           className="hidden md:inline-flex"
         >
           {isLeftSidebarOpen ? (
-            <PanelLeftClose className="h-5 w-5" />
+            <PanelLeftClose className="size-5" />
           ) : (
-            <PanelLeftOpen className="h-5 w-5" />
+            <PanelLeftOpen className="size-5" />
           )}
         </Button>
         <EditableDocumentTitle />
@@ -134,9 +134,9 @@ const Topbar: React.FC<TopbarProps> = ({
           className="hidden lg:inline-flex"
         >
           {isRightSidebarOpen ? (
-            <PanelRightClose className="h-5 w-5" />
+            <PanelRightClose className="size-5" />
           ) : (
-            <PanelRightOpen className="h-5 w-5" />
+            <PanelRightOpen className="size-5" />
           )}
         </Button>
         <Button
@@ -145,7 +145,7 @@ const Topbar: React.FC<TopbarProps> = ({
           onClick={toggleRightSidebar}
           className="lg:hidden"
         >
-          <Menu className="h-5 w-5" />{" "}
+          <Menu className="size-5" />{" "}
           {/* Or a different icon for mobile right toggle if needed */}
         </Button>
       </div>

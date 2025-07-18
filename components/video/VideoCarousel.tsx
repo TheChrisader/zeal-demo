@@ -12,19 +12,19 @@ interface VideoData {
 const VideoCarousel: React.FC = () => {
   const [videos, setVideos] = useState<VideoData[]>([
     {
-      id: "ka9g1wBFgUU",
-      url: "https://www.youtube.com/shorts/ka9g1wBFgUU",
-      title: "Nigeria's Art Scenes.",
+      id: "WoXQYxCv6ww",
+      url: "https://www.youtube.com/watch?v=WoXQYxCv6ww",
+      title: "$30B Startup With Nothing to Sell? | SSI Explained",
     },
     {
-      id: "KGEqSE2ghbk",
-      url: "https://www.youtube.com/shorts/KGEqSE2ghbk",
-      title: "The Sahara wasn't always a desert",
+      id: "PB3u_Dmn4uM",
+      url: "https://www.youtube.com/watch?v=PB3u_Dmn4uM",
+      title: "Virgil Abloh: The Man Who Redefined Fashion, Culture, and Power",
     },
     {
-      id: "vQST15DlqME",
-      url: "https://www.youtube.com/shorts/vQST15DlqME",
-      title: "Virgil Abloh did more than design clothes.",
+      id: "QkI1DKR45Cc",
+      url: "https://www.youtube.com/watch?v=QkI1DKR45Cc",
+      title: "Lalibela: Ethiopia’s Hidden Jerusalem Beneath the Earth.",
     },
   ]);
 
@@ -86,7 +86,7 @@ const VideoCarousel: React.FC = () => {
           setIsTransitioning(false);
         }, 500);
       }
-    }, 15000);
+    }, 5000);
   };
 
   // Stop auto-cycling
@@ -135,7 +135,7 @@ const VideoCarousel: React.FC = () => {
   }, [isPaused]);
 
   return (
-    <div className="mx-auto w-full max-w-6xl rounded-lg bg-gray-900 p-4 text-white">
+    <div className="mx-auto w-full max-w-6xl rounded-lg bg-card p-4 text-card-foreground">
       {/* Input Section */}
       {/* <div className="mb-6 space-y-3">
         <h2 className="mb-4 text-xl font-bold">YouTube Video Carousel</h2>
@@ -172,13 +172,13 @@ const VideoCarousel: React.FC = () => {
             tabIndex={0}
           >
             <div
-              className={`inset-0 transition-all duration-500 ease-in-out ${
+              className={`inset-0 size-full transition-all duration-500 ease-in-out ${
                 isTransitioning
                   ? "translate-x-4 opacity-0"
                   : "translate-x-0 opacity-100"
               }`}
             >
-              {/* <iframe
+              <iframe
                 // src={`https://www.youtube.com/embed/${videos[currentVideoIndex]?.id}?autoplay=1&mute=1&controls=1&rel=0`}
                 src={`https://www.youtube.com/embed/${videos[currentVideoIndex]?.id}?controls=1&rel=0`}
                 title={videos[currentVideoIndex]?.title}
@@ -186,8 +186,8 @@ const VideoCarousel: React.FC = () => {
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
-              /> */}
-              <Player src={videos[currentVideoIndex]?.url as string} />
+              />
+              {/* <Player src={videos[currentVideoIndex]?.url as string} /> */}
             </div>
 
             {/* Navigation Controls */}
@@ -240,7 +240,7 @@ const VideoCarousel: React.FC = () => {
               key={video.id}
               className={`relative flex-1 cursor-pointer transition-all duration-300 lg:flex-none ${
                 index === currentVideoIndex
-                  ? "opacity-100 ring-2 ring-blue-500"
+                  ? "rounded-sm opacity-100 ring-2 ring-blue-500"
                   : "opacity-70 hover:opacity-100"
               }`}
               onClick={() => changeVideo(index)}
@@ -257,7 +257,7 @@ const VideoCarousel: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="mt-2 text-center text-sm text-gray-300 lg:text-left">
+              <div className="mt-2 p-2 text-center text-sm text-card-foreground max-[650px]:hidden lg:text-left">
                 {video.title}
               </div>
             </div>

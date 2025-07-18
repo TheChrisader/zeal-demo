@@ -4,6 +4,7 @@ import InstallModel from "@/database/install/install.model";
 import PostModel from "@/database/post/post.model";
 import UserModel from "@/database/user/user.model";
 import { flattenCategories } from "@/utils/category.utils";
+import { DEFAULT_WHITELIST } from "@/constants/roles";
 // import { PwaInstall } from '@/models/PwaInstall';
 // import { FlaggedContent } from '@/models/FlaggedContent';
 
@@ -24,7 +25,7 @@ const TIME_CONFIGS: Record<TimeRange, TimeConfig> = {
 const CATEGORIES = flattenCategories(Categories)
   .filter((c) => c !== "Home")
   .map((cat) => [cat]);
-const ROLES = ["user", "admin", "writer"];
+const ROLES = DEFAULT_WHITELIST;
 const EVENT_TYPES = ["prompt_accepted", "prompt_shown", "prompt_dismissed"];
 
 export async function GET(request: NextRequest) {

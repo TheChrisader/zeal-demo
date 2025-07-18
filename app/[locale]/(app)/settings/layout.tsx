@@ -4,6 +4,7 @@ import { serverAuthGuard } from "@/lib/auth/serverAuthGuard";
 import { connectToDatabase } from "@/lib/database";
 import SettingsBar from "./_components/SettingsBar";
 import SettingSidebar from "./_components/SettingsSidebar";
+import { DEFAULT_WHITELIST } from "@/constants/roles";
 
 export default async function SettingsLayout({
   children,
@@ -12,7 +13,7 @@ export default async function SettingsLayout({
 }) {
   await connectToDatabase();
   await serverAuthGuard({
-    rolesWhiteList: ["user", "writer", "admin"],
+    rolesWhiteList: DEFAULT_WHITELIST,
     redirect: true,
   });
 

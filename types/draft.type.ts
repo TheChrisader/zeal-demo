@@ -21,6 +21,8 @@ export interface IDraft {
   language: Language;
   country: string[];
   category: string[];
+  moderationStatus: "draft" | "awaiting_approval" | "published" | "rejected";
+  moderationNotes: string[];
   published: boolean;
   created_at: string;
   updated_at: string;

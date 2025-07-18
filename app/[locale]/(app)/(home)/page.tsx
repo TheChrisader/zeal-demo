@@ -307,7 +307,7 @@ export default async function Home({
 
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-7">
-      {/* <VideoCarousel /> */}
+      <VideoCarousel />
       <HeadlinesBlock user={user} category="News" />
       <TodayInHistory />
       {(await shuffleArray(ZEAL_CATEGORIES))?.map((category) => {

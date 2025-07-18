@@ -24,9 +24,11 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useEffect, useState } from "react";
 import { useEditorStore } from "@/context/editorStore/useEditorStore";
 import { toast } from "sonner";
+import useAuth from "@/context/auth/useAuth";
 
 interface CategoryManagerProps {}
 const CategoryManager = ({}: CategoryManagerProps) => {
+  const { user } = useAuth();
   const activeDocumentId = useEditorStore((state) => state.activeDocumentId);
   const queryClient = useQueryClient();
   const {
@@ -49,7 +51,11 @@ const CategoryManager = ({}: CategoryManagerProps) => {
       return updateById(
         activeDocumentId,
         { category: updatedCategories },
-        documentData?.published || false,
+        {
+          published: documentData?.published || false,
+          type:
+            user?.role === "freelance_writer" ? "freelance_writer" : "writer",
+        },
       );
     },
     onSuccess: (updatedPost) => {

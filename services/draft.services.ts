@@ -79,3 +79,23 @@ export const deleteDraftById = async (id: string) => {
     throw error;
   }
 };
+
+export const getDraftsAwaitingApproval = async () => {
+  try {
+    const drafts = await fetcher(`/api/v1/draft/awaiting-approval`);
+    return drafts;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const pushDraftForApproval = async (id: string) => {
+  try {
+    const pushedDraft = await fetcher(`/api/v1/draft/${id}/push`, {
+      method: "PATCH",
+    });
+    return pushedDraft;
+  } catch (error) {
+    throw error;
+  }
+};

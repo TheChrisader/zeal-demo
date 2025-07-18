@@ -8,10 +8,12 @@ import { fetchById, updateById } from "../_utils/composites";
 import { Input } from "@/components/ui/input";
 import { useEditorStore } from "@/context/editorStore/useEditorStore";
 import { toast } from "sonner";
+import useAuth from "@/context/auth/useAuth";
 
 interface EditableDocumentTitleProps {}
 
 const EditableDocumentTitle = ({}: EditableDocumentTitleProps) => {
+  const { user } = useAuth();
   const activeDocumentId = useEditorStore((state) => state.activeDocumentId);
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
@@ -39,7 +41,11 @@ const EditableDocumentTitle = ({}: EditableDocumentTitleProps) => {
       updateById(
         variables.id,
         { title: variables.title },
-        documentData?.published || false,
+        {
+          published: documentData?.published || false,
+          type:
+            user?.role === "freelance_writer" ? "freelance_writer" : "writer",
+        },
       ),
     onSuccess: (data) => {
       queryClient.setQueryData(["document", activeDocumentId], data);

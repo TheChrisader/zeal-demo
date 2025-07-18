@@ -1,5 +1,5 @@
 import { fetcher } from "@/lib/fetcher";
-import { updateDraft } from "@/services/draft.services";
+import { pushDraftForApproval, updateDraft } from "@/services/draft.services";
 import { updatePostById } from "@/services/post.services";
 import { IDraft } from "@/types/draft.type";
 import { IPost } from "@/types/post.type";
@@ -18,10 +18,17 @@ export const fetchById = async (id: string) => {
 export const updateById = async (
   id: string,
   data: Partial<IPost | IDraft> & { image?: File },
-  published: boolean,
+  settings: { published: boolean; type: "writer" | "freelance_writer" } = {
+    published: false,
+    type: "writer",
+  },
 ) => {
-  if (published) {
-    return await updatePostById(id, data);
+  if (settings.published) {
+    if (settings.type === "writer") {
+      return await updatePostById(id, data);
+    } else {
+      return await pushDraftForApproval(id);
+    }
   } else {
     return await updateDraft(id, data);
   }

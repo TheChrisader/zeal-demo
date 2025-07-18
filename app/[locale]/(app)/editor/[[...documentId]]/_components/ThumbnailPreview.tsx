@@ -8,10 +8,12 @@ import { fetchById, updateById } from "../_utils/composites";
 import { IDraft } from "@/types/draft.type";
 import { useEditorStore } from "@/context/editorStore/useEditorStore";
 import { toast } from "sonner";
+import useAuth from "@/context/auth/useAuth";
 
 interface ThumbnailPreviewProps {}
 
 const ThumbnailPreview = ({}: ThumbnailPreviewProps) => {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const activeDocumentId = useEditorStore((state) => state.activeDocumentId);
   const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
@@ -28,11 +30,10 @@ const ThumbnailPreview = ({}: ThumbnailPreviewProps) => {
 
   const updateThumbnailMutation = useMutation({
     mutationFn: (updateData: { image?: File; image_url?: string | null }) =>
-      updateById(
-        activeDocumentId as string,
-        updateData,
-        documentData?.published || false,
-      ),
+      updateById(activeDocumentId as string, updateData, {
+        published: documentData?.published || false,
+        type: user?.role === "freelance_writer" ? "freelance_writer" : "writer",
+      }),
     onSuccess: (updatedPost) => {
       if (updatedPost && activeDocumentId) {
         queryClient.setQueryData(["document", activeDocumentId], updatedPost);

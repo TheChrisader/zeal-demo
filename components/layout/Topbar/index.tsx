@@ -31,6 +31,10 @@ import { GH, KE, NG, UG, ZA, ZM } from "country-flag-icons/react/3x2";
 import ZealLogo from "@/assets/ZealLogo";
 import { BurgerMenu, Sidebar } from "../Sidebar";
 import { LogIn } from "lucide-react";
+import {
+  checkUserUpgradeStatus,
+  checkUserWriterStatus,
+} from "@/utils/user.utils";
 
 interface UserActionProps {
   user: User | null;
@@ -152,7 +156,7 @@ const Write = () => {
   }
 
   // Add check for pending upgrade
-  if (user.upgrade_pending) {
+  if (checkUserUpgradeStatus(user)) {
     return (
       <Popover>
         <PopoverTrigger asChild>
@@ -180,7 +184,7 @@ const Write = () => {
     );
   }
 
-  if (user.role !== "writer") {
+  if (checkUserWriterStatus(user)) {
     return (
       <WriterForm>
         <Button

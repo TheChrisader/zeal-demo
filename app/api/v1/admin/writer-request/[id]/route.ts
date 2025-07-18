@@ -29,7 +29,7 @@ export async function DELETE(
 
     if (decision === "approved") {
       await UserModel.findByIdAndUpdate(writerRequest?.user_id, {
-        $set: { upgrade_pending: false, role: "writer" },
+        $set: { upgrade_pending: false, role: "freelance_writer" },
       });
     } else {
       await UserModel.findByIdAndUpdate(writerRequest?.user_id, {

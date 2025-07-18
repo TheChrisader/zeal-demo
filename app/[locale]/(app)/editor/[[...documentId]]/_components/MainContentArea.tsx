@@ -11,12 +11,14 @@ import { IPost } from "@/types/post.type";
 import { fetchById, updateById } from "../_utils/composites";
 import { useEditorStore } from "@/context/editorStore/useEditorStore";
 import { toast } from "sonner";
+import useAuth from "@/context/auth/useAuth";
 
 interface MainContentAreaProps {}
 
 const DEBOUNCE_DELAY = 1500; // 1.5 seconds
 
 const MainContentArea: React.FC<MainContentAreaProps> = ({}) => {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const currentContent = useEditorStore((state) => state.currentContent);
   const setCurrentContent = useEditorStore((state) => state.setCurrentContent);
@@ -77,7 +79,11 @@ const MainContentArea: React.FC<MainContentAreaProps> = ({}) => {
       return updateById(
         activeDocumentId as string,
         { content },
-        documentData?.published || false,
+        {
+          published: documentData?.published || false,
+          type:
+            user?.role === "freelance_writer" ? "freelance_writer" : "writer",
+        },
       );
     },
 

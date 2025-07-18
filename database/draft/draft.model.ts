@@ -63,6 +63,15 @@ const DraftSchema = new Schema<IDraft>(
       type: Boolean,
       default: false,
     },
+    moderationStatus: {
+      type: String,
+      enum: ["draft", "awaiting_approval", "published", "rejected"],
+      default: "draft",
+    },
+    moderationNotes: {
+      type: [String],
+      default: [],
+    },
   },
   {
     timestamps: {

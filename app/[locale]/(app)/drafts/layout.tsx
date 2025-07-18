@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { serverAuthGuard } from "@/lib/auth/serverAuthGuard";
 import { connectToDatabase } from "@/lib/database";
+import { WRITER_WHITELIST } from "@/constants/roles";
 
 export default async function DraftsLayout({
   children,
@@ -9,7 +10,7 @@ export default async function DraftsLayout({
 }) {
   await connectToDatabase();
   await serverAuthGuard({
-    rolesWhiteList: ["writer", "admin"],
+    rolesWhiteList: WRITER_WHITELIST,
     redirect: true,
   });
 

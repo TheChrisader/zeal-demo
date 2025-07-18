@@ -11,6 +11,7 @@ import { webPush } from "@/lib/web-push";
 import PostModel from "@/database/post/post.model";
 import connectionManager from "@/lib/connection-manager";
 import UserModel from "@/database/user/user.model";
+import { DEFAULT_WHITELIST } from "@/constants/roles";
 
 async function createRecommendationNotification(
   recipientId: Id,
@@ -40,7 +41,7 @@ async function createRecommendationNotification(
 const getActiveUsers = async () => {
   const users = await UserModel.find({
     role: {
-      $in: ["user", "writer"],
+      $in: DEFAULT_WHITELIST,
     },
   })
     .select("_id location")

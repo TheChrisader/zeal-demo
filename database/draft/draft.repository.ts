@@ -35,9 +35,16 @@ export const getDraftById = async (id: string | Id): Promise<IDraft | null> => {
 
 export const getDraftsByUserId = async (
   userId: string | Id,
+  status: IDraft["moderationStatus"] = "draft",
 ): Promise<IDraft[]> => {
   try {
-    const drafts = await DraftModel.find({ user_id: userId })
+    const query: { user_id: string | Id; status?: IDraft["moderationStatus"] } =
+      { user_id: userId };
+    if (status) {
+      query.status = status;
+    }
+
+    const drafts = await DraftModel.find(query)
       .sort({
         created_at: -1,
       })
@@ -83,6 +90,17 @@ export const updateDraft = async (
       { new: true },
     );
     return updatedDraftDoc?.toObject() || null;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getDraftsByStatus = async (
+  status: IDraft["moderationStatus"],
+): Promise<IDraft[]> => {
+  try {
+    const drafts = await DraftModel.find({ status }).sort({ created_at: -1 });
+    return drafts.map((draft) => draft.toObject());
   } catch (error) {
     throw error;
   }

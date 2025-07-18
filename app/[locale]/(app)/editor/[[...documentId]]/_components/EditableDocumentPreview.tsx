@@ -8,10 +8,12 @@ import { fetchById, updateById } from "../_utils/composites";
 import { Textarea } from "@/components/ui/textarea";
 import { useEditorStore } from "@/context/editorStore/useEditorStore";
 import { toast } from "sonner";
+import useAuth from "@/context/auth/useAuth";
 
 interface EditableDocumentPreviewProps {}
 
 const EditableDocumentPreview = ({}: EditableDocumentPreviewProps) => {
+  const { user } = useAuth();
   const activeDocumentId = useEditorStore((state) => state.activeDocumentId);
   const queryClient = useQueryClient();
 
@@ -38,7 +40,11 @@ const EditableDocumentPreview = ({}: EditableDocumentPreviewProps) => {
       updateById(
         variables.id,
         { description: variables.description },
-        documentData?.published || false,
+        {
+          published: documentData?.published || false,
+          type:
+            user?.role === "freelance_writer" ? "freelance_writer" : "writer",
+        },
       ),
     onSuccess: (data) => {
       queryClient.setQueryData(["document", activeDocumentId], data);
