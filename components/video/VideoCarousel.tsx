@@ -32,9 +32,10 @@ const VideoCarousel: React.FC = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [inputValues, setInputValues] = useState(["", "", ""]);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const mainVideoRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   // Extract YouTube video ID from URL
   const extractVideoId = (url: string): string | undefined => {
@@ -79,7 +80,7 @@ const VideoCarousel: React.FC = () => {
   const startInterval = () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
-      if (!isPaused) {
+      if (!isPaused && !isPlaying) {
         setIsTransitioning(true);
         setCurrentVideoIndex((prev) => (prev + 1) % videos.length);
         setTimeout(() => {
@@ -127,7 +128,13 @@ const VideoCarousel: React.FC = () => {
   const handleMouseLeave = () => setIsPaused(false);
   const handleFocus = () => setIsPaused(true);
   const handleBlur = () => setIsPaused(false);
-  const handleClick = () => setIsPaused(true);
+  const handlePointerDown = () => {
+    console.log(isPlaying, "!!!!!!!!!!!!!!");
+    if (overlayRef.current) {
+      overlayRef.current.style.pointerEvents = "none";
+    }
+    setIsPlaying(!isPlaying);
+  };
 
   // Initialize interval on mount
   useEffect(() => {
@@ -169,7 +176,6 @@ const VideoCarousel: React.FC = () => {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onFocus={handleFocus}
-            onClick={handleClick}
             onBlur={handleBlur}
             tabIndex={0}
           >
@@ -189,6 +195,13 @@ const VideoCarousel: React.FC = () => {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
+              {/* {!isPlaying && ( */}
+              <div
+                onPointerDown={handlePointerDown}
+                ref={overlayRef}
+                className="pointer-events-auto absolute left-0 top-0 z-[9999] size-full cursor-pointer bg-transparent"
+              />
+              {/* )} */}
               {/* <Player src={videos[currentVideoIndex]?.url as string} /> */}
             </div>
 

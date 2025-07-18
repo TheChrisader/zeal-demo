@@ -35,7 +35,7 @@ export const getDraftById = async (id: string | Id): Promise<IDraft | null> => {
 
 export const getDraftsByUserId = async (
   userId: string | Id,
-  status: IDraft["moderationStatus"] = "draft",
+  status?: IDraft["moderationStatus"],
 ): Promise<IDraft[]> => {
   try {
     const query: { user_id: string | Id; status?: IDraft["moderationStatus"] } =

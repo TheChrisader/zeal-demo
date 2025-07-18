@@ -184,7 +184,7 @@ const Write = () => {
     );
   }
 
-  if (checkUserWriterStatus(user)) {
+  if (!checkUserWriterStatus(user)) {
     return (
       <WriterForm>
         <Button
