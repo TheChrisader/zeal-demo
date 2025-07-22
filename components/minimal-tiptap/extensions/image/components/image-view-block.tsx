@@ -289,7 +289,7 @@ export const ImageViewBlock: React.FC<NodeViewProps> = ({
 
             {imageState.isServerUploading && <ImageOverlay />}
 
-            {/* {editor.isEditable &&
+            {editor.isEditable &&
               imageState.imageLoaded &&
               !imageState.error &&
               !imageState.isServerUploading && (
@@ -309,7 +309,7 @@ export const ImageViewBlock: React.FC<NodeViewProps> = ({
                     isResizing={isResizing && activeResizeHandle === "right"}
                   />
                 </>
-              )} */}
+              )}
           </div>
 
           {imageState.error && (
