@@ -18,15 +18,15 @@ const DeferInstallPromptEvent = dynamic(
 async function getNextPost() {
   "use server";
   await connectToDatabase();
-  const categoryList = [
-    "Headlines",
-    "Breaking",
-    "Politics",
-    "Top US News",
-    "Top Movies",
-  ];
-  const category =
-    categoryList[Math.floor(Math.random() * categoryList.length)];
+  // const categoryList = [
+  //   "Headlines",
+  //   "Breaking",
+  //   "Politics",
+  //   "Top US News",
+  //   "Top Movies",
+  // ];
+  // const category =
+  //   categoryList[Math.floor(Math.random() * categoryList.length)];
 
   const daysAgo = new Date();
   daysAgo.setDate(daysAgo.getDate() - 2);
@@ -35,9 +35,7 @@ async function getNextPost() {
     await PostModel.aggregate([
       {
         $match: {
-          category: {
-            $in: [category],
-          },
+          generatedBy: "user",
           created_at: {
             $gte: daysAgo,
           },

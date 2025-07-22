@@ -27,11 +27,17 @@ const RecommendedArticles = async ({
   // let tags;
 
   if (generic) {
-    let Articles = await getPostsByFilters({
-      limit: 8,
-      country: ["Nigeria"],
-      categories: ["Zeal Headline News"],
-    });
+    // let Articles = await getPostsByFilters({
+    //   limit: 8,
+    //   country: ["Nigeria"],
+    //   categories: ["Zeal Headline News"],
+    // });
+    let Articles = await PostModel.find({
+      generatedBy: "user",
+    })
+      .sort({ published_at: -1 })
+      .limit(8)
+      .lean();
 
     if (id) {
       Articles = Articles.filter((article) => article._id?.toString() !== id);
@@ -39,7 +45,7 @@ const RecommendedArticles = async ({
 
     return (
       <>
-        <h1 className="text-foreground-alt mb-4 text-2xl font-bold">
+        <h1 className="mb-4 text-2xl font-bold text-foreground-alt">
           You may also like...
         </h1>
         {side ? (
@@ -85,7 +91,7 @@ const RecommendedArticles = async ({
 
     return (
       <>
-        <h1 className="text-foreground-alt text-2xl font-bold">
+        <h1 className="text-2xl font-bold text-foreground-alt">
           More Articles from this Publisher
         </h1>
         <Trending articles={MoreArticles} />
@@ -165,7 +171,7 @@ const RecommendedArticles = async ({
 
   return (
     <>
-      <h1 className="text-foreground-alt text-2xl font-bold">
+      <h1 className="text-2xl font-bold text-foreground-alt">
         Recommended Articles
       </h1>
       <Trending partial articles={RecommendedArticles} />
