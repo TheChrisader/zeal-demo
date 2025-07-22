@@ -197,6 +197,7 @@ PostSchema.index({ published_at: -1 });
 PostSchema.index({ top_feature: -1 });
 PostSchema.index({ created_at: -1 });
 PostSchema.index({ author_id: -1 });
+PostSchema.index({ draft_id: 1 });
 PostSchema.index({ short_url: 1 }, { sparse: true });
 
 // Compound indexes
