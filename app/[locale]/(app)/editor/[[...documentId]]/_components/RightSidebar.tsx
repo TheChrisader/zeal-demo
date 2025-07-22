@@ -15,6 +15,7 @@ import EditableDocumentPreview from "./EditableDocumentPreview";
 import { useEditorStore } from "@/context/editorStore/useEditorStore";
 import { Button } from "@/components/ui/button"; // Assuming Button component exists
 import { X } from "lucide-react"; // Added X icon
+import ModerationNotes from "./ModerationNotes";
 
 interface RightSidebarProps {
   toggleSidebar: () => void;
@@ -78,6 +79,8 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
           </Button>
         )}
       </div>
+
+      <ModerationNotes />
 
       <EditableDocumentPreview />
 

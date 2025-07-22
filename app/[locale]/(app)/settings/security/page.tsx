@@ -72,7 +72,7 @@ const SecuritySettings = () => {
         qrCode={qrCodeData}
         onVerify={async (code) => {
           try {
-            const response = await fetch("/api/2fa/verify", {
+            const response = await fetch("/api/v1/2fa/verify", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ code }),

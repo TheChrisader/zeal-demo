@@ -24,12 +24,13 @@ export const updateById = async (
   },
 ) => {
   if (settings.published) {
-    if (settings.type === "writer") {
-      return await updatePostById(id, data);
-    } else {
-      return await pushDraftForApproval(id);
-    }
+    return await updatePostById(id, data);
+    // if (settings.type === "writer") {
+    // } else {
+    //   return await pushDraftForApproval(id);
+    // }
   } else {
+    // (data as IDraft).moderationStatus = "draft";
     return await updateDraft(id, data);
   }
 };

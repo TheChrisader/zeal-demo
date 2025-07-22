@@ -1,8 +1,13 @@
 import { Id } from "@/lib/database";
 
 import { IPost } from "@/types/post.type";
+import { SlugGenerator } from "@/lib/slug";
+import { IDraft } from "@/types/draft.type";
 
 import PostModel from "./post.model";
+import UserModel from "../user/user.model";
+import { generateRandomString } from "@/lib/utils";
+import { calculateReadingTime } from "@/utils/post.utils";
 
 export type SortParams<D> = Partial<Record<keyof D, -1 | 1>>;
 
@@ -16,6 +21,47 @@ export type QueryOptions<D> = {
 export const createPost = async (post: Partial<IPost>): Promise<IPost> => {
   try {
     const newPostDoc = await PostModel.create(post);
+    const createdPost = newPostDoc.toObject();
+    return createdPost;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createPostFromDraft = async (draft: IDraft): Promise<IPost> => {
+  try {
+    const slugGenerator = new SlugGenerator();
+    const slug = slugGenerator.generate(draft.title);
+
+    const user = await UserModel.findById(draft.user_id);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const source = {
+      id: user.username,
+      name: user.display_name,
+      icon: user.avatar,
+      url: "",
+    };
+
+    const newPostDoc = await PostModel.create({
+      ...draft,
+      slug,
+      author_id: user._id.toString(),
+      status: "active",
+      external: false,
+      country: ["Nigeria"],
+      published: true,
+      source,
+      published_at: new Date().toISOString(),
+      generatedBy: "user",
+      language: "English",
+      link: `httyd://${generateRandomString(10)}`,
+      ttr: calculateReadingTime(draft.content),
+      draft_id: draft._id,
+    });
     const createdPost = newPostDoc.toObject();
     return createdPost;
   } catch (error) {
@@ -246,11 +292,22 @@ export const getPostsByCategories = async (
   }
 };
 
+interface PostQueryOptions {
+  limit?: number;
+  skip?: number;
+}
+
 export const getPostsByAuthorId = async (
   authorId: string | Id,
+  options: PostQueryOptions = {},
 ): Promise<IPost[]> => {
   try {
-    const posts = await PostModel.find({ author_id: authorId });
+    const skip = options.skip || 0;
+    const limit = options.limit || 5;
+
+    const posts = await PostModel.find({ author_id: authorId })
+      .skip(skip)
+      .limit(limit);
     return posts.map((post) => post.toObject());
   } catch (error) {
     throw error;

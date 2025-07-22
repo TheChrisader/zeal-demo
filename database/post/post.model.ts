@@ -169,6 +169,10 @@ const PostSchema = new Schema<IPost>(
       enum: ["auto", "user", "zeal"],
       required: true,
     },
+    draft_id: {
+      type: Schema.Types.ObjectId,
+      ref: "Draft",
+    },
     shouldShowCTA: {
       type: Boolean,
       default: false,

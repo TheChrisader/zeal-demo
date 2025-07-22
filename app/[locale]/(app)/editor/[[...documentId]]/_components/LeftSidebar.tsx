@@ -1,8 +1,14 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  InfiniteData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { Link2, Trash2, X } from "lucide-react"; // Added X icon
+import { Check, FileWarning, Hourglass, Link2, Trash2, X } from "lucide-react"; // Added X icon
 import React, { useState } from "react";
 import { useRouter } from "@/app/_components/useRouter";
 import {
@@ -16,15 +22,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { Button } from "@/components/ui/button"; // Assuming Button component exists
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import useAuth from "@/context/auth/useAuth";
+import { useEditorStore } from "@/context/editorStore/useEditorStore";
 import { Link } from "@/i18n/routing";
 import { deleteDraftById, getDraftsByUserId } from "@/services/draft.services";
 import { deletePostById, fetchPostsByAuthorId } from "@/services/post.services";
 import { IDraft } from "@/types/draft.type";
 import { IPost } from "@/types/post.type";
-import { useEditorStore } from "@/context/editorStore/useEditorStore";
+
+interface Page<T> {
+  items: T[];
+  totalPages: number;
+}
 
 interface LeftSidebarProps {
   toggleSidebar: () => void;
@@ -54,22 +65,45 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
     (state) => state.setActiveDocumentId,
   );
 
-  const { data: drafts = [], isLoading: isLoadingDrafts } = useQuery<IDraft[]>({
+  const {
+    data: draftsData,
+    isLoading: isLoadingDrafts,
+    fetchNextPage: fetchMoreDrafts,
+    isFetchingNextPage: isFetchingMoreDrafts,
+  } = useInfiniteQuery({
     queryKey: ["documents", { type: "drafts" }],
-    queryFn: getDraftsByUserId,
-    enabled: !!user?.id,
+    queryFn: ({ pageParam = 1 }) => getDraftsByUserId(pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages = []): number => {
+      const nextPage = allPages?.length + 1;
+      return nextPage;
+    },
+    // enabled: !!user?.id,
+  });
+  const drafts: IDraft[] = draftsData?.pages?.flat() || [];
+
+  // const drafts = data.pages
+
+  const {
+    data: publishedData,
+    isLoading: isLoadingPublished,
+    fetchNextPage: fetchMorePosts,
+    isFetchingNextPage: isFetchingMorePosts,
+  } = useInfiniteQuery({
+    queryKey: ["documents", { type: "published" }],
+    initialPageParam: 1,
+    queryFn: ({ pageParam = 1 }) => {
+      if (!user?.id) return Promise.resolve([]);
+      return fetchPostsByAuthorId(user.id as string, pageParam);
+    },
+    getNextPageParam: (lastPage, allPages = []): number => {
+      const nextPage = allPages?.length + 1;
+      return nextPage;
+    },
+    // enabled: !!user?.id,
   });
 
-  const { data: published = [], isLoading: isLoadingPublished } = useQuery<
-    IPost[]
-  >({
-    queryKey: ["documents", { type: "published" }],
-    queryFn: () => {
-      if (!user?.id) return Promise.resolve([]);
-      return fetchPostsByAuthorId(user.id as string);
-    },
-    enabled: !!user?.id,
-  });
+  const published: IPost[] = publishedData?.pages?.flat() || [];
 
   const deleteDraftMutation = useMutation({
     mutationFn: async (draftId: string) => {
@@ -167,7 +201,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
         <h1 className="text-xl font-bold text-primary">Zeal News Africa</h1>
         {isMobile && (
           <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-            <X className="h-5 w-5" />
+            <X className="size-5" />
           </Button>
         )}
       </div>
@@ -210,6 +244,17 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
                 >
                   {draft.title || "Untitled Draft"}
                 </Link>
+                {draft.moderationStatus === "awaiting_approval" && (
+                  <Link href={`/awaiting_approval/${draft.id}`}>
+                    <Hourglass className="size-4 text-muted-foreground hover:text-primary focus:outline-none" />
+                  </Link>
+                )}
+                {draft.moderationStatus === "rejected" && (
+                  <FileWarning className="size-4 text-destructive focus:outline-none" />
+                )}
+                {draft.moderationStatus === "published" && (
+                  <Check className="size-4 text-primary focus:outline-none" />
+                )}
                 <button
                   onClick={() =>
                     openDeleteConfirmation(
@@ -239,6 +284,15 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
             <p className="px-3 py-2 text-sm text-muted-foreground">
               No drafts yet.
             </p>
+          )}
+          {drafts.length >= 5 && (
+            <Button
+              variant="link"
+              onClick={() => fetchMoreDrafts()}
+              disabled={isFetchingMoreDrafts}
+            >
+              Load more
+            </Button>
           )}
         </nav>
       </div>
@@ -297,6 +351,15 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
             <p className="px-3 py-2 text-sm text-muted-foreground">
               No published posts yet.
             </p>
+          )}
+          {published.length >= 5 && (
+            <Button
+              variant="link"
+              onClick={() => fetchMoreDrafts()}
+              disabled={isFetchingMoreDrafts}
+            >
+              Load more
+            </Button>
           )}
         </nav>
       </div>

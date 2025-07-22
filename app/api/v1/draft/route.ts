@@ -19,7 +19,7 @@ import { uploadImageToS3 } from "@/lib/bucket";
 import { IDraft } from "@/types/draft.type";
 import { formDataToJson } from "@/utils/converter.utils";
 
-export const GET = async () => {
+export const GET = async (req: NextRequest) => {
   try {
     await connectToDatabase();
     const { user } = await serverAuthGuard();
@@ -28,7 +28,10 @@ export const GET = async () => {
       return NextResponse.json({ message: "Unauthenticated" });
     }
 
-    const drafts = await getDraftsByUserId(user.id);
+    const searchParams = req.nextUrl.searchParams;
+    const page = Number(searchParams.get("page")) || 1;
+
+    const drafts = await getDraftsByUserId(user.id, { skip: (page - 1) * 10 });
 
     return NextResponse.json(drafts);
   } catch (error) {

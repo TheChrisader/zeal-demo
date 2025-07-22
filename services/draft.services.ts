@@ -3,9 +3,9 @@ import { fetcher } from "@/lib/fetcher";
 import { IDraft } from "@/types/draft.type";
 import { jsonToFormData } from "@/utils/converter.utils";
 
-export const getDraftsByUserId = async () => {
+export const getDraftsByUserId = async (page: number = 1) => {
   try {
-    const drafts = await fetcher(`/api/v1/draft`);
+    const drafts = await fetcher(`/api/v1/draft?page=${page}`);
     return drafts;
   } catch (error) {
     // throw error;

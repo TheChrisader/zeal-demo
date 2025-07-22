@@ -29,9 +29,10 @@ export const createPost = async (
 
 export const fetchPostsByAuthorId = async (
   authorId: string,
+  page: number = 1,
 ): Promise<IPost[]> => {
   try {
-    const data = await fetcher(`/api/v1/post/author/${authorId}`, {
+    const data = await fetcher(`/api/v1/post/author/${authorId}?page=${page}`, {
       method: "GET",
     });
     return data;

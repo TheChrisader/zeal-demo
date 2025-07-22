@@ -62,13 +62,15 @@ const EditorPage = async ({ params }: EditorPageProps) => {
     });
   }
 
-  await queryClient.prefetchQuery({
+  await queryClient.prefetchInfiniteQuery({
     queryKey: ["documents", { type: "drafts" }],
     queryFn: () => getDraftsByUserId(user.id),
+    initialPageParam: 0,
   });
-  await queryClient.prefetchQuery({
+  await queryClient.prefetchInfiniteQuery({
     queryKey: ["documents", { type: "published" }],
     queryFn: () => getPostsByAuthorId(user.id),
+    initialPageParam: 0,
   });
 
   const dehydratedState = dehydrate(queryClient);

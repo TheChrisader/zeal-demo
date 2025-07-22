@@ -39,6 +39,7 @@ export interface IPost {
   status?: "active" | "removed" | "flagged";
   generatedBy?: "auto" | "user" | "zeal";
   shouldShowCTA?: boolean;
+  draft_id?: Id;
   published_at: Date | string;
   created_at: string;
   updated_at: string;
