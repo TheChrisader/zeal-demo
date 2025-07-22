@@ -17,6 +17,6 @@ export const GET = async (req: NextRequest) => {
     return NextResponse.json(drafts);
   } catch (error) {
     console.log(`Error getting drafts: ${error}`);
-    NextResponse.json({ message: "An error occured" }, { status: 500 });
+    return NextResponse.json({ message: "An error occured" }, { status: 500 });
   }
 };
