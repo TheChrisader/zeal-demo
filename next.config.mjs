@@ -41,6 +41,16 @@ const NextConfig = async (phase) => {
     },
   };
 
+  if (process.env.ANALYZE === "true") {
+    const bundleAnalyzer = await import("@next/bundle-analyzer");
+
+    const withBundleAnalyzer = bundleAnalyzer.default({
+      enabled: true,
+    });
+
+    nextConfig = withBundleAnalyzer(nextConfig);
+  }
+
   if (phase === PHASE_DEVELOPMENT_SERVER || phase === PHASE_PRODUCTION_BUILD) {
     const withSerwist = (await import("@serwist/next")).default({
       swSrc: "service-worker/app-worker.ts",
@@ -48,7 +58,8 @@ const NextConfig = async (phase) => {
       reloadOnOnline: true,
       cacheOnNavigation: true,
     });
-    return withNextIntl(withSerwist(nextConfig));
+    // return withNextIntl(withSerwist(nextConfig));
+    nextConfig = withSerwist(nextConfig);
   }
 
   return withNextIntl(nextConfig);

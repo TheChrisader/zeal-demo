@@ -21,6 +21,7 @@ import {
 import { deduplicateByKey } from "@/utils/object.utils";
 import Player from "@/components/video/Player";
 import VideoCarousel from "@/components/video/VideoCarousel";
+import { Suspense } from "react";
 
 const ZEAL_CATEGORIES = TOP_LEVEL_CATEGORIES;
 
@@ -152,7 +153,8 @@ const HeadlinesBlock = async ({
             // ...countryFilter,
           })
             .sort({ published_at: -1 })
-            .limit(13)
+            .limit(5)
+            .select("_id title image_url slug description category ttr source")
             .exec();
         },
         [`${category}-${user?.id.toString()}`],
@@ -171,12 +173,10 @@ const HeadlinesBlock = async ({
               $ne: null,
             },
             generatedBy: "user",
-            // country: {
-            //   $in: ["Nigeria"],
-            // },
           })
             .sort({ published_at: -1 })
-            .limit(13)
+            .limit(5)
+            .select("_id title image_url slug description category ttr source")
             .exec();
         },
         [category],
@@ -185,29 +185,6 @@ const HeadlinesBlock = async ({
           tags: [category],
         },
       )();
-
-  if (category === "Opinion") {
-    console.log(
-      (
-        await PostModel.find({
-          category: {
-            $in: [...getTopLevelCategoryList(category)],
-          },
-          image_url: {
-            $ne: null,
-          },
-          generatedBy: "user",
-          // country: {
-          //   $in: ["Nigeria"],
-          // },
-        })
-          .sort({ published_at: -1 })
-          .limit(13)
-          .exec()
-      ).length,
-      "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
-    );
-  }
 
   const featureDate = new Date(new Date().setHours(new Date().getHours() - 2));
 
@@ -223,7 +200,10 @@ const HeadlinesBlock = async ({
         top_feature: {
           $gt: featureDate,
         },
-      });
+      })
+        .sort({ published_at: -1 })
+        .select("_id title image_url slug description category ttr source")
+        .exec();
     },
     key: `${category}-featured`,
     options: {
@@ -231,15 +211,7 @@ const HeadlinesBlock = async ({
     },
   });
 
-  if (category === "Opinion") {
-    console.log(HeadlinesPosts, "HeadlinesPosts");
-  }
-
   HeadlinesPosts = deduplicateByKey([...featured, ...HeadlinesPosts], "_id");
-
-  if (category === "Opinion") {
-    console.log(HeadlinesPosts, "HeadlinesPosts");
-  }
 
   return (
     <ArticlesContainer title={category}>
@@ -312,11 +284,12 @@ export default async function Home({
       <TodayInHistory />
       {(await shuffleArray(ZEAL_CATEGORIES))?.map((category) => {
         return (
-          <HeadlinesBlock
-            key={category}
-            user={user}
-            category={category as TopLevelCategory}
-          />
+          <Suspense key={category}>
+            <HeadlinesBlock
+              user={user}
+              category={category as TopLevelCategory}
+            />
+          </Suspense>
         );
       })}
     </main>

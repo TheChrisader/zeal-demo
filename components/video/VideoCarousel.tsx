@@ -87,7 +87,7 @@ const VideoCarousel: React.FC = () => {
           setIsTransitioning(false);
         }, 500);
       }
-    }, 5000);
+    }, 8000);
   };
 
   // Stop auto-cycling

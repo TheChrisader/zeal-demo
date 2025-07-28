@@ -22,7 +22,7 @@ export const getCategoryFromPath = (path: string) => {
   if (subcategory === "Headlines") {
     subcategory = "Zeal Headline News";
   }
-  console.log(category?.name, subcategory);
+  // console.log(category?.name, subcategory);
 
   return [category?.name, subcategory];
 };

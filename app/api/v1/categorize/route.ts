@@ -192,23 +192,23 @@ export const POST = async () => {
     for (const category of categoryMap) {
       const { title, groups } = category;
 
-      const existingBatches = await BatchModel.find({
-        category: title,
-        created_at: {
-          $gte: new Date(new Date().setHours(new Date().getHours() - 1)),
-        },
-      })
-        .select("_id name")
-        .exec();
+      // const existingBatches = await BatchModel.find({
+      //   category: title,
+      //   created_at: {
+      //     $gte: new Date(new Date().setHours(new Date().getHours() - 1)),
+      //   },
+      // })
+      //   .select("_id name")
+      //   .exec();
 
-      const existingBatchesList = existingBatches.map((batch) => batch.name);
+      // const existingBatchesList = existingBatches.map((batch) => batch.name);
 
       const posts = await PostModel.find({
         category: {
           $in: groups,
         },
         published_at: {
-          $gte: new Date(new Date().setHours(new Date().getHours() - 48)),
+          $gte: new Date(new Date().setHours(new Date().getHours() - 450)),
           $lt: new Date(),
         },
       })
@@ -241,10 +241,10 @@ Act as a meticulous and strict news analyst. Your task is to analyze a list of n
 
 # Output Requirements
 
-7.  **Minimum and Maximum Batch Count:** You **must** return a minimum of **one (1) batch, with its corresponding articles array,** and a maximum of **two**, in total.
-    *   **Scenario A (Sufficient Event Batches):** If the Primary Logic yields 2 or more event batches, return the top two hottest batches only.
+7.  **Minimum and Maximum Batch Count:** You **must** return a minimum of **one (1) batch, with its corresponding articles array,** and a maximum of **five**, in total.
+    *   **Scenario A (Sufficient Event Batches):** If the Primary Logic yields 5 or more event batches, return the top five hottest batches only.
     *   **Scenario B (No Event Batches):** If the Fallback Logic (step 4) is triggered, ensure you select and create *at least* one single-article batch according to steps 5 and 6.
-    *   **Maximum Batch Count:** You are **not allowed** to return more than **two (2) batches** in total. So, ensure to prioritize sensibly.
+    *   **Maximum Batch Count:** You are **not allowed** to return more than **five (5) batches** in total. So, ensure to prioritize sensibly.
 8.  **Batch Naming ("batch" field):**
     *   For **event batches**, the name must be a concise, descriptive headline summarizing the specific event covered by the articles in that batch. Tend more towards being sensational and interesting than a dry recap.
     *   For **single-article batches**, the name should be a concise, descriptive headline capturing the essence of that single article's title. It can be a rephrasing or abstraction of the original title. Tend more towards being sensational and interesting than a dry recap.
@@ -330,33 +330,33 @@ ${postsList}
           }
         }
 
-        if (existingBatchesList.includes(batch)) {
-          console.log("Batch caught");
-          const existingBatch = await BatchModel.findOne({
-            name: batch,
-          }).exec();
+        // if (existingBatchesList.includes(batch)) {
+        //   console.log("Batch caught");
+        //   const existingBatch = await BatchModel.findOne({
+        //     name: batch,
+        //   }).exec();
 
-          if (!existingBatch) {
-            continue;
-          }
+        //   if (!existingBatch) {
+        //     continue;
+        //   }
 
-          existingBatch.articles = mergeArraysWithUniqueSourceUrls(
-            batchedArticles,
-            existingBatch.articles,
-          );
-          // [
-          //   ...new Set([...existingBatch.articles, ...batchedArticles]),
-          // ];
+        //   existingBatch.articles = mergeArraysWithUniqueSourceUrls(
+        //     batchedArticles,
+        //     existingBatch.articles,
+        //   );
+        //   // [
+        //   //   ...new Set([...existingBatch.articles, ...batchedArticles]),
+        //   // ];
 
-          await existingBatch.save();
+        //   await existingBatch.save();
 
-          // await BatchModel.findOneAndUpdate(
-          //   { name: batch },
-          //   { $push: { articles: { $each: batchedArticles } } },
-          //   { new: true },
-          // );
-          continue;
-        }
+        //   // await BatchModel.findOneAndUpdate(
+        //   //   { name: batch },
+        //   //   { $push: { articles: { $each: batchedArticles } } },
+        //   //   { new: true },
+        //   // );
+        //   continue;
+        // }
 
         const newBatch = {
           name: batch,

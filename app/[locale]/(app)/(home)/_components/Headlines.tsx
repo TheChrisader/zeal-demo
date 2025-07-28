@@ -28,11 +28,7 @@ const Headlines = ({ headlines }: HeadlinesProps) => {
             headlines={headlines.map((post) => cleanObject(post))}
           >
             {wideHeadlines.map((_, index) => (
-              <ArticleCard
-                // className="max-[800px]:min-w-[450px]"
-                article={headlines[index]!}
-                key={index}
-              />
+              <ArticleCard article={headlines[index]!} key={index} />
             ))}
           </ResponsiveHeadlines>
         </div>

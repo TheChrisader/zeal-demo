@@ -1,7 +1,7 @@
 import lookup from "country-code-lookup";
-import { createPosts } from "@/database/post/post.repository";
+import { createArticles } from "@/database/article/article.repository";
 import { fetchAndParseURL } from "@/lib/parser";
-import { IPost } from "@/types/post.type";
+import { IArticle } from "@/types/article.type";
 import { calculateReadingTime, cleanContent } from "@/utils/post.utils";
 import { MongoBulkWriteError } from "mongodb";
 import { SlugGenerator } from "@/lib/slug";
@@ -29,7 +29,7 @@ type Thread = {
   reach: null;
 };
 
-type PostObject = {
+type ArticleObject = {
   thread: Thread;
   uuid: string;
   url: string;
@@ -58,7 +58,7 @@ type PostObject = {
 };
 
 type ApiResponse = {
-  posts: PostObject[];
+  articles: ArticleObject[];
   totalResults: number;
   moreResultsAvailable: number;
   next: string | null;
@@ -70,36 +70,36 @@ const ensureDelay = async (num: number) => {
   await new Promise((resolve) => setTimeout(resolve, num * 1000));
 };
 
-export const savePostsWithRetries = async (
-  posts: Partial<IPost>[],
+export const saveArticlesWithRetries = async (
+  articles: Partial<IArticle>[],
   key: string,
   retries: number = 3,
 ) => {
-  let savedPosts;
+  let savedArticles;
 
   try {
-    savedPosts = await createPosts(posts);
-    console.log(`${savedPosts.length} posts under ${key} category saved`);
+    savedArticles = await createArticles(articles);
+    console.log(`${savedArticles.length} articles under ${key} category saved`);
   } catch (err) {
     // @ts-expect-error TODO
     if (err instanceof Error && err.code === 11000) {
       console.log(err.message, "!!!!!!!!!!!!!!");
       console.log(
         // @ts-expect-error TODO
-        `${err.result.insertedCount} posts under ${key} category saved`,
+        `${err.result.insertedCount} articles under ${key} category saved`,
       );
       return;
     } else {
       if (retries > 0) {
         console.log("Retrying save...");
         await ensureDelay(3);
-        await savePostsWithRetries(posts, key, retries - 1);
+        await saveArticlesWithRetries(articles, key, retries - 1);
         return;
       }
     }
     // @ts-expect-error TODO
     console.log(err.message);
-    console.log(`Failed to save posts under ${key} category`);
+    console.log(`Failed to save articles under ${key} category`);
   }
 };
 
@@ -474,32 +474,32 @@ function extractDomain(url: string): string {
 //     return domainParts[domainParts.length - 1] as string;
 //   }
 
-const stripKeywords = (post: PostObject): string[] => {
+const stripKeywords = (article: ArticleObject): string[] => {
   let keywords: string[] = [];
 
-  if (post.thread.site_categories) {
-    keywords = keywords.concat(post.thread.site_categories);
+  if (article.thread.site_categories) {
+    keywords = keywords.concat(article.thread.site_categories);
   }
 
-  if (post.categories) {
-    keywords = keywords.concat(post.categories);
+  if (article.categories) {
+    keywords = keywords.concat(article.categories);
   }
 
-  if (post.entities.locations) {
+  if (article.entities.locations) {
     keywords = keywords.concat(
-      post.entities.locations.map(
+      article.entities.locations.map(
         (location: { name: string }) => location.name,
       ),
     );
   }
-  if (post.entities.organizations) {
+  if (article.entities.organizations) {
     keywords = keywords.concat(
-      post.entities.organizations.map((org: { name: string }) => org.name),
+      article.entities.organizations.map((org: { name: string }) => org.name),
     );
   }
-  if (post.entities.persons) {
+  if (article.entities.persons) {
     keywords = keywords.concat(
-      post.entities.persons.map((person: { name: string }) => person.name),
+      article.entities.persons.map((person: { name: string }) => person.name),
     );
   }
 
@@ -517,7 +517,7 @@ const getCountryCode = (country: string): string[] => {
 
 const slugGenerator = new SlugGenerator();
 
-const handlePosts = async (
+const handleArticles = async (
   category: Record<
     string,
     {
@@ -529,7 +529,7 @@ const handlePosts = async (
   next?: string,
   count: number = 2,
 ) => {
-  const fetchedPosts: Partial<IPost>[] = [];
+  const fetchedArticles: Partial<IArticle>[] = [];
   const [key] = Object.keys(category);
   // if (key === "Top US News") {
   // } else {
@@ -542,22 +542,22 @@ const handlePosts = async (
       : `https://api.webz.io/filterWebContent?token=${process.env.WEBZ_API_KEY}&format=json&ts=${time}&sort=relevancy&q=${category[key!]?.filter}`,
   );
 
-  for (const post of data.posts) {
+  for (const article of data.articles) {
     let parsedArticle;
 
     try {
-      parsedArticle = await fetchAndParseURL(post.url);
+      parsedArticle = await fetchAndParseURL(article.url);
     } catch {
       console.log("Content can not be parsed. Skipping article...");
       continue;
     }
 
-    if (!parsedArticle.title || !post.title) {
+    if (!parsedArticle.title || !article.title) {
       console.log(1);
       continue;
     }
 
-    if (!isTextEnglish(post.title || parsedArticle.title)) {
+    if (!isTextEnglish(article.title || parsedArticle.title)) {
       console.log(2);
       continue;
     }
@@ -567,72 +567,72 @@ const handlePosts = async (
       continue;
     }
 
-    console.log(post.title || parsedArticle.title);
+    console.log(article.title || parsedArticle.title);
 
     const extraCategories = [];
     if (value?.altCategory && value.altCategory.length > 0) {
       extraCategories.push(...value.altCategory);
     }
 
-    const postToSave: Partial<IPost> = {
-      title: post.title || parsedArticle.title,
-      slug: slugGenerator.generate(post.title || parsedArticle.title),
-      author_id: post.author || parsedArticle.byline || extractDomain(post.url),
-      link: post.url,
+    const articleToSave: Partial<IArticle> = {
+      title: article.title || parsedArticle.title,
+      slug: slugGenerator.generate(article.title || parsedArticle.title),
+      author_id: article.author || parsedArticle.byline || extractDomain(article.url),
+      link: article.url,
       headline: false,
       content: stripExtraWhitespace(parsedArticle.content),
-      description: parsedArticle.excerpt || post.text,
-      published_at: post.published,
-      image_url: post.thread.main_image,
+      description: parsedArticle.excerpt || article.text,
+      published_at: article.published,
+      image_url: article.thread.main_image,
       video_url: undefined,
       generatedBy: "auto",
       source: {
-        id: extractDomain(post.url),
-        name: parsedArticle.siteName || extractDomain(post.url),
-        url: post.thread.site_full || post.thread.site,
-        icon: `https://www.google.com/s2/favicons?domain=${post.thread.site}&sz=64`,
+        id: extractDomain(article.url),
+        name: parsedArticle.siteName || extractDomain(article.url),
+        url: article.thread.site_full || article.thread.site,
+        icon: `https://www.google.com/s2/favicons?domain=${article.thread.site}&sz=64`,
       },
       language: "English",
-      country: getCountryCode(post.thread.country),
-      //   category: [...new Set([key!, ...(post.categories || [])])],
+      country: getCountryCode(article.thread.country),
+      //   category: [...new Set([key!, ...(article.categories || [])])],
       category: [key!, ...extraCategories],
-      keywords: stripKeywords(post),
+      keywords: stripKeywords(article),
       published: true,
       ttr: calculateReadingTime(cleanContent(parsedArticle.content)),
       external: true,
     };
 
-    fetchedPosts.push(postToSave);
+    fetchedArticles.push(articleToSave);
   }
 
-  await savePostsWithRetries(fetchedPosts, key as string);
+  await saveArticlesWithRetries(fetchedArticles, key as string);
 
-  // let savedPosts;
+  // let savedArticles;
 
   // try {
-  //   savedPosts = await createPosts(fetchedPosts);
+  //   savedArticles = await createArticles(fetchedArticles);
 
-  //   console.log(`${savedPosts.length} posts under ${key} category saved`);
+  //   console.log(`${savedArticles.length} articles under ${key} category saved`);
   // } catch (err) {
   //   if (err instanceof MongoBulkWriteError) {
   //     console.log(
-  //       `${err.result.insertedCount} posts under ${key} category saved`,
+  //       `${err.result.insertedCount} articles under ${key} category saved`,
   //     );
   //     // @ts-expect-error TODO
   //   } else if (err instanceof Error && err.code === 11000) {
   //     console.log(err.message, "!!!!!!!!!!!!!!11");
   //     console.log(
   //       // @ts-expect-error TODO
-  //       `${err.result.insertedCount} posts under ${key} category saved`,
+  //       `${err.result.insertedCount} articles under ${key} category saved`,
   //     );
   //   } else {
   //     console.log(err.message);
-  //     console.log(`Failed to save posts under ${key} category`);
+  //     console.log(`Failed to save articles under ${key} category`);
   //   }
   // }
 
   // if (!next && data.next) {
-  //   await handlePosts(category, data.next, count - 1);
+  //   await handleArticles(category, data.next, count - 1);
   // }
 };
 
@@ -647,7 +647,7 @@ export const fetchWebz = async (next?: string, count = 2) => {
 
   for (const category of categories) {
     try {
-      await handlePosts(category, time);
+      await handleArticles(category, time);
     } catch (error) {
       if (error instanceof TypeError) {
         // @ts-expect-error TODO
