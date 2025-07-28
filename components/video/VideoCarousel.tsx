@@ -12,19 +12,20 @@ interface VideoData {
 const VideoCarousel: React.FC = () => {
   const [videos, setVideos] = useState<VideoData[]>([
     {
+      id: "86NvvxLvjsk",
+      url: "https://www.youtube.com/watch?v=86NvvxLvjsk",
+      title: "Africa’s Hidden DNA: 9 Powerful Human Adaptations",
+    },
+    {
+      id: "tS6yLcKXTic",
+      url: "https://www.youtube.com/watch?v=tS6yLcKXTic",
+      title:
+        "Dufuna Canoe & Igbo-Ukwu Bronzes: The African Secrets Hidden for 8,000 Years",
+    },
+    {
       id: "WoXQYxCv6ww",
       url: "https://www.youtube.com/watch?v=WoXQYxCv6ww",
       title: "$30B Startup With Nothing to Sell? | SSI Explained",
-    },
-    {
-      id: "PB3u_Dmn4uM",
-      url: "https://www.youtube.com/watch?v=PB3u_Dmn4uM",
-      title: "Virgil Abloh: The Man Who Redefined Fashion, Culture, and Power",
-    },
-    {
-      id: "QkI1DKR45Cc",
-      url: "https://www.youtube.com/watch?v=QkI1DKR45Cc",
-      title: "Lalibela: Ethiopia’s Hidden Jerusalem Beneath the Earth.",
     },
   ]);
 
