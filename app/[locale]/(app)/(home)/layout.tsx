@@ -1,34 +1,35 @@
 import dynamic from "next/dynamic";
 import { ReactNode } from "react";
 // import Navbar from "@/components/layout/Navbar";
-import { validateRequest } from "@/lib/auth/auth";
+// import { validateRequest } from "@/lib/auth/auth";
 import { connectToDatabase } from "@/lib/database";
+// import HomeLayoutClientComponents from "./_components/HomeLayoutClientComponents";
 // import OneTap from "../_components/OneTap";
 // import PreferencesPopup from "./_components/PreferencesPopup";
 
-const OneTap = dynamic(() => import("../_components/OneTap"), { ssr: false });
-
 const Navbar = dynamic(() => import("@/components/layout/Navbar"));
 
-const PreferencesPopup = dynamic(
-  () => import("./_components/PreferencesPopup"),
+const HomeLayoutClientComponents = dynamic(
+  () => import("./_components/HomeLayoutClientComponents"),
   { ssr: false },
 );
 
 const HomeLayout = async ({ children }: { children?: ReactNode }) => {
   await connectToDatabase();
-  const { user } = await validateRequest();
+  // const { user } = await validateRequest();
 
   return (
-    <div className="bg-background-alt flex flex-col gap-5">
+    <div className="flex flex-col gap-5 bg-background-alt">
       <Navbar />
       <div className="px-[100px] max-[1024px]:px-7 max-[500px]:px-0">
         {children}
       </div>
-      {!user && <OneTap />}
+      <HomeLayoutClientComponents />
+      {/* {!user && <OneTap />} */}
       {/* {user && <PreferencesPopup />} */}
     </div>
   );
 };
+// onetap if no user
 
 export default HomeLayout;

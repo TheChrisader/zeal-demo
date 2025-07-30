@@ -24,13 +24,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button"; // Assuming Button component exists
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import useAuth from "@/context/auth/useAuth";
 import { useEditorStore } from "@/context/editorStore/useEditorStore";
 import { Link } from "@/i18n/routing";
 import { deleteDraftById, getDraftsByUserId } from "@/services/draft.services";
 import { deletePostById, fetchPostsByAuthorId } from "@/services/post.services";
 import { IDraft } from "@/types/draft.type";
 import { IPost } from "@/types/post.type";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Page<T> {
   items: T[];

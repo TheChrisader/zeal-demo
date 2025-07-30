@@ -30,10 +30,8 @@ const ResponsiveHeadlines = ({
 
   useEffect(() => {
     const refObject = placeholderRef.current;
-    console.log("Is being run");
     const observer = new IntersectionObserver(
       (entries) => {
-        console.log("is also being run");
         // entries.forEach((entry) => {
         //   if (entry.isIntersecting) {
         //     setIsInView(true);
@@ -42,7 +40,6 @@ const ResponsiveHeadlines = ({
         // });
         // If the placeholder is intersecting the viewport, load the real component
         if (entries[0]?.isIntersecting) {
-          console.log("money money money");
           setIsInView(true);
           observer.disconnect(); // Stop observing once it's visible
         }
@@ -51,7 +48,6 @@ const ResponsiveHeadlines = ({
     );
 
     if (placeholderRef.current) {
-      console.log("start observing");
       observer.observe(placeholderRef.current);
     }
 
@@ -63,12 +59,6 @@ const ResponsiveHeadlines = ({
       }
     };
   }, [carousel]);
-  console.log(
-    carousel,
-    isInView,
-    placeholderRef.current,
-    "!!!!!!!!!!!!!!!!!11",
-  );
 
   if (carousel) {
     return (

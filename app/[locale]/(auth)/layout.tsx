@@ -3,7 +3,7 @@ import { redirect } from "@/i18n/routing";
 import { ReactNode } from "react";
 import ZealLogo from "@/assets/images/zeal_news_logo.png";
 // import ZealLogoDark from "@/assets/images/zeal_news_logo_dark.png";
-import { validateRequest } from "@/lib/auth/auth";
+// import { validateRequest } from "@/lib/auth/auth";
 import { connectToDatabase } from "@/lib/database";
 import AuthLayoutUserAvatar from "./_components/UserAvatar";
 import { AVATAR_LIST } from "./_utils/images";
@@ -30,7 +30,7 @@ const AuthLayout = async ({ children }: AuthLayoutProps) => {
 
   return (
     <main className="flex min-h-screen max-[1200px]:flex-col">
-      <section className="bg-success-subtle-bg z-10 flex min-w-[40%] max-w-[40%] justify-center px-[80px] max-[1200px]:max-w-full max-[1200px]:p-[20px]">
+      <section className="z-10 flex min-w-[40%] max-w-[40%] justify-center bg-success-subtle-bg px-[80px] max-[1200px]:max-w-full max-[1200px]:p-[20px]">
         <div className="my-auto flex w-full flex-col max-[500px]:justify-between">
           <div className="flex items-center justify-between max-[1200px]:items-center">
             {/* <Image
@@ -57,12 +57,12 @@ const AuthLayout = async ({ children }: AuthLayoutProps) => {
                   />
                 ))}
               </div>
-              <span className="text-foreground-alt text-base font-normal max-[500px]:hidden">
+              <span className="text-base font-normal text-foreground-alt max-[500px]:hidden">
                 Join 200+ Users
               </span>
             </div>
           </div>
-          <h1 className="text-foreground-alt mb-[75px] text-[34px] font-extrabold max-[1200px]:mb-3 max-[500px]:hidden">
+          <h1 className="mb-[75px] text-[34px] font-extrabold text-foreground-alt max-[1200px]:mb-3 max-[500px]:hidden">
             Bringing the Positives of Africa to your News Timeline!
           </h1>
           <div className="flex items-center max-[1200px]:hidden">
@@ -76,7 +76,7 @@ const AuthLayout = async ({ children }: AuthLayoutProps) => {
                 />
               ))}
             </div>
-            <span className="text-foreground-alt text-base font-normal">
+            <span className="text-base font-normal text-foreground-alt">
               Join 200+ Users
             </span>
           </div>
@@ -89,7 +89,7 @@ const AuthLayout = async ({ children }: AuthLayoutProps) => {
           mode="wait"
           depth={1}
           transition={{ ease: "easeInOut", duration: 0.25 }}
-          className="bg-card-alt-bg flex h-fit w-3/5 flex-col overflow-hidden rounded-[10px] px-[35px] py-[20px] shadow-authCard max-[690px]:mx-3 max-[690px]:w-screen"
+          className="flex h-fit w-3/5 flex-col overflow-hidden rounded-[10px] bg-card-alt-bg px-[35px] py-[20px] shadow-authCard max-[690px]:mx-3 max-[690px]:w-screen"
         >
           {children}
         </PageTransition>

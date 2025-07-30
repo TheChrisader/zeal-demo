@@ -24,7 +24,7 @@ import { Separator } from "@/components/ui/separator";
 // import { Categories } from "@/types/utils/category.type";
 import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
-import useAuth from "@/context/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { flattenCategories } from "@/utils/category.utils";
 import Categories from "@/categories";
 
@@ -108,7 +108,7 @@ const Topics = ({
           return (
             <label
               key={item}
-              className="text-muted-alt flex w-full cursor-pointer justify-between p-2 text-sm font-normal"
+              className="flex w-full cursor-pointer justify-between p-2 text-sm font-normal text-muted-alt"
             >
               <span>{item}</span>
               <Checkbox
@@ -214,7 +214,7 @@ const FiltersDropdown = ({ children }: { children: React.ReactNode }) => {
           align="end"
           sideOffset={12}
         >
-          <h3 className="text-foreground-alt text-lg font-semibold">Filter</h3>
+          <h3 className="text-lg font-semibold text-foreground-alt">Filter</h3>
           <Separator />
           <Accordion
             defaultValue="item-1"
@@ -223,7 +223,7 @@ const FiltersDropdown = ({ children }: { children: React.ReactNode }) => {
             className="mb-4 w-full"
           >
             <AccordionItem value="item-1">
-              <AccordionTrigger className="text-foreground-alt text-sm font-normal hover:no-underline">
+              <AccordionTrigger className="text-sm font-normal text-foreground-alt hover:no-underline">
                 By News Topic
               </AccordionTrigger>
               <AccordionContent className="p-1">

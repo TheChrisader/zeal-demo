@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import useAuth from "@/context/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { UserAvatar } from "..";
 import LogoutAlert from "../popup/Logout";
 import { useTheme } from "next-themes";
@@ -51,7 +51,7 @@ const ProfileDropdown = ({
       <PopoverContent className="w-[250px] p-4" align="end" sideOffset={12}>
         <div className="flex items-center gap-3">
           <UserAvatar user={user} />
-          <h3 className="text-foreground-alt text-lg font-semibold">
+          <h3 className="text-lg font-semibold text-foreground-alt">
             {user.display_name}
           </h3>
         </div>
@@ -60,7 +60,7 @@ const ProfileDropdown = ({
           {canWrite && (
             <Link
               href={"/drafts"}
-              className="hover:bg-subtle-hover-bg flex items-center justify-between rounded-md px-1 py-2"
+              className="flex items-center justify-between rounded-md px-1 py-2 hover:bg-subtle-hover-bg"
             >
               <div className="flex items-center gap-3">
                 <PenIcon />
@@ -72,7 +72,7 @@ const ProfileDropdown = ({
           )}
           <Link
             href={"/settings/profile"}
-            className="hover:bg-subtle-hover-bg flex items-center justify-between rounded-md px-1 py-2"
+            className="flex items-center justify-between rounded-md px-1 py-2 hover:bg-subtle-hover-bg"
           >
             <div className="flex items-center gap-3">
               <SettingsIcon />
@@ -83,7 +83,7 @@ const ProfileDropdown = ({
           </Link>
           <Link
             href={"/downloads"}
-            className="hover:bg-subtle-hover-bg flex items-center justify-between rounded-md px-1 py-2"
+            className="flex items-center justify-between rounded-md px-1 py-2 hover:bg-subtle-hover-bg"
           >
             <div className="flex items-center gap-3">
               <Download className="text-[#959595]" />

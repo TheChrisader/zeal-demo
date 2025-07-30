@@ -1,14 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PenLine } from "lucide-react"; // Import PenLine icon
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { useEditorStore } from "@/context/editorStore/useEditorStore";
+import { useAuth } from "@/hooks/useAuth";
 import useDebouncedCallback from "@/hooks/useDebouncedCallback";
 import { IPost } from "@/types/post.type";
 import { fetchById, updateById } from "../_utils/composites";
-import { Input } from "@/components/ui/input";
-import { useEditorStore } from "@/context/editorStore/useEditorStore";
-import { toast } from "sonner";
-import useAuth from "@/context/auth/useAuth";
 
 interface EditableDocumentTitleProps {}
 

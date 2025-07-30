@@ -1,13 +1,13 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata, Viewport } from "next";
 import dynamic from "next/dynamic";
-import { Poppins } from "next/font/google";
+// import { Poppins } from "next/font/google";
 import localFont from "next/font/local";
 import "../globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+// import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Suspense } from "react";
@@ -32,10 +32,10 @@ const CookieConsent = dynamic(
   { ssr: false },
 );
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-});
+// const poppins = Poppins({
+//   subsets: ["latin"],
+//   weight: ["400", "500", "600", "700", "800"],
+// });
 
 const cnnSansDisplay = localFont({
   src: [
@@ -121,6 +121,10 @@ export const viewport: Viewport = {
   themeColor: "#2f7930",
 };
 
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
 export default async function RootLayout({
   children,
   params: { locale },
@@ -132,13 +136,16 @@ export default async function RootLayout({
     notFound();
   }
 
-  const messages = await getMessages();
+  // const messages = await getMessages();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    // <html lang={locale} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className={`${cnnSansDisplay.className}`}>
         {/* <Suspense> */}
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider
+        //  messages={messages}
+        >
           <ThemeProvider defaultTheme="system" attribute="class" enableSystem>
             <PageProgressBar />
             <ReactQueryProvider>

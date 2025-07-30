@@ -2,6 +2,8 @@
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import Player from "./Player";
+import VideoPoster from "./VideoPoster";
+import ZealLogo2 from "@/assets/ZealLogo2";
 
 interface VideoData {
   id: string;
@@ -33,6 +35,7 @@ const VideoCarousel: React.FC = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [inputValues, setInputValues] = useState(["", "", ""]);
+  const [showIframe, setShowIframe] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -83,8 +86,8 @@ const VideoCarousel: React.FC = () => {
     intervalRef.current = setInterval(() => {
       if (!isPaused && !isPlaying) {
         setIsTransitioning(true);
-        setCurrentVideoIndex((prev) => (prev + 1) % videos.length);
         setTimeout(() => {
+          setCurrentVideoIndex((prev) => (prev + 1) % videos.length);
           setIsTransitioning(false);
         }, 500);
       }
@@ -104,9 +107,9 @@ const VideoCarousel: React.FC = () => {
     if (index === currentVideoIndex || isTransitioning) return;
 
     setIsTransitioning(true);
-    setCurrentVideoIndex(index);
 
     setTimeout(() => {
+      setCurrentVideoIndex(index);
       setIsTransitioning(false);
     }, 500);
 
@@ -144,7 +147,7 @@ const VideoCarousel: React.FC = () => {
   }, [isPaused]);
 
   return (
-    <div className="mx-auto w-full max-w-6xl rounded-lg bg-card p-4 text-card-foreground">
+    <div className="mx-auto w-full max-w-6xl rounded-lg bg-card-alt-bg p-4 text-card-foreground">
       {/* Input Section */}
       {/* <div className="mb-6 space-y-3">
         <h2 className="mb-4 text-xl font-bold">YouTube Video Carousel</h2>
@@ -187,21 +190,34 @@ const VideoCarousel: React.FC = () => {
                   : "translate-x-0 opacity-100"
               }`}
             >
-              <iframe
-                // src={`https://www.youtube.com/embed/${videos[currentVideoIndex]?.id}?autoplay=1&mute=1&controls=1&rel=0`}
-                src={`https://www.youtube.com/embed/${videos[currentVideoIndex]?.id}?controls=1&rel=0`}
-                title={videos[currentVideoIndex]?.title}
-                className="size-full"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+              {showIframe ? (
+                <iframe
+                  // src={`https://www.youtube.com/embed/${videos[currentVideoIndex]?.id}?autoplay=1&mute=1&controls=1&rel=0`}
+                  src={`https://www.youtube.com/embed/${videos[currentVideoIndex]?.id}?controls=1&rel=0&autoplay=1`}
+                  title={videos[currentVideoIndex]?.title}
+                  className="size-full"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <VideoPoster
+                  src={`https://img.youtube.com/vi_webp/${videos[currentVideoIndex]?.id}/sddefault.webp`}
+                  title={videos[currentVideoIndex]!.title}
+                  onClick={() => {
+                    setShowIframe(true);
+                    setIsPlaying(true);
+                    setIsPaused(true);
+                  }}
+                  logo={<ZealLogo2 />}
+                />
+              )}
               {/* {!isPlaying && ( */}
-              <div
+              {/* <div
                 onPointerDown={handlePointerDown}
                 ref={overlayRef}
                 className="pointer-events-auto absolute left-0 top-0 z-[9999] size-full cursor-pointer bg-transparent"
-              />
+              /> */}
               {/* )} */}
               {/* <Player src={videos[currentVideoIndex]?.url as string} /> */}
             </div>
@@ -263,7 +279,7 @@ const VideoCarousel: React.FC = () => {
             >
               <div className="aspect-video overflow-hidden rounded-lg bg-black">
                 <img
-                  src={`https://img.youtube.com/vi/${video.id}/maxresdefault.jpg`}
+                  src={`https://img.youtube.com/vi_webp/${video.id}/sddefault.webp`}
                   alt={video.title}
                   className="size-full object-cover"
                 />

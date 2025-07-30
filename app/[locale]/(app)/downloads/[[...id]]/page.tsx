@@ -6,12 +6,12 @@ import { Link } from "@/i18n/routing";
 import Downloads from "../_components/Downloads";
 import { toast } from "sonner";
 import { CircleCheckBig } from "lucide-react";
-import useAuth from "@/context/auth/useAuth";
 import DownloadedPage from "../_components/DownloadedPage";
 import useDownloads from "@/context/downloads/useDownloads";
 import { usePathname } from "@/i18n/routing";
 import { cleanContent } from "@/utils/post.utils";
 import { getIDBConfig } from "../_utils/getIDBConfig";
+import { useAuth } from "@/hooks/useAuth";
 
 export type PostToDownload = {
   _id: string;
@@ -46,7 +46,7 @@ const DownloadsPage = () => {
       return;
     }
 
-    setupIndexedDB(getIDBConfig(user.id.toString()!))
+    setupIndexedDB(getIDBConfig(user?.id?.toString()!))
       .then(() => console.log("success"))
       .catch((e) => console.error("error / unsupported", e));
   }, [user]);
@@ -118,16 +118,16 @@ const DownloadsPage = () => {
         <DownloadsBar />
         <div className="my-auto flex flex-col items-center justify-center gap-9 px-[100px] max-[1024px]:px-7 max-[500px]:px-2">
           <div className="flex flex-col items-center justify-center gap-3">
-            <h2 className="text-foreground-alt text-center text-2xl font-bold">
+            <h2 className="text-center text-2xl font-bold text-foreground-alt">
               Your downloads will appear here
             </h2>
-            <span className="text-muted-alt max-w-[50vw] text-center text-sm font-normal max-[500px]:max-w-full">
+            <span className="max-w-[50vw] text-center text-sm font-normal text-muted-alt max-[500px]:max-w-full">
               Enim tempus tincidunt et facilisis amet et feugiat. Scelerisque at
               eget sed auctor non eget rhoncus. Morbi sit sumassa quis a. Velit.
             </span>
           </div>
           <Link
-            className="bg-success text-special-text flex h-[35px] w-[138px] items-center justify-center rounded-[30px] px-[10px] py-[5px] text-sm font-normal shadow-basic"
+            className="flex h-[35px] w-[138px] items-center justify-center rounded-[30px] bg-success px-[10px] py-[5px] text-sm font-normal text-special-text shadow-basic"
             href={"/"}
           >
             Return to Feed

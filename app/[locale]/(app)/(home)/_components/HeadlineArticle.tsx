@@ -68,7 +68,9 @@ const MainArticleCard: React.FC<MainArticleCardProps> = ({ article }) => {
         <img
           src={imageUrl}
           alt="article preview"
-          fetchPriority="high"
+          // fetchPriority="high"
+          loading="lazy"
+          fetchPriority="low"
           className="h-[280px] w-full object-cover max-[450px]:h-[230px]"
         />
       </div>

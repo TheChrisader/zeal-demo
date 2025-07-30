@@ -4,7 +4,7 @@ import revalidatePathAction from "@/app/actions/revalidatePath";
 import SearchInput from "@/components/forms/Input/SearchInput";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import useAuth from "@/context/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { updatePreferences } from "@/services/preferences.services";
 // import { Categories } from "@/types/utils/category.type";
 import Categories from "@/categories";

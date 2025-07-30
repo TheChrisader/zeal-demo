@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import useAuth from "@/context/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import UpdateProfile from "./menu/UpdateProfile";
 import React, { ChangeEventHandler, useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -133,7 +133,7 @@ const ProfileSettings = () => {
   const [following, setFollowing] = useState(0);
   const [followers, setFollowers] = useState(0);
 
-  const { user, canWrite } = useAuth();
+  const { user, canWrite, loading } = useAuth();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -183,6 +183,8 @@ const ProfileSettings = () => {
     fetchFollowCount();
   }, [user]);
 
+  if (loading) return null;
+
   return (
     <>
       <div className="max-w-2x container mx-0 p-0">
@@ -190,7 +192,7 @@ const ProfileSettings = () => {
           <CardHeader className="space-y-4 p-0 pb-6">
             <div>
               <div className="mb-4 flex items-center justify-between">
-                <CardTitle className="text-foreground-alt text-lg font-bold">
+                <CardTitle className="text-lg font-bold text-foreground-alt">
                   Profile Settings
                 </CardTitle>
                 {/* <Button variant="outline" onClick={() => setIsEditDialogOpen(true)}>
@@ -213,7 +215,7 @@ const ProfileSettings = () => {
                   htmlFor="avatar-upload"
                   className="absolute bottom-0 right-0 cursor-pointer"
                 >
-                  <div className="hover:bg-success-hover-bg rounded-full bg-primary p-2 text-primary-foreground">
+                  <div className="rounded-full bg-primary p-2 text-primary-foreground hover:bg-success-hover-bg">
                     <Camera className="h-4 w-4" />
                   </div>
                   <input

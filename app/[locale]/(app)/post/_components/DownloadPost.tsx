@@ -4,7 +4,7 @@ import { CircleCheckBig, Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import useAuth from "@/context/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import setupIndexedDB, { useIndexedDBStore } from "@/hooks/useIndexedDB";
 import { DownloadedPost, PostToDownload } from "../../downloads/[[...id]]/page";
 import { getIDBConfig } from "../../downloads/_utils/getIDBConfig";
@@ -15,7 +15,7 @@ const DownloadPost = ({ article }: { article: PostToDownload }) => {
 
   useEffect(() => {
     if (user) {
-      setupIndexedDB(getIDBConfig(user?.id.toString()))
+      setupIndexedDB(getIDBConfig(user?.id?.toString()))
         .then(() => console.log("success"))
         .catch((e) => console.error("error / unsupported", e));
     }

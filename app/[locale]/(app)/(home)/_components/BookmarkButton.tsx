@@ -1,14 +1,14 @@
 "use client";
-import { usePathname } from "@/i18n/routing";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import revalidatePathAction from "@/app/actions/revalidatePath";
+import revalidateTagAction from "@/app/actions/revalidateTag";
 import BookmarkIcon from "@/assets/svgs/utils/BookmarkIcon";
 import { Button } from "@/components/ui/button";
-import useAuth from "@/context/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { usePathname } from "@/i18n/routing";
 import { fetcher } from "@/lib/fetcher";
-import revalidateTagAction from "@/app/actions/revalidateTag";
 
 const BookmarkButton = ({
   id,
@@ -65,7 +65,7 @@ const BookmarkButton = ({
 
   return (
     <Button
-      className={`bg-card-alt-bg absolute bottom-1 right-2 rounded-full p-3 shadow-lg hover:stroke-primary ${
+      className={`absolute bottom-1 right-2 rounded-full bg-card-alt-bg p-3 shadow-lg hover:stroke-primary ${
         isBookmarked ? "stroke-primary" : ""
       } ${isMatch && imageExists ? "" : "bottom-1 right-2"}`}
       variant="unstyled"

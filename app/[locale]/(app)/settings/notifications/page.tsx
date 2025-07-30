@@ -1,27 +1,27 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import revalidatePathAction from "@/app/actions/revalidatePath";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import useAuth from "@/context/auth/useAuth";
 import { updatePreferences } from "@/services/preferences.services";
+import { usePreferences } from "@/hooks/usePreferences";
 
 const NotificationsSettings = () => {
-  const { preferences } = useAuth();
+  const { preferences, initialized } = usePreferences();
   const [isLoading, setIsLoading] = useState(false);
 
-  const {
-    notification_preferences: {
-      push_notification,
-      email_notification,
-      in_app_notification,
-    },
-  } = preferences!;
+  const [push, setPush] = useState(false);
+  const [email, setEmail] = useState(false);
+  const [inApp, setInApp] = useState(false);
 
-  const [push, setPush] = useState(push_notification);
-  const [email, setEmail] = useState(email_notification);
-  const [inApp, setInApp] = useState(in_app_notification);
+  useEffect(() => {
+    if (preferences) {
+      setPush(preferences.notification_preferences.push_notification);
+      setEmail(preferences.notification_preferences.email_notification);
+      setInApp(preferences.notification_preferences.in_app_notification);
+    }
+  }, [preferences]);
 
   const handleSaveChanges = async () => {
     setIsLoading(true);
@@ -31,10 +31,9 @@ const NotificationsSettings = () => {
         email_notification: email,
         in_app_notification: inApp,
       };
-      // console.log(preferences);
       await updatePreferences(preferences!);
 
-      revalidatePathAction("/settings/notifications");
+      // revalidatePathAction("/settings/notifications");
     } catch (error) {
       console.log(error);
     } finally {
@@ -46,19 +45,19 @@ const NotificationsSettings = () => {
     <div className="w-full">
       <div className="mb-4 flex w-full items-center justify-between">
         <div className="flex flex-col">
-          <h3 className="text-foreground-alt text-lg font-bold">
+          <h3 className="text-lg font-bold text-foreground-alt">
             Notification Settings
           </h3>
-          <span className="text-muted-alt text-sm font-normal">
+          <span className="text-sm font-normal text-muted-alt">
             Configure your notification settings and preferences
           </span>
         </div>
       </div>
       <Separator className="mb-6" />
       <div className="flex w-full max-w-[40vw] flex-col gap-2 max-[500px]:max-w-full">
-        <label className="hover:bg-subtle-hover-bg flex cursor-pointer items-center justify-between py-2">
+        <label className="flex cursor-pointer items-center justify-between py-2 hover:bg-subtle-hover-bg">
           <div className="flex">
-            <span className="text-foreground-alt text-sm font-normal">
+            <span className="text-sm font-normal text-foreground-alt">
               Push Notifications
             </span>
           </div>
@@ -72,9 +71,9 @@ const NotificationsSettings = () => {
           </div>
           <Switch checked={inApp} onCheckedChange={() => setInApp(!inApp)} />
         </label> */}
-        <label className="hover:bg-subtle-hover-bg flex cursor-pointer items-center justify-between py-2">
+        <label className="flex cursor-pointer items-center justify-between py-2 hover:bg-subtle-hover-bg">
           <div className="flex">
-            <span className="text-foreground-alt text-sm font-normal">
+            <span className="text-sm font-normal text-foreground-alt">
               Email Notifications
             </span>
           </div>

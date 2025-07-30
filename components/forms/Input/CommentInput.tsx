@@ -3,7 +3,7 @@ import revalidatePathAction from "@/app/actions/revalidatePath";
 import SendIcon from "@/assets/svgs/utils/SendIcon";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import useAuth from "@/context/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 import { useRef, useState } from "react";
 

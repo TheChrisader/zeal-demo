@@ -9,7 +9,7 @@ import { fetchPostById, updatePostById } from "@/services/post.services";
 import { IPost } from "@/types/post.type";
 import { fetchById, updateById } from "../_utils/composites";
 import { useEditorStore } from "@/context/editorStore/useEditorStore";
-import useAuth from "@/context/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 
 interface TagManagerProps {}
 

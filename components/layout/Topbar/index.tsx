@@ -17,7 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"; // Added Popover imports
-import useAuth from "@/context/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import CountryDropdown, { useCountryContext } from "./menu/Country";
 import NotificationsDropdown from "./menu/Notifications";
 import ProfileDropdown from "./menu/Profile";
@@ -211,7 +211,7 @@ const Write = () => {
 
 const Topbar = () => {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [isDark, setIsDark] = useState(false);
   const [showActions, setShowActions] = useState(false);
 
@@ -300,19 +300,21 @@ const Topbar = () => {
             </div>
           )}
         </div> */}
-          <div className="flex h-fit items-center gap-5 max-[510px]:gap-2">
-            <div className="max-[400px]:hidden">
-              <Write />
-              {/* <WriterForm>
+          {loading ? null : (
+            <div className="flex h-fit items-center gap-5 max-[510px]:gap-2">
+              <div className="max-[400px]:hidden">
+                <Write />
+                {/* <WriterForm>
               <PenIcon />
               <span className="text-sm font-medium text-muted-alt">Write</span>
             </WriterForm> */}
+              </div>
+              <div className="h-8">
+                <Separator orientation="vertical" />
+              </div>
+              <UserAction user={user} />
             </div>
-            <div className="h-8">
-              <Separator orientation="vertical" />
-            </div>
-            <UserAction user={user} />
-          </div>
+          )}
         </div>
       </header>
       {/* <Separator /> */}

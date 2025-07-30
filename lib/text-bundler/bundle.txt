@@ -2949,7 +2949,7 @@ import { toast } from "sonner";
 import revalidatePathAction from "@/app/actions/revalidatePath";
 import BookmarkIcon from "@/assets/svgs/utils/BookmarkIcon";
 import { Button } from "@/components/ui/button";
-import useAuth from "@/context/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { fetcher } from "@/lib/fetcher";
 import revalidateTagAction from "@/app/actions/revalidateTag";
@@ -3137,7 +3137,7 @@ import { useContext } from "react";
 
 import AuthContext from ".";
 
-const useAuth = () => {
+const { useAuth } = () => {
   const context = useContext(AuthContext);
   if (context === null) {
     throw new Error("useAuth is null");

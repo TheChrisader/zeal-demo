@@ -150,6 +150,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
               <img
                 src={imageUrl}
                 alt={article.title}
+                loading="lazy"
+                fetchPriority="low"
                 className="h-full w-full object-cover"
               />
             </div>

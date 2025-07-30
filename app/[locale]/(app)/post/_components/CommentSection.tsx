@@ -22,7 +22,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { getPublishTimeStamp } from "@/utils/time.utils";
-import useAuth from "@/context/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { getReplies } from "../_actions/getReplies";
 import { Link } from "@/i18n/routing";
 import { cleanObject } from "@/utils/cleanObject.utils";

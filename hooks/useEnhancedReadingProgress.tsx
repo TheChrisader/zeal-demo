@@ -1,4 +1,4 @@
-import useAuth from "@/context/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { usePathname } from "@/i18n/routing";
 import { updateReadingProgress } from "@/services/analytics.services";
 import {
@@ -16,7 +16,7 @@ export const useEnhancedReadingProgress = (
   const [startTime] = useState<number>(Date.now());
   const [sessionId] = useState<string>(crypto.randomUUID());
   const { user } = useAuth();
-  const userId = user?.id.toString();
+  const userId = user?.id?.toString();
   const postId = usePathname().split("/").pop();
   // const [highlights, setHighlights] = useState<string[]>([]);
 

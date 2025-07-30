@@ -8,7 +8,7 @@ import { fetchById, updateById } from "../_utils/composites";
 import { Textarea } from "@/components/ui/textarea";
 import { useEditorStore } from "@/context/editorStore/useEditorStore";
 import { toast } from "sonner";
-import useAuth from "@/context/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 
 interface EditableDocumentPreviewProps {}
 

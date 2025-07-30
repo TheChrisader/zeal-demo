@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { UpdateUserAccountSchema } from "@/database/user/user.dto";
 import { findUserById, updateUser } from "@/database/user/user.repository";
+import { validateRequest } from "@/lib/auth/auth";
 import { serverAuthGuard } from "@/lib/auth/serverAuthGuard";
 import { connectToDatabase } from "@/lib/database";
 import { buildError, sendError } from "@/utils/error";
@@ -10,34 +11,33 @@ import {
   INVALID_INPUT_ERROR,
   USER_NOT_FOUND_ERROR,
 } from "@/utils/error/error-codes";
+import { User } from "lucia";
+import UserModel from "@/database/user/user.model";
 
 export const GET = async () => {
   try {
-    const { user } = await serverAuthGuard({ redirect: true });
-
     await connectToDatabase();
 
-    const userData = await findUserById(user.id);
+    const { user } = await validateRequest();
+
+    if (!user) {
+      return NextResponse.json({ message: "Unauthenticated" }, { status: 401 });
+    }
+
+    const userData: User | null = await UserModel.findById(user.id).select(
+      "username email role display_name avatar bio country has_email_verified upgrade_pending",
+    );
 
     if (!userData) {
-      return sendError(
-        buildError({
-          code: USER_NOT_FOUND_ERROR,
-          message: "User not found.",
-          status: 404,
-        }),
-      );
+      return NextResponse.json({ message: "User not found." }, { status: 404 });
     }
 
     return NextResponse.json(userData);
   } catch (error: unknown) {
-    return sendError(
-      buildError({
-        code: INTERNAL_ERROR,
-        message: error instanceof Error ? error.message : "An error occured.",
-        status: 500,
-        data: error,
-      }),
+    console.log(`Error getting user data: ${error}`);
+    return NextResponse.json(
+      { message: "Something went wrong." },
+      { status: 500 },
     );
   }
 };

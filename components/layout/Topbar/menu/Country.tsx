@@ -11,7 +11,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import useAuth from "@/context/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -76,7 +76,7 @@ const CountryDropdown = ({ children }: { children: React.ReactNode }) => {
           align="end"
           sideOffset={12}
         >
-          <h3 className="text-foreground-alt text-lg font-semibold">
+          <h3 className="text-lg font-semibold text-foreground-alt">
             News Location Preference
           </h3>
           <Separator className="my-3" />

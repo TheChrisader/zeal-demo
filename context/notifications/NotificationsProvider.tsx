@@ -2,7 +2,7 @@
 import { createContext, ReactNode, useContext, useEffect } from "react";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Notification } from "@/types/notification.type";
-import useAuth from "../auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 
 interface NotificationContextType {
   notifications: Notification[];
@@ -50,7 +50,7 @@ export const NotificationProvider = ({
     pushEnabled,
     markAsRead,
     markAllAsRead,
-  } = useNotifications(user?.id.toString());
+  } = useNotifications(user?.id?.toString());
 
   useEffect(() => {
     if (!isConnected) return;

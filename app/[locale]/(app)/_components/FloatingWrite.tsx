@@ -5,7 +5,7 @@
 // import { usePathname } from "@/i18n/routing";
 // import WriterForm from "@/components/layout/Topbar/popup/WriterForm";
 // import { Button } from "@/components/ui/button";
-// import useAuth from "@/context/auth/useAuth";
+// import { useAuth } from "@/hooks/useAuth";
 
 // const FloatingWrite = () => {
 //   const { canWrite } = useAuth();
@@ -84,8 +84,8 @@ import { useTheme } from "next-themes";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { NotificationDrawer } from "./_components/notifications/NotificationDrawer";
 import { useNotificationContext } from "@/context/notifications/NotificationsProvider";
-import useAuth from "@/context/auth/useAuth";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Action {
   id: string;

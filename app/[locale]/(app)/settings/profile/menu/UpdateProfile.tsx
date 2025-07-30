@@ -16,7 +16,7 @@ import {
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import useAuth from "@/context/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { updateUser } from "@/services/auth.services";
 import { InputWithLabel } from "@/components/forms/Input/InputWithLabel";
 import revalidatePathAction from "@/app/actions/revalidatePath";

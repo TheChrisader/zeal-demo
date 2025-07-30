@@ -4,7 +4,7 @@ import { CircleCheckBig, CircleX, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import useAuth from "@/context/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { fetcher } from "@/lib/fetcher";
 
 const Reactions = ({
@@ -128,7 +128,7 @@ const Reactions = ({
     <div className="flex items-center gap-5">
       <Button
         variant="unstyled"
-        className={`text-muted-alt has-[svg]:hover:text-foreground-alt p-0 hover:bg-transparent`}
+        className={`p-0 text-muted-alt hover:bg-transparent has-[svg]:hover:text-foreground-alt`}
         onClick={handleLike}
       >
         <ThumbsUp
@@ -137,7 +137,7 @@ const Reactions = ({
       </Button>
       <Button
         variant="unstyled"
-        className={`text-muted-alt has-[svg]:hover:text-foreground-alt p-0 hover:bg-transparent`}
+        className={`p-0 text-muted-alt hover:bg-transparent has-[svg]:hover:text-foreground-alt`}
         onClick={handleDislike}
       >
         <ThumbsDown

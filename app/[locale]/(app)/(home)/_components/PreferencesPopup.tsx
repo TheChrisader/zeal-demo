@@ -10,7 +10,6 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import useAuth from "@/context/auth/useAuth";
 import { Separator } from "@/components/ui/separator";
 import SearchInput from "@/components/forms/Input/SearchInput";
 import revalidatePathAction from "@/app/actions/revalidatePath";
@@ -19,6 +18,8 @@ import Categories from "@/categories";
 import { flattenCategories } from "@/utils/category.utils";
 import NewsTopic from "../../settings/preferences/_components/Topic";
 import { PreferencesContext } from "../../settings/preferences/page";
+import { useAuth } from "@/hooks/useAuth";
+import { usePreferences } from "@/hooks/usePreferences";
 
 const setPreferences = (categories: string[]) => {
   const preferences = categories
@@ -36,7 +37,8 @@ const setPreferences = (categories: string[]) => {
 
 const PreferencesPopup = () => {
   const [showDrawer, setShowDrawer] = useState(false);
-  const { user, preferences: fetchedPreferences } = useAuth();
+  const { user } = useAuth();
+  const { preferences: fetchedPreferences } = usePreferences();
   const preferences = setPreferences(flattenCategories(Categories));
   const defaultPreferences = [
     "Personal Finance",
@@ -190,10 +192,10 @@ const PreferencesPopup = () => {
             <div className="mb-8 w-full">
               <div className="mb-4 flex w-full items-center justify-between">
                 <div className="flex flex-col">
-                  <h3 className="text-foreground-alt text-lg font-bold">
+                  <h3 className="text-lg font-bold text-foreground-alt">
                     News Preferences
                   </h3>
-                  <span className="text-muted-alt text-sm font-normal">
+                  <span className="text-sm font-normal text-muted-alt">
                     Select the news topics you wish to be featured on your home
                     page
                   </span>

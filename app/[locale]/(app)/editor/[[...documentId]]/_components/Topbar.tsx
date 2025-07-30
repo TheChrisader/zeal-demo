@@ -16,7 +16,7 @@ import { stripHtml } from "string-strip-html";
 import { useRouter } from "@/app/_components/useRouter";
 import { Button } from "@/components/ui/button"; // Assuming you have a Button component
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import useAuth from "@/context/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { createPost, fetchPostById } from "@/services/post.services";
 import { IPost } from "@/types/post.type";
 import { getWordCount } from "@/utils/editor.utils";

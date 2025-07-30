@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, ChevronsUpDown, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { CATEGORIES } from "@/categories/flattened";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,20 +13,18 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useEditorStore } from "@/context/editorStore/useEditorStore";
+import { useAuth } from "@/hooks/useAuth";
 import useDebouncedCallback from "@/hooks/useDebouncedCallback";
 import { IDraft } from "@/types/draft.type";
 import { IPost } from "@/types/post.type";
 import { fetchById, updateById } from "../_utils/composites";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import { useEffect, useState } from "react";
-import { useEditorStore } from "@/context/editorStore/useEditorStore";
-import { toast } from "sonner";
-import useAuth from "@/context/auth/useAuth";
 
 interface CategoryManagerProps {}
 const CategoryManager = ({}: CategoryManagerProps) => {

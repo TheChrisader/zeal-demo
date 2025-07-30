@@ -4,7 +4,7 @@ import Script from "next/script";
 import { useRouter } from "@/app/_components/useRouter";
 import { usePathname } from "@/i18n/routing";
 import revalidatePathAction from "@/app/actions/revalidatePath";
-// import useAuth from "@/context/auth/useAuth";
+// import { useAuth } from "@/hooks/useAuth";
 import { SignUserWithoutPassword } from "@/services/auth.services";
 import { decodeJWTResponse } from "@/utils/jwt.utils";
 
