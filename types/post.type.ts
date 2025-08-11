@@ -9,6 +9,9 @@ export interface IPost {
   id: Id | string;
   title: string;
   slug: string;
+  initial_score: number;
+  prominence_score: number;
+  source_type?: "user" | "auto";
   cluster_id?: string;
   bookmarked?: boolean;
   headline?: boolean;
@@ -18,6 +21,10 @@ export interface IPost {
   ttr: number;
   link: string | null;
   image_url: string | null;
+  image_urls?: {
+    thumbnail?: string;
+    preview?: string;
+  };
   image_key?: string;
   image_metadata?: {
     x: number;

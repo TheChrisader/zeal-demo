@@ -8,6 +8,7 @@ import PostModel from "./post.model";
 import UserModel from "../user/user.model";
 import { generateRandomString } from "@/lib/utils";
 import { calculateReadingTime } from "@/utils/post.utils";
+import { calculateInitialScore } from "@/lib/scoring";
 
 export type SortParams<D> = Partial<Record<keyof D, -1 | 1>>;
 
@@ -20,6 +21,24 @@ export type QueryOptions<D> = {
 // create post
 export const createPost = async (post: Partial<IPost>): Promise<IPost> => {
   try {
+    const { content, keywords, category, image_url } = post;
+
+    const newPostData = {
+      content: content ?? "",
+      category: category ?? [],
+      keywords: keywords ?? [],
+      image_url: image_url ?? undefined,
+      source_type: "user" as const,
+    };
+
+    // 2. Call the heavy, one-time scoring function
+    const { initial_score, prominence_score } =
+      await calculateInitialScore(newPostData);
+
+    post.initial_score = initial_score;
+    post.prominence_score = prominence_score;
+    post.source_type = "user";
+
     const newPostDoc = await PostModel.create(post);
     const createdPost = newPostDoc.toObject();
     return createdPost;
@@ -46,9 +65,26 @@ export const createPostFromDraft = async (draft: IDraft): Promise<IPost> => {
       url: "",
     };
 
+    const { content, keywords, image_url, category } = draft;
+
+    const newPostData = {
+      content,
+      category,
+      keywords,
+      image_url: image_url ?? undefined,
+      source_type: "user" as const,
+    };
+
+    // 2. Call the heavy, one-time scoring function
+    const { initial_score, prominence_score } =
+      await calculateInitialScore(newPostData);
+
     const newPostDoc = await PostModel.create({
       ...draft,
       slug,
+      initial_score,
+      prominence_score,
+      source_type: "user",
       author_id: user._id.toString(),
       status: "active",
       external: false,

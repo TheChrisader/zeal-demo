@@ -26,6 +26,7 @@ import { getCategoriesByWriter } from "@/constants/writers";
 import { Badge } from "@/components/ui/badge";
 import { extractPath } from "@/categories";
 import CategoryListClient from "../_components/CategoryListClient";
+import HTMLParserRenderer from "@/components/custom/ArticleDisplay";
 
 export async function generateMetadata({
   params,
@@ -175,16 +176,6 @@ export default async function PostPage({
     post.content = cleanContent(post.content, post.source.url!);
   }
 
-  const relatedExternalArticles =
-    (
-      await BatchModel.findOne({
-        name: post.title,
-      })
-        .select("articles")
-        .lean()
-        .exec()
-    )?.articles || [];
-
   return (
     // <main className="flex min-h-[calc(100vh-62px)] gap-4">
     <main className="flex min-h-[calc(100vh-60px)] w-[70vw] flex-col gap-3 px-12 py-4 max-[900px]:px-7 max-[750px]:w-auto max-[500px]:px-4">
@@ -265,21 +256,31 @@ export default async function PostPage({
         </div>
       )}
 
-      {(isZealArticle(post.category) || !post.external) && post.image_url && (
+      {/* {(isZealArticle(post.category) || !post.external) && post.image_url && (
         <img
           className="w-full rounded-md object-cover"
           src={post.image_url}
           alt={post.title}
         />
-      )}
+      )} */}
 
-      <div
+      {/* <div
         className="rounded-[20px] p-1 text-sm [&_a]:text-blue-500 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:font-bold [&_figure>img]:mb-2 [&_figure>img]:mt-4 [&_figure>img]:rounded-md [&_figure>p]:text-black [&_figure]:mb-7 [&_figure]:flex [&_figure]:w-full [&_figure]:flex-col [&_figure]:items-center [&_img]:mx-auto [&_img]:block [&_img]:rounded-md [&_img]:object-cover [&_img]:object-center [&_li]:list-disc [&_p]:mb-4 [&_p]:max-w-[100vw] [&_p]:text-base [&_p]:font-normal [&_p]:leading-7 [&_p]:text-foreground-alt-p"
         dangerouslySetInnerHTML={{ __html: post.content }}
-      />
+      /> */}
+      <div className="rounded-[20px] p-1 text-sm [&_a]:text-blue-500 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:font-bold [&_figure>img]:mb-2 [&_figure>img]:mt-4 [&_figure>img]:rounded-md [&_figure>p]:text-black [&_figure]:mb-7 [&_figure]:flex [&_figure]:w-full [&_figure]:flex-col [&_figure]:items-center [&_img]:mx-auto [&_img]:block [&_img]:rounded-md [&_img]:object-cover [&_img]:object-center [&_li]:list-disc [&_p]:mb-4 [&_p]:max-w-[100vw] [&_p]:text-base [&_p]:font-normal [&_p]:leading-7 [&_p]:text-foreground-alt-p">
+        <HTMLParserRenderer
+          htmlString={`<img
+          className="w-full rounded-md object-cover"
+          src="${post.image_url}"
+          alt="${post.title}"
+        />
+        ${post.content}`}
+        />
+      </div>
       {/* max-h-[350px] */}
       {/* [&_img]:max-h-[350px] [&_figure>img]:max-h-[350px] */}
-      {isZealArticle(post.category) && (
+      {/* {isZealArticle(post.category) && (
         <div>
           <span className="flex items-center gap-2">
             <strong>From Zeal News Studio</strong>
@@ -291,8 +292,8 @@ export default async function PostPage({
             </Link>
           </span>
         </div>
-      )}
-      {post.external && (
+      )} */}
+      {/* {post.external && (
         <a
           href={`https://${post.source.url!}`}
           rel="noopener noreferrer noindex"
@@ -315,14 +316,14 @@ export default async function PostPage({
             {post.source.name!}
           </span>
         </a>
-      )}
+      )} */}
       <ShareArray title={post.title} />
       <div className="flex w-full items-center justify-end">
         <Reactions reaction={{ like, dislike }} postID={article_id} />
       </div>
-      {relatedExternalArticles.length > 0 && (
+      {/* {relatedExternalArticles.length > 0 && (
         <RelatedExternalArticles articles={relatedExternalArticles} />
-      )}
+      )} */}
       <Separator />
       <div className="flex justify-end">
         <ReportDialog articleId={article_id} />

@@ -8,6 +8,8 @@ import { IPost } from "@/types/post.type";
 import {
   AUTHORIZED_IMAGE_MIME_TYPES,
   AUTHORIZED_IMAGE_SIZE,
+  ImageValidationError,
+  validateAndUploadImage,
 } from "@/utils/file.utils";
 import { calculateReadingTime } from "@/utils/post.utils";
 
@@ -38,27 +40,22 @@ export const POST = async (request: NextRequest) => {
     let image_url: string | undefined = undefined;
 
     if (file) {
-      if (!AUTHORIZED_IMAGE_MIME_TYPES.includes(file.type)) {
+      try {
+        const key = await validateAndUploadImage(file, "posts/");
+        image_url = `${process.env.CLOUDFRONT_BASE_URL}/${key}`;
+      } catch (error) {
+        console.error(`Error uploading image: ${error}`);
+        if (error instanceof ImageValidationError) {
+          return NextResponse.json(
+            { message: error.message },
+            { status: error.status },
+          );
+        }
         return NextResponse.json(
-          { message: "Wrong file format." },
-          { status: 422 },
+          { message: "Error uploading image" },
+          { status: 500 },
         );
       }
-
-      if (file.size > AUTHORIZED_IMAGE_SIZE) {
-        return NextResponse.json(
-          { message: "File too large." },
-          { status: 422 },
-        );
-      }
-
-      const photoKey = await uploadImageToS3(file, "posts/");
-
-      if (!photoKey) {
-        return NextResponse.json({ error: "Failed to upload image." });
-      }
-
-      image_url = `${process.env.CLOUDFRONT_BASE_URL}/${photoKey}`;
     }
 
     const post: Partial<IPost> = {

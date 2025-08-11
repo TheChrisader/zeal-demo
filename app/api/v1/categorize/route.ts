@@ -10,6 +10,7 @@ import {
   MongoServerError,
 } from "mongodb";
 import { MongooseError } from "mongoose";
+import ArticleModel from "@/database/article/article.model";
 
 function mergeArraysWithUniqueSourceUrls(
   sourceArray: IBatchArticle[],
@@ -45,14 +46,13 @@ const categoryTypeMap: Record<string, string> = {
 };
 
 export const categoryMap: { title: string; groups: string[] }[] = [
-  { title: "Local", groups: ["Headlines", "Zeal Headline News", "Local"] },
+  { title: "Local", groups: ["Headlines", "Zeal Headline News"] },
   {
     title: "Across Africa",
     groups: [
       "Top West African News",
       "Top East African News",
       "Top Southern Africa News",
-      "Across Africa",
     ],
   },
   {
@@ -63,21 +63,14 @@ export const categoryMap: { title: string; groups: string[] }[] = [
       "EU News",
       "Asian News",
       "Zeal Global",
-      "Global",
     ],
   },
   { title: "Politics", groups: ["Politics"] },
-  { title: "Climate", groups: ["Weather", "Climate"] },
-  { title: "Startup", groups: ["Startup News", "Startup"] },
+  { title: "Climate", groups: ["Weather"] },
+  { title: "Startup", groups: ["Startup News"] },
   {
     title: "Economy/Finance",
-    groups: [
-      "Economy",
-      "Personal Finance",
-      "Market Watch",
-      "Business 360",
-      "Economy/Finance",
-    ],
+    groups: ["Economy", "Personal Finance", "Market Watch", "Business 360"],
   },
   { title: "Crypto", groups: ["Crypto"] },
   {
@@ -87,7 +80,6 @@ export const categoryMap: { title: string; groups: string[] }[] = [
       "Career Tips",
       "Top Global Jobs",
       "Entrepreneurship",
-      "Career",
     ],
   },
   {
@@ -101,22 +93,22 @@ export const categoryMap: { title: string; groups: string[] }[] = [
     ],
   },
   { title: "Fintech", groups: ["Fintech"] },
-  { title: "AI", groups: ["Artificial Intelligence", "AI"] },
-  { title: "Health", groups: ["Health News", "Zeal Lifestyle", "Health"] },
-  { title: "Food", groups: ["Food & Nutrition", "Food"] },
-  { title: "Travel", groups: ["Travel & Tourism", "Travel"] },
-  { title: "Parenting", groups: ["Family & Parenting", "Parenting"] },
-  { title: "Fashion", groups: ["Style & Beauty", "Fashion"] },
+  { title: "AI", groups: ["Artificial Intelligence"] },
+  { title: "Health", groups: ["Health News", "Zeal Lifestyle"] },
+  { title: "Food", groups: ["Food & Nutrition"] },
+  { title: "Travel", groups: ["Travel & Tourism"] },
+  { title: "Parenting", groups: ["Family & Parenting"] },
+  { title: "Fashion", groups: ["Style & Beauty"] },
   { title: "Celebrity News", groups: ["Celebrity News"] },
   {
     title: "Profiles",
-    groups: ["Hot Interviews", "Zeal Entertainment", "Profiles"],
+    groups: ["Hot Interviews", "Zeal Entertainment"],
   },
-  { title: "Music", groups: ["Trending Music", "Music"] },
-  { title: "Movies", groups: ["Top Movies", "Movies"] },
+  { title: "Music", groups: ["Trending Music"] },
+  { title: "Movies", groups: ["Top Movies"] },
   {
     title: "Sports",
-    groups: ["Top Sports News", "Sports", "UK Premiership", "Basketball"],
+    groups: ["Top Sports News", "UK Premiership", "Basketball"],
   },
 ];
 
@@ -203,12 +195,12 @@ export const POST = async () => {
 
       // const existingBatchesList = existingBatches.map((batch) => batch.name);
 
-      const posts = await PostModel.find({
+      const posts = await ArticleModel.find({
         category: {
           $in: groups,
         },
         published_at: {
-          $gte: new Date(new Date().setHours(new Date().getHours() - 450)),
+          $gte: new Date(new Date().setHours(new Date().getHours() - 8)),
           $lt: new Date(),
         },
       })
@@ -225,12 +217,12 @@ Act as a meticulous and strict news analyst. Your task is to analyze a list of n
 
 # Input Data
 - **Article Titles:** A list of news article titles provided under "Article Titles".
-- **Category Context:** All provided articles belong to the category: ${categoryTypeMap[title]}. Your analysis should remain within this context.
+- **Category Context:** All provided articles belong to the category: ${title}. Your analysis should remain within this context.
 
 # Batching Rules & Logic
 
 ## Primary Logic: Event-Based Batching
-1.  **Identify Same Event:** Scrutinize the titles to find groups where **two or more titles** clearly and unambiguously refer to the **exact same specific news event**. This requires more than just a similar topic; look for shared specific details like names, locations, specific actions, or outcomes implied in the titles.
+1.  **Identify Same Event:** Scrutinize the titles to find groups where **two or more titles** clearly and unambiguously refer to the **exact same specific news event**. This requires more than just a similar topic; look for shared specific details like names, locations, specific actions, or outcomes implied in the titles. A **specific** event or story, not one or more closely or loosely related events.
 2.  **Strict Inclusion:** Be highly conservative. If a title's connection to a specific event batch is uncertain or merely topical, **do not include it** in that batch.
 3.  **Form Event Batches:** Create a distinct batch for each group of 2+ titles identified as covering the same specific event.
 
@@ -241,10 +233,10 @@ Act as a meticulous and strict news analyst. Your task is to analyze a list of n
 
 # Output Requirements
 
-7.  **Minimum and Maximum Batch Count:** You **must** return a minimum of **one (1) batch, with its corresponding articles array,** and a maximum of **five**, in total.
-    *   **Scenario A (Sufficient Event Batches):** If the Primary Logic yields 5 or more event batches, return the top five hottest batches only.
+7.  **Minimum and Maximum Batch Count:** You **must** return a minimum of **one (1) batch, with its corresponding articles array,** and a maximum of **two**, in total, only if articles are provided. If there are none, resort to leaving the values empty or undefined. Do **NOT** return any batches if no articles are provided or attempt to explain your rationale for doing so under any circumstance.
+    *   **Scenario A (Sufficient Event Batches):** If the Primary Logic yields 2 or more event batches, return the top two hottest batches only.
     *   **Scenario B (No Event Batches):** If the Fallback Logic (step 4) is triggered, ensure you select and create *at least* one single-article batch according to steps 5 and 6.
-    *   **Maximum Batch Count:** You are **not allowed** to return more than **five (5) batches** in total. So, ensure to prioritize sensibly.
+    *   **Maximum Batch Count:** You are **not allowed** to return more than **two (2) batches** in total. So, ensure to prioritize sensibly.
 8.  **Batch Naming ("batch" field):**
     *   For **event batches**, the name must be a concise, descriptive headline summarizing the specific event covered by the articles in that batch. Tend more towards being sensational and interesting than a dry recap.
     *   For **single-article batches**, the name should be a concise, descriptive headline capturing the essence of that single article's title. It can be a rephrasing or abstraction of the original title. Tend more towards being sensational and interesting than a dry recap.
@@ -273,7 +265,7 @@ Act as a meticulous and strict news analyst. Your task is to analyze a list of n
 }
 
 # Category Context Value:
-${categoryTypeMap[title]}
+${title}
 
 # Article Titles:
 ${postsList}

@@ -4,6 +4,8 @@ import { connectToDatabase } from "@/lib/database";
 import {
   AUTHORIZED_IMAGE_MIME_TYPES,
   AUTHORIZED_IMAGE_SIZE,
+  ImageValidationError,
+  validateAndUploadImage,
 } from "@/utils/file.utils"; // Assuming this path, adjust if different
 
 export async function POST(request: NextRequest) {
@@ -42,46 +44,19 @@ export async function POST(request: NextRequest) {
     let image_url: string | undefined = undefined;
 
     if (file) {
-      if (!AUTHORIZED_IMAGE_MIME_TYPES.includes(file.type)) {
-        return NextResponse.json(
-          {
-            message: `Wrong file format. Received: ${file.type}. Authorized: ${AUTHORIZED_IMAGE_MIME_TYPES.join(", ")}`,
-          },
-          { status: 422 },
-        );
-      }
-
-      if (file.size > AUTHORIZED_IMAGE_SIZE) {
-        return NextResponse.json(
-          {
-            message: `File too large. Max size: ${AUTHORIZED_IMAGE_SIZE / 1024 / 1024}MB.`,
-          },
-          { status: 422 },
-        );
-      }
-
       try {
-        const photoKey = await uploadImageToS3(file, "posts/"); // Using a generic path
-
-        if (!photoKey) {
+        const key = await validateAndUploadImage(file, "posts/");
+        image_url = `${process.env.CLOUDFRONT_BASE_URL}/${key}`;
+      } catch (error) {
+        console.error(`Error uploading image: ${error}`);
+        if (error instanceof ImageValidationError) {
           return NextResponse.json(
-            { error: "Failed to upload image to S3." },
-            { status: 500 },
+            { message: error.message },
+            { status: error.status },
           );
         }
-
-        if (!process.env.CLOUDFRONT_BASE_URL) {
-          console.error("CLOUDFRONT_BASE_URL environment variable is not set.");
-          return NextResponse.json(
-            { error: "Image URL configuration error." },
-            { status: 500 },
-          );
-        }
-        image_url = `${process.env.CLOUDFRONT_BASE_URL}/${photoKey}`;
-      } catch (uploadError) {
-        console.error("Error during S3 upload:", uploadError);
         return NextResponse.json(
-          { error: "Failed to upload image due to an internal error." },
+          { message: "Error uploading image" },
           { status: 500 },
         );
       }
@@ -93,7 +68,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (!image_url) {
-      // This case should ideally be caught by earlier checks
       return NextResponse.json(
         { error: "Image processing failed unexpectedly." },
         { status: 500 },

@@ -1,5 +1,5 @@
 import { unstable_cache } from "next/cache";
-import { Suspense } from "react";
+import { cache, Suspense } from "react";
 import {
   getTopLevelCategoryList,
   TOP_LEVEL_CATEGORIES,
@@ -103,8 +103,8 @@ const loadMoreHeadlines = async (offset: number, category: string) => {
 };
 
 const HeadlinesBlock = async ({ category }: { category: TopLevelCategory }) => {
-  let HeadlinesPosts: IPost[] = await unstable_cache(
-    async () => {
+  let HeadlinesPosts: IPost[] = await cacheManager({
+    fetcher: async (): Promise<IPost[]> => {
       return await PostModel.find({
         category: {
           $in: [...getTopLevelCategoryList(category)],
@@ -114,17 +114,22 @@ const HeadlinesBlock = async ({ category }: { category: TopLevelCategory }) => {
         },
         generatedBy: "user",
       })
-        .sort({ published_at: -1 })
+        .sort({ prominence_score: -1, published_at: -1 })
         .limit(5)
-        .select("_id title image_url slug description category ttr source")
+        .select(
+          "_id title image_url slug description category ttr source prominence_score",
+        )
         .exec();
     },
-    [category],
-    {
+    key: `${category}-frontpage`,
+    options: {
       revalidate: 60 * 60,
-      tags: [category],
+      tags: [category, "frontpage"],
     },
-  )();
+  });
+
+  console.log(category);
+  HeadlinesPosts.forEach((p) => console.log(p.prominence_score, p.title));
 
   const featureDate = new Date(new Date().setHours(new Date().getHours() - 2));
 

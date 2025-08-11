@@ -2,6 +2,7 @@ import imageCompression from "browser-image-compression";
 import crypto from "crypto";
 import path from "path";
 
+import { uploadImageToS3 } from "@/lib/bucket";
 import { IFile, ImageMimetype } from "../types/file.type";
 
 const imageMimetypes: string[] = [
@@ -93,4 +94,33 @@ export const getKeyFromUrl = (url: string) => {
   const key = path.startsWith("/") ? path.slice(1) : path;
 
   return key;
+};
+
+export class ImageValidationError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
+export const validateAndUploadImage = async (
+  file: Blob & { name: string },
+  path: string,
+): Promise<string> => {
+  if (!AUTHORIZED_IMAGE_MIME_TYPES.includes(file.type)) {
+    throw new ImageValidationError("Wrong file format.", 422);
+  }
+
+  if (file.size > AUTHORIZED_IMAGE_SIZE) {
+    throw new ImageValidationError("File size is too large.", 422);
+  }
+
+  const photoKey = await uploadImageToS3(file, path);
+
+  if (!photoKey) {
+    throw new ImageValidationError("Failed to upload image.", 500);
+  }
+
+  return photoKey;
 };

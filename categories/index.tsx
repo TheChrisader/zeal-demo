@@ -6,6 +6,52 @@ export type Category = {
 
 export type Categories = Category[];
 
+export const MAP_FOR_OLD_CATEGORIES: Record<string, string[]> = {
+  Local: ["Headlines", "Zeal Headline News"],
+  "Across Africa": [
+    "Top West African News",
+    "Top East African News",
+    "Top Southern Africa News",
+  ],
+  Global: [
+    "Top US News",
+    "UK Top News",
+    "EU News",
+    "Asian News",
+    "Zeal Global",
+  ],
+  Politics: ["Politics"],
+  Climate: ["Weather"],
+  Startup: ["Startup News"],
+  "Economy/Finance": [
+    "Economy",
+    "Personal Finance",
+    "Market Watch",
+    "Business 360",
+  ],
+  Crypto: ["Crypto"],
+  Career: ["Latest Job News", "Career Tips", "Top Global Jobs"],
+  "Latest Tech News": [
+    "Latest Tech News",
+    "Cartech",
+    "Gadgets Buying Guide",
+    "Gaming",
+    "Zeal Tech",
+  ],
+  Fintech: ["Fintech"],
+  AI: ["Artificial Intelligence"],
+  Health: ["Health News", "Zeal Lifestyle"],
+  Food: ["Food & Nutrition"],
+  Travel: ["Travel & Tourism"],
+  Parenting: ["Family & Parenting"],
+  Fashion: ["Style & Beauty"],
+  "Celebrity News": ["Celebrity News"],
+  Profiles: ["Hot Interviews", "Zeal Entertainment"],
+  Music: ["Trending Music"],
+  Movies: ["Top Movies"],
+  Sports: ["Top Sports News"],
+};
+
 export const topLevelCategoryMap: Record<string, string[]> = {
   News: ["Local", "Across Africa", "Global", "Politics", "Climate"],
   Business: ["Startup", "Economy/Finance", "Crypto", "Career"],

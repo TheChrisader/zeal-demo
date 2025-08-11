@@ -37,6 +37,22 @@ const PostSchema = new Schema<IPost>(
       unique: true,
       index: true,
     },
+    prominence_score: {
+      type: Number,
+      default: 0,
+      index: true,
+    },
+    initial_score: {
+      type: Number,
+      default: 0,
+      index: true,
+    },
+    source_type: {
+      type: String,
+      enum: ["user", "auto"],
+      default: "auto",
+      index: true,
+    },
     author_id: {
       type: String || Schema.Types.ObjectId,
       ref: "User",
@@ -199,6 +215,8 @@ PostSchema.index({ created_at: -1 });
 PostSchema.index({ author_id: -1 });
 PostSchema.index({ draft_id: 1 });
 PostSchema.index({ short_url: 1 }, { sparse: true });
+PostSchema.index({ prominence_score: -1 });
+PostSchema.index({ initial_score: -1 });
 
 // Compound indexes
 PostSchema.index({ keywords: 1, published_at: -1 });
@@ -207,6 +225,8 @@ PostSchema.index({ category: 1, published_at: -1 });
 PostSchema.index({ category: 1, created_at: -1 });
 PostSchema.index({ generatedBy: 1, published_at: -1 });
 PostSchema.index({ title: "text", published_at: -1 });
+PostSchema.index({ prominence_score: -1, published_at: -1 });
+PostSchema.index({ initial_score: -1, published_at: -1 });
 
 PostSchema.virtual("id").get(function () {
   return this._id.toHexString();

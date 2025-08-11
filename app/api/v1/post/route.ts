@@ -13,10 +13,19 @@ import {
 import {
   AUTHORIZED_IMAGE_MIME_TYPES,
   AUTHORIZED_IMAGE_SIZE,
+  ImageValidationError,
+  validateAndUploadImage,
 } from "@/utils/file.utils";
 import { calculateReadingTime } from "@/utils/post.utils";
 import { SlugGenerator } from "@/lib/slug";
 import { generateRandomString } from "@/lib/utils";
+import { formDataToJson } from "@/utils/converter.utils";
+import { calculateInitialScore } from "@/lib/scoring";
+
+// export interface ImageValidationError {
+//   message: string;
+//   status: number;
+// }
 
 // TODO: Delete Draft if it exists
 
@@ -29,6 +38,8 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json({ message: "Post body cannot be empty" });
     }
 
+    const postData = formDataToJson<IPost>(formData);
+
     await connectToDatabase();
     const { user } = await serverAuthGuard();
 
@@ -40,7 +51,6 @@ export const POST = async (request: NextRequest) => {
       | (Blob & { name: string })
       | string
       | null;
-    console.log("just file: ", file);
 
     let image_url: string | undefined = undefined;
 
@@ -48,35 +58,34 @@ export const POST = async (request: NextRequest) => {
       if (typeof file === "string") {
         image_url = file;
       } else {
-        if (!AUTHORIZED_IMAGE_MIME_TYPES.includes(file.type)) {
-          return sendError(
-            buildError({
-              code: WRONG_FILE_FORMAT_ERROR,
-              message: "Wrong file format.",
-              status: 422,
-            }),
+        try {
+          const key = await validateAndUploadImage(file, "posts/");
+          image_url = `${process.env.CLOUDFRONT_BASE_URL}/${key}`;
+        } catch (error) {
+          console.error(`Error uploading image: ${error}`);
+          if (error instanceof ImageValidationError) {
+            return NextResponse.json(
+              { message: error.message },
+              { status: error.status },
+            );
+          }
+          return NextResponse.json(
+            { message: "Error uploading image" },
+            { status: 500 },
           );
         }
-
-        if (file.size > AUTHORIZED_IMAGE_SIZE) {
-          return sendError(
-            buildError({
-              code: FILE_TOO_LARGE_ERROR,
-              message: "The file is too large.",
-              status: 422,
-            }),
-          );
-        }
-
-        const photoKey = await uploadImageToS3(file, "posts/");
-
-        if (!photoKey) {
-          return NextResponse.json({ error: "Failed to upload image." });
-        }
-
-        image_url = `${process.env.CLOUDFRONT_BASE_URL}/${photoKey}`;
       }
     }
+
+    // const { title, content, category, keywords, source_type } = postData;
+
+    // --- SCORING LOGIC INTEGRATION ---
+    // 1. Prepare the data for the scoring function
+    // const newPostData = { content, keywords, image_url, source_type };
+
+    // // 2. Call the heavy, one-time scoring function
+    // const { initial_score, prominence_score } =
+    //   await calculateInitialScore(newPostData);
 
     const post: Partial<IPost> = {
       title: formData.get("title") as string,

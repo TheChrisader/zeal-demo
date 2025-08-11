@@ -10,12 +10,16 @@ import { IPost } from "@/types/post.type";
 import { newId } from "@/lib/database";
 import { WRITER_DISTRIBUTION } from "@/constants/writers";
 import UserModel from "@/database/user/user.model";
+import ArticleModel from "@/database/article/article.model";
+import { calculateInitialScore } from "@/lib/scoring";
+import { IArticle } from "@/types/article.type";
+import { revalidateTag } from "next/cache";
 
 const ensureDelay = async (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-const getImageUrlFromArticles = (articles: IPost[]) => {
+const getImageUrlFromArticles = (articles: IArticle[]) => {
   for (const article of articles) {
     if (article.image_url) {
       return article.image_url;
@@ -25,96 +29,17 @@ const getImageUrlFromArticles = (articles: IPost[]) => {
 };
 
 const ids = {
-  "Economy/Finance": ["6889e1fa3fd4a4187605f151"],
-  Crypto: [
-    "6889e2043fd4a4187605f156",
-    "6889e2043fd4a4187605f15d",
-    "6889e2043fd4a4187605f161",
-    "6889e2043fd4a4187605f165",
-    "6889e2043fd4a4187605f168",
-  ],
-  Career: [
-    "6889e21a3fd4a4187605f172",
-    "6889e21a3fd4a4187605f179",
-    "6889e21a3fd4a4187605f17c",
-    "6889e21a3fd4a4187605f17f",
-  ],
-  "Latest Tech News": ["6889e22c3fd4a4187605f186"],
-  Fintech: [
-    "6889e2403fd4a4187605f18b",
-    "6889e2403fd4a4187605f18f",
-    "6889e2403fd4a4187605f193",
-    "6889e2403fd4a4187605f198",
-    "6889e2403fd4a4187605f19b",
-  ],
-  AI: [
-    "6889e2513fd4a4187605f1a4",
-    "6889e2513fd4a4187605f1a9",
-    "6889e2513fd4a4187605f1ac",
-    "6889e2513fd4a4187605f1b0",
-    "6889e2513fd4a4187605f1b4",
-  ],
-  Health: ["6889e2633fd4a4187605f1be"],
-  Food: [
-    "6889e27e3fd4a4187605f1c4",
-    "6889e27e3fd4a4187605f1c6",
-    "6889e27e3fd4a4187605f1c8",
-    "6889e27e3fd4a4187605f1ca",
-    "6889e27e3fd4a4187605f1cc",
-  ],
-  Travel: [
-    "6889e2953fd4a4187605f1d4",
-    "6889e2953fd4a4187605f1d9",
-    "6889e2953fd4a4187605f1dd",
-    "6889e2953fd4a4187605f1e1",
-    "6889e2953fd4a4187605f1e5",
-  ],
-  Parenting: [
-    "6889e2ab3fd4a4187605f1ef",
-    "6889e2ab3fd4a4187605f1f1",
-    "6889e2ab3fd4a4187605f1f3",
-    "6889e2ab3fd4a4187605f1f5",
-    "6889e2ab3fd4a4187605f1f7",
-  ],
-  Fashion: [
-    "6889e2bc3fd4a4187605f1ff",
-    "6889e2bc3fd4a4187605f202",
-    "6889e2bc3fd4a4187605f206",
-  ],
-  "Celebrity News": [
-    "6889e2d03fd4a4187605f20d",
-    "6889e2d03fd4a4187605f211",
-    "6889e2d03fd4a4187605f215",
-    "6889e2d03fd4a4187605f218",
-    "6889e2d03fd4a4187605f21c",
-  ],
-  Profiles: [
-    "6889e2f73fd4a4187605f226",
-    "6889e2f73fd4a4187605f229",
-    "6889e2f73fd4a4187605f22c",
-    "6889e2f73fd4a4187605f22f",
-    "6889e2f73fd4a4187605f232",
-  ],
-  Music: [
-    "6889e3093fd4a4187605f23b",
-    "6889e3093fd4a4187605f240",
-    "6889e3093fd4a4187605f243",
-    "6889e3093fd4a4187605f248",
-  ],
-  Movies: [
-    "6889e31e3fd4a4187605f250",
-    "6889e31e3fd4a4187605f254",
-    "6889e31e3fd4a4187605f259",
-    "6889e31e3fd4a4187605f25d",
-    "6889e31e3fd4a4187605f261",
-  ],
-  Sports: [
-    "6889e3343fd4a4187605f26a",
-    "6889e3343fd4a4187605f26e",
-    "6889e3343fd4a4187605f271",
-    "6889e3343fd4a4187605f274",
-    "6889e3343fd4a4187605f277",
-  ],
+  "Latest Tech News": ["689a0d20d76ce50653b04332", "689a0d20d76ce50653b04334"],
+  Health: ["689a0d35d76ce50653b0433b", "689a0d35d76ce50653b0433d"],
+  Food: ["689a0d4ad76ce50653b04342"],
+  Travel: ["689a0d61d76ce50653b04347", "689a0d61d76ce50653b04349"],
+  Parenting: ["689a0d6bd76ce50653b0434e"],
+  Fashion: ["689a0d86d76ce50653b04352"],
+  "Celebrity News": ["689a0da3d76ce50653b04357"],
+  Profiles: ["689a0db4d76ce50653b0435c"],
+  Music: ["689a0dc3d76ce50653b04361", "689a0dc3d76ce50653b04364"],
+  Movies: ["689a0dd8d76ce50653b0436a", "689a0dd8d76ce50653b0436c"],
+  Sports: ["689a0df0d76ce50653b04372", "689a0df0d76ce50653b04375"],
 };
 
 const getWriterName = (category: string) => {
@@ -182,6 +107,9 @@ export const POST = async (request: NextRequest) => {
     const slugger = new SlugGenerator();
 
     for (const [category, articles] of Object.entries(ids)) {
+      if (WRITER_DISTRIBUTION[category]?.length === 0) {
+        continue;
+      }
       const existingBatches = await BatchModel.find({
         _id: {
           $in: articles.map((id) => newId(id)),
@@ -193,7 +121,7 @@ export const POST = async (request: NextRequest) => {
       const posts: Partial<IPost>[] = [];
 
       for (const existingBatch of existingBatches) {
-        const batchedPosts = await PostModel.find({
+        const batchedPosts = await ArticleModel.find({
           _id: { $in: existingBatch.articles.map((a) => a.id) },
         })
           .select("content image_url")
@@ -274,7 +202,22 @@ ${content}
 
         const userData = await getUserId(getWriterName(category));
 
+        const newPostData = {
+          content: result.article,
+          keywords: result.keywords,
+          category: [category],
+          image_url: getImageUrlFromArticles(batchedPosts),
+          source_type: "auto" as const,
+        };
+
+        // 2. Call the heavy, one-time scoring function
+        const { initial_score, prominence_score } =
+          await calculateInitialScore(newPostData);
+
         posts.push({
+          initial_score,
+          prominence_score,
+          source_type: "auto",
           title: existingBatch.name,
           slug: slugger.generate(existingBatch.name),
           author_id: userData.id,
@@ -299,6 +242,8 @@ ${content}
       }
       await PostModel.create(posts, { ordered: false });
     }
+
+    revalidateTag("frontpage");
 
     return NextResponse.json({ success: true });
   } catch (error) {
