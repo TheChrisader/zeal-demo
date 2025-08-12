@@ -238,7 +238,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
         <img
           src={src}
           alt={alt}
-          className="max-h-full max-w-4xl rounded-lg object-contain"
+          className="max-h-full w-full max-w-4xl rounded-lg object-contain"
           onClick={(e: React.MouseEvent) => e.stopPropagation()}
         />
       </div>
@@ -284,6 +284,7 @@ const parseHTMLToReact = (
     for (const [key, value] of Object.entries(element.attributes)) {
       if (key === "class") {
         props.className = value.trim();
+      } else if (key === "style") {
       } else {
         props[key] = value;
       }
