@@ -113,10 +113,10 @@ const ReadMoreWrapper = ({
   }
 
   return (
-    <div className="relative h-[600px] overflow-hidden">
-      <div className="absolute size-full bg-gradient-to-b from-transparent to-white"></div>
+    <div className="relative h-[850px] overflow-hidden">
+      <div className="absolute z-10 size-full bg-gradient-to-b from-transparent to-white"></div>
       <Button
-        className="absolute bottom-0 left-1/2 -translate-x-1/2"
+        className="absolute bottom-0 left-1/2 z-10 -translate-x-1/2"
         onClick={handleOpen}
       >
         Continue Reading

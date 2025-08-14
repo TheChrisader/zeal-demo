@@ -29,17 +29,7 @@ const getImageUrlFromArticles = (articles: IArticle[]) => {
 };
 
 const ids = {
-  "Latest Tech News": ["689a0d20d76ce50653b04332", "689a0d20d76ce50653b04334"],
-  Health: ["689a0d35d76ce50653b0433b", "689a0d35d76ce50653b0433d"],
-  Food: ["689a0d4ad76ce50653b04342"],
-  Travel: ["689a0d61d76ce50653b04347", "689a0d61d76ce50653b04349"],
-  Parenting: ["689a0d6bd76ce50653b0434e"],
-  Fashion: ["689a0d86d76ce50653b04352"],
-  "Celebrity News": ["689a0da3d76ce50653b04357"],
-  Profiles: ["689a0db4d76ce50653b0435c"],
-  Music: ["689a0dc3d76ce50653b04361", "689a0dc3d76ce50653b04364"],
-  Movies: ["689a0dd8d76ce50653b0436a", "689a0dd8d76ce50653b0436c"],
-  Sports: ["689a0df0d76ce50653b04372", "689a0df0d76ce50653b04375"],
+  Sports: ["689cbad2d76ce50653b04861", "689cbad2d76ce50653b04865"],
 };
 
 const getWriterName = (category: string) => {

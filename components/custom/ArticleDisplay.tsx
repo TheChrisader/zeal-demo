@@ -374,6 +374,8 @@ const parseHTMLToReact = (
             {children}
           </span>
         );
+      case "hr":
+        return <hr key={index} {...props} />;
       default:
         // For unknown tags, render them as-is using React.createElement
         return React.createElement(tagName, { key: index, ...props }, children);

@@ -114,91 +114,35 @@ export const categoryMap: { title: string; groups: string[] }[] = [
 
 export const POST = async () => {
   const batchResults: { [key: string]: Id[] } = {};
-  const categories: { title: string; groups: string[] }[] = [
-    { title: "Zeal Headline News", groups: ["Headlines", "Politics"] },
-    {
-      title: "Zeal Global",
-      groups: ["Top US News", "UK Top News", "EU News", "Asian News"],
-    },
-    {
-      title: "Zeal Entertainment",
-      groups: [
-        "Celebrity News",
-        "Top Movies",
-        "Trending Music",
-        "Hot Interviews",
-      ],
-    },
-    {
-      title: "Business 360",
-      groups: [
-        "Economy",
-        "Personal Finance",
-        "Market Watch",
-        "Startup News",
-        "Entrepreneurship",
-        "E-commerce",
-      ],
-    },
-    {
-      title: "Zeal Lifestyle",
-      groups: [
-        "Health News",
-        "Food & Nutrition",
-        "Travel & Tourism",
-        "Style & Beauty",
-        "Family & Parenting",
-      ],
-    },
-    {
-      title: "Zeal Tech",
-      groups: [
-        "Latest Tech News",
-        "Artificial Intelligence",
-        "Crypto",
-        "Fintech",
-        "Cartech",
-        "Gadgets Buying Guide",
-      ],
-    },
-    {
-      title: "Zeal Sports",
-      groups: ["Top Sports News", "UK Premiereship", "Basketball", "Gaming"],
-    },
-  ];
 
   try {
-    // const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
     const ai = new GoogleGenAI({
       apiKey: process.env.GEMINI_API_KEY as string,
     });
 
-    // const model = genAI.getGenerativeModel({
-    //   model: "gemini-2.5-flash-preview-04-17",
-    //   generationConfig: {
-    //     responseMimeType: "application/json",
-    //     responseSchema: schema,
-    //   },
-    // });
-
     for (const category of categoryMap) {
       const { title, groups } = category;
 
-      // const existingBatches = await BatchModel.find({
-      //   category: title,
-      //   created_at: {
-      //     $gte: new Date(new Date().setHours(new Date().getHours() - 1)),
-      //   },
-      // })
-      //   .select("_id name")
-      //   .exec();
-
-      // const existingBatchesList = existingBatches.map((batch) => batch.name);
+      let query = {};
+      if (category.title === "Local") {
+        query = {
+          country: {
+            $in: ["Nigeria"],
+          },
+        };
+      } else {
+        query = {
+          category: {
+            $in: groups,
+          },
+        };
+      }
 
       const posts = await ArticleModel.find({
-        category: {
-          $in: groups,
-        },
+        ...query,
+        // category: {
+        //   $in: groups,
+        // },
         published_at: {
           $gte: new Date(new Date().setHours(new Date().getHours() - 8)),
           $lt: new Date(),
