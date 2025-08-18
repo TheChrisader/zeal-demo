@@ -271,7 +271,6 @@ export default async function PostPage({
       <div className="rounded-[20px] p-1 text-sm [&_a]:text-blue-500 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:font-bold [&_figure>img]:mb-2 [&_figure>img]:mt-4 [&_figure>img]:rounded-md [&_figure>p]:text-black [&_figure]:mb-7 [&_figure]:flex [&_figure]:w-full [&_figure]:flex-col [&_figure]:items-center [&_img]:mx-auto [&_img]:block [&_img]:rounded-md [&_img]:object-cover [&_img]:object-center [&_li]:list-disc [&_p]:mb-4 [&_p]:max-w-[100vw] [&_p]:text-base [&_p]:font-normal [&_p]:leading-7 [&_p]:text-foreground-alt-p">
         <HTMLParserRenderer
           htmlString={`<img
-          className="w-full rounded-md object-cover"
           src="${post.image_url}"
           alt="${post.title}"
         />

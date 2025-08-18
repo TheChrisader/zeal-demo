@@ -1,16 +1,7 @@
 "use client";
 import { X } from "lucide-react";
-import React, { ChangeEvent, ReactNode, useCallback, useState } from "react";
+import React, { ReactNode, useCallback, useState } from "react";
 import { getParsedDocument, HTMLNode } from "@/lib/html-parser";
-
-interface UploadedImage {
-  url: string;
-  name: string;
-}
-
-interface UploadedImages {
-  [key: string]: UploadedImage;
-}
 
 interface ModalState {
   src: string;
@@ -19,8 +10,8 @@ interface ModalState {
 }
 
 interface CustomComponentProps {
+  key: React.Key;
   children?: ReactNode;
-  key?: React.Key;
   [key: string]: unknown;
 }
 
@@ -62,9 +53,10 @@ const CustomParagraph: React.FC<CustomComponentProps> = ({
 const CustomHeading: React.FC<CustomHeadingProps> = ({
   level,
   children,
+
   ...props
 }) => {
-  const baseClasses = "font-bold  mb-3";
+  const baseClasses = "font-bold mb-3";
   const levelClasses: Record<number, string> = {
     1: "text-3xl",
     2: "text-2xl",
@@ -82,7 +74,11 @@ const CustomHeading: React.FC<CustomHeadingProps> = ({
   );
 };
 
-const CustomDiv: React.FC<CustomComponentProps> = ({ children, ...props }) => (
+const CustomDiv: React.FC<CustomComponentProps> = ({
+  children,
+
+  ...props
+}) => (
   <div className="mb-2 rounded-r border-l-2 p-2" {...props}>
     {children}
   </div>
@@ -91,6 +87,7 @@ const CustomDiv: React.FC<CustomComponentProps> = ({ children, ...props }) => (
 const CustomImage: React.FC<CustomImageProps> = ({
   src = "",
   alt = "Image",
+
   onImageClick,
   ...props
 }) => (
@@ -161,6 +158,7 @@ const CustomImage: React.FC<CustomImageProps> = ({
 const CustomList: React.FC<CustomListProps> = ({
   ordered,
   children,
+
   ...props
 }) => {
   const Tag = ordered ? "ol" : "ul";
@@ -177,6 +175,7 @@ const CustomList: React.FC<CustomListProps> = ({
 
 const CustomListItem: React.FC<CustomComponentProps> = ({
   children,
+
   ...props
 }) => (
   <li className="ml-4" {...props}>
@@ -187,6 +186,7 @@ const CustomListItem: React.FC<CustomComponentProps> = ({
 const CustomLink: React.FC<CustomLinkProps> = ({
   href,
   children,
+
   ...props
 }) => (
   <a
@@ -202,6 +202,7 @@ const CustomLink: React.FC<CustomLinkProps> = ({
 
 const CustomStrong: React.FC<CustomComponentProps> = ({
   children,
+
   ...props
 }) => (
   <strong className="font-bold" {...props}>
@@ -209,7 +210,11 @@ const CustomStrong: React.FC<CustomComponentProps> = ({
   </strong>
 );
 
-const CustomEm: React.FC<CustomComponentProps> = ({ children, ...props }) => (
+const CustomEm: React.FC<CustomComponentProps> = ({
+  children,
+
+  ...props
+}) => (
   <em className="italic" {...props}>
     {children}
   </em>
@@ -256,7 +261,7 @@ const parseHTMLToReact = (
 
   const convertNodeToReact = (node: HTMLNode, index: number = 0): ReactNode => {
     if (node.type === "TEXT_NODE") {
-      const text = node.content;
+      const text = node.content.replaceAll("&nbsp;", "");
       return text ? text : null;
     }
 
@@ -280,7 +285,7 @@ const parseHTMLToReact = (
     //   //   }, {})
     // };
 
-    const props: Record<string, unknown> = { key: index };
+    const props: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(element.attributes)) {
       if (key === "class") {
         props.className = value.trim();
@@ -292,49 +297,58 @@ const parseHTMLToReact = (
 
     switch (tagName) {
       case "p":
-        return <CustomParagraph {...props}>{children}</CustomParagraph>;
+        return (
+          <CustomParagraph {...props} key={index}>
+            {children}
+          </CustomParagraph>
+        );
       case "h1":
         return (
-          <CustomHeading level={1} {...props}>
+          <CustomHeading key={index} level={1} {...props}>
             {children}
           </CustomHeading>
         );
       case "h2":
         return (
-          <CustomHeading level={2} {...props}>
+          <CustomHeading key={index} level={2} {...props}>
             {children}
           </CustomHeading>
         );
       case "h3":
         return (
-          <CustomHeading level={3} {...props}>
+          <CustomHeading key={index} level={3} {...props}>
             {children}
           </CustomHeading>
         );
       case "h4":
         return (
-          <CustomHeading level={4} {...props}>
+          <CustomHeading key={index} level={4} {...props}>
             {children}
           </CustomHeading>
         );
       case "h5":
         return (
-          <CustomHeading level={5} {...props}>
+          <CustomHeading key={index} level={5} {...props}>
             {children}
           </CustomHeading>
         );
       case "h6":
         return (
-          <CustomHeading level={6} {...props}>
+          <CustomHeading key={index} level={6} {...props}>
             {children}
           </CustomHeading>
         );
       case "div":
-        return <CustomDiv {...props}>{children}</CustomDiv>;
+        return (
+          <CustomDiv key={index} {...props}>
+            {children}
+          </CustomDiv>
+        );
       case "img":
         return (
           <CustomImage
             {...props}
+            key={index}
             src={props.src as string}
             alt={props.alt as string}
             onImageClick={onImageClick}
@@ -342,30 +356,42 @@ const parseHTMLToReact = (
         );
       case "ul":
         return (
-          <CustomList ordered={false} {...props}>
+          <CustomList key={index} ordered={false} {...props}>
             {children}
           </CustomList>
         );
       case "ol":
         return (
-          <CustomList ordered={true} {...props}>
+          <CustomList key={index} ordered={true} {...props}>
             {children}
           </CustomList>
         );
       case "li":
-        return <CustomListItem {...props}>{children}</CustomListItem>;
+        return (
+          <CustomListItem key={index} {...props}>
+            {children}
+          </CustomListItem>
+        );
       case "a":
         return (
-          <CustomLink {...props} href={props.href as string}>
+          <CustomLink key={index} {...props} href={props.href as string}>
             {children}
           </CustomLink>
         );
       case "strong":
       case "b":
-        return <CustomStrong {...props}>{children}</CustomStrong>;
+        return (
+          <CustomStrong key={index} {...props}>
+            {children}
+          </CustomStrong>
+        );
       case "em":
       case "i":
-        return <CustomEm {...props}>{children}</CustomEm>;
+        return (
+          <CustomEm key={index} {...props}>
+            {children}
+          </CustomEm>
+        );
       case "br":
         return <br key={index} />;
       case "span":
@@ -397,62 +423,11 @@ interface HTMLParserRendererProps {
 const HTMLParserRenderer: React.FC<HTMLParserRendererProps> = ({
   htmlString,
 }) => {
-  const [uploadedImages, setUploadedImages] = useState<UploadedImages>({});
-
-  const getDefaultHTML = (): string => `
-    <h1>Welcome to Custom HTML Renderer</h1>
-    <p>This is a <strong>paragraph</strong> with some <em>emphasized text</em> and a <a href="https://example.com">link</a>.</p>
-    <div>This is a custom div with special styling!</div>
-    <h2>Features</h2>
-    <ul>
-      <li>Custom styled paragraphs</li>
-      <li>Beautiful headings</li>
-      <li>Clickable images with modal view</li>
-      <li>Styled lists and links</li>
-    </ul>
-    <h3>Sample Images</h3>
-    <p>Upload images below and they'll appear here when you click "Insert Image":</p>
-    ${uploadedImages.image1 ? `<img src="${uploadedImages.image1.url}" alt="${uploadedImages.image1.name}" />` : "<p><em>Upload Image 1 to see it here</em></p>"}
-    ${uploadedImages.image2 ? `<img src="${uploadedImages.image2.url}" alt="${uploadedImages.image2.name}" />` : "<p><em>Upload Image 2 to see it here</em></p>"}
-    <ol>
-      <li>First ordered item</li>
-      <li>Second ordered item with <strong>bold text</strong></li>
-      <li>Third item</li>
-    </ol>
-    <p>Try pasting your own HTML in the textarea above!</p>
-  `;
-
-  const [htmlInput, setHtmlInput] = useState<string>(htmlString);
   const [modalImage, setModalImage] = useState<ModalState>({
     src: "",
     alt: "",
     isOpen: false,
   });
-
-  // Initialize HTML input with default content
-  //   React.useEffect(() => {
-  //     if (!htmlInput) {
-  //       setHtmlInput(getDefaultHTML().trim());
-  //     }
-  //   }, [uploadedImages, htmlInput]);
-
-  const handleImageUpload = (imageKey: string, file: File | null): void => {
-    if (file && file.type.startsWith("image/")) {
-      const url = URL.createObjectURL(file);
-      setUploadedImages((prev) => ({
-        ...prev,
-        [imageKey]: { url, name: file.name },
-      }));
-    }
-  };
-
-  const insertImageIntoHTML = (imageKey: string): void => {
-    const image = uploadedImages[imageKey];
-    if (image) {
-      const imageTag = `<img src="${image.url}" alt="${image.name}" />`;
-      setHtmlInput((prev) => prev + "\n" + imageTag);
-    }
-  };
 
   const handleImageClick = useCallback((src: string, alt: string): void => {
     setModalImage({ src, alt, isOpen: true });
@@ -462,18 +437,7 @@ const HTMLParserRenderer: React.FC<HTMLParserRendererProps> = ({
     setModalImage({ src: "", alt: "", isOpen: false });
   }, []);
 
-  const handleHtmlInputChange = (e: ChangeEvent<HTMLTextAreaElement>): void => {
-    setHtmlInput(e.target.value);
-  };
-
-  const handleFileInputChange =
-    (imageKey: string) =>
-    (e: ChangeEvent<HTMLInputElement>): void => {
-      const file = e.target.files?.[0] || null;
-      handleImageUpload(imageKey, file);
-    };
-
-  const renderedContent = parseHTMLToReact(htmlInput, handleImageClick);
+  const renderedContent = parseHTMLToReact(htmlString, handleImageClick);
 
   return (
     <>
@@ -485,108 +449,6 @@ const HTMLParserRenderer: React.FC<HTMLParserRendererProps> = ({
         onClose={closeModal}
       />
     </>
-  );
-
-  return (
-    <div className="mx-auto max-w-4xl bg-white p-6">
-      <div className="mb-6">
-        <h1 className="mb-4 text-2xl font-bold text-gray-900">
-          HTML Parser & Custom Renderer
-        </h1>
-
-        {/* Image Upload Section */}
-        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
-          <h3 className="mb-3 text-lg font-semibold text-blue-900">
-            Upload Images for Testing
-          </h3>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Upload Image 1:
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileInputChange("image1")}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
-              />
-              {uploadedImages.image1 && (
-                <div className="mt-2">
-                  <button
-                    onClick={() => insertImageIntoHTML("image1")}
-                    className="rounded bg-blue-600 px-3 py-1 text-sm text-white transition-colors hover:bg-blue-700"
-                  >
-                    Insert Image 1 into HTML
-                  </button>
-                  <p className="mt-1 text-xs text-gray-600">
-                    Uploaded: {uploadedImages.image1.name}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Upload Image 2:
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileInputChange("image2")}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
-              />
-              {uploadedImages.image2 && (
-                <div className="mt-2">
-                  <button
-                    onClick={() => insertImageIntoHTML("image2")}
-                    className="rounded bg-blue-600 px-3 py-1 text-sm text-white transition-colors hover:bg-blue-700"
-                  >
-                    Insert Image 2 into HTML
-                  </button>
-                  <p className="mt-1 text-xs text-gray-600">
-                    Uploaded: {uploadedImages.image2.name}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <label
-              htmlFor="html-input"
-              className="mb-2 block text-sm font-medium text-gray-700"
-            >
-              HTML Input:
-            </label>
-            <textarea
-              id="html-input"
-              value={htmlInput}
-              onChange={handleHtmlInputChange}
-              className="resize-vertical h-32 w-full rounded-lg border border-gray-300 p-3 font-mono text-sm focus:border-transparent focus:ring-2 focus:ring-blue-500"
-              placeholder="Paste your HTML here..."
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="border-t-2 border-gray-200 pt-6">
-        <h2 className="mb-4 text-xl font-semibold text-gray-800">
-          Rendered Output:
-        </h2>
-        <div className="min-h-32 rounded-lg border bg-gray-50 p-6">
-          {renderedContent}
-        </div>
-      </div>
-
-      <ImageModal
-        src={modalImage.src}
-        alt={modalImage.alt}
-        isOpen={modalImage.isOpen}
-        onClose={closeModal}
-      />
-    </div>
   );
 };
 

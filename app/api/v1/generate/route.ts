@@ -28,8 +28,219 @@ const getImageUrlFromArticles = (articles: IArticle[]) => {
   return undefined;
 };
 
-const ids = {
-  Sports: ["689cbad2d76ce50653b04861", "689cbad2d76ce50653b04865"],
+const batches: Record<string, { name: string; articles: string[] }[]> = {
+  Local: [
+    {
+      name: "Local Election Turmoil: Allegations, Scandals & Shifting Power in By-Elections",
+      articles: [
+        "68a1aa2441769c09b54ce32a",
+        "68a2d35a41769c09b550aeef",
+        "689fd3a741769c09b54638b0",
+        "68a1d93e41769c09b54d7ec6",
+      ],
+    },
+    {
+      name: "Airlift Outrage: Ibom Air Saga Exposes Brutal Tarmac Assault, Emmanson Speaks Out",
+      articles: ["68a2049341769c09b54e14bd", "68a2d7c741769c09b550bc2d"],
+    },
+  ],
+  "Across Africa": [
+    {
+      name: "Ruto's Government Under Fire: US Human Rights Report Sparks Sanction Fears",
+      articles: ["689f23dd41769c09b54319f0", "689dd1c941769c09b53dbd3a"],
+    },
+    {
+      name: "Rugby Heartbreak: Springboks' Championship Hopes Fade After Shocking Defeat",
+      articles: [
+        "68a26b5d41769c09b54f4d27",
+        "68a1ce0741769c09b54d5a20",
+        "68a2e1fb41769c09b550e7c6",
+        "68a1cc2f41769c09b54d5514",
+        "68a0f99c41769c09b54aae99",
+        "68a1144a41769c09b54b010a",
+        "68a0f6b141769c09b54aa5a3",
+      ],
+    },
+  ],
+  Global: [
+    {
+      name: "Border Tensions Ignite: Thailand and Cambodia Locked in Diplomatic, Military Standoff",
+      articles: [
+        "68a2c6a641769c09b5507e55",
+        "689640153365c37914113e98",
+        "689adf4741769c09b53167ee",
+        "689788ec3365c37914189b12",
+        "68979cb63365c37914191bf3",
+        "6899875241769c09b52bcf0b",
+        "68a2c1a841769c09b5506bb2",
+        "6897f0f241769c09b524931a",
+        "689c2c7341769c09b536fc2e",
+      ],
+    },
+    {
+      name: "Global Alarm: Europe Shaken by Impending US-Russia 'Alaska' Summit",
+      articles: ["689a4a0141769c09b52f4f70", "689ad86c41769c09b5315008"],
+    },
+  ],
+  Startup: [
+    {
+      name: "Elon Musk's Fiery Retribution: Short Sellers Warned After Tesla Exec's Massive Stock Dump",
+      articles: ["68a1766341769c09b54c2667"],
+    },
+    {
+      name: "Confession of a CEO: Firing 25 Staff Was My Darkest Hour, Igniting Online Debate",
+      articles: ["68a2717f41769c09b54f657d"],
+    },
+  ],
+  "Economy/Finance": [
+    {
+      name: "Ghana Launches Ruthless Crackdown: New Leadership Vows War on Illegal Mining",
+      articles: [
+        "6899e0a041769c09b52d7126",
+        "689f278a41769c09b5432aa9",
+        "689664803365c379141214a3",
+      ],
+    },
+  ],
+  Crypto: [
+    {
+      name: "Legal Storm: Roman Storm Guilty in Landmark Tornado Cash Trial",
+      articles: ["6898106541769c09b5253b0c", "6897a46f3365c3791419423d"],
+    },
+    {
+      name: "Crypto Merger Shocker: KindlyMD & Nakamoto Unite, Eyeing One Million Bitcoin Stash",
+      articles: ["689e856b41769c09b540c1df"],
+    },
+  ],
+  "Latest Tech News": [
+    {
+      name: "Unleashed: Lamborghini's Jaw-Dropping Fenomeno Shatters Records as Most Powerful V-12 Ever!",
+      articles: ["689fd6cc41769c09b5464693", "689fd7cd41769c09b5464a7f"],
+    },
+    {
+      name: "Shockwave! Ford's Groundbreaking $30,000 Electric Pickup, 'Built in America,' Roars to Life!",
+      articles: ["689a559c41769c09b52f7738", "68984c0441769c09b5262af6"],
+    },
+  ],
+  Health: [
+    {
+      name: "Doctors Unload on Kourtney Kardashian's 'Ozempic' Pills: Dangerous Fad or Cellulite Cure?",
+      articles: ["689642eb3365c37914114ed5", "689643be3365c37914115371"],
+    },
+    {
+      name: "Alarming News: Popular Painkiller Linked to Heart Failure Risk, Experts Urge Immediate Action!",
+      articles: ["6897f5b541769c09b524ab34"],
+    },
+  ],
+  Food: [
+    {
+      name: "Nostalgic Bites: School Dinner Lady's Secret Recipes Stir Up Sweet Memories",
+      articles: ["6898b48041769c09b527eb79", "6898032641769c09b524f488"],
+    },
+  ],
+  Travel: [
+    {
+      name: "Dare to Conquer Africa's Summit: Unveiling Kilimanjaro's Epic Ascents",
+      articles: ["686b020c3365c3791429cf33", "686b0cc53365c379142a1997"],
+    },
+  ],
+  Parenting: [
+    {
+      name: "Radford Family Nightmare: Sue & Noel's Adoption Drama Leads to Hospital Scare",
+      articles: ["68a06b5b41769c09b5488d0d"],
+    },
+    {
+      name: "Shock Parenting Method: Parents Defend Forcing Son to Do Squats for Being Naughty",
+      articles: ["68a22baa41769c09b54e8a77"],
+    },
+  ],
+  Fashion: [
+    {
+      name: "TikTok Shop Horror: £8 Spanx Dupe Causes Second-Degree Burns!",
+      articles: ["689dc4b941769c09b53d7f30"],
+    },
+    {
+      name: "Claire's Crashes: Shoppers Rush for Penny Earrings as Company Files for Administration!",
+      articles: ["689ce2a741769c09b53a03c6"],
+    },
+  ],
+  "Celebrity News": [
+    {
+      name: "Swift-Kelce Mania: Super Bowl Clues and Organic Love Confessions!",
+      articles: ["68a114d141769c09b54b02a0", "689bbbeb41769c09b5353a5b"],
+    },
+    {
+      name: "Oasis Reunion Chaos: Ticket Fights, Gig Plans, and Onstage Scuffles!",
+      articles: [
+        "686b0bad3365c379142a1207",
+        "689a49cd41769c09b52f4eae",
+        "689d292d41769c09b53b1818",
+        "686b09c83365c379142a043d",
+      ],
+    },
+  ],
+  Profiles: [
+    {
+      name: "Alexander Brothers Face Mounting Accusations, Legal Team Contests Claims",
+      articles: [
+        "6896478f3365c37914116a22",
+        "68965aae3365c3791411d83d",
+        "686b07823365c3791429f359",
+      ],
+    },
+    {
+      name: "Beckham Family Rift Deepens: Brooklyn's 'Vow' Leaves Parents 'Devastated'",
+      articles: ["689b2bd941769c09b532bc30", "68a2748d41769c09b54f72f6"],
+    },
+  ],
+  Music: [
+    {
+      name: "My Chemical Romance Tour Tickets Spark Fan Fury, Unveil Family Ties",
+      articles: [],
+    },
+    {
+      name: "Taylor Swift Dazzles Fans with 'Life of a Showgirl' Album Cover & Playlist",
+      articles: [],
+    },
+  ],
+  Movies: [
+    {
+      name: "The Race for 007: Who Will Be the Next James Bond?",
+      articles: [
+        "6896457b3365c37914115d1f",
+        "6896488a3365c379141171fc",
+        "689e032d41769c09b53e985a",
+        "689643813365c37914115212",
+      ],
+    },
+    {
+      name: "Remembering a Legend: Terence Stamp, Star of ‘Superman’ and ‘Priscilla,’ Dies at 87",
+      articles: ["68a2761f41769c09b54f7735"],
+    },
+  ],
+  Sports: [
+    {
+      name: "Unstoppable Queens: Super Falcons Crowned WAFCON Champions, Ignite National Pride!",
+      articles: [
+        "689694643365c37914132e86",
+        "68969a503365c37914134e55",
+        "68969a373365c37914134de5",
+        "689695153365c37914133214",
+        "689695403365c379141332ec",
+        "689693e43365c37914132c6e",
+        "689695353365c379141332bb",
+      ],
+    },
+    {
+      name: "Rising Star Strikes: Moses Itauma Delivers Shocking KO to Dillian Whyte!",
+      articles: [
+        "68a11a6041769c09b54b14bc",
+        "68a1117841769c09b54af9de",
+        "68a1bb8841769c09b54d17e2",
+        "68a1129141769c09b54afc8f",
+      ],
+    },
+  ],
 };
 
 const getWriterName = (category: string) => {
@@ -96,23 +307,16 @@ export const POST = async (request: NextRequest) => {
 
     const slugger = new SlugGenerator();
 
-    for (const [category, articles] of Object.entries(ids)) {
+    for (const [category, batchArray] of Object.entries(batches)) {
       if (WRITER_DISTRIBUTION[category]?.length === 0) {
         continue;
       }
-      const existingBatches = await BatchModel.find({
-        _id: {
-          $in: articles.map((id) => newId(id)),
-        },
-      })
-        .select("_id name articles.id")
-        .exec();
 
       const posts: Partial<IPost>[] = [];
 
-      for (const existingBatch of existingBatches) {
+      for (const currentBatch of batchArray) {
         const batchedPosts = await ArticleModel.find({
-          _id: { $in: existingBatch.articles.map((a) => a.id) },
+          _id: { $in: currentBatch.articles.map((a) => newId(a)) },
         })
           .select("content image_url")
           .exec();
@@ -208,8 +412,8 @@ ${content}
           initial_score,
           prominence_score,
           source_type: "auto",
-          title: existingBatch.name,
-          slug: slugger.generate(existingBatch.name),
+          title: currentBatch.name,
+          slug: slugger.generate(currentBatch.name),
           author_id: userData.id,
           content: result.article,
           description: result.preview,

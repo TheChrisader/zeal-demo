@@ -1,49 +1,11 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { NextResponse } from "next/server";
-import BatchModel from "@/database/batch/batch.model";
-import PostModel from "@/database/post/post.model";
-import { Id } from "@/lib/database";
-import { IBatch, IBatchArticle } from "@/types/batch.type";
-import {
-  MongoBatchReExecutionError,
-  MongoBulkWriteError,
-  MongoServerError,
-} from "mongodb";
-import { MongooseError } from "mongoose";
 import ArticleModel from "@/database/article/article.model";
 
-function mergeArraysWithUniqueSourceUrls(
-  sourceArray: IBatchArticle[],
-  targetArray: IBatchArticle[] = [],
-) {
-  const existingUrls = new Set(targetArray.map((item) => item.source_url));
-  const uniqueItems = [];
-  const sourceUrlsAdded = new Set();
-
-  for (const item of sourceArray) {
-    if (
-      item.source_url &&
-      !existingUrls.has(item.source_url) &&
-      !sourceUrlsAdded.has(item.source_url)
-    ) {
-      uniqueItems.push(item);
-      sourceUrlsAdded.add(item.source_url);
-    }
-  }
-
-  targetArray.push(...uniqueItems);
-  return targetArray;
+interface IBatch {
+  name: string;
+  articles: string[];
 }
-
-const categoryTypeMap: Record<string, string> = {
-  "Zeal Headline News": "Headlines around Africa (priority), and the world",
-  "Zeal Global": "Top Global News",
-  "Zeal Entertainment": "Celebrity News, Music, Movies and TV",
-  "Business 360": "Economy, Finance and Business",
-  "Zeal Lifestyle": "Health, Fitness, Family, Style and Travel",
-  "Zeal Tech": "Latest Tech News",
-  "Zeal Sports": "Latest Sports News",
-};
 
 export const categoryMap: { title: string; groups: string[] }[] = [
   { title: "Local", groups: ["Headlines", "Zeal Headline News"] },
@@ -113,7 +75,7 @@ export const categoryMap: { title: string; groups: string[] }[] = [
 ];
 
 export const POST = async () => {
-  const batchResults: { [key: string]: Id[] } = {};
+  const batchResults: { [key: string]: IBatch[] } = {};
 
   try {
     const ai = new GoogleGenAI({
@@ -140,16 +102,13 @@ export const POST = async () => {
 
       const posts = await ArticleModel.find({
         ...query,
-        // category: {
-        //   $in: groups,
-        // },
         published_at: {
           $gte: new Date(new Date().setHours(new Date().getHours() - 8)),
           $lt: new Date(),
         },
       })
         .select("_id title source slug link")
-        .limit(50)
+        .limit(100)
         .exec();
 
       const postsList = posts.map((post) => post.title).join(" \n");
@@ -245,92 +204,37 @@ ${postsList}
         return NextResponse.json("Internal Server Error", { status: 500 });
       }
 
-      const batches = [];
+      const batches: IBatch[] = [];
 
       for (const generatedBatch of generated_batches) {
         const { batch, articles } = generatedBatch;
-        const batchedArticles: IBatchArticle[] = [];
+        const batchedArticles: string[] = [];
+
+        if (articles.length <= 0) {
+          continue;
+        }
 
         for (const article of articles) {
           const post = posts.find((post) => post.title === article);
 
           if (post) {
-            batchedArticles.push({
-              id: post._id,
-              title: post.title,
-              slug: post.slug,
-              source_url: post.link as string,
-              source_name: post.source.name as string,
-              source_icon: post.source.icon as string,
-            });
+            batchedArticles.push(post._id.toString());
           }
         }
 
-        // if (existingBatchesList.includes(batch)) {
-        //   console.log("Batch caught");
-        //   const existingBatch = await BatchModel.findOne({
-        //     name: batch,
-        //   }).exec();
-
-        //   if (!existingBatch) {
-        //     continue;
-        //   }
-
-        //   existingBatch.articles = mergeArraysWithUniqueSourceUrls(
-        //     batchedArticles,
-        //     existingBatch.articles,
-        //   );
-        //   // [
-        //   //   ...new Set([...existingBatch.articles, ...batchedArticles]),
-        //   // ];
-
-        //   await existingBatch.save();
-
-        //   // await BatchModel.findOneAndUpdate(
-        //   //   { name: batch },
-        //   //   { $push: { articles: { $each: batchedArticles } } },
-        //   //   { new: true },
-        //   // );
-        //   continue;
-        // }
-
         const newBatch = {
           name: batch,
-          articles: mergeArraysWithUniqueSourceUrls(batchedArticles),
+          articles: batchedArticles,
         };
 
         batches.push(newBatch);
       }
 
-      let createdBatches: IBatch[] = [];
-      try {
-        createdBatches = await BatchModel.create(
-          batches.filter((batch) => batch.articles.length > 0),
-          {
-            ordered: false,
-          },
-        );
-      } catch (error) {
-        if (error instanceof MongoBulkWriteError) {
-          console.log(error.insertedIds);
-          // error.insertedIds.forEach((id) => {
-          //   const batch = batches.find((batch) => batch._id === id);
-          //   if (batch) {
-          //     createdBatches.push(batch);
-          //   }
-          // })
-        }
-        // console.log(error);
-        console.log("????????????????????????????????????????");
-      }
-
-      if (createdBatches.length === 0) {
+      if (batches.length === 0) {
         continue;
       }
-      // const createdBatches = await Promise.all(
-      //   batches.map((batch) => BatchModel.create(batch)),
-      // )
-      batchResults[title] = createdBatches.map((batch) => batch._id!);
+
+      batchResults[title] = batches;
     }
 
     return NextResponse.json(batchResults);
