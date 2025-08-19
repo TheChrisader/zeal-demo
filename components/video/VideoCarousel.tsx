@@ -11,30 +11,17 @@ interface VideoData {
   title: string;
 }
 
-const VideoCarousel: React.FC = () => {
-  const [videos, setVideos] = useState<VideoData[]>([
-    {
-      id: "86NvvxLvjsk",
-      url: "https://www.youtube.com/watch?v=86NvvxLvjsk",
-      title: "Africa’s Hidden DNA: 9 Powerful Human Adaptations",
-    },
-    {
-      id: "tS6yLcKXTic",
-      url: "https://www.youtube.com/watch?v=tS6yLcKXTic",
-      title:
-        "Dufuna Canoe & Igbo-Ukwu Bronzes: The African Secrets Hidden for 8,000 Years",
-    },
-    {
-      id: "WoXQYxCv6ww",
-      url: "https://www.youtube.com/watch?v=WoXQYxCv6ww",
-      title: "$30B Startup With Nothing to Sell? | SSI Explained",
-    },
-  ]);
+interface VideoCarouselProps {
+  videos: VideoData[];
+}
+
+const VideoCarousel: React.FC<VideoCarouselProps> = ({ videos }) => {
+  // const [videos, setVideos] = useState<VideoData[]>(initialVideos);
 
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [inputValues, setInputValues] = useState(["", "", ""]);
+  // const [inputValues, setInputValues] = useState(["", "", ""]);
   const [showIframe, setShowIframe] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -56,29 +43,29 @@ const VideoCarousel: React.FC = () => {
   };
 
   // Update video URL
-  const updateVideoUrl = (index: number, url: string) => {
-    const videoId = extractVideoId(url);
-    if (videoId) {
-      const newVideos = [...videos];
-      newVideos[index] = {
-        id: videoId,
-        url: url,
-        title: `Video ${index + 1}`,
-      };
-      setVideos(newVideos);
-    }
-  };
+  // const updateVideoUrl = (index: number, url: string) => {
+  //   const videoId = extractVideoId(url);
+  //   if (videoId) {
+  //     const newVideos = [...videos];
+  //     newVideos[index] = {
+  //       // id: videoId,
+  //       url: url,
+  //       title: `Video ${index + 1}`,
+  //     };
+  //     setVideos(newVideos);
+  //   }
+  // };
 
   // Handle input changes
-  const handleInputChange = (index: number, value: string) => {
-    const newInputValues = [...inputValues];
-    newInputValues[index] = value;
-    setInputValues(newInputValues);
+  // const handleInputChange = (index: number, value: string) => {
+  //   const newInputValues = [...inputValues];
+  //   newInputValues[index] = value;
+  //   setInputValues(newInputValues);
 
-    if (value.trim()) {
-      updateVideoUrl(index, value);
-    }
-  };
+  //   if (value.trim()) {
+  //     updateVideoUrl(index, value);
+  //   }
+  // };
 
   // Start auto-cycling
   const startInterval = () => {

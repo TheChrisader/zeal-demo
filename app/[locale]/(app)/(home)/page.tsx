@@ -1,3 +1,4 @@
+import { XMLParser } from "fast-xml-parser";
 import { unstable_cache } from "next/cache";
 import { cache, Suspense } from "react";
 import {
@@ -168,6 +169,40 @@ const HeadlinesBlock = async ({ category }: { category: TopLevelCategory }) => {
   );
 };
 
+async function getLatestVideos(
+  channelUrl: string,
+): Promise<{ id: string; title: string; url: string }[]> {
+  // Step 1: Get channelId
+  const res = await fetch(channelUrl, { cache: "force-cache" });
+  const html = await res.text();
+  const match = html.match(/channel_id=([^"]+)/);
+  const channelId = match ? match[1] : null;
+  if (!channelId) throw new Error("Channel ID not found");
+
+  // Step 2: Fetch RSS feed
+  const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+  const feedRes = await fetch(feedUrl, {
+    next: {
+      revalidate: 60 * 60 * 1,
+    },
+  });
+  const xml = await feedRes.text();
+
+  // Step 3: Parse XML
+  const parser = new XMLParser();
+  const parsed = parser.parse(xml);
+  // console.log(parsed, parsed.feed, parsed.feed.entry);
+
+  // Step 4: Map results
+  return parsed.feed.entry
+    .slice(0, 3)
+    .map((entry: { title: string; "yt:videoId": string }) => ({
+      id: entry["yt:videoId"],
+      title: entry.title,
+      url: `https://www.youtube.com/watch?v=${entry["yt:videoId"]}`,
+    }));
+}
+
 export default async function Home() {
   //   {
   //   searchParams,
@@ -180,6 +215,10 @@ export default async function Home() {
   //   };
   // }
   await connectToDatabase();
+  const videos = await getLatestVideos(
+    "https://www.youtube.com/@ZealNewsAfrica",
+  );
+  console.log(videos);
 
   // const query = searchParams?.query || "";
   // const topics = searchParams?.topics || "";
@@ -224,7 +263,7 @@ export default async function Home() {
 
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-7">
-      <VideoCarousel />
+      <VideoCarousel videos={videos} />
       <HeadlinesBlock category="News" />
       {/* <TodayInHistory /> */}
       {(await shuffleArray(ZEAL_CATEGORIES))?.map((category) => {

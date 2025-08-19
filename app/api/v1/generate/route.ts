@@ -1,19 +1,18 @@
 import { GoogleGenAI, Type } from "@google/genai";
+import { revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
-import PostModel from "@/database/post/post.model";
-import BatchModel from "@/database/batch/batch.model";
 import { stripHtml } from "string-strip-html";
+import { WRITER_DISTRIBUTION } from "@/constants/writers";
+import ArticleModel from "@/database/article/article.model";
+import PostModel from "@/database/post/post.model";
+import UserModel from "@/database/user/user.model";
+import { newId } from "@/lib/database";
+import { calculateInitialScore } from "@/lib/scoring";
 import { SlugGenerator } from "@/lib/slug";
 import { generateRandomString } from "@/lib/utils";
-import { calculateReadingTime } from "@/utils/post.utils";
-import { IPost } from "@/types/post.type";
-import { newId } from "@/lib/database";
-import { WRITER_DISTRIBUTION } from "@/constants/writers";
-import UserModel from "@/database/user/user.model";
-import ArticleModel from "@/database/article/article.model";
-import { calculateInitialScore } from "@/lib/scoring";
 import { IArticle } from "@/types/article.type";
-import { revalidateTag } from "next/cache";
+import { IPost } from "@/types/post.type";
+import { calculateReadingTime } from "@/utils/post.utils";
 
 const ensureDelay = async (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
