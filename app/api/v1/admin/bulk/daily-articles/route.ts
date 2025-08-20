@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
     const today = new Date();
     const startOfDay = new Date(today.setHours(0, 0, 0, 0));
     const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+    console.log(today, startOfDay, endOfDay);
 
     // Build query for posts created today with source_type "auto"
     const query = {
