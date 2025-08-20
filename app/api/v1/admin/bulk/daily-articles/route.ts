@@ -24,9 +24,8 @@ export async function GET(req: NextRequest) {
 
     // Get start and end of current day
     const today = new Date();
-    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
-    console.log(today, startOfDay, endOfDay);
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0) - 60 * 60 * 1000);
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999) - 60 * 60 * 1000);
 
     // Build query for posts created today with source_type "auto"
     const query = {
