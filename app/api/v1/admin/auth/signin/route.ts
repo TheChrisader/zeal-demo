@@ -20,7 +20,6 @@ export async function POST(req: NextRequest) {
     const moderator = await findModeratorByEmail(email);
 
     if (!moderator) {
-      console.log("problem");
       return NextResponse.json(
         { message: "Invalid username or password" },
         { status: 400 },
@@ -39,9 +38,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { password_hash: _, ...moderatorData } = moderator;
+    const { _id, password_hash: _, ...moderatorData } = moderator;
 
     const token = await createToken({
+      id: _id,
       email,
       permissions: moderator.permissions,
     });

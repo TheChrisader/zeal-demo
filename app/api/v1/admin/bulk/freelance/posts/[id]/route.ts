@@ -6,6 +6,8 @@ import {
 } from "@/database/draft/draft.repository";
 import { createPostFromDraft } from "@/database/post/post.repository";
 import { connectToDatabase } from "@/lib/database";
+import UserModel from "@/database/user/user.model";
+import { IDraft } from "@/types/draft.type";
 
 export const GET = async (
   req: NextRequest,
@@ -19,6 +21,9 @@ export const GET = async (
     if (!draft) {
       return NextResponse.json({ message: "Draft not found" }, { status: 404 });
     }
+
+    const user = await UserModel.findById(draft?.user_id);
+    (draft as IDraft & { user_name?: string }).user_name = user?.display_name;
 
     return NextResponse.json(draft);
   } catch (error) {

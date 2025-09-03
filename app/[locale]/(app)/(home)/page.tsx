@@ -16,6 +16,9 @@ import ArticleCard from "./_components/ArticleCard";
 import ArticlesContainer from "./_components/ArticlesContainer";
 import Headlines from "./_components/Headlines";
 import ScrollContainer from "./_components/ScrollContainer";
+import FrontpagePromotion from "@/components/promotion/frontpage";
+import ArticlePromotion from "@/components/promotion/article";
+import RecommendedPromotion from "@/components/promotion/recommendation";
 
 const ZEAL_CATEGORIES = TOP_LEVEL_CATEGORIES;
 
@@ -218,7 +221,6 @@ export default async function Home() {
   const videos = await getLatestVideos(
     "https://www.youtube.com/@ZealNewsAfrica",
   );
-  console.log(videos);
 
   // const query = searchParams?.query || "";
   // const topics = searchParams?.topics || "";
@@ -265,6 +267,9 @@ export default async function Home() {
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-7">
       <VideoCarousel videos={videos} />
       <HeadlinesBlock category="News" />
+      <FrontpagePromotion />
+      <ArticlePromotion />
+      <RecommendedPromotion />
       {/* <TodayInHistory /> */}
       {(await shuffleArray(ZEAL_CATEGORIES))?.map((category) => {
         return (

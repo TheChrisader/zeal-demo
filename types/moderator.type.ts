@@ -2,6 +2,7 @@ import { Document } from "mongoose";
 import { Id } from "@/lib/database";
 
 export interface IModerator extends Document {
+  _id: Id;
   name: string;
   email: string;
   password_hash: string;

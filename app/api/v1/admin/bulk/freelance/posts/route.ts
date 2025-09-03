@@ -7,6 +7,7 @@ import {
 } from "@/database/draft/draft.repository";
 import { createPostFromDraft } from "@/database/post/post.repository";
 import { connectToDatabase } from "@/lib/database";
+import DraftModel from "@/database/draft/draft.model";
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -25,9 +26,25 @@ export const GET = async (req: NextRequest) => {
       author: searchParams.get("author") || undefined,
     };
 
+    const total = await DraftModel.countDocuments({
+      moderationStatus: "awaiting_approval",
+    });
+
     const drafts = await getDraftsByFilters(params);
 
-    return NextResponse.json(drafts);
+    const totalPages = Math.ceil(total / params.limit);
+    const hasMore = params.page < totalPages;
+
+    return NextResponse.json({
+      posts: drafts,
+      pagination: {
+        page: params.page,
+        limit: params.limit,
+        total,
+        totalPages,
+        hasMore,
+      },
+    });
   } catch (error) {
     console.log(error);
     return NextResponse.json(

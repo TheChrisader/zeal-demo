@@ -27,7 +27,7 @@ interface QueryObject {
     // { description: { $regex: string; $options: "i" } },
   ];
   category?: { $in: string };
-  generatedBy?: string;
+  source_type?: string;
   language?: string;
   country?: { $in: string };
   published_at?: { $gte?: Date; $lte?: Date };
@@ -54,8 +54,7 @@ export async function GET(req: NextRequest) {
       search: searchParams.get("search") || undefined,
       category: searchParams.get("category") || undefined,
       generatedBy:
-        (searchParams.get("generatedBy") as "user" | "auto" | "zeal") ||
-        undefined,
+        (searchParams.get("generatedBy") as "user" | "auto") || undefined,
       language: searchParams.get("language") || undefined,
       country: searchParams.get("country") || undefined,
       fromDate: searchParams.get("fromDate") || undefined,
@@ -83,7 +82,7 @@ export async function GET(req: NextRequest) {
     }
 
     if (params.generatedBy) {
-      query.generatedBy = params.generatedBy;
+      query.source_type = params.generatedBy;
     }
 
     // Language filter

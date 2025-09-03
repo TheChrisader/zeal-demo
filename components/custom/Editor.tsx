@@ -80,6 +80,8 @@ export const RichTextEditor = React.forwardRef<
     ...props,
   });
 
+  console.count("editor");
+
   if (!editor) {
     return null;
   }

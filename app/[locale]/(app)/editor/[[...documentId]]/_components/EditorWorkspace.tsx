@@ -120,16 +120,9 @@ const EditorWorkspace = ({ activeDocumentId }: EditorWorkspaceProps) => {
           )}
         </AnimatePresence>
         {/* Main Content Area */}
-        <motion.main
-          className="flex min-w-0 flex-1 flex-col overflow-hidden"
-          // animate={{
-          //   marginLeft: !isMobile && isLeftSidebarOpen ? 256 : 0, // md:w-64
-          //   marginRight: !isMobile && isRightSidebarOpen ? 256 : 0, // lg:w-64, xl:w-72 (adjust if widths differ)
-          // }}
-          // transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        >
+        <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <MainContentArea />
-        </motion.main>
+        </main>
         {/* Mobile Backdrop for Right Sidebar */}
         {isMobile && (
           <AnimatePresence>

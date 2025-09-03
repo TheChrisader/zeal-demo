@@ -4,6 +4,9 @@ import { connectToDatabase } from "@/lib/database";
 import RecommendedContainer from "./RecommendedContainer";
 import Trending from "../../(home)/_components/Trending";
 import PostModel from "@/database/post/post.model";
+import RecommendedPromotion from "@/components/promotion/recommendation";
+import FrontpagePromotion from "@/components/promotion/frontpage";
+import ArticlePromotion from "@/components/promotion/article";
 
 const RecommendedArticles = async ({
   // headline,
@@ -51,7 +54,10 @@ const RecommendedArticles = async ({
         {side ? (
           <RecommendedContainer partial articles={Articles} />
         ) : (
-          <Trending articles={Articles} />
+          <>
+            <ArticlePromotion />
+            <Trending articles={Articles} />
+          </>
         )}
       </>
     );
