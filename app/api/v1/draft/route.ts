@@ -33,7 +33,7 @@ export const GET = async (req: NextRequest) => {
     const searchParams = req.nextUrl.searchParams;
     const page = Number(searchParams.get("page")) || 1;
 
-    const drafts = await getDraftsByUserId(user.id, { skip: (page - 1) * 10 });
+    const drafts = await getDraftsByUserId(user.id, { skip: (page - 1) * 5 });
 
     return NextResponse.json(drafts);
   } catch (error) {

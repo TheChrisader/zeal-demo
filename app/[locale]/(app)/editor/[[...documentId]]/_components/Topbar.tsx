@@ -8,41 +8,41 @@ import {
   PanelLeftOpen,
   PanelRightClose,
   PanelRightOpen,
+  Pen,
+  Pencil,
 } from "lucide-react";
 import React, { useState } from "react";
 
 import { toast } from "sonner";
 import { stripHtml } from "string-strip-html";
 import { useRouter } from "@/app/_components/useRouter";
-import { Button } from "@/components/ui/button"; // Assuming you have a Button component
+import { Button } from "@/components/ui/button";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { useEditorStore } from "@/context/editorStore/useEditorStore";
+import { useSidebarStore } from "@/context/sidebarStore/useSidebarStore";
 import { useAuth } from "@/hooks/useAuth";
-import { createPost, fetchPostById } from "@/services/post.services";
+import { pushDraftForApproval } from "@/services/draft.services";
+import { createPost } from "@/services/post.services";
+import { IDraft } from "@/types/draft.type";
 import { IPost } from "@/types/post.type";
-import { getWordCount } from "@/utils/editor.utils";
 import EditableDocumentTitle from "./EditableDocumentTitle";
 import { fetchById } from "../_utils/composites";
-import { useEditorStore } from "@/context/editorStore/useEditorStore";
-import { pushDraftForApproval } from "@/services/draft.services";
-import { IDraft } from "@/types/draft.type";
 
-interface TopbarProps {
-  toggleLeftSidebar: () => void;
-  toggleRightSidebar: () => void;
-  isLeftSidebarOpen: boolean;
-  isRightSidebarOpen: boolean;
-}
+interface TopbarProps {}
 
-const Topbar: React.FC<TopbarProps> = ({
-  toggleLeftSidebar,
-  toggleRightSidebar,
-  isLeftSidebarOpen,
-  isRightSidebarOpen,
-}) => {
+const Topbar: React.FC<TopbarProps> = ({}) => {
   const { user } = useAuth();
   const isMutating = useIsMutating();
   const [isPublishing, setIsPublishing] = useState(false);
-  const currentContent = useEditorStore((state) => state.currentContent);
+  const isLeftSidebarOpen = useSidebarStore((state) => state.isLeftSidebarOpen);
+  const isRightSidebarOpen = useSidebarStore(
+    (state) => state.isRightSidebarOpen,
+  );
+  const toggleLeftSidebar = useSidebarStore((state) => state.toggleLeftSidebar);
+  const toggleRightSidebar = useSidebarStore(
+    (state) => state.toggleRightSidebar,
+  );
+  const wordCount = useEditorStore((state) => state.wordCount);
   const isContentUpdating = useEditorStore((state) => state.isContentUpdating);
   const activeDocumentId = useEditorStore((state) => state.activeDocumentId);
   const {
@@ -56,8 +56,6 @@ const Topbar: React.FC<TopbarProps> = ({
     enabled: !!activeDocumentId,
   });
   const router = useRouter();
-
-  const wordCount = getWordCount(stripHtml(currentContent).result);
 
   const validateBeforePublish = async (doc: IPost) => {
     if (!doc.title.trim()) {
@@ -86,7 +84,6 @@ const Topbar: React.FC<TopbarProps> = ({
     setIsPublishing(true);
     try {
       if (user?.role === "freelance_writer") {
-        console.log(doc);
         const post = await pushDraftForApproval(doc._id?.toString() as string);
         toast.success(`Your post has been pushed for approval successfully.`);
         router.push(`/awaiting_approval/${post._id}`);
@@ -130,8 +127,8 @@ const Topbar: React.FC<TopbarProps> = ({
       </div>
 
       {/* Right side: Actions (e.g., Word Count, Share, Publish) */}
-      <div className="flex items-center space-x-4">
-        <span className="flex gap-2 whitespace-nowrap text-sm text-muted-foreground">
+      <div className="flex items-center space-x-1 md:space-x-4">
+        <span className="hidden gap-2 whitespace-nowrap text-sm text-muted-foreground md:flex">
           {`${wordCount} words`}
           <LoadingSpinner size={16} isLoading={isContentUpdating} />
         </span>
@@ -146,7 +143,10 @@ const Topbar: React.FC<TopbarProps> = ({
           onClick={() => validateBeforePublish(documentData as IPost)}
           className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isPublishing ? "Publishing..." : "Publish"}
+          <span className="hidden md:inline">
+            {isPublishing ? "Publishing..." : "Publish"}
+          </span>
+          <Pencil size={16} className="md:hidden" />
         </button>
         <Button
           variant="ghost"

@@ -25,7 +25,7 @@ export interface MinimalTiptapProps
 }
 
 const Toolbar = ({ editor }: { editor: Editor }) => (
-  <div className="shrink-0 overflow-x-auto border-b border-border p-2">
+  <div className="flex w-full shrink-0 items-center justify-around overflow-x-auto border-b border-border p-2">
     <div className="flex w-max items-center gap-px">
       <SectionOne editor={editor} activeLevels={[1, 2, 3]} variant="outline" />
 
@@ -79,8 +79,6 @@ export const RichTextEditor = React.forwardRef<
     onUpdate: onChange,
     ...props,
   });
-
-  console.count("editor");
 
   if (!editor) {
     return null;

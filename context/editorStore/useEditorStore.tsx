@@ -1,10 +1,10 @@
 import { useContext } from "react";
 
-import EditorStoreContext from ".";
 import { useStore } from "zustand";
 import { EditorState } from "@/stores/editorStore";
+import EditorStoreContext from ".";
 
-const getEditorStore = () => {
+const useGetEditorStore = () => {
   const context = useContext(EditorStoreContext);
   if (context === null) {
     throw new Error("useEditorStore is null");
@@ -17,4 +17,4 @@ const getEditorStore = () => {
 
 export const useEditorStore: <T>(selector: (state: EditorState) => T) => T = (
   selector,
-) => useStore(getEditorStore(), selector);
+) => useStore(useGetEditorStore(), selector);

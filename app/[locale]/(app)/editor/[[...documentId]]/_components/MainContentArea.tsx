@@ -154,8 +154,10 @@ const MainContentArea: React.FC<MainContentAreaProps> = ({}) => {
 
   const handleEditorChange = (newContentString: Content) => {
     const newContent = newContentString as string;
-    setCurrentContent(newContent); // Update store immediately
-
+    // setCurrentContent(newContent); // Update store immediately
+    setTimeout(() => {
+      setCurrentContent(newContentString as string);
+    }, 0);
     if (!hasUserMadeChanges) {
       console.log(
         `Setting hasUserMadeChanges to true for doc: ${activeDocumentId}`,

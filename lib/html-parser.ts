@@ -281,6 +281,18 @@ class VNode {
     return this.children.map((child) => child.toString()).join("");
   }
 
+  stripHtml(): string {
+    return this.children
+      .map((child) => {
+        if (child instanceof TextNode) {
+          return child.content;
+        } else {
+          return child.stripHtml();
+        }
+      })
+      .join("");
+  }
+
   toString(): string {
     const isSelfClosing = voidElements.has(this.tagName.toLowerCase());
 

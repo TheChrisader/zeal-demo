@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { serverAuthGuard } from "@/lib/auth/serverAuthGuard";
 import { connectToDatabase } from "@/lib/database";
 import { IDraft } from "@/types/draft.type";
-import { findPostOrDraftById } from "@/utils/findPostOrDraft";
 import { IPost } from "@/types/post.type";
+import { findPostOrDraftById } from "@/utils/findPostOrDraft";
 
 export const GET = async (
   req: NextRequest,

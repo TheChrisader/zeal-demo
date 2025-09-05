@@ -96,9 +96,9 @@ const EditableDocumentTitle = ({}: EditableDocumentTitleProps) => {
         onBlur={() => setIsFocused(false)}
         maxLength={100}
         placeholder="Untitled Document"
-        className={`w-full rounded-none border-0 border-b border-dotted bg-transparent text-lg font-semibold text-foreground outline-0 ring-0 focus:outline-none focus-visible:ring-0 ${isFocused ? "border-primary" : "w-96 truncate border-gray-400 max-[750px]:w-60"}`}
+        className={`w-full rounded-none border-0 border-b border-dotted bg-transparent text-lg font-semibold text-foreground outline-0 ring-0 focus:outline-none focus-visible:ring-0 ${isFocused ? "border-primary md:w-96" : "truncate border-gray-400"}`}
       />
-      <div className="ml-2 flex items-center gap-1">
+      <div className="ml-2 hidden items-center gap-1 md:flex">
         <PenLine
           className={`size-4 ${isFocused ? "text-primary" : "text-gray-400"}`}
         />

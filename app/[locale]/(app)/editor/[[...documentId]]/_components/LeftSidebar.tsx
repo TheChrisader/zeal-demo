@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, FileWarning, Hourglass, Link2, Trash2, X } from "lucide-react"; // Added X icon
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "@/app/_components/useRouter";
 import {
   AlertDialog,
@@ -31,17 +31,15 @@ import { deletePostById, fetchPostsByAuthorId } from "@/services/post.services";
 import { IDraft } from "@/types/draft.type";
 import { IPost } from "@/types/post.type";
 import { useAuth } from "@/hooks/useAuth";
+import { useResizeDelta } from "@/hooks/useResizeDelta";
+import { useSidebarStore } from "@/context/sidebarStore/useSidebarStore";
 
 interface Page<T> {
   items: T[];
   totalPages: number;
 }
 
-interface LeftSidebarProps {
-  toggleSidebar: () => void;
-  isOpen: boolean;
-  isMobile: boolean;
-}
+interface LeftSidebarProps {}
 
 interface ItemToDelete {
   id: string;
@@ -49,32 +47,56 @@ interface ItemToDelete {
   type: "draft" | "post";
 }
 
-const LeftSidebar: React.FC<LeftSidebarProps> = ({
-  toggleSidebar,
-  isOpen,
-  isMobile,
-}) => {
+const LeftSidebar: React.FC<LeftSidebarProps> = ({}) => {
   const { user } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [deletingItemIds, setDeletingItemIds] = useState<string[]>([]);
   const [itemToDelete, setItemToDelete] = useState<ItemToDelete | null>(null);
+  const isLeftSidebarOpen = useSidebarStore((state) => state.isLeftSidebarOpen);
+  const isMobile = useSidebarStore((state) => state.isMobile);
+  const setIsMobile = useSidebarStore((state) => state.setIsMobile);
+  const toggleLeftSidebar = useSidebarStore((state) => state.toggleLeftSidebar);
+  const { delta } = useResizeDelta();
 
   const activeDocumentId = useEditorStore((state) => state.activeDocumentId);
   const setActiveDocumentId = useEditorStore(
     (state) => state.setActiveDocumentId,
   );
 
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768); // md breakpoint
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, [setIsMobile]);
+
+  useEffect(() => {
+    const handleSidebar = () => {
+      if (window.innerWidth < 1000 && isLeftSidebarOpen && delta.width < 0)
+        toggleLeftSidebar();
+      if (window.innerWidth > 1000 && !isLeftSidebarOpen && delta.width > 0)
+        toggleLeftSidebar();
+    };
+
+    window.addEventListener("resize", handleSidebar);
+    return () => window.removeEventListener("resize", handleSidebar);
+  }, [delta, isLeftSidebarOpen, toggleLeftSidebar]);
+
   const {
     data: draftsData,
     isLoading: isLoadingDrafts,
     fetchNextPage: fetchMoreDrafts,
+    hasNextPage: hasMoreDrafts,
     isFetchingNextPage: isFetchingMoreDrafts,
   } = useInfiniteQuery({
     queryKey: ["documents", { type: "drafts" }],
     queryFn: ({ pageParam = 1 }) => getDraftsByUserId(pageParam),
     initialPageParam: 1,
-    getNextPageParam: (lastPage, allPages = []): number => {
+    getNextPageParam: (lastPage, allPages = []): number | undefined => {
+      if (lastPage.length < 5) {
+        return undefined;
+      }
       const nextPage = allPages?.length + 1;
       return nextPage;
     },
@@ -88,6 +110,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
     data: publishedData,
     isLoading: isLoadingPublished,
     fetchNextPage: fetchMorePosts,
+    hasNextPage: hasMorePosts,
     isFetchingNextPage: isFetchingMorePosts,
   } = useInfiniteQuery({
     queryKey: ["documents", { type: "published" }],
@@ -96,7 +119,10 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
       if (!user?.id) return Promise.resolve([]);
       return fetchPostsByAuthorId(user.id as string, pageParam);
     },
-    getNextPageParam: (lastPage, allPages = []): number => {
+    getNextPageParam: (lastPage, allPages = []): number | undefined => {
+      if (lastPage.length < 5) {
+        return undefined;
+      }
       const nextPage = allPages?.length + 1;
       return nextPage;
     },
@@ -196,226 +222,283 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
       </div>
     );
   return (
-    <div className="flex h-full flex-col space-y-6 border-r border-border bg-background-alt p-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-primary">Zeal News Africa</h1>
-        {isMobile && (
-          <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-            <X className="size-5" />
-          </Button>
-        )}
-      </div>
-
-      {/* New Document Button */}
-      <Link
-        href="/editor"
-        onClick={() => {
-          setActiveDocumentId(undefined);
-          if (isMobile) toggleSidebar();
-        }}
-        className="flex w-full items-center justify-center rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-      >
-        + New Document
-      </Link>
-
-      {/* My Drafts Section */}
-      <div>
-        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          My Drafts
-        </h2>
-        <nav className="scrollbar-change max-h-48 space-y-1 overflow-y-auto">
-          <AnimatePresence initial={false}>
-            {drafts.map((draft) => (
-              <motion.div
-                key={draft.id as string}
-                layout
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, x: -20, transition: { duration: 0.3 } }}
-                className="group flex items-center justify-between rounded-md hover:bg-subtle-hover-bg"
-              >
-                <Link
-                  href={`/editor/${draft.id}`}
-                  onClick={() => {
-                    setActiveDocumentId(draft.id as string);
-                    if (isMobile) toggleSidebar();
-                  }}
-                  className={`grow truncate rounded-l-md px-3 py-2 text-sm font-medium hover:text-foreground ${activeDocumentId === draft.id ? "font-semibold text-primary" : "text-foreground-alt"}`}
-                >
-                  {draft.title || "Untitled Draft"}
-                </Link>
-                {draft.moderationStatus === "awaiting_approval" && (
-                  <Link href={`/awaiting_approval/${draft.id}`}>
-                    <Hourglass className="size-4 text-muted-foreground hover:text-primary focus:outline-none" />
-                  </Link>
-                )}
-                {draft.moderationStatus === "rejected" && (
-                  <FileWarning className="size-4 text-destructive focus:outline-none" />
-                )}
-                {draft.moderationStatus === "published" && (
-                  <Check className="size-4 text-primary focus:outline-none" />
-                )}
-                <button
-                  onClick={() =>
-                    openDeleteConfirmation(
-                      draft.id as string,
-                      draft.title,
-                      "draft",
-                    )
-                  }
-                  disabled={
-                    deleteDraftMutation.isPending &&
-                    deletingItemIds.includes(draft._id?.toString() as string)
-                  }
-                  className="rounded-r-md p-2 text-muted-foreground hover:text-red-500 focus:outline-none"
-                  aria-label={`Delete draft ${draft.title || "Untitled Draft"}`}
-                >
-                  {deleteDraftMutation.isPending &&
-                  deletingItemIds.includes(draft._id?.toString() as string) ? (
-                    <LoadingSpinner size={16} isLoading />
-                  ) : (
-                    <Trash2 className="size-4" />
-                  )}
-                </button>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-          {drafts.length === 0 && !isLoadingDrafts && (
-            <p className="px-3 py-2 text-sm text-muted-foreground">
-              No drafts yet.
-            </p>
+    <>
+      {/* Mobile Backdrop */}
+      {isMobile && (
+        <AnimatePresence>
+          {isLeftSidebarOpen && (
+            <motion.div
+              className="fixed inset-0 z-30 bg-black/50 md:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              exit={{ opacity: 0, transitionEnd: { display: "none" } }}
+              onClick={toggleLeftSidebar}
+            />
           )}
-          {drafts.length >= 5 && (
-            <Button
-              variant="link"
-              onClick={() => fetchMoreDrafts()}
-              disabled={isFetchingMoreDrafts}
-            >
-              Load more
-            </Button>
-          )}
-        </nav>
-      </div>
-
-      {/* Published Posts Section */}
-      <div>
-        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Published Posts
-        </h2>
-        <nav className="scrollbar-change max-h-48 space-y-1 overflow-y-auto">
-          <AnimatePresence initial={false}>
-            {published.map((post) => (
-              <motion.div
-                key={post.id as string}
-                layout
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, x: -20, transition: { duration: 0.3 } }}
-                className="group flex items-center justify-between rounded-md hover:bg-subtle-hover-bg"
-              >
-                <Link
-                  href={`/editor/${post.id}`}
-                  className={`grow truncate rounded-l-md px-3 py-2 text-sm font-medium hover:text-foreground ${activeDocumentId === post.id ? "font-semibold text-primary" : "text-foreground-alt"}`}
-                >
-                  {post.title}
-                </Link>
-                <Link href={`/published/${post.id}`}>
-                  <Link2 className="size-4 text-muted-foreground hover:text-primary focus:outline-none" />
-                </Link>
-                <button
-                  onClick={() =>
-                    openDeleteConfirmation(
-                      post.id as string,
-                      post.title,
-                      "post",
-                    )
-                  }
-                  disabled={
-                    deletePostMutation.isPending &&
-                    deletingItemIds.includes(post._id?.toString() as string)
-                  }
-                  className="rounded-r-md p-2 text-muted-foreground hover:text-red-500 focus:outline-none"
-                  aria-label={`Delete post ${post.title}`}
-                >
-                  {deletePostMutation.isPending &&
-                  deletingItemIds.includes(post._id?.toString() as string) ? (
-                    <LoadingSpinner size={16} isLoading />
-                  ) : (
-                    <Trash2 className="size-4" />
-                  )}
-                </button>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-          {published.length === 0 && !isLoadingPublished && (
-            <p className="px-3 py-2 text-sm text-muted-foreground">
-              No published posts yet.
-            </p>
-          )}
-          {published.length >= 5 && (
-            <Button
-              variant="link"
-              onClick={() => fetchMoreDrafts()}
-              disabled={isFetchingMoreDrafts}
-            >
-              Load more
-            </Button>
-          )}
-        </nav>
-      </div>
-
-      {/* Spacer to push user profile to bottom */}
-      <div className="grow"></div>
-
-      {/* User Profile Section */}
-      <div className="mt-auto border-t border-border pt-4">
-        <div className="flex items-center space-x-3">
-          {/* <UserCircle className="h-8 w-8 text-muted-foreground" /> */}
-          <div>
-            <p className="text-sm font-medium text-foreground">
-              {/* {user.username || "User"} */}
-            </p>
-            {/* <p className="text-xs text-muted-foreground">Pro Member</p> */}
-          </div>
-        </div>
-        {/* Add settings or logout link if needed */}
-      </div>
-
-      {itemToDelete && (
-        <AlertDialog
-          open={!!itemToDelete}
-          onOpenChange={(open) => !open && setItemToDelete(null)}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the
-                {itemToDelete.type === "draft" ? " draft" : " post"} &quot;
-                <strong>
-                  {itemToDelete.title ||
-                    (itemToDelete.type === "draft"
-                      ? "Untitled Draft"
-                      : "Untitled Post")}
-                </strong>
-                &quot;.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setItemToDelete(null)}>
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={confirmDeletion}
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        </AnimatePresence>
       )}
-    </div>
+      <AnimatePresence>
+        {isLeftSidebarOpen && (
+          <motion.aside
+            initial={{ width: 0, opacity: 0, x: "-100%" }}
+            animate={{ width: isMobile ? "80%" : 256, opacity: 1, x: 0 }}
+            exit={{ width: 0, opacity: 0, x: "-100%" }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className={`shrink-0 border-r border-border bg-background-alt md:flex md:flex-col ${isMobile ? "fixed left-0 top-0 z-40 h-full shadow-xl" : "relative"}`}
+            style={{ overflow: "hidden" }}
+          >
+            <div className="flex h-full flex-col space-y-6 border-r border-border bg-background-alt p-4">
+              <div className="flex items-center justify-between">
+                <h1 className="text-xl font-bold text-primary">
+                  Zeal News Africa
+                </h1>
+                {isMobile && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleLeftSidebar}
+                  >
+                    <X className="size-5" />
+                  </Button>
+                )}
+              </div>
+
+              {/* New Document Button */}
+              <Link
+                href="/editor"
+                onClick={() => {
+                  setActiveDocumentId(undefined);
+                  if (isMobile) toggleLeftSidebar();
+                }}
+                className="flex w-full items-center justify-center rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                + New Document
+              </Link>
+
+              {/* My Drafts Section */}
+              <div>
+                <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  My Drafts
+                </h2>
+                <nav className="scrollbar-change max-h-48 space-y-1 overflow-y-auto">
+                  <AnimatePresence initial={false}>
+                    {drafts.map((draft) => (
+                      <motion.div
+                        key={draft.id as string}
+                        layout
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{
+                          opacity: 0,
+                          x: -20,
+                          transition: { duration: 0.3 },
+                        }}
+                        className="group flex items-center justify-between rounded-md hover:bg-subtle-hover-bg"
+                      >
+                        <Link
+                          href={`/editor/${draft.id}`}
+                          onClick={() => {
+                            setActiveDocumentId(draft.id as string);
+                            if (isMobile) toggleLeftSidebar();
+                          }}
+                          className={`grow truncate rounded-l-md px-3 py-2 text-sm font-medium hover:text-foreground ${activeDocumentId === draft.id ? "font-semibold text-primary" : "text-foreground-alt"}`}
+                        >
+                          {draft.title || "Untitled Draft"}
+                        </Link>
+                        {draft.moderationStatus === "awaiting_approval" && (
+                          <Link href={`/awaiting_approval/${draft.id}`}>
+                            <Hourglass className="size-4 text-muted-foreground hover:text-primary focus:outline-none" />
+                          </Link>
+                        )}
+                        {draft.moderationStatus === "rejected" && (
+                          <FileWarning className="size-4 text-destructive focus:outline-none" />
+                        )}
+                        {draft.moderationStatus === "published" && (
+                          <Check className="size-4 text-primary focus:outline-none" />
+                        )}
+                        <button
+                          onClick={() =>
+                            openDeleteConfirmation(
+                              draft.id as string,
+                              draft.title,
+                              "draft",
+                            )
+                          }
+                          disabled={
+                            deleteDraftMutation.isPending &&
+                            deletingItemIds.includes(
+                              draft._id?.toString() as string,
+                            )
+                          }
+                          className="rounded-r-md p-2 text-muted-foreground hover:text-red-500 focus:outline-none"
+                          aria-label={`Delete draft ${draft.title || "Untitled Draft"}`}
+                        >
+                          {deleteDraftMutation.isPending &&
+                          deletingItemIds.includes(
+                            draft._id?.toString() as string,
+                          ) ? (
+                            <LoadingSpinner size={16} isLoading />
+                          ) : (
+                            <Trash2 className="size-4" />
+                          )}
+                        </button>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                  {drafts.length === 0 && !isLoadingDrafts && (
+                    <p className="px-3 py-2 text-sm text-muted-foreground">
+                      No drafts yet.
+                    </p>
+                  )}
+                  {drafts.length >= 5 && hasMoreDrafts && (
+                    <Button
+                      variant="link"
+                      onClick={() => fetchMoreDrafts()}
+                      disabled={isFetchingMoreDrafts}
+                    >
+                      {isFetchingMoreDrafts ? "Loading..." : "Load more"}
+                    </Button>
+                  )}
+                </nav>
+              </div>
+
+              {/* Published Posts Section */}
+              <div>
+                <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Published Posts
+                </h2>
+                <nav className="scrollbar-change max-h-48 space-y-1 overflow-y-auto">
+                  <AnimatePresence initial={false}>
+                    {published.map((post) => (
+                      <motion.div
+                        key={post.id as string}
+                        layout
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{
+                          opacity: 0,
+                          x: -20,
+                          transition: { duration: 0.3 },
+                        }}
+                        className="group flex items-center justify-between rounded-md hover:bg-subtle-hover-bg"
+                      >
+                        <Link
+                          href={`/editor/${post.id}`}
+                          className={`grow truncate rounded-l-md px-3 py-2 text-sm font-medium hover:text-foreground ${activeDocumentId === post.id ? "font-semibold text-primary" : "text-foreground-alt"}`}
+                        >
+                          {post.title}
+                        </Link>
+                        <Link href={`/published/${post.id}`}>
+                          <Link2 className="size-4 text-muted-foreground hover:text-primary focus:outline-none" />
+                        </Link>
+                        <button
+                          onClick={() =>
+                            openDeleteConfirmation(
+                              post.id as string,
+                              post.title,
+                              "post",
+                            )
+                          }
+                          disabled={
+                            deletePostMutation.isPending &&
+                            deletingItemIds.includes(
+                              post._id?.toString() as string,
+                            )
+                          }
+                          className="rounded-r-md p-2 text-muted-foreground hover:text-red-500 focus:outline-none"
+                          aria-label={`Delete post ${post.title}`}
+                        >
+                          {deletePostMutation.isPending &&
+                          deletingItemIds.includes(
+                            post._id?.toString() as string,
+                          ) ? (
+                            <LoadingSpinner size={16} isLoading />
+                          ) : (
+                            <Trash2 className="size-4" />
+                          )}
+                        </button>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                  {published.length === 0 && !isLoadingPublished && (
+                    <p className="px-3 py-2 text-sm text-muted-foreground">
+                      No published posts yet.
+                    </p>
+                  )}
+                  {published.length >= 5 && hasMorePosts && (
+                    <Button
+                      variant="link"
+                      onClick={() => fetchMorePosts()}
+                      disabled={isFetchingMorePosts}
+                    >
+                      Load more
+                    </Button>
+                  )}
+                </nav>
+              </div>
+
+              {/* Spacer to push user profile to bottom */}
+              <div className="grow"></div>
+
+              {/* User Profile Section */}
+              <div className="mt-auto border-t border-border pt-4">
+                <div className="flex items-center space-x-3">
+                  {/* <UserCircle className="h-8 w-8 text-muted-foreground" /> */}
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      {/* {user.username || "User"} */}
+                    </p>
+                    {/* <p className="text-xs text-muted-foreground">Pro Member</p> */}
+                  </div>
+                </div>
+                {/* Add settings or logout link if needed */}
+              </div>
+
+              {itemToDelete && (
+                <AlertDialog
+                  open={!!itemToDelete}
+                  onOpenChange={(open) => !open && setItemToDelete(null)}
+                >
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Are you absolutely sure?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete the
+                        {itemToDelete.type === "draft"
+                          ? " draft"
+                          : " post"}{" "}
+                        &quot;
+                        <strong>
+                          {itemToDelete.title ||
+                            (itemToDelete.type === "draft"
+                              ? "Untitled Draft"
+                              : "Untitled Post")}
+                        </strong>
+                        &quot;.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel onClick={() => setItemToDelete(null)}>
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={confirmDeletion}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+            </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
