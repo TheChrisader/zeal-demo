@@ -1,7 +1,7 @@
 "use client";
 import { ReactNode, useRef } from "react";
-import EditorStoreContext from ".";
 import { createEditorStore } from "@/stores/editorStore";
+import EditorStoreContext from ".";
 
 interface EditorStoreProviderProps {
   children: ReactNode;

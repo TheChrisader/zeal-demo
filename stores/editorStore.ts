@@ -1,5 +1,4 @@
-import { createContext } from "react";
-import { create, createStore } from "zustand";
+import { createStore } from "zustand";
 import { getParsedDocument } from "@/lib/html-parser";
 import { getWordCount } from "@/utils/editor.utils";
 

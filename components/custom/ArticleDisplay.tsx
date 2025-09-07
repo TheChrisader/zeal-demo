@@ -1,7 +1,10 @@
 "use client";
 import { X } from "lucide-react";
-import React, { ReactNode, useCallback, useState } from "react";
+import React, { Fragment, ReactNode, useCallback, useState } from "react";
 import { getParsedDocument, HTMLNode } from "@/lib/html-parser";
+import ArticlePromotion from "../promotion/article";
+
+let PARAGRAPH_TRACKER = 0;
 
 interface ModalState {
   src: string;
@@ -10,7 +13,7 @@ interface ModalState {
 }
 
 interface CustomComponentProps {
-  key: React.Key;
+  // key?: React.Key;
   children?: ReactNode;
   [key: string]: unknown;
 }
@@ -45,7 +48,10 @@ const CustomParagraph: React.FC<CustomComponentProps> = ({
   children,
   ...props
 }) => (
-  <p className="mb-4 font-medium leading-relaxed" {...props}>
+  <p
+    className="mb-4 max-w-[100vw] text-base font-normal leading-7 text-foreground-alt-p"
+    {...props}
+  >
     {children}
   </p>
 );
@@ -91,13 +97,6 @@ const CustomImage: React.FC<CustomImageProps> = ({
   onImageClick,
   ...props
 }) => (
-  //   <img
-  //     src={src}
-  //     alt={alt}
-  //     className="mb-4 h-auto max-w-full cursor-pointer rounded-lg shadow-md transition-shadow hover:shadow-lg"
-  //     onClick={() => onImageClick(src, alt)}
-  //     {...props}
-  //   />
   <div
     onClick={() => onImageClick(src, alt)}
     className="group relative mb-4 max-h-[350px] max-w-full cursor-pointer overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:shadow-xl"
@@ -186,19 +185,20 @@ const CustomListItem: React.FC<CustomComponentProps> = ({
 const CustomLink: React.FC<CustomLinkProps> = ({
   href,
   children,
-
   ...props
-}) => (
-  <a
-    href={href}
-    className="text-blue-600 underline hover:text-blue-800"
-    target="_blank"
-    rel="noopener noreferrer"
-    {...props}
-  >
-    {children}
-  </a>
-);
+}) => {
+  return (
+    <a
+      href={href}
+      className="text-blue-600 underline hover:text-blue-800"
+      target="_blank"
+      rel="noopener noreferrer"
+      {...props}
+    >
+      {children}
+    </a>
+  );
+};
 
 const CustomStrong: React.FC<CustomComponentProps> = ({
   children,
@@ -255,8 +255,6 @@ const parseHTMLToReact = (
   htmlString: string,
   onImageClick: (src: string, alt: string) => void,
 ): ReactNode[] => {
-  //   const parser = new DOMParser();
-  //   const doc = parser.parseFromString(htmlString, 'text/html');
   const doc = getParsedDocument(htmlString);
 
   const convertNodeToReact = (node: HTMLNode, index: number = 0): ReactNode => {
@@ -275,32 +273,27 @@ const parseHTMLToReact = (
       .map((child, i) => convertNodeToReact(child, i))
       .filter((child): child is ReactNode => child !== null);
 
-    // const props: Record<string, unknown> = {
-    //   key: index,
-    //   ...element.attributes,
-    //   className: element.attributes["class"]?.trim(),
-    //   //   ...Array.from(element.attributes).reduce((acc: Record<string, string>, attr) => {
-    //   //     acc[attr.name] = attr.value;
-    //   //     return acc;
-    //   //   }, {})
-    // };
-
     const props: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(element.attributes)) {
-      if (key === "class") {
-        props.className = value.trim();
-      } else if (key === "style") {
-      } else {
-        props[key] = value;
+      if (key === "class" || key === "style") {
+        continue;
       }
+      props[key] = value;
     }
 
     switch (tagName) {
       case "p":
+        PARAGRAPH_TRACKER++;
         return (
-          <CustomParagraph {...props} key={index}>
-            {children}
-          </CustomParagraph>
+          <Fragment key={index}>
+            {PARAGRAPH_TRACKER % 15 === 0 &&
+              element.parent?.tagName === "root" && (
+                <div className="my-4">
+                  <ArticlePromotion category={"Diaspora Connect"} />
+                </div>
+              )}
+            <CustomParagraph {...props}>{children}</CustomParagraph>
+          </Fragment>
         );
       case "h1":
         return (
@@ -373,6 +366,7 @@ const parseHTMLToReact = (
           </CustomListItem>
         );
       case "a":
+        console.log(props);
         return (
           <CustomLink key={index} {...props} href={props.href as string}>
             {children}
@@ -438,6 +432,7 @@ const HTMLParserRenderer: React.FC<HTMLParserRendererProps> = ({
   }, []);
 
   const renderedContent = parseHTMLToReact(htmlString, handleImageClick);
+  PARAGRAPH_TRACKER = 0;
 
   return (
     <>

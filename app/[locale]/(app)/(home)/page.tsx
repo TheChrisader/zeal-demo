@@ -1,11 +1,14 @@
 import { XMLParser } from "fast-xml-parser";
 import { unstable_cache } from "next/cache";
-import { cache, Suspense } from "react";
+import { Suspense } from "react";
 import {
   getTopLevelCategoryList,
   TOP_LEVEL_CATEGORIES,
   TopLevelCategory,
 } from "@/categories";
+import ArticlePromotion from "@/components/promotion/article";
+import FrontpagePromotion from "@/components/promotion/frontpage";
+import RecommendedPromotion from "@/components/promotion/recommendation";
 import VideoCarousel from "@/components/video/VideoCarousel";
 import PostModel from "@/database/post/post.model";
 import { cacheManager } from "@/lib/cache";
@@ -16,9 +19,6 @@ import ArticleCard from "./_components/ArticleCard";
 import ArticlesContainer from "./_components/ArticlesContainer";
 import Headlines from "./_components/Headlines";
 import ScrollContainer from "./_components/ScrollContainer";
-import FrontpagePromotion from "@/components/promotion/frontpage";
-import ArticlePromotion from "@/components/promotion/article";
-import RecommendedPromotion from "@/components/promotion/recommendation";
 
 const ZEAL_CATEGORIES = TOP_LEVEL_CATEGORIES;
 
@@ -132,9 +132,6 @@ const HeadlinesBlock = async ({ category }: { category: TopLevelCategory }) => {
     },
   });
 
-  console.log(category);
-  HeadlinesPosts.forEach((p) => console.log(p.prominence_score, p.title));
-
   const featureDate = new Date(new Date().setHours(new Date().getHours() - 2));
 
   const featured = await cacheManager({
@@ -207,70 +204,16 @@ async function getLatestVideos(
 }
 
 export default async function Home() {
-  //   {
-  //   searchParams,
-  // }: {
-  //   searchParams?: {
-  //     query?: string;
-  //     page?: string;
-  //     topics?: string;
-  //     sources?: string;
-  //   };
-  // }
   await connectToDatabase();
   const videos = await getLatestVideos(
     "https://www.youtube.com/@ZealNewsAfrica",
   );
-
-  // const query = searchParams?.query || "";
-  // const topics = searchParams?.topics || "";
-  // const sources = searchParams?.sources || "";
-
-  // if (query || topics || sources) {
-  //   const articles = await getPostsByFilters({
-  //     query: query,
-  //     categories: topics.split(","),
-  //     limit: 20,
-  //     // country: country,
-  //   });
-
-  //   const bookmarkedArticles = await BookmarkModel.find({
-  //     user_id: user?.id,
-  //     article_id: { $in: articles.map((article) => article._id) },
-  //   });
-
-  //   const bookmarkedArticlesIds = new Set(
-  //     bookmarkedArticles
-  //       .map((bookmark) => bookmark.article_id)
-  //       .map((id) => id.toString()),
-  //   );
-
-  //   articles.forEach((article) => {
-  //     if (bookmarkedArticlesIds.has(article._id!.toString())) {
-  //       article.bookmarked = true;
-  //     }
-  //   });
-
-  //   const title = query ? `Search Results for "${query}"` : "Filtered Results";
-  //   return (
-  //     <main className="flex flex-col">
-  //       <div className="max-[900px]:flex-col">
-  //         <ArticlesContainer title={title}>
-  //           <Trending articles={articles} />
-  //         </ArticlesContainer>
-  //       </div>
-  //     </main>
-  //   );
-  // }
 
   return (
     <main className="flex min-h-[calc(100vh-62px)] flex-col gap-7">
       <VideoCarousel videos={videos} />
       <HeadlinesBlock category="News" />
       <FrontpagePromotion />
-      <ArticlePromotion />
-      <RecommendedPromotion />
-      {/* <TodayInHistory /> */}
       {(await shuffleArray(ZEAL_CATEGORIES))?.map((category) => {
         return (
           <Suspense key={category}>

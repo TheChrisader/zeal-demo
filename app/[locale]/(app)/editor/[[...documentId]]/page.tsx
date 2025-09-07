@@ -1,19 +1,16 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import EditorStoreProvider from "@/context/editorStore/editorStore.provider";
 import {
   createInitialDraft,
   getDraftsByUserId,
 } from "@/database/draft/draft.repository";
-import {
-  getPostById,
-  getPostsByAuthorId,
-} from "@/database/post/post.repository";
+import { getPostsByAuthorId } from "@/database/post/post.repository";
+import { redirect } from "@/i18n/routing";
 import { validateRequest } from "@/lib/auth/auth";
 import getQueryClient from "@/lib/queryClient";
-import EditorWorkspace from "./_components/EditorWorkspace";
 import { findPostOrDraftById } from "@/utils/findPostOrDraft";
+import EditorWorkspace from "./_components/EditorWorkspace";
 import NewDocumentRedirector from "./_components/NewDocumentRedirector";
-import EditorStoreProvider from "@/context/editorStore/editorStore.provider";
-import { redirect } from "@/i18n/routing";
 
 interface EditorPageProps {
   params: {
@@ -81,7 +78,7 @@ const EditorPage = async ({ params }: EditorPageProps) => {
         <NewDocumentRedirector newDocumentId={newDocumentId} />
       )}
       <EditorStoreProvider activeDocumentId={documentId}>
-        <EditorWorkspace activeDocumentId={documentId} />
+        <EditorWorkspace />
       </EditorStoreProvider>
     </HydrationBoundary>
   );

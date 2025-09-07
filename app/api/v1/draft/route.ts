@@ -5,21 +5,13 @@ import {
 } from "@/database/draft/draft.repository";
 import { serverAuthGuard } from "@/lib/auth/serverAuthGuard";
 import { connectToDatabase } from "@/lib/database";
+import { formDataToJson } from "@/utils/converter.utils";
 import { buildError, sendError } from "@/utils/error";
+import { INTERNAL_ERROR } from "@/utils/error/error-codes";
 import {
-  FILE_TOO_LARGE_ERROR,
-  INTERNAL_ERROR,
-  WRONG_FILE_FORMAT_ERROR,
-} from "@/utils/error/error-codes";
-import {
-  AUTHORIZED_IMAGE_MIME_TYPES,
-  AUTHORIZED_IMAGE_SIZE,
   ImageValidationError,
   validateAndUploadImage,
 } from "@/utils/file.utils";
-import { uploadImageToS3 } from "@/lib/bucket";
-import { IDraft } from "@/types/draft.type";
-import { formDataToJson } from "@/utils/converter.utils";
 
 export const GET = async (req: NextRequest) => {
   try {

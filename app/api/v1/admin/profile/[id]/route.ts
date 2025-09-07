@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { connectToDatabase } from "@/lib/database";
 import {
   findModeratorById,
   updateModerator,
 } from "@/database/moderator/moderator.repository";
+import { connectToDatabase } from "@/lib/database";
 import { hashPassword, verifyPassword } from "@/utils/password.utils";
 
 // Validation schema for PATCH request

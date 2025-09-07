@@ -1,12 +1,10 @@
 // import { FetchPostsResponse } from "@/hooks/post/useFetchPosts";
+import RecommendedPromotion from "@/components/promotion/recommendation";
+import PostModel from "@/database/post/post.model";
 import { getPostsByFilters } from "@/database/post/post.repository";
 import { connectToDatabase } from "@/lib/database";
 import RecommendedContainer from "./RecommendedContainer";
 import Trending from "../../(home)/_components/Trending";
-import PostModel from "@/database/post/post.model";
-import RecommendedPromotion from "@/components/promotion/recommendation";
-import FrontpagePromotion from "@/components/promotion/frontpage";
-import ArticlePromotion from "@/components/promotion/article";
 
 const RecommendedArticles = async ({
   // headline,
@@ -55,7 +53,7 @@ const RecommendedArticles = async ({
           <RecommendedContainer partial articles={Articles} />
         ) : (
           <>
-            <ArticlePromotion />
+            <RecommendedPromotion />
             <Trending articles={Articles} />
           </>
         )}

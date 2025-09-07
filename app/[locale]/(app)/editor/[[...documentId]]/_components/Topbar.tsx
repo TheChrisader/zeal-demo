@@ -1,14 +1,12 @@
 "use client";
 
 import { useIsMutating, useQuery } from "@tanstack/react-query";
-import { User } from "lucia";
 import {
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
   PanelRightClose,
   PanelRightOpen,
-  Pen,
   Pencil,
 } from "lucide-react";
 import React, { useState } from "react";

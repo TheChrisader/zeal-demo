@@ -1,14 +1,10 @@
+import SidebarStoreProvider from "@/context/sidebarStore/sidebarStore.provider";
 import LeftSidebar from "./LeftSidebar";
 import MainContentArea from "./MainContentArea";
 import RightSidebar from "./RightSidebar";
 import Topbar from "./Topbar";
-import SidebarStoreProvider from "@/context/sidebarStore/sidebarStore.provider";
 
-interface EditorWorkspaceProps {
-  activeDocumentId?: string;
-}
-
-const EditorWorkspace = ({ activeDocumentId }: EditorWorkspaceProps) => {
+const EditorWorkspace = () => {
   return (
     <SidebarStoreProvider>
       <div className="flex h-screen flex-col overflow-hidden bg-background">

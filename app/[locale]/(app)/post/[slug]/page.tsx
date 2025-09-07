@@ -1,32 +1,27 @@
 import { SquareArrowOutUpRight } from "lucide-react";
-import { Link } from "@/i18n/routing";
+import dynamic from "next/dynamic";
 import { Suspense } from "react";
+import { extractPath } from "@/categories";
+import HTMLParserRenderer from "@/components/custom/ArticleDisplay";
+import { NewsletterSignUpForm } from "@/components/layout/NewsletterForm";
+import { StickyNewsletterBanner } from "@/components/layout/NewsletterForm/StickyNewsletterBanner";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { getPostById, getPostBySlug } from "@/database/post/post.repository";
+import { checkDislike } from "@/database/dislike/dislike.repository";
+import { checkLike } from "@/database/like/like.repository";
+import { getPostBySlug } from "@/database/post/post.repository";
+import { Link } from "@/i18n/routing";
+import { validateRequest } from "@/lib/auth/auth";
+import { connectToDatabase, newId } from "@/lib/database";
 import { IPost } from "@/types/post.type";
 import { calculateReadingTime, cleanContent } from "@/utils/post.utils";
 import { getPublishTimeStamp } from "@/utils/time.utils";
 import Comments from "../_components/Comments";
-import RecommendedArticles from "../_components/RecommendedArticles";
-import ShareButton from "../_components/ShareButton";
-import AnimateTitle from "@/app/[locale]/(app)/_components/AnimateTitle";
 import DownloadPost from "../_components/DownloadPost";
-import { connectToDatabase, newId } from "@/lib/database";
 import Reactions from "../_components/Reactions";
-import { validateRequest } from "@/lib/auth/auth";
-import { checkLike } from "@/database/like/like.repository";
-import { checkDislike } from "@/database/dislike/dislike.repository";
-import dynamic from "next/dynamic";
+import RecommendedArticles from "../_components/RecommendedArticles";
 import ReportDialog from "../_components/ReportDialog";
-import BatchModel from "@/database/batch/batch.model";
-import RelatedExternalArticles from "../_components/RelatedExternalArticles";
-import { NewsletterSignUpForm } from "@/components/layout/NewsletterForm";
-import { StickyNewsletterBanner } from "@/components/layout/NewsletterForm/StickyNewsletterBanner";
-import { getCategoriesByWriter } from "@/constants/writers";
-import { Badge } from "@/components/ui/badge";
-import { extractPath } from "@/categories";
-import CategoryListClient from "../_components/CategoryListClient";
-import HTMLParserRenderer from "@/components/custom/ArticleDisplay";
+import ShareButton from "../_components/ShareButton";
 
 export async function generateMetadata({
   params,
@@ -50,7 +45,6 @@ const ShareArray = dynamic(() => import("../_components/ShareArray"), {
   ssr: false,
 });
 
-// determine if a site allows being rendered as an iframe
 const canEmbedInIframe = async (url: string) => {
   if (!url.includes("http")) {
     url = "https://" + url;
@@ -111,26 +105,6 @@ const OutboundLink = async ({
   );
 };
 
-const isZealArticle = (categoryList: string[]) => {
-  const categories = [
-    "Zeal Headline News",
-    "Zeal Global",
-    "Zeal Entertainment",
-    "Zeal Lifestyle",
-    "Business 360",
-    "Zeal Tech",
-    "Zeal Sports",
-  ];
-
-  for (const category of categoryList) {
-    if (categories.includes(category)) {
-      return true;
-    }
-  }
-
-  return false;
-};
-
 export default async function PostPage({
   params,
   subPost,
@@ -140,14 +114,12 @@ export default async function PostPage({
 }) {
   await connectToDatabase();
   const article_slug: string = params?.slug || subPost!.slug;
-  // const article_id: string = params?.postId || subPost!._id!.toString();
 
   let post: IPost | null;
 
   if (subPost) {
     post = subPost;
   } else {
-    // post = await getPostById(article_id);
     post = await getPostBySlug(article_slug);
   }
 
@@ -166,18 +138,15 @@ export default async function PostPage({
   let dislike: boolean | undefined = undefined;
 
   if (user) {
-    // get reaction
     like = await checkLike(user.id, newId(article_id));
     dislike = await checkDislike(user.id, newId(article_id));
   }
 
-  // console.log(post.content);
   if (post.external) {
     post.content = cleanContent(post.content, post.source.url!);
   }
 
   return (
-    // <main className="flex min-h-[calc(100vh-62px)] gap-4">
     <main className="flex min-h-[calc(100vh-60px)] w-[70vw] flex-col gap-3 px-12 py-4 max-[900px]:px-7 max-[750px]:w-auto max-[500px]:px-4">
       {/* <NewsletterSignUpForm />
       <StickyNewsletterBanner /> */}
@@ -249,26 +218,10 @@ export default async function PostPage({
                 ))}
               </span>
             </div>
-            {/* <CategoryListClient
-              categories={getCategoriesByWriter(post.source.name!)}
-            /> */}
           </div>
         </div>
       )}
-
-      {/* {(isZealArticle(post.category) || !post.external) && post.image_url && (
-        <img
-          className="w-full rounded-md object-cover"
-          src={post.image_url}
-          alt={post.title}
-        />
-      )} */}
-
-      {/* <div
-        className="rounded-[20px] p-1 text-sm [&_a]:text-blue-500 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:font-bold [&_figure>img]:mb-2 [&_figure>img]:mt-4 [&_figure>img]:rounded-md [&_figure>p]:text-black [&_figure]:mb-7 [&_figure]:flex [&_figure]:w-full [&_figure]:flex-col [&_figure]:items-center [&_img]:mx-auto [&_img]:block [&_img]:rounded-md [&_img]:object-cover [&_img]:object-center [&_li]:list-disc [&_p]:mb-4 [&_p]:max-w-[100vw] [&_p]:text-base [&_p]:font-normal [&_p]:leading-7 [&_p]:text-foreground-alt-p"
-        dangerouslySetInnerHTML={{ __html: post.content }}
-      /> */}
-      <div className="rounded-[20px] p-1 text-sm [&_a]:text-blue-500 [&_figcaption]:text-center [&_figcaption]:text-sm [&_figcaption]:font-bold [&_figure>img]:mb-2 [&_figure>img]:mt-4 [&_figure>img]:rounded-md [&_figure>p]:text-black [&_figure]:mb-7 [&_figure]:flex [&_figure]:w-full [&_figure]:flex-col [&_figure]:items-center [&_img]:mx-auto [&_img]:block [&_img]:rounded-md [&_img]:object-cover [&_img]:object-center [&_li]:list-disc [&_p]:mb-4 [&_p]:max-w-[100vw] [&_p]:text-base [&_p]:font-normal [&_p]:leading-7 [&_p]:text-foreground-alt-p">
+      <div className="rounded-[20px] p-1 text-sm [&_img]:mx-auto [&_img]:block [&_img]:rounded-md [&_img]:object-cover [&_img]:object-center">
         <HTMLParserRenderer
           htmlString={`<img
           src="${post.image_url}"
@@ -277,52 +230,10 @@ export default async function PostPage({
         ${post.content}`}
         />
       </div>
-      {/* max-h-[350px] */}
-      {/* [&_img]:max-h-[350px] [&_figure>img]:max-h-[350px] */}
-      {/* {isZealArticle(post.category) && (
-        <div>
-          <span className="flex items-center gap-2">
-            <strong>From Zeal News Studio</strong>
-            <Link
-              href="/info/terms-and-conditions"
-              className="text-xs underline"
-            >
-              (Terms and Conditions)
-            </Link>
-          </span>
-        </div>
-      )} */}
-      {/* {post.external && (
-        <a
-          href={`https://${post.source.url!}`}
-          rel="noopener noreferrer noindex"
-          target="_blank"
-          className="ml-auto flex size-fit items-center gap-1 rounded-md px-4 py-2 outline outline-2 outline-[#2F7830]"
-        >
-          <span className="mr-2 text-base font-semibold text-muted-alt">
-            Origin:{" "}
-          </span>
-          {post.source.icon && (
-            <div className="rounded-sm bg-gray-300 p-1">
-              <img
-                src={post.source.icon}
-                className="h-5 rounded-full max-[300px]:h-5"
-                alt="publisher logo"
-              />
-            </div>
-          )}
-          <span className="text-base font-semibold text-foreground-alt max-[300px]:text-base">
-            {post.source.name!}
-          </span>
-        </a>
-      )} */}
       <ShareArray title={post.title} />
       <div className="flex w-full items-center justify-end">
         <Reactions reaction={{ like, dislike }} postID={article_id} />
       </div>
-      {/* {relatedExternalArticles.length > 0 && (
-        <RelatedExternalArticles articles={relatedExternalArticles} />
-      )} */}
       <Separator />
       <div className="flex justify-end">
         <ReportDialog articleId={article_id} />

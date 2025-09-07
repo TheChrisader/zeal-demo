@@ -368,7 +368,6 @@ export class HTMLParser {
     const root = new VNode("root", {}, []);
     const stack: VNode[] = [root];
     const tokens = this.tokenize(html);
-    console.log(tokens, "TOKJENSSSSSSSS");
 
     for (const token of tokens) {
       const currentParent = stack[stack.length - 1];

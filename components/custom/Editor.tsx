@@ -2,18 +2,18 @@ import * as React from "react";
 import "@/components/minimal-tiptap/styles/index.css";
 
 import type { Content, Editor } from "@tiptap/react";
+import { LinkBubbleMenu } from "@/components/minimal-tiptap/components/bubble-menu/link-bubble-menu";
+import { MeasuredContainer } from "@/components/minimal-tiptap/components/measured-container";
+import { SectionFive } from "@/components/minimal-tiptap/components/section/five";
+import { SectionFour } from "@/components/minimal-tiptap/components/section/four";
+import { SectionOne } from "@/components/minimal-tiptap/components/section/one";
+import { SectionThree } from "@/components/minimal-tiptap/components/section/three";
+import { SectionTwo } from "@/components/minimal-tiptap/components/section/two";
 import type { UseMinimalTiptapEditorProps } from "@/components/minimal-tiptap/hooks/use-minimal-tiptap";
 import { EditorContent } from "@tiptap/react";
+import { useMinimalTiptapEditor } from "@/components/minimal-tiptap/hooks/use-minimal-tiptap";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { SectionOne } from "@/components/minimal-tiptap/components/section/one";
-import { SectionTwo } from "@/components/minimal-tiptap/components/section/two";
-import { SectionThree } from "@/components/minimal-tiptap/components/section/three";
-import { SectionFour } from "@/components/minimal-tiptap/components/section/four";
-import { SectionFive } from "@/components/minimal-tiptap/components/section/five";
-import { LinkBubbleMenu } from "@/components/minimal-tiptap/components/bubble-menu/link-bubble-menu";
-import { useMinimalTiptapEditor } from "@/components/minimal-tiptap/hooks/use-minimal-tiptap";
-import { MeasuredContainer } from "@/components/minimal-tiptap/components/measured-container";
 import ScrollableContainer from "./ScrollableContainer";
 
 export interface MinimalTiptapProps

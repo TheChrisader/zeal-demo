@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, categories, source } = validation.data;
+    const { email, categories } = validation.data;
 
     const mailerlite = new MailerLite({
       api_key: process.env.MAILERLITE_API_KEY as string,

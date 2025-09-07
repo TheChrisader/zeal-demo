@@ -1,35 +1,94 @@
-import React from "react";
-import { Button } from "@/components/ui/button"; // Adjust the import path if needed
-import { Promotion, PROMOTION_DETAIL_MAP } from "../data";
+"use client";
 
-export default function ArticlePromotion() {
-  const banner: Promotion = PROMOTION_DETAIL_MAP["Diaspora Connect"];
+import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  Promotion,
+  PROMOTION_DETAIL_KEY_ENUMS,
+  PROMOTION_DETAIL_MAP,
+  PROMOTION_KEYS,
+} from "../data";
+import { NewsletterPopup } from "../NewsletterPopup";
+
+interface ArticlePromotionProps {
+  category: PROMOTION_DETAIL_KEY_ENUMS;
+}
+
+export default function ArticlePromotion({ category }: ArticlePromotionProps) {
+  const [showPopup, setShowPopup] = useState(false);
+  const { isAuthenticated, initialized } = useAuth();
+  const [canShowPopup, setCanShowPopup] = useState(false);
+
+  // Check if we should show the popup (no user logged in and cookie doesn't exist)
+  useEffect(() => {
+    if (!initialized) return;
+
+    const hasSubscribed = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("zealnews_subscribed_newsletter="));
+
+    if (!isAuthenticated && !hasSubscribed) {
+      // Small delay to ensure page is loaded
+      const timer = setTimeout(() => {
+        setCanShowPopup(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated, initialized]);
+
+  // useEffect(() => {
+  //   if (canShowPopup) {
+  //     setShowPopup(true);
+  //   }
+  // }, [canShowPopup]);
+
+  if (PROMOTION_KEYS.indexOf(category) === -1) {
+    return null;
+  }
+
+  const banner: Promotion = PROMOTION_DETAIL_MAP[category];
+
   return (
-    <section className="w-full bg-white font-sans">
-      <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 py-3 md:flex-row md:gap-6">
-        {/* Left: Badge */}
-        <div className="flex-shrink-0 rounded-md bg-[#1E6C45] px-5 py-2.5">
-          <p className="text-base font-bold text-white"> {banner.title} </p>
-        </div>
+    <>
+      <section className="w-full bg-white font-sans dark:bg-card-alt-bg">
+        <div className="container mx-auto flex flex-col items-center justify-between gap-2 px-4 py-3 lg:flex-row lg:gap-6">
+          {/* Left: Badge */}
+          <div className="shrink-0 rounded-md bg-primary px-5 py-1 text-center md:py-2.5">
+            <p className="break-words text-base font-bold text-primary-foreground">
+              {" "}
+              {banner.title}{" "}
+            </p>
+          </div>
 
-        {/* Center: Text Content */}
-        <div className="flex-grow text-center">
-          <h3 className="text-xl font-bold text-[#1E6C45] sm:text-2xl">
-            {banner.subheading}
-          </h3>
-          <p className="mt-1 text-sm text-slate-700">{banner.statement}</p>
-        </div>
+          {/* Center: Text Content */}
+          <div className="grow text-center">
+            <h3 className="text-xl font-bold text-primary sm:text-2xl">
+              {banner.subheading}
+            </h3>
+            <p className="text-sm text-muted-foreground">{banner.statement}</p>
+          </div>
 
-        {/* Right: Subscribe Button */}
-        <div className="flex-shrink-0">
-          <Button
-            className="rounded-full bg-[#1E6C45] px-6 py-2.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#185637]"
-            size="sm"
-          >
-            click to subscribe
-          </Button>
+          {/* Right: Subscribe Button */}
+          {canShowPopup && (
+            <div className="shrink-0">
+              <Button
+                className="rounded-full bg-primary px-6 py-1 text-xs font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-success-hover-bg md:py-2.5"
+                size="sm"
+                onClick={() => setShowPopup(true)}
+              >
+                click to subscribe
+              </Button>
+            </div>
+          )}
         </div>
-      </div>
-    </section>
+      </section>
+
+      <NewsletterPopup
+        category={banner.title}
+        open={showPopup}
+        onOpenChange={setShowPopup}
+      />
+    </>
   );
 }

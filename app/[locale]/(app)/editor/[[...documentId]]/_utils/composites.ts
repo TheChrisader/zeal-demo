@@ -1,5 +1,5 @@
 import { fetcher } from "@/lib/fetcher";
-import { pushDraftForApproval, updateDraft } from "@/services/draft.services";
+import { updateDraft } from "@/services/draft.services";
 import { updatePostById } from "@/services/post.services";
 import { IDraft } from "@/types/draft.type";
 import { IPost } from "@/types/post.type";

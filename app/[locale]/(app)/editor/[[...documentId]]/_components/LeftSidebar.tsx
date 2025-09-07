@@ -1,10 +1,8 @@
 "use client";
 
 import {
-  InfiniteData,
   useInfiniteQuery,
   useMutation,
-  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
@@ -20,24 +18,18 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button"; // Assuming Button component exists
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useEditorStore } from "@/context/editorStore/useEditorStore";
+import { useSidebarStore } from "@/context/sidebarStore/useSidebarStore";
+import { useAuth } from "@/hooks/useAuth";
+import { useResizeDelta } from "@/hooks/useResizeDelta";
 import { Link } from "@/i18n/routing";
 import { deleteDraftById, getDraftsByUserId } from "@/services/draft.services";
 import { deletePostById, fetchPostsByAuthorId } from "@/services/post.services";
 import { IDraft } from "@/types/draft.type";
 import { IPost } from "@/types/post.type";
-import { useAuth } from "@/hooks/useAuth";
-import { useResizeDelta } from "@/hooks/useResizeDelta";
-import { useSidebarStore } from "@/context/sidebarStore/useSidebarStore";
-
-interface Page<T> {
-  items: T[];
-  totalPages: number;
-}
 
 interface LeftSidebarProps {}
 

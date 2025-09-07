@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import DraftModel from "@/database/draft/draft.model";
 import {
   deleteDraftById,
   getDraftById,
@@ -7,7 +8,6 @@ import {
 } from "@/database/draft/draft.repository";
 import { createPostFromDraft } from "@/database/post/post.repository";
 import { connectToDatabase } from "@/lib/database";
-import DraftModel from "@/database/draft/draft.model";
 
 export const GET = async (req: NextRequest) => {
   try {
