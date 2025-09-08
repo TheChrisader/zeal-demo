@@ -17,7 +17,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -102,66 +101,120 @@ export function NewsletterPopup({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Subscribe to our Newsletter</DialogTitle>
-          <DialogDescription>
-            Stay updated with the latest {category} news and insights.
-          </DialogDescription>
-        </DialogHeader>
-
+      <DialogContent className="overflow-hidden rounded-lg shadow-xl sm:max-w-md">
         {submitSuccess ? (
-          <div className="flex flex-col items-center justify-center py-8">
-            <div className="mb-4 text-2xl">🎉</div>
-            <p className="text-center text-lg font-medium">
-              Thank you for subscribing!
-            </p>
-            <p className="mt-2 text-center text-muted-foreground">
+          <div className="flex flex-col items-center justify-center px-4 py-8">
+            <div className="mb-4 text-4xl">🎉</div>
+            <DialogTitle className="text-center text-2xl font-bold">
+              You&apos;re Subscribed!
+            </DialogTitle>
+            <DialogDescription className="mt-2 text-center text-muted-foreground">
+              Thank you for joining our newsletter.
+            </DialogDescription>
+            <p className="mt-4 text-center text-muted-foreground">
               You&apos;ll receive updates on {category} content.
             </p>
           </div>
         ) : (
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="your@email.com"
-                        {...field}
-                        disabled={isSubmitting}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {submitError && (
-                <div className="text-center text-sm text-red-500">
-                  {submitError}
-                </div>
-              )}
-
-              <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => onOpenChange(false)}
-                  disabled={isSubmitting}
+          <div className="p-2">
+            <DialogHeader className="text-left">
+              <div className="mx-auto mb-4 mt-2 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-primary"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+              </div>
+              <DialogTitle className="text-center text-2xl font-bold">
+                Join Our Newsletter
+              </DialogTitle>
+              <DialogDescription className="text-center">
+                Stay updated with the latest {category} news and insights. No
+                spam, unsubscribe at any time.
+              </DialogDescription>
+            </DialogHeader>
+
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="mt-6 space-y-4"
+              >
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className="relative">
+                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5 text-muted-foreground"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                              <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                          </div>
+                          <Input
+                            placeholder="your@email.com"
+                            className="rounded-lg py-6 pl-10 text-base"
+                            {...field}
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {submitError && (
+                  <div className="text-center text-sm text-red-500">
+                    {submitError}
+                  </div>
+                )}
+
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full rounded-lg py-6 text-base font-medium"
+                >
                   {isSubmitting ? "Subscribing..." : "Subscribe"}
                 </Button>
-              </div>
-            </form>
-          </Form>
+
+                <p className="text-center text-xs text-muted-foreground">
+                  By subscribing, you agree to our Privacy Policy and consent to
+                  receive updates.
+                </p>
+
+                <div className="flex justify-center">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => onOpenChange(false)}
+                    disabled={isSubmitting}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    Not now
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </div>
         )}
       </DialogContent>
     </Dialog>
