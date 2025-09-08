@@ -228,6 +228,7 @@ export default async function PostPage({
           alt="${post.title}"
         />
         ${post.content}`}
+          category={post.category}
         />
       </div>
       <ShareArray title={post.title} />

@@ -1,10 +1,31 @@
 "use client";
 
 import Image from "next/image";
-import { Promotion, PROMOTION_DETAIL_MAP } from "../data";
+import { useEffect, useState } from "react";
+import { getRandomItem } from "@/utils/array.utils";
+import {
+  Promotion,
+  PROMOTION_DETAIL_KEY_ENUMS,
+  PROMOTION_DETAIL_MAP,
+  PROMOTION_KEYS,
+} from "../data";
 
 export default function RecommendedPromotion() {
-  const banner: Promotion = PROMOTION_DETAIL_MAP["Diaspora Connect"];
+  const [banner, setBanner] = useState<Promotion | null>(null);
+  // const banner: Promotion = PROMOTION_DETAIL_MAP["Diaspora Connect"];
+
+  useEffect(() => {
+    const bannerKey =
+      getRandomItem<(typeof PROMOTION_KEYS)[number]>(PROMOTION_KEYS);
+    const bannerData: Promotion =
+      PROMOTION_DETAIL_MAP[bannerKey as PROMOTION_DETAIL_KEY_ENUMS];
+
+    setBanner(bannerData);
+  }, []);
+
+  if (!banner) {
+    return null;
+  }
 
   return (
     <>

@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import React, { Fragment, ReactNode, useCallback, useState } from "react";
 import { getParsedDocument, HTMLNode } from "@/lib/html-parser";
 import ArticlePromotion from "../promotion/article";
+import { PROMOTION_DETAIL_KEY_ENUMS } from "../promotion/data";
 
 let PARAGRAPH_TRACKER = 0;
 
@@ -254,6 +255,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
 const parseHTMLToReact = (
   htmlString: string,
   onImageClick: (src: string, alt: string) => void,
+  category: string[],
 ): ReactNode[] => {
   const doc = getParsedDocument(htmlString);
 
@@ -289,7 +291,9 @@ const parseHTMLToReact = (
             {PARAGRAPH_TRACKER % 15 === 0 &&
               element.parent?.tagName === "root" && (
                 <div className="my-4">
-                  <ArticlePromotion category={"Diaspora Connect"} />
+                  <ArticlePromotion
+                    category={category[0] as PROMOTION_DETAIL_KEY_ENUMS}
+                  />
                 </div>
               )}
             <CustomParagraph {...props}>{children}</CustomParagraph>
@@ -410,12 +414,14 @@ const parseHTMLToReact = (
 
 interface HTMLParserRendererProps {
   htmlString: string;
+  category: string[];
   //   onImageClick: (src: string, alt: string) => void;
 }
 
 // Main component
 const HTMLParserRenderer: React.FC<HTMLParserRendererProps> = ({
   htmlString,
+  category,
 }) => {
   const [modalImage, setModalImage] = useState<ModalState>({
     src: "",
@@ -431,7 +437,11 @@ const HTMLParserRenderer: React.FC<HTMLParserRendererProps> = ({
     setModalImage({ src: "", alt: "", isOpen: false });
   }, []);
 
-  const renderedContent = parseHTMLToReact(htmlString, handleImageClick);
+  const renderedContent = parseHTMLToReact(
+    htmlString,
+    handleImageClick,
+    category || [],
+  );
   PARAGRAPH_TRACKER = 0;
 
   return (
