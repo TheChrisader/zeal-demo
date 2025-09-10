@@ -24,6 +24,9 @@ import {
 import { useThrottle } from "../hooks/use-throttle";
 import { fileToBase64, getOutput, randomId } from "../utils";
 import { Slice } from "@tiptap/pm/model";
+import { Figure } from "../extensions/figure";
+import { Figcaption } from "../extensions/figcaption";
+import { deleteFigurePlugin } from "../plugins/deleteFigure";
 
 export interface UseMinimalTiptapEditorProps extends UseEditorOptions {
   value?: Content;
@@ -126,6 +129,12 @@ const createExtensions = (placeholder: string) => [
       });
     },
   }),
+  Figure.configure({
+    allowedMimeTypes: ["image/*"],
+    maxFileSize: 5 * 1024 * 1024,
+    allowBase64: true,
+  }),
+  Figcaption,
   FileHandler.configure({
     allowBase64: true,
     allowedMimeTypes: ["image/*"],
@@ -133,18 +142,62 @@ const createExtensions = (placeholder: string) => [
     onDrop: (editor, files, pos) => {
       files.forEach(async (file) => {
         const src = await fileToBase64(file);
+        const id = randomId();
+        // editor.commands.insertContentAt(pos, {
+        //   type: "image",
+        //   attrs: { src },
+        // });
         editor.commands.insertContentAt(pos, {
-          type: "image",
-          attrs: { src },
+          type: "figure",
+          content: [
+            {
+              type: "image",
+              attrs: {
+                id,
+                src,
+              },
+            },
+            {
+              type: "figcaption",
+              content: [
+                {
+                  type: "text",
+                  text: " ",
+                },
+              ],
+            },
+          ],
         });
       });
     },
     onPaste: (editor, files) => {
       files.forEach(async (file) => {
         const src = await fileToBase64(file);
+        const id = randomId();
+        // editor.commands.insertContent({
+        //   type: "image",
+        //   attrs: { src },
+        // });
         editor.commands.insertContent({
-          type: "image",
-          attrs: { src },
+          type: "figure",
+          content: [
+            {
+              type: "image",
+              attrs: {
+                id,
+                src,
+              },
+            },
+            {
+              type: "figcaption",
+              content: [
+                {
+                  type: "text",
+                  text: " ",
+                },
+              ],
+            },
+          ],
         });
       });
     },
@@ -165,7 +218,21 @@ const createExtensions = (placeholder: string) => [
   HorizontalRule,
   ResetMarksOnEnter,
   CodeBlockLowlight,
-  Placeholder.configure({ placeholder: () => placeholder }),
+  Placeholder.configure({
+    placeholder: ({ node }) => {
+      // If the node is a figcaption and it's empty, show a placeholder
+      if (node.type.name === "figcaption") {
+        return "Enter Image caption...";
+      }
+
+      // Show a general placeholder for the whole editor if it's the root doc and empty
+      if (node.type.name === "doc") {
+        return "Write something…";
+      }
+
+      return "Write something..."; // No placeholder for other nodes
+    },
+  }),
 ];
 
 export const useMinimalTiptapEditor = ({

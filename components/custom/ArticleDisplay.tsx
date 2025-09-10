@@ -60,7 +60,6 @@ const CustomParagraph: React.FC<CustomComponentProps> = ({
 const CustomHeading: React.FC<CustomHeadingProps> = ({
   level,
   children,
-
   ...props
 }) => {
   const baseClasses = "font-bold mb-3";
@@ -81,11 +80,7 @@ const CustomHeading: React.FC<CustomHeadingProps> = ({
   );
 };
 
-const CustomDiv: React.FC<CustomComponentProps> = ({
-  children,
-
-  ...props
-}) => (
+const CustomDiv: React.FC<CustomComponentProps> = ({ children, ...props }) => (
   <div className="mb-2 rounded-r border-l-2 p-2" {...props}>
     {children}
   </div>
@@ -94,7 +89,6 @@ const CustomDiv: React.FC<CustomComponentProps> = ({
 const CustomImage: React.FC<CustomImageProps> = ({
   src = "",
   alt = "Image",
-
   onImageClick,
   ...props
 }) => (
@@ -158,7 +152,6 @@ const CustomImage: React.FC<CustomImageProps> = ({
 const CustomList: React.FC<CustomListProps> = ({
   ordered,
   children,
-
   ...props
 }) => {
   const Tag = ordered ? "ol" : "ul";
@@ -175,7 +168,6 @@ const CustomList: React.FC<CustomListProps> = ({
 
 const CustomListItem: React.FC<CustomComponentProps> = ({
   children,
-
   ...props
 }) => (
   <li className="ml-4" {...props}>
@@ -203,7 +195,6 @@ const CustomLink: React.FC<CustomLinkProps> = ({
 
 const CustomStrong: React.FC<CustomComponentProps> = ({
   children,
-
   ...props
 }) => (
   <strong className="font-bold" {...props}>
@@ -211,14 +202,25 @@ const CustomStrong: React.FC<CustomComponentProps> = ({
   </strong>
 );
 
-const CustomEm: React.FC<CustomComponentProps> = ({
-  children,
-
-  ...props
-}) => (
+const CustomEm: React.FC<CustomComponentProps> = ({ children, ...props }) => (
   <em className="italic" {...props}>
     {children}
   </em>
+);
+
+const CustomFigure: React.FC<CustomComponentProps> = ({
+  children,
+  ...props
+}) => (
+  <figure className="mb-4 w-full" {...props}>
+    {children}
+  </figure>
+);
+
+const CustomFigcaption = ({ children }: CustomComponentProps) => (
+  <figcaption className="mt-2 text-center text-sm font-light text-foreground-alt-p">
+    {children}
+  </figcaption>
 );
 
 const ImageModal: React.FC<ImageModalProps> = ({
@@ -351,6 +353,18 @@ const parseHTMLToReact = (
             onImageClick={onImageClick}
           />
         );
+      case "figure":
+        return (
+          <CustomFigure key={index} {...props}>
+            {children}
+          </CustomFigure>
+        );
+      case "figcaption":
+        return (
+          <CustomFigcaption key={index} {...props}>
+            {children}
+          </CustomFigcaption>
+        );
       case "ul":
         return (
           <CustomList key={index} ordered={false} {...props}>
@@ -370,7 +384,6 @@ const parseHTMLToReact = (
           </CustomListItem>
         );
       case "a":
-        console.log(props);
         return (
           <CustomLink key={index} {...props} href={props.href as string}>
             {children}

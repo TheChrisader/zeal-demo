@@ -76,6 +76,7 @@ export const RichTextEditor = React.forwardRef<
 >(({ value, onChange, className, editorContentClassName, ...props }, ref) => {
   const editor = useMinimalTiptapEditor({
     value,
+    placeholder: "Write something...",
     onUpdate: onChange,
     ...props,
   });
