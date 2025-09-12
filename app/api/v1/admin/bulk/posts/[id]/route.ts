@@ -11,6 +11,7 @@ import {
   ImageValidationError,
   validateAndUploadImage,
 } from "@/utils/file.utils";
+import { revalidateTag } from "next/cache";
 
 export async function GET(
   req: NextRequest,
@@ -98,6 +99,8 @@ export async function DELETE(
     }
 
     await ReactionModel.deleteOne({ post_id: newId(post._id) });
+
+    await revalidateTag("frontpage");
 
     return NextResponse.json(
       {
