@@ -5,85 +5,19 @@ import { WRITER_DISTRIBUTION } from "@/constants/writers";
 import ArticleModel from "@/database/article/article.model";
 import PostModel from "@/database/post/post.model";
 import { newId } from "@/lib/database";
+import { InMemoryQueue, Task } from "@/lib/queue";
 import { calculateInitialScore } from "@/lib/scoring";
 import { SlugGenerator } from "@/lib/slug";
 import { generateRandomString } from "@/lib/utils";
-import { InMemoryQueue, Task } from "@/lib/queue";
 import { IArticle } from "@/types/article.type";
 import { IPost } from "@/types/post.type";
 import { calculateReadingTime } from "@/utils/post.utils";
+import { CATEGORIES } from "@/categories/flattened";
 
 interface IBatch {
   name: string;
   articles: string[];
 }
-
-export const categoryMap: { title: string; groups: string[] }[] = [
-  { title: "Local", groups: ["Headlines", "Zeal Headline News"] },
-  {
-    title: "Across Africa",
-    groups: [
-      "Top West African News",
-      "Top East African News",
-      "Top Southern Africa News",
-    ],
-  },
-  {
-    title: "Global",
-    groups: [
-      "Top US News",
-      "UK Top News",
-      "EU News",
-      "Asian News",
-      "Zeal Global",
-    ],
-  },
-  { title: "Politics", groups: ["Politics"] },
-  { title: "Climate", groups: ["Weather"] },
-  { title: "Startup", groups: ["Startup News"] },
-  {
-    title: "Economy/Finance",
-    groups: ["Economy", "Personal Finance", "Market Watch", "Business 360"],
-  },
-  { title: "Crypto", groups: ["Crypto"] },
-  {
-    title: "Career",
-    groups: [
-      "Latest Job News",
-      "Career Tips",
-      "Top Global Jobs",
-      "Entrepreneurship",
-    ],
-  },
-  {
-    title: "Latest Tech News",
-    groups: [
-      "Latest Tech News",
-      "Cartech",
-      "Gadgets Buying Guide",
-      "Gaming",
-      "Zeal Tech",
-    ],
-  },
-  { title: "Fintech", groups: ["Fintech"] },
-  { title: "AI", groups: ["Artificial Intelligence"] },
-  { title: "Health", groups: ["Health News", "Zeal Lifestyle"] },
-  { title: "Food", groups: ["Food & Nutrition"] },
-  { title: "Travel", groups: ["Travel & Tourism"] },
-  { title: "Parenting", groups: ["Family & Parenting"] },
-  { title: "Fashion", groups: ["Style & Beauty"] },
-  { title: "Celebrity News", groups: ["Celebrity News"] },
-  {
-    title: "Profiles",
-    groups: ["Hot Interviews", "Zeal Entertainment"],
-  },
-  { title: "Music", groups: ["Trending Music"] },
-  { title: "Movies", groups: ["Top Movies"] },
-  {
-    title: "Sports",
-    groups: ["Top Sports News", "UK Premiership", "Basketball"],
-  },
-];
 
 const ensureDelay = async (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -122,7 +56,7 @@ const getUserId = async (username?: string) => {
 
 // Task data interfaces for the pipeline
 interface AggregationTaskData {
-  category: { title: string; groups: string[] };
+  category: string;
 }
 
 interface GenerationTaskData {
@@ -141,10 +75,10 @@ export const queue = new InMemoryQueue({ concurrency: 3, retryDelay: 2000 });
 // Stage 1: Aggregation Task Handler
 const handleAggregationTask = async (task: Task<AggregationTaskData>) => {
   const { category } = task.data;
-  const { title, groups } = category;
+  const groups: string[] = [category];
 
   let query = {};
-  if (category.title === "Local") {
+  if (category === "Local") {
     query = {
       country: {
         $in: ["Nigeria"],
@@ -185,7 +119,7 @@ const handleAggregationTask = async (task: Task<AggregationTaskData>) => {
     
     # Input Data
     - **Article Titles:** A list of news article titles provided under "Article Titles".
-    - **Category Context:** All provided articles belong to the category: ${title}. Your analysis should remain within this context.
+    - **Category Context:** All provided articles belong to the category: ${category}. Your analysis should remain within this context.
     
     # Batching Rules & Logic
     
@@ -233,7 +167,7 @@ const handleAggregationTask = async (task: Task<AggregationTaskData>) => {
     }
     
     # Category Context Value:
-    ${title}
+    ${category}
     
     # Article Titles:
     ${postsList}
@@ -301,7 +235,7 @@ const handleAggregationTask = async (task: Task<AggregationTaskData>) => {
       queue.addTask(
         "generate",
         {
-          category: title,
+          category,
           batch: batch,
         },
         { priority: 1 },
@@ -618,9 +552,11 @@ Review the article thoroughly, correct any issues, and provide your assessment. 
         description: result.preview,
         keywords: result.keywords,
       };
-      
+
       await PostModel.create([correctedPost], { ordered: false });
-      console.log(`Post corrected and saved: ${post.title}. Feedback: ${result.feedback}`);
+      console.log(
+        `Post corrected and saved: ${post.title}. Feedback: ${result.feedback}`,
+      );
     } else if (result.status === "rejected") {
       // Log the rejection but don't save the post
       console.log(`Post rejected: ${post.title}. Feedback: ${result.feedback}`);
@@ -640,11 +576,11 @@ queue.registerHandler("review", handleReviewTask);
 export const startPipeline = async () => {
   try {
     // Add aggregation tasks for each category
-    for (const category of categoryMap) {
+    for (const category of CATEGORIES) {
       queue.addTask(
         "aggregate",
         {
-          category: category,
+          category,
         },
         { priority: 1 },
       );
@@ -672,11 +608,13 @@ export const getBatches = async () => {
       apiKey: process.env.GEMINI_API_KEY as string,
     });
 
-    for (const category of categoryMap) {
-      const { title, groups } = category;
+    for (const category of CATEGORIES) {
+      // const { title, groups } = category;
+      const title = category,
+        groups: string[] = [category];
 
       let query = {};
-      if (category.title === "Local") {
+      if (title === "Local") {
         query = {
           country: {
             $in: ["Nigeria"],
