@@ -81,7 +81,7 @@ const CustomHeading: React.FC<CustomHeadingProps> = ({
 };
 
 const CustomDiv: React.FC<CustomComponentProps> = ({ children, ...props }) => (
-  <div className="mb-2 rounded-r border-l-2 p-2" {...props}>
+  <div className="mb-2" {...props}>
     {children}
   </div>
 );

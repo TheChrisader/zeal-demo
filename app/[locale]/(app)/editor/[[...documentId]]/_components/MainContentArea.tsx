@@ -155,6 +155,7 @@ const MainContentArea: React.FC<MainContentAreaProps> = ({}) => {
   const handleEditorChange = (newContentString: Content) => {
     const newContent = newContentString as string;
     // setCurrentContent(newContent); // Update store immediately
+    // console.log(newContentString);
     setTimeout(() => {
       setCurrentContent(newContentString as string);
     }, 0);

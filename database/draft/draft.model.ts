@@ -86,6 +86,7 @@ DraftSchema.index({ user_id: 1, created_at: -1 });
 DraftSchema.index({ moderationStatus: 1 });
 DraftSchema.index({ category: 1 });
 DraftSchema.index({ created_at: -1 });
+DraftSchema.index({ updated_at: -1 });
 DraftSchema.index({ title: "text", description: "text" });
 
 DraftSchema.virtual("id").get(function () {

@@ -1,6 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { revalidateTag } from "next/cache";
 import { stripHtml } from "string-strip-html";
+import { CATEGORIES } from "@/categories/flattened";
 import { WRITER_DISTRIBUTION } from "@/constants/writers";
 import ArticleModel from "@/database/article/article.model";
 import PostModel from "@/database/post/post.model";
@@ -12,7 +13,6 @@ import { generateRandomString } from "@/lib/utils";
 import { IArticle } from "@/types/article.type";
 import { IPost } from "@/types/post.type";
 import { calculateReadingTime } from "@/utils/post.utils";
-import { CATEGORIES } from "@/categories/flattened";
 
 interface IBatch {
   name: string;

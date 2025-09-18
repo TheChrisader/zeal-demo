@@ -144,7 +144,11 @@ const Topbar: React.FC<TopbarProps> = ({}) => {
           <span className="hidden md:inline">
             {isPublishing ? "Publishing..." : "Publish"}
           </span>
-          <Pencil size={16} className="md:hidden" />
+          {isPublishing ? (
+            <LoadingSpinner size={16} />
+          ) : (
+            <Pencil size={16} className="md:hidden" />
+          )}
         </button>
         <Button
           variant="ghost"

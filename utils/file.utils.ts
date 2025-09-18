@@ -31,7 +31,9 @@ export const generateUniqueNameFromFileName = (
         return reject(err);
       }
       const generatedName =
-        raw.toString("hex") + "-" + path.basename(filename).replace(/\s/g, "");
+        raw.toString("hex") +
+        "-" +
+        path.basename(filename ? "" : "").replace(/\s/g, "");
       resolve(generatedName);
     });
   });

@@ -1,13 +1,9 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 
 declare module "@tiptap/core" {
-  interface Commands<ReturnType> {
+  interface Commands {
     figcaption: {
-      setFigcaption: (options: {
-        src: string;
-        alt?: string;
-        title?: string;
-      }) => ReturnType;
+      setFigcaption: () => void;
     };
   }
 }

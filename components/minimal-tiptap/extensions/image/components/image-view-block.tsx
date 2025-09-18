@@ -167,7 +167,11 @@ export const ImageViewBlock: React.FC<NodeViewProps> = ({
 
   React.useEffect(() => {
     const handleImage = async () => {
-      if (!initSrc.startsWith("blob:") || uploadAttemptedRef.current) {
+      const isDataUrl = initSrc.startsWith("data:");
+      if (
+        !(initSrc.startsWith("blob:") || isDataUrl) ||
+        uploadAttemptedRef.current
+      ) {
         return;
       }
 
@@ -179,7 +183,7 @@ export const ImageViewBlock: React.FC<NodeViewProps> = ({
 
       if (!uploadFn) {
         try {
-          const base64 = await blobUrlToBase64(initSrc);
+          const base64 = isDataUrl ? initSrc : await blobUrlToBase64(initSrc);
           setImageState((prev) => ({ ...prev, src: base64 }));
           updateAttributes({ src: base64 });
         } catch {
@@ -192,7 +196,9 @@ export const ImageViewBlock: React.FC<NodeViewProps> = ({
         setImageState((prev) => ({ ...prev, isServerUploading: true }));
         const response = await fetch(initSrc);
         const blob = await response.blob();
-        const file = new File([blob], fileName, { type: blob.type });
+        const file = new File([blob], fileName ?? `image-${Date.now()}`, {
+          type: blob.type,
+        });
 
         const url = await uploadFn(file, editor);
         const normalizedData = normalizeUploadResponse(url);

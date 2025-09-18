@@ -120,13 +120,10 @@ export const POST = async (request: NextRequest) => {
 
     return NextResponse.json(createdPost);
   } catch (error) {
-    return sendError(
-      buildError({
-        code: INTERNAL_ERROR,
-        message: error instanceof Error ? error.message : "An error occured.",
-        status: 500,
-        data: error,
-      }),
+    console.log(`Error creating post: ${error}`);
+    return NextResponse.json(
+      { message: "Error creating post" },
+      { status: 500 },
     );
   }
 };

@@ -178,6 +178,9 @@ const copyLink = async (
 };
 
 export const Image = TiptapImage.extend<CustomImageOptions>({
+  draggable: true,
+  // group: undefined,
+  // inline: false,
   // atom: true,
 
   addOptions() {
