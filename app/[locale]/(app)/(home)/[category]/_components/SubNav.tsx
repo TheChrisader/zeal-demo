@@ -38,7 +38,7 @@ const Navbar: React.FC<NavbarProps> = ({ items, activeItem, onItemClick }) => {
   };
 
   return (
-    <nav className="flex w-full justify-center px-4 max-[600px]:hidden">
+    <nav className="mt-5 flex w-full justify-center px-4 max-[600px]:hidden">
       <div className="flex items-center gap-2 rounded-full bg-card-alt-bg p-2 shadow-sm">
         {items.map((item) => {
           const isActive = activeItem === item.name || activeItem === item.path;

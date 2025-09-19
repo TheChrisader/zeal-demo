@@ -214,11 +214,14 @@ export default async function Home() {
       <VideoCarousel videos={videos} />
       <HeadlinesBlock category="News" />
       <FrontpagePromotion />
-      {(await shuffleArray(ZEAL_CATEGORIES))?.map((category) => {
+      {(await shuffleArray(ZEAL_CATEGORIES))?.map((category, i) => {
         return (
-          <Suspense key={category}>
-            <HeadlinesBlock category={category as TopLevelCategory} />
-          </Suspense>
+          <>
+            <Suspense key={category}>
+              <HeadlinesBlock category={category as TopLevelCategory} />
+            </Suspense>
+            {(i + 1) % 2 === 0 && <FrontpagePromotion />}
+          </>
         );
       })}
     </main>

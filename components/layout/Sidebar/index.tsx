@@ -1,10 +1,6 @@
-import React, { useState } from "react";
-import { ChevronDown, ChevronRight, Link2, Menu, X } from "lucide-react";
-import Categories, {
-  type Categories as CategoriesType,
-  Category,
-  extractPath,
-} from "@/categories";
+import { Link2, Menu, X } from "lucide-react";
+import React from "react";
+import Categories, { Category, extractPath } from "@/categories";
 import { Link } from "@/i18n/routing";
 
 interface BurgerMenuProps {
@@ -21,17 +17,17 @@ export const BurgerMenu: React.FC<BurgerMenuProps> = ({
   return (
     <button
       onClick={onToggle}
-      className={`relative rounded-lg p-2 transition-all duration-200 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${className}`}
+      className={`relative rounded-lg p-2 transition-all duration-200 hover:bg-gray-400/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${className}`}
       aria-label={isOpen ? "Close menu" : "Open menu"}
     >
-      <div className="relative h-6 w-6">
+      <div className="relative size-6">
         <Menu
-          className={`absolute inset-0 h-6 w-6 text-gray-700 transition-all duration-300 ${
+          className={`absolute inset-0 size-6 text-card-foreground transition-all duration-300 ${
             isOpen ? "rotate-90 opacity-0" : "rotate-0 opacity-100"
           }`}
         />
         <X
-          className={`absolute inset-0 h-6 w-6 text-gray-700 transition-all duration-300 ${
+          className={`absolute inset-0 size-6 text-card-foreground transition-all duration-300 ${
             isOpen ? "rotate-0 opacity-100" : "-rotate-90 opacity-0"
           }`}
         />
@@ -61,16 +57,14 @@ const NavItem: React.FC<NavItemProps> = ({
 }) => {
   const hasSubItems = category.sub && category.sub.length > 0;
   const hasPath = Boolean(category.path);
-  const isActive = currentPath === extractPath(category.name);
+  const isActive =
+    currentPath === extractPath(category.name) ||
+    (currentPath?.includes("watch") && category.name === "Watch");
 
   const handleNavigate = (e: React.MouseEvent) => {
     // e.preventDefault();
     if (onClick) {
       onClick();
-      console.log("closed");
-    }
-    if (category.path) {
-      console.log(`Navigate to: ${extractPath(category.name)}`);
     }
   };
 
@@ -89,17 +83,17 @@ const NavItem: React.FC<NavItemProps> = ({
             ))}
 
             {/* Current level connector */}
-            <div className="relative flex h-6 w-6 items-center justify-center">
+            <div className="relative flex size-6 items-center justify-center">
               {/* Vertical line */}
               {!isLast && (
-                <div className="absolute bottom-0 left-1/2 top-6 w-px -translate-x-1/2 transform bg-border"></div>
+                <div className="absolute bottom-0 left-1/2 top-6 w-px -translate-x-1/2 bg-border"></div>
               )}
 
               {/* Horizontal line */}
-              <div className="absolute left-1/2 h-px w-3 bg-border"></div>
+              {/* <div className="absolute left-1/2 h-px w-3 bg-border"></div> */}
 
               {/* Tree node indicator */}
-              <div className="relative z-10 h-2 w-2 rounded-full bg-muted-alt"></div>
+              <div className="relative z-10 size-2 rounded-full bg-muted-alt"></div>
             </div>
           </div>
         )}
@@ -108,7 +102,7 @@ const NavItem: React.FC<NavItemProps> = ({
         <div className={`ml-2 flex-1 ${level === 0 ? "ml-4" : ""}`}>
           {hasPath ? (
             <Link
-              href={extractPath(category.name) || "/"}
+              href={extractPath(category.name) || "/watch"}
               onClick={handleNavigate}
               className={`group flex w-full items-center rounded-lg px-3 py-2 text-left transition-all duration-200 ${
                 isActive
@@ -133,7 +127,7 @@ const NavItem: React.FC<NavItemProps> = ({
 
               {/* Active indicator */}
               {isActive && (
-                <div className="ml-auto h-2 w-2 rounded-full bg-primary"></div>
+                <div className="ml-auto size-2 rounded-full bg-primary"></div>
               )}
             </Link>
           ) : (
@@ -152,7 +146,7 @@ const NavItem: React.FC<NavItemProps> = ({
               {hasSubItems && (
                 <div className="ml-2 text-gray-400">
                   <svg
-                    className="h-4 w-4"
+                    className="size-4"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -211,11 +205,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onClose,
   currentPath,
 }) => {
+  const CATEGORIES_WITH_WATCH = [...Categories];
+  CATEGORIES_WITH_WATCH.splice(1, 0, {
+    name: "Watch",
+    path: "/watch",
+  });
+
   return (
     <>
       {/* Overlay */}
       <div
-        className={`fixed inset-0 z-40 bg-black bg-opacity-50 transition-opacity duration-300 ${
+        className={`fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 ${
           isOpen ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
         onClick={onClose}
@@ -223,7 +223,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar */}
       <div
-        className={`scrollbar-change fixed left-0 top-0 z-50 h-full w-80 transform overflow-x-auto bg-card shadow-xl transition-transform duration-300 ease-in-out ${
+        className={`scrollbar-change fixed left-0 top-0 z-50 h-full w-80 overflow-x-auto bg-card shadow-xl transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -236,14 +236,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={onClose}
             className="rounded-md p-1 transition-colors duration-200 hover:bg-card-alt-bg/60 lg:hidden"
           >
-            <X className="h-5 w-5 text-muted-foreground" />
+            <X className="size-5 text-muted-foreground" />
           </button>
         </div>
 
         {/* Navigation Items */}
         <nav className="flex-1 overflow-y-auto">
           <div className="px-2 py-4">
-            {Categories.map((category, index) => (
+            {CATEGORIES_WITH_WATCH.map((category, index) => (
               <NavItem
                 key={`${category.name}-${index}`}
                 category={category}

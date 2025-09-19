@@ -6,7 +6,7 @@ const ZealLogo = (props: React.SVGProps<SVGSVGElement>) => {
       viewBox="120 0 2235 406"
       //   className="h-[48.4px] w-[117px]"
       style={{
-        width: "140px",
+        width: "100px",
         // height: "150px",
       }}
       {...props}

@@ -1,40 +1,41 @@
 "use client";
 
+import { GH, KE, NG, UG, ZA, ZM } from "country-flag-icons/react/3x2";
 import { motion } from "framer-motion";
 import { User } from "lucia";
+import { LogIn, Play, Watch } from "lucide-react";
 import Image from "next/image";
-import { Link } from "@/i18n/routing";
-import { usePathname } from "@/i18n/routing";
-// import ZealLogo from "@/assets/images/zeal_news_logo.png";
-// import ZealLogoDark from "@/assets/images/zeal_news_logo_dark.png";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 import NigeriaIcon from "@/assets/svgs/Countries/NigeriaIcon";
 import BellIcon from "@/assets/svgs/utils/BellIcon";
 import CollapseArrowIcon from "@/assets/svgs/utils/CollapseArrowIcon";
 import PenIcon from "@/assets/svgs/utils/PenIcon";
-import { Separator } from "@/components/ui/separator";
+import ZealLogo from "@/assets/ZealLogo";
+import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"; // Added Popover imports
-import { useAuth } from "@/hooks/useAuth";
-import CountryDropdown, { useCountryContext } from "./menu/Country";
-import NotificationsDropdown from "./menu/Notifications";
-import ProfileDropdown from "./menu/Profile";
-import WriterForm from "./popup/WriterForm";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { useNotificationContext } from "@/context/notifications/NotificationsProvider";
-import { GH, KE, NG, UG, ZA, ZM } from "country-flag-icons/react/3x2";
-import ZealLogo from "@/assets/ZealLogo";
-import { BurgerMenu, Sidebar } from "../Sidebar";
-import { LogIn } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { Link } from "@/i18n/routing";
+import { usePathname } from "@/i18n/routing";
+// import ZealLogo from "@/assets/images/zeal_news_logo.png";
+// import ZealLogoDark from "@/assets/images/zeal_news_logo_dark.png";
 import {
   checkUserUpgradeStatus,
   checkUserWriterStatus,
 } from "@/utils/user.utils";
+import CountryDropdown, { useCountryContext } from "./menu/Country";
+import NotificationsDropdown from "./menu/Notifications";
+import ProfileDropdown from "./menu/Profile";
+import WriterForm from "./popup/WriterForm";
+import Navbar from "../Navbar";
+import { BurgerMenu, Sidebar } from "../Sidebar";
 
 interface UserActionProps {
   user: User | null;
@@ -92,14 +93,6 @@ const MainIcon = () => {
 };
 
 const UserAction = ({ user }: UserActionProps) => {
-  const matches = useMediaQuery("(max-width: 750px)");
-  const [isMatch, setIsMatch] = useState(false);
-  const { unread } = useNotificationContext();
-
-  useEffect(() => {
-    setIsMatch(matches);
-  }, [matches]);
-
   if (!user) {
     return (
       <Link
@@ -114,28 +107,24 @@ const UserAction = ({ user }: UserActionProps) => {
 
   return (
     <div className="flex gap-2">
-      <CountryDropdown>
+      {/* <CountryDropdown>
         <MainIcon />
-        {/* <NigeriaIcon className="size-6 rounded-full" /> */}
+        <NigeriaIcon className="size-6 rounded-full" />
         <CollapseArrowIcon />
-      </CountryDropdown>
-      {!isMatch && (
-        <>
-          <NotificationsDropdown>
+      </CountryDropdown> */}
+      {/* <NotificationsDropdown>
             <BellIcon />
             {unread > 0 && (
               <span className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-normal leading-none text-[#ffffff]">
                 {unread}
               </span>
             )}
-          </NotificationsDropdown>
+          </NotificationsDropdown> */}
 
-          <ProfileDropdown user={user}>
-            <UserAvatar user={user} />
-            <CollapseArrowIcon />
-          </ProfileDropdown>
-        </>
-      )}
+      <ProfileDropdown user={user}>
+        <UserAvatar user={user} />
+        <CollapseArrowIcon />
+      </ProfileDropdown>
     </div>
   );
 };
@@ -254,70 +243,48 @@ const Topbar = () => {
         onClose={closeSidebar}
         currentPath={pathname}
       />
-      <header className="sticky top-0 z-50 flex h-fit items-center justify-between bg-card-alt-bg px-[100px] py-3 shadow-md max-[900px]:px-7 max-[350px]:px-2">
-        <div className="relative flex w-full items-center justify-between">
-          <BurgerMenu
-            isOpen={isSidebarOpen}
-            onToggle={toggleSidebar}
-            className="mr-4"
-          />
-          <div className="absolute left-1/2 top-1/2 flex grow -translate-x-1/2 -translate-y-1/2 transform items-center justify-center">
-            <Link href="/">
-              <ZealLogo className={`${isDark ? "fill-white" : ""}`} />
-            </Link>
+      <header className="sticky top-0 z-50 flex h-fit items-center justify-between bg-card-alt-bg px-5 py-3 shadow-md max-[900px]:px-3 max-[350px]:px-2">
+        <div className="relative flex w-full items-center justify-between gap-5">
+          <div className="flex grow items-center">
+            <BurgerMenu
+              isOpen={isSidebarOpen}
+              onToggle={toggleSidebar}
+              className="mr-4"
+            />
+            {/* <div className="absolute left-1/2 top-1/2 flex grow -translate-x-1/2 -translate-y-1/2 transform items-center justify-center"> */}
+            <div className="flex items-center justify-center">
+              <Link href="/">
+                <ZealLogo className={`lg:mr-4 ${isDark ? "fill-white" : ""}`} />
+              </Link>
+            </div>
+            <div className="hidden grow items-center justify-between min-[1080px]:flex">
+              <Navbar />
+              <Link
+                href="/watch"
+                className="group flex items-center text-primary underline-offset-4 hover:underline"
+              >
+                <span className="mr-2 flex items-center justify-center rounded-full border border-primary p-1">
+                  <Play className="group-hover:fill-primary" size={10} />
+                </span>
+                <span>Watch</span>
+              </Link>
+            </div>
           </div>
-          {/* <div className="flex gap-[100px]">
-          <Link href="/">
-            <ZealLogo className={`${isDark ? "fill-white" : ""}`} />
-          </Link>
-          {user && showActions && (
-            <div className="flex gap-6">
-              <div className="relative flex">
-                <Link className="text-sm font-semibold text-success" href="/">
-                  Feed
-                </Link>
-                {pathname === "/" && (
-                  <motion.span
-                    layoutId="topbarUnderline"
-                    className="absolute bottom-[-19px] h-1 w-full rounded-full bg-success"
-                  />
-                )}
+          <div className="flex items-center">
+            {loading ? null : (
+              <div className="flex h-fit items-center gap-5 max-[510px]:gap-2">
+                <div className="max-[400px]:hidden">
+                  <Write />
+                </div>
+                <div className="h-8">
+                  <Separator orientation="vertical" />
+                </div>
+                <UserAction user={user} />
               </div>
-              <div className="relative flex">
-                <Link
-                  className="text-sm font-semibold text-success"
-                  href="/for-you"
-                >
-                  For you
-                </Link>
-                {pathname === "/for-you" && (
-                  <motion.span
-                    layoutId="topbarUnderline"
-                    className="absolute bottom-[-19px] h-1 w-full rounded-full bg-success"
-                  />
-                )}
-              </div>
-            </div>
-          )}
-        </div> */}
-          {loading ? null : (
-            <div className="flex h-fit items-center gap-5 max-[510px]:gap-2">
-              <div className="max-[400px]:hidden">
-                <Write />
-                {/* <WriterForm>
-              <PenIcon />
-              <span className="text-sm font-medium text-muted-alt">Write</span>
-            </WriterForm> */}
-              </div>
-              <div className="h-8">
-                <Separator orientation="vertical" />
-              </div>
-              <UserAction user={user} />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </header>
-      {/* <Separator /> */}
     </>
   );
 };

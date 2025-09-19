@@ -11,12 +11,13 @@ const PreferencesPopup = dynamic(
 );
 
 const HomeLayoutClientComponents = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  console.log(loading);
 
   return (
     <>
-      {user && <OneTap />}
-      {user && <PreferencesPopup />}
+      {!user && !loading && <OneTap />}
+      {/* {user && <PreferencesPopup />} */}
     </>
   );
 };
