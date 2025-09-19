@@ -69,6 +69,7 @@ jobs:
           echo "WIKIMEDIA_USER_AGENT=${{ secrets.WIKIMEDIA_USER_AGENT }}" >> .env
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
           echo "MAILERLITE_API_KEY=${{ secrets.MAILERLITE_API_KEY }}" >> .env
+          echo "YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" >> .env
         shell: bash
 
       - name: Build and push Docker image
