@@ -10,13 +10,10 @@ const EditorWorkspace = () => {
       <div className="flex h-screen flex-col overflow-hidden bg-background">
         <Topbar />
         <div className="relative flex flex-1 overflow-hidden">
-          {/* Left Sidebar */}
           <LeftSidebar />
-          {/* Main Content Area */}
           <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
             <MainContentArea />
           </main>
-          {/* Right Sidebar */}
           <RightSidebar />
         </div>
       </div>
