@@ -3,6 +3,21 @@ import { fetcher } from "@/lib/fetcher";
 import { IDraft } from "@/types/draft.type";
 import { jsonToFormData } from "@/utils/converter.utils";
 
+export const createInitialDraft = async () => {
+  try {
+    const formData = new FormData();
+    formData.append('title', 'Untitled Document');
+    
+    const newDraft = await fetcher(`/api/v1/draft`, {
+      method: "POST",
+      body: formData,
+    });
+    return newDraft;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const getDraftsByUserId = async (page: number = 1) => {
   try {
     const drafts = await fetcher(`/api/v1/draft?page=${page}`);

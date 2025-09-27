@@ -1,7 +1,7 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata, Viewport } from "next";
 import dynamic from "next/dynamic";
-// import { Poppins } from "next/font/google";
+import { Poppins, Inter } from "next/font/google";
 import localFont from "next/font/local";
 import "../globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
@@ -32,10 +32,15 @@ const CookieConsent = dynamic(
   { ssr: false },
 );
 
-// const poppins = Poppins({
-//   subsets: ["latin"],
-//   weight: ["400", "500", "600", "700", "800"],
-// });
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
 
 const cnnSansDisplay = localFont({
   src: [
@@ -141,7 +146,7 @@ export default async function RootLayout({
   return (
     // <html lang={locale} suppressHydrationWarning>
     <html lang="en" suppressHydrationWarning>
-      <body className={`${cnnSansDisplay.className}`}>
+      <body className={`${inter.className}`}>
         {/* <Suspense> */}
         <NextIntlClientProvider
         //  messages={messages}

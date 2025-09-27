@@ -476,6 +476,20 @@ export const Figure = Node.create({
               }
               return false;
             },
+            dragstart: (view, event) => {
+              if (!event.target) {
+                return false;
+              }
+
+              const pos = view.posAtDOM(event.target as HTMLElement, 0);
+              const $pos = view.state.doc.resolve(pos);
+
+              if ($pos.parent.type === this.type) {
+                event.preventDefault();
+              }
+
+              return false;
+            },
             // You could also add a 'drop' handler here if needed, with similar logic.
           },
         },

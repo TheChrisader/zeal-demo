@@ -1,4 +1,4 @@
-import { Link2, Menu, X } from "lucide-react";
+import { Link2, Menu, Play, X } from "lucide-react";
 import React from "react";
 import Categories, { Category, extractPath } from "@/categories";
 import { Link } from "@/i18n/routing";
@@ -121,6 +121,17 @@ const NavItem: React.FC<NavItemProps> = ({
               >
                 {category.name}
               </span>
+
+              {category.name === "Watch" && (
+                <span
+                  className={`ml-2 flex items-center justify-center rounded-full border p-1 ${isActive ? "border-primary" : "border-muted-foreground group-hover:border-gray-900"}`}
+                >
+                  <Play
+                    className={`${isActive ? "fill-primary" : "fill-muted-foreground group-hover:fill-gray-900"}`}
+                    size={12}
+                  />
+                </span>
+              )}
 
               {/* Folder icon for items with children */}
               {hasSubItems && <Link2 className="ml-2 size-4 text-muted-alt" />}

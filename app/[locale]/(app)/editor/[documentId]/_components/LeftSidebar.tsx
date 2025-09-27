@@ -6,7 +6,15 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, FileWarning, Hourglass, Link2, Trash2, X } from "lucide-react"; // Added X icon
+import {
+  Check,
+  FileWarning,
+  Hourglass,
+  Link2,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react"; // Added X icon
 import React, { useEffect, useState } from "react";
 import { useRouter } from "@/app/_components/useRouter";
 import {
@@ -26,7 +34,11 @@ import { useSidebarStore } from "@/context/sidebarStore/useSidebarStore";
 import { useAuth } from "@/hooks/useAuth";
 import { useResizeDelta } from "@/hooks/useResizeDelta";
 import { Link } from "@/i18n/routing";
-import { deleteDraftById, getDraftsByUserId } from "@/services/draft.services";
+import {
+  createInitialDraft,
+  deleteDraftById,
+  getDraftsByUserId,
+} from "@/services/draft.services";
 import { deletePostById, fetchPostsByAuthorId } from "@/services/post.services";
 import { IDraft } from "@/types/draft.type";
 import { IPost } from "@/types/post.type";
@@ -122,6 +134,23 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({}) => {
   });
 
   const published: IPost[] = publishedData?.pages?.flat() || [];
+
+  const createDraftMutation = useMutation({
+    mutationFn: createInitialDraft,
+    onSuccess: (newDraft) => {
+      queryClient.invalidateQueries({
+        queryKey: ["documents", { type: "drafts" }],
+      });
+      router.push(`/editor/${newDraft._id}`);
+    },
+    onError: (error) => {
+      console.error("Failed to create new document:", error);
+    },
+  });
+
+  const handleCreateNewDocument = () => {
+    createDraftMutation.mutate();
+  };
 
   const deleteDraftMutation = useMutation({
     mutationFn: async (draftId: string) => {
@@ -240,11 +269,8 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({}) => {
             style={{ overflow: "hidden" }}
           >
             <div className="flex h-full flex-col space-y-6 border-r border-border bg-background-alt p-4">
-              <div className="flex items-center justify-between">
-                <h1 className="text-xl font-bold text-primary">
-                  Zeal News Africa
-                </h1>
-                {isMobile && (
+              {isMobile && (
+                <div className="flex items-center justify-between">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -252,11 +278,11 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({}) => {
                   >
                     <X className="size-5" />
                   </Button>
-                )}
-              </div>
+                </div>
+              )}
 
               {/* New Document Button */}
-              <Link
+              {/* <Link
                 href="/editor"
                 onClick={() => {
                   setActiveDocumentId(undefined);
@@ -265,7 +291,21 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({}) => {
                 className="flex w-full items-center justify-center rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 + New Document
-              </Link>
+              </Link> */}
+              <div className="flex justify-center">
+                <Button
+                  onClick={handleCreateNewDocument}
+                  disabled={createDraftMutation.isPending}
+                  className="group w-full max-w-md rounded-xl bg-gradient-to-r from-primary to-primary/90 py-2.5 shadow-lg transition-all hover:shadow-xl"
+                >
+                  <Plus className="mr-2 size-5 transition-transform group-hover:rotate-90" />
+                  <span className="font-medium">
+                    {createDraftMutation.isPending
+                      ? "Creating..."
+                      : "Blank Document"}
+                  </span>
+                </Button>
+              </div>
 
               {/* My Drafts Section */}
               <div>

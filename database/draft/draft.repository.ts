@@ -61,7 +61,7 @@ export const getDraftsByUserId = async (
       })
       .skip(skip)
       .limit(limit)
-      .select("_id id title moderationStatus");
+      .select("_id id title description moderationStatus updated_at");
     return drafts.map((draft) => draft.toObject());
   } catch (error) {
     throw error;

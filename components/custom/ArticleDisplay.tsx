@@ -50,7 +50,7 @@ const CustomParagraph: React.FC<CustomComponentProps> = ({
   ...props
 }) => (
   <p
-    className="mb-4 max-w-[100vw] text-base font-normal leading-7 text-foreground-alt-p"
+    className="mb-4 max-w-[100vw] text-base font-normal leading-7 text-foreground-alt-p/75"
     {...props}
   >
     {children}
@@ -156,8 +156,8 @@ const CustomList: React.FC<CustomListProps> = ({
 }) => {
   const Tag = ordered ? "ol" : "ul";
   const listClass = ordered
-    ? "list-decimal list-inside mb-4 space-y-1"
-    : "list-disc list-inside mb-4 space-y-1";
+    ? "list-decimal mb-4 space-y-1"
+    : "list-disc mb-4 space-y-1";
 
   return (
     <Tag className={listClass} {...props}>
@@ -212,7 +212,7 @@ const CustomFigure: React.FC<CustomComponentProps> = ({
   children,
   ...props
 }) => (
-  <figure className="mb-4 w-full" {...props}>
+  <figure className="my-10 w-full" {...props}>
     {children}
   </figure>
 );
@@ -246,7 +246,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
         <img
           src={src}
           alt={alt}
-          className="max-h-full w-full max-w-4xl rounded-lg object-contain"
+          className="max-h-screen max-w-4xl rounded-lg object-contain"
           onClick={(e: React.MouseEvent) => e.stopPropagation()}
         />
       </div>
@@ -412,7 +412,7 @@ const parseHTMLToReact = (
           </span>
         );
       case "hr":
-        return <hr key={index} {...props} />;
+        return <hr className="my-5" key={index} {...props} />;
       default:
         // For unknown tags, render them as-is using React.createElement
         return React.createElement(tagName, { key: index, ...props }, children);

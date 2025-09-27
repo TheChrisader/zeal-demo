@@ -98,13 +98,13 @@ const MainContentArea: React.FC<MainContentAreaProps> = ({}) => {
         queryClient.setQueryData(["document", activeDocumentId], updatedPost);
       }
       // Or, if the mutation returns the updated post, update the cache directly:
-      // queryClient.setQueryData(["document", activeDocumentId], data);
+      // queryClient.setQueryData([\"document\", activeDocumentId], data);
     },
     onError: (error) => {
       console.error("Failed to save content for doc:", activeDocumentId, error);
       toast.error(`Failed to save content for doc: ${activeDocumentId}`);
       // Handle error (e.g., show toast to user)
-      // Do not reset hasUserMadeChanges on error, so user knows content is still "dirty"
+      // Do not reset hasUserMadeChanges on error, so user knows content is still \"dirty\"
     },
     onSettled: () => {
       setIsContentUpdating(false);
@@ -141,16 +141,6 @@ const MainContentArea: React.FC<MainContentAreaProps> = ({}) => {
     return (
       <div className="h-full bg-white p-6">Error: {documentError?.message}</div>
     );
-
-  if (!activeDocumentId) {
-    return (
-      <div className="flex h-full flex-col items-center justify-center">
-        <p className="text-lg text-muted-foreground">
-          Your document is being generated. It may take a few seconds to ...
-        </p>
-      </div>
-    );
-  }
 
   const handleEditorChange = (newContentString: Content) => {
     const newContent = newContentString as string;

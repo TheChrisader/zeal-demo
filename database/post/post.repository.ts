@@ -344,7 +344,7 @@ export const getPostsByAuthorId = async (
     const posts = await PostModel.find({ author_id: authorId })
       .skip(skip)
       .limit(limit)
-      .select("_id id title image_url");
+      .select("_id id title description image_url updated_at");
     return posts.map((post) => post.toObject());
   } catch (error) {
     throw error;
