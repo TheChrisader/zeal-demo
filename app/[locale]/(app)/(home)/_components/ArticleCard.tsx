@@ -130,7 +130,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
         {/* Content Section */}
         <div className="flex-1 p-4">
           {/* Category */}
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-primary">
+          <div className="mb-2 w-fit rounded-xl bg-primary px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-white">
             <span>{article.category[0]}</span>
             {article.category[1] && (
               <>
@@ -146,13 +146,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
             </h3>
 
             {/* Image Section */}
-            <div className="size-12 min-w-12 overflow-hidden rounded-md">
+            <div className="h-16 w-24 min-w-24 overflow-hidden rounded-md">
               <img
                 src={imageUrl}
                 alt={article.title}
                 loading="lazy"
                 fetchPriority="low"
-                className="h-full w-full object-cover"
+                className="size-full object-cover"
               />
             </div>
           </div>
