@@ -4,6 +4,7 @@ import React, { Fragment, ReactNode, useCallback, useState } from "react";
 import { getParsedDocument, HTMLNode } from "@/lib/html-parser";
 import ArticlePromotion from "../promotion/article";
 import { PROMOTION_DETAIL_KEY_ENUMS } from "../promotion/data";
+import WhatsappPromotion from "../promotion/whatsapp";
 
 let PARAGRAPH_TRACKER = 0;
 
@@ -296,6 +297,12 @@ const parseHTMLToReact = (
                   <ArticlePromotion
                     category={category[0] as PROMOTION_DETAIL_KEY_ENUMS}
                   />
+                </div>
+              )}
+            {PARAGRAPH_TRACKER % 20 === 0 &&
+              element.parent?.tagName === "root" && (
+                <div className="my-4">
+                  <WhatsappPromotion />
                 </div>
               )}
             <CustomParagraph {...props}>{children}</CustomParagraph>

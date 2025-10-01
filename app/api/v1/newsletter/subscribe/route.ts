@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
       // Set cookie even if already subscribed to ensure access
       const cookie = serialize("zealnews_subscribed_newsletter", "true", {
-        httpOnly: true,
+        // httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       "zealnews_subscribed_newsletter",
       "true",
       {
-        httpOnly: true,
+        // httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
       // This case should ideally be caught by `existingSubscriber` check above,
       // but this is a fallback.
       const cookie = serialize("zealnews_subscribed_newsletter", "true", {
-        httpOnly: true,
+        // httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
