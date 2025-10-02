@@ -42,8 +42,7 @@ export default function NewsletterPage() {
     const hasSubscribed = document.cookie
       .split("; ")
       .find((row) => row.startsWith("zealnews_subscribed_newsletter="));
-
-    console.log(document.cookie.split("; "));
+    
     if (hasSubscribed) {
       setSubmitSuccess(true);
     }
@@ -238,8 +237,14 @@ export default function NewsletterPage() {
                     </Button>
 
                     <p className="text-center text-sm text-muted-foreground">
-                      By subscribing, you agree to our Privacy Policy and
-                      consent to receive updates.
+                      By subscribing, you agree to our{" "}
+                      <Link 
+                        href="/info/privacy-policy" 
+                        className="underline underline-offset-4 hover:text-primary"
+                      >
+                        Privacy Policy
+                      </Link>{" "}
+                      and consent to receive updates.
                     </p>
 
                     <div className="flex justify-center">
