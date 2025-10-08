@@ -230,6 +230,7 @@ PostSchema.index({ source_type: 1, published_at: -1 });
 PostSchema.index({ title: "text", published_at: -1 });
 PostSchema.index({ prominence_score: -1, published_at: -1 });
 PostSchema.index({ initial_score: -1, published_at: -1 });
+PostSchema.index({ published: 1, published_at: -1 }); // For querying published posts
 
 PostSchema.virtual("id").get(function () {
   return this._id.toHexString();

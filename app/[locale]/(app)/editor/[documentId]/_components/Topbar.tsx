@@ -2,6 +2,7 @@
 
 import { useIsMutating, useQuery } from "@tanstack/react-query";
 import {
+  Clock,
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
@@ -25,6 +26,7 @@ import { IDraft } from "@/types/draft.type";
 import { IPost } from "@/types/post.type";
 import EditableDocumentTitle from "./EditableDocumentTitle";
 import { fetchById } from "../_utils/composites";
+import SchedulePostModal from "./SchedulePostModal";
 
 interface TopbarProps {}
 
@@ -32,6 +34,8 @@ const Topbar: React.FC<TopbarProps> = ({}) => {
   const { user } = useAuth();
   const isMutating = useIsMutating();
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isScheduling, setIsScheduling] = useState(false);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
   const isLeftSidebarOpen = useSidebarStore((state) => state.isLeftSidebarOpen);
   const isRightSidebarOpen = useSidebarStore(
     (state) => state.isRightSidebarOpen,
@@ -98,81 +102,155 @@ const Topbar: React.FC<TopbarProps> = ({}) => {
     }
   };
 
-  return (
-    <header className="flex h-16 shrink-0 items-center justify-between space-x-6 border-b border-border bg-background p-4">
-      <div className="flex items-center space-x-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleLeftSidebar}
-          className="md:hidden"
-        >
-          <Menu className="size-5" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleLeftSidebar}
-          className="hidden md:inline-flex"
-        >
-          {isLeftSidebarOpen ? (
-            <PanelLeftClose className="size-5" />
-          ) : (
-            <PanelLeftOpen className="size-5" />
-          )}
-        </Button>
-        <EditableDocumentTitle />
-      </div>
+  const validateBeforeSchedule = async (doc: IDraft) => {
+    if (!doc?.title || !doc.title.trim()) {
+      toast.error(`Title is required.`);
+      return;
+    }
+    console.log("???");
+    if (doc.title.trim() === "Untitled Document") {
+      toast.error(
+        `Your current title is "Untitled Document". Please change it.`,
+      );
+      return;
+    }
+    if (!doc?.content || !stripHtml(doc.content?.trim()).result?.trim()) {
+      toast.error(`Content is required.`);
+      return;
+    }
+    if (!doc?.description || !doc.description.trim()) {
+      toast.error(`Preview is required.`);
+      return;
+    }
+    if (!doc?.category || doc.category.length === 0) {
+      toast.error(`Category is required.`);
+      return;
+    }
 
-      {/* Right side: Actions (e.g., Word Count, Share, Publish) */}
-      <div className="flex items-center space-x-1 md:space-x-4">
-        <span className="hidden gap-2 whitespace-nowrap text-sm text-muted-foreground md:flex">
-          {`${wordCount} words`}
-          <LoadingSpinner size={16} isLoading={isContentUpdating} />
-        </span>
-        <button
-          disabled={
-            isMutating > 0 ||
-            documentData?.published ||
-            (documentData as IDraft)?.moderationStatus ===
-              "awaiting_approval" ||
-            (documentData as IDraft)?.moderationStatus === "published"
-          }
-          onClick={() => validateBeforePublish(documentData as IPost)}
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <span className="hidden md:inline">
-            {isPublishing ? "Publishing..." : "Publish"}
+    // All validations passed, show the schedule modal
+    setShowScheduleModal(true);
+  };
+
+  const handleScheduleSuccess = (scheduledPost: any) => {
+    // Handle success after scheduling - navigate based on user role
+    if (user?.role === "freelance_writer") {
+      toast.success("Draft scheduled for approval!");
+      router.push(`/awaiting_approval/${scheduledPost.draft._id?.toString()}`);
+    } else {
+      toast.success("Post scheduled successfully!");
+      router.push(`/scheduled/${scheduledPost.draft._id?.toString()}`);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowScheduleModal(false);
+  };
+
+  return (
+    <>
+      <header className="flex h-16 shrink-0 items-center justify-between space-x-6 border-b border-border bg-background p-4">
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleLeftSidebar}
+            className="md:hidden"
+          >
+            <Menu className="size-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleLeftSidebar}
+            className="hidden md:inline-flex"
+          >
+            {isLeftSidebarOpen ? (
+              <PanelLeftClose className="size-5" />
+            ) : (
+              <PanelLeftOpen className="size-5" />
+            )}
+          </Button>
+          <EditableDocumentTitle />
+        </div>
+
+        {/* Right side: Actions (e.g., Word Count, Share, Publish) */}
+        <div className="flex items-center space-x-1 md:space-x-4">
+          <span className="hidden gap-2 whitespace-nowrap text-sm text-muted-foreground md:flex">
+            {`${wordCount} words`}
+            <LoadingSpinner size={16} isLoading={isContentUpdating} />
           </span>
-          {isPublishing ? (
-            <LoadingSpinner size={16} />
-          ) : (
-            <Pencil size={16} className="md:hidden" />
-          )}
-        </button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleRightSidebar}
-          className="hidden lg:inline-flex"
-        >
-          {isRightSidebarOpen ? (
-            <PanelRightClose className="size-5" />
-          ) : (
-            <PanelRightOpen className="size-5" />
-          )}
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleRightSidebar}
-          className="lg:hidden"
-        >
-          <Menu className="size-5" />{" "}
-          {/* Or a different icon for mobile right toggle if needed */}
-        </Button>
-      </div>
-    </header>
+          <button
+            disabled={
+              isMutating > 0 ||
+              documentData?.published ||
+              (documentData as IDraft)?.moderationStatus ===
+                "awaiting_approval" ||
+              (documentData as IDraft)?.moderationStatus === "published" ||
+              (documentData as IDraft)?.isScheduled
+            }
+            onClick={() => validateBeforeSchedule(documentData as IDraft)}
+            className="rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <span className="hidden md:inline">
+              {isScheduling ? "Scheduling..." : "Schedule"}
+            </span>
+            {isScheduling ? (
+              <LoadingSpinner size={16} />
+            ) : (
+              <Clock size={16} className="md:hidden" />
+            )}
+          </button>
+          <button
+            disabled={
+              isMutating > 0 ||
+              documentData?.published ||
+              (documentData as IDraft)?.moderationStatus ===
+                "awaiting_approval" ||
+              (documentData as IDraft)?.moderationStatus === "published"
+            }
+            onClick={() => validateBeforePublish(documentData as IPost)}
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <span className="hidden md:inline">
+              {isPublishing ? "Publishing..." : "Publish"}
+            </span>
+            {isPublishing ? (
+              <LoadingSpinner size={16} />
+            ) : (
+              <Pencil size={16} className="md:hidden" />
+            )}
+          </button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleRightSidebar}
+            className="hidden lg:inline-flex"
+          >
+            {isRightSidebarOpen ? (
+              <PanelRightClose className="size-5" />
+            ) : (
+              <PanelRightOpen className="size-5" />
+            )}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleRightSidebar}
+            className="lg:hidden"
+          >
+            <Menu className="size-5" />{" "}
+            {/* Or a different icon for mobile right toggle if needed */}
+          </Button>
+        </div>
+      </header>
+      {showScheduleModal && documentData && (
+        <SchedulePostModal
+          document={documentData as IDraft}
+          onClose={handleCloseModal}
+          onSave={handleScheduleSuccess}
+        />
+      )}
+    </>
   );
 };
 

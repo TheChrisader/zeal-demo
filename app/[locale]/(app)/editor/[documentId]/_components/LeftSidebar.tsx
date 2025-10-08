@@ -8,6 +8,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Check,
+  Clock,
   FileWarning,
   Hourglass,
   Link2,
@@ -337,6 +338,9 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({}) => {
                         >
                           {draft.title || "Untitled Draft"}
                         </Link>
+                        {draft.moderationStatus === "scheduled" && (
+                          <Clock className="size-4 text-blue-500 focus:outline-none" />
+                        )}
                         {draft.moderationStatus === "awaiting_approval" && (
                           <Link href={`/awaiting_approval/${draft.id}`}>
                             <Hourglass className="size-4 text-muted-foreground hover:text-primary focus:outline-none" />

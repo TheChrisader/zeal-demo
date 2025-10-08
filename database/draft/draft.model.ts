@@ -65,12 +65,31 @@ const DraftSchema = new Schema<IDraft>(
     },
     moderationStatus: {
       type: String,
-      enum: ["draft", "awaiting_approval", "published", "rejected"],
+      enum: [
+        "draft",
+        "scheduled",
+        "awaiting_approval",
+        "published",
+        "rejected",
+      ],
       default: "draft",
     },
     moderationNotes: {
       type: [String],
       default: [],
+    },
+    scheduled_at: {
+      type: Date || String,
+      default: null,
+    },
+    isScheduled: {
+      type: Boolean,
+      default: false,
+    },
+    schedule_publish_type: {
+      type: String,
+      enum: ["automatic", "manual"],
+      default: null,
     },
   },
   {
@@ -88,6 +107,13 @@ DraftSchema.index({ category: 1 });
 DraftSchema.index({ created_at: -1 });
 DraftSchema.index({ updated_at: -1 });
 DraftSchema.index({ title: "text", description: "text" });
+DraftSchema.index({
+  isScheduled: 1,
+  scheduled_at: 1,
+  published: 1,
+  moderationStatus: 1,
+  schedule_publish_type: 1,
+}); // For querying scheduled drafts
 
 DraftSchema.virtual("id").get(function () {
   return this._id.toHexString();

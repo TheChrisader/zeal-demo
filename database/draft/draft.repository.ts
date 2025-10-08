@@ -108,6 +108,44 @@ export const updateDraft = async (
   }
 };
 
+// Schedule a draft to be published at a future date
+export const scheduleDraft = async (
+  id: string | Id,
+  scheduled_at: Date,
+): Promise<IDraft | null> => {
+  try {
+    const updatedDraftDoc = await DraftModel.findByIdAndUpdate(
+      id,
+      {
+        scheduled_at,
+        isScheduled: true,
+        published: false, // Keep as not published until scheduled time
+        // moderationStatus is not changed here - will be handled by the specific API routes
+      },
+      { new: true },
+    );
+    return updatedDraftDoc?.toObject() || null;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Get all scheduled drafts that need to be published
+export const getScheduledDrafts = async (): Promise<IDraft[]> => {
+  try {
+    const drafts = await DraftModel.find({
+      isScheduled: true,
+      scheduled_at: { $lte: new Date() }, // Drafts scheduled for now or in the past
+      published: false,
+      moderationStatus: "scheduled", // Only get drafts that are in scheduled status
+      schedule_publish_type: { $in: ["automatic", "manual"] }, // Either automatic or manual publishing
+    });
+    return drafts.map((draft) => draft.toObject());
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const getDraftsByStatus = async (
   status: IDraft["moderationStatus"],
 ): Promise<IDraft[]> => {

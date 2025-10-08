@@ -21,9 +21,17 @@ export interface IDraft {
   language: Language;
   country: string[];
   category: string[];
-  moderationStatus: "draft" | "awaiting_approval" | "published" | "rejected";
+  moderationStatus:
+    | "draft"
+    | "scheduled"
+    | "awaiting_approval"
+    | "published"
+    | "rejected";
   moderationNotes: string[];
   published: boolean;
+  scheduled_at?: Date | string; // When the draft is scheduled to be published
+  isScheduled?: boolean; // Whether the draft is scheduled
+  schedule_publish_type?: "automatic" | "manual"; // How the draft should be published when scheduled
   created_at: string;
   updated_at: string;
 }

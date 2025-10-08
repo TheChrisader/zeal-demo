@@ -89,7 +89,7 @@ export const createPostFromDraft = async (draft: IDraft): Promise<IPost> => {
       status: "active",
       external: false,
       country: ["Nigeria"],
-      published: true,
+      published: true, // Always publish when creating from draft
       source,
       published_at: new Date().toISOString(),
       generatedBy: "user",
@@ -104,6 +104,7 @@ export const createPostFromDraft = async (draft: IDraft): Promise<IPost> => {
     throw error;
   }
 };
+
 
 // update post
 export const updatePost = async (post: IPost): Promise<IPost | null> => {
@@ -361,3 +362,4 @@ export const getPostsByKeyword = async (keyword: string): Promise<IPost[]> => {
     throw error;
   }
 };
+
