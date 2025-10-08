@@ -245,3 +245,36 @@ export const getDraftsByFilters = async (
     throw error;
   }
 };
+
+export const searchDraftsByUser = async (
+  userId: string | Id,
+  searchQuery: string,
+  options: DraftQueryOptions = {},
+): Promise<IDraft[]> => {
+  try {
+    const skip = options.skip || 0;
+    const limit = options.limit || 5;
+
+    const query: {
+      user_id: string | Id;
+      $or?: Array<{ [key: string]: { $regex: string; $options: "i" } }>;
+    } = { user_id: userId };
+
+    if (searchQuery.trim()) {
+      query.$or = [
+        { title: { $regex: searchQuery.trim(), $options: "i" } },
+        { description: { $regex: searchQuery.trim(), $options: "i" } },
+      ];
+    }
+
+    const drafts = await DraftModel.find(query)
+      .sort({ updated_at: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select("_id id title description moderationStatus updated_at");
+
+    return drafts.map((draft) => draft.toObject());
+  } catch (error) {
+    throw error;
+  }
+};

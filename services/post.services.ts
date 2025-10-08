@@ -88,3 +88,13 @@ export const deletePostById = async (postId: string): Promise<IPost | null> => {
     return null;
   }
 };
+
+export const searchPosts = async (searchQuery: string, authorId: string, page: number = 1): Promise<IPost[]> => {
+  try {
+    const posts = await fetcher(`/api/v1/post/search?q=${encodeURIComponent(searchQuery)}&authorId=${authorId}&page=${page}`);
+    return posts;
+  } catch (error) {
+    console.error("Failed to search posts:", error);
+    return [];
+  }
+};

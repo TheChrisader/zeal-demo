@@ -21,13 +21,16 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
+import { useDebounce } from "@/hooks/useDebounce";
 import {
   createInitialDraft,
   getDraftsByUserId,
+  searchDrafts,
 } from "@/services/draft.services";
-import { fetchPostsByAuthorId } from "@/services/post.services";
+import { fetchPostsByAuthorId, searchPosts } from "@/services/post.services";
 import { IDraft } from "@/types/draft.type";
 import { IPost } from "@/types/post.type";
+import { Search } from "lucide-react";
 
 interface NewDocumentPageClientProps {}
 
@@ -36,6 +39,20 @@ const NewDocumentPageClient: React.FC<NewDocumentPageClientProps> = ({}) => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("drafts");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Debounce the search query to avoid excessive API calls
+  const debouncedSearchQuery = useDebounce(searchQuery, 600);
+
+  // Track if we're currently debouncing (typing but search hasn't executed yet)
+  const isDebouncing =
+    searchQuery.trim().length > 0 && searchQuery !== debouncedSearchQuery;
+
+  // Update searching state based on debounced query
+  useEffect(() => {
+    setIsSearching(debouncedSearchQuery.trim().length > 0);
+  }, [debouncedSearchQuery]);
 
   const {
     data: draftsData,
@@ -79,7 +96,7 @@ const NewDocumentPageClient: React.FC<NewDocumentPageClientProps> = ({}) => {
         observer.unobserve(loadMoreRef.current);
       }
     };
-  }, [hasMoreDrafts, isFetchingMoreDrafts, fetchMoreDrafts]);
+  }, [hasMoreDrafts, isFetchingMoreDrafts, fetchMoreDrafts, isSearching]);
 
   const {
     data: publishedData,
@@ -125,10 +142,136 @@ const NewDocumentPageClient: React.FC<NewDocumentPageClientProps> = ({}) => {
         observer.unobserve(loadMorePublishedRef.current);
       }
     };
-  }, [hasMorePublished, isFetchingMorePublished, fetchMorePublished]);
+  }, [hasMorePublished, isFetchingMorePublished, fetchMorePublished, isSearching]);
 
-  const drafts: IDraft[] = draftsData?.pages?.flat() || [];
-  const published: IPost[] = publishedData?.pages?.flat() || [];
+  const {
+    data: searchDraftsData,
+    isLoading: isLoadingSearchDrafts,
+    fetchNextPage: fetchMoreSearchDrafts,
+    hasNextPage: hasMoreSearchDrafts,
+    isFetchingNextPage: isFetchingMoreSearchDrafts,
+  } = useInfiniteQuery({
+    queryKey: ["documents", { type: "drafts", search: debouncedSearchQuery }],
+    queryFn: ({ pageParam = 1 }) =>
+      searchDrafts(debouncedSearchQuery, pageParam),
+    initialPageParam: 1,
+    enabled: !!debouncedSearchQuery.trim(),
+    getNextPageParam: (lastPage, allPages = []): number | undefined => {
+      if (lastPage.length < 5) {
+        return undefined;
+      }
+      const nextPage = allPages?.length + 1;
+      return nextPage;
+    },
+  });
+
+  const {
+    data: searchPublishedData,
+    isLoading: isLoadingSearchPublished,
+    fetchNextPage: fetchMoreSearchPublished,
+    hasNextPage: hasMoreSearchPublished,
+    isFetchingNextPage: isFetchingMoreSearchPublished,
+  } = useInfiniteQuery({
+    queryKey: [
+      "documents",
+      { type: "published", search: debouncedSearchQuery },
+    ],
+    queryFn: ({ pageParam = 1 }) =>
+      searchPosts(debouncedSearchQuery, user?.id as string, pageParam),
+    initialPageParam: 1,
+    enabled: !!debouncedSearchQuery.trim() && !!user?.id,
+    getNextPageParam: (lastPage, allPages = []): number | undefined => {
+      if (lastPage.length < 5) {
+        return undefined;
+      }
+      const nextPage = allPages?.length + 1;
+      return nextPage;
+    },
+  });
+
+  const drafts: IDraft[] = debouncedSearchQuery.trim()
+    ? searchDraftsData?.pages?.flat() || []
+    : draftsData?.pages?.flat() || [];
+  const published: IPost[] = debouncedSearchQuery.trim()
+    ? searchPublishedData?.pages?.flat() || []
+    : publishedData?.pages?.flat() || [];
+
+  const isLoadingDraftsFinal = debouncedSearchQuery.trim()
+    ? isLoadingSearchDrafts
+    : isLoadingDrafts;
+  const isLoadingPublishedFinal = debouncedSearchQuery.trim()
+    ? isLoadingSearchPublished
+    : isLoadingPublished;
+
+  // Set up intersection observer for search drafts infinite scroll
+  const loadMoreSearchDraftsRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (
+      !hasMoreSearchDrafts ||
+      isFetchingMoreSearchDrafts ||
+      !debouncedSearchQuery.trim()
+    )
+      return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && hasMoreSearchDrafts) {
+          fetchMoreSearchDrafts();
+        }
+      },
+      { threshold: 1.0 },
+    );
+
+    if (loadMoreSearchDraftsRef.current) {
+      observer.observe(loadMoreSearchDraftsRef.current);
+    }
+
+    return () => {
+      if (loadMoreSearchDraftsRef.current) {
+        observer.unobserve(loadMoreSearchDraftsRef.current);
+      }
+    };
+  }, [
+    hasMoreSearchDrafts,
+    isFetchingMoreSearchDrafts,
+    fetchMoreSearchDrafts,
+    debouncedSearchQuery,
+  ]);
+
+  // Set up intersection observer for search published documents infinite scroll
+  const loadMoreSearchPublishedRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (
+      !hasMoreSearchPublished ||
+      isFetchingMoreSearchPublished ||
+      !debouncedSearchQuery.trim()
+    )
+      return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && hasMoreSearchPublished) {
+          fetchMoreSearchPublished();
+        }
+      },
+      { threshold: 1.0 },
+    );
+
+    if (loadMoreSearchPublishedRef.current) {
+      observer.observe(loadMoreSearchPublishedRef.current);
+    }
+
+    return () => {
+      if (loadMoreSearchPublishedRef.current) {
+        observer.unobserve(loadMoreSearchPublishedRef.current);
+      }
+    };
+  }, [
+    hasMoreSearchPublished,
+    isFetchingMoreSearchPublished,
+    fetchMoreSearchPublished,
+    debouncedSearchQuery,
+  ]);
 
   const createDraftMutation = useMutation({
     mutationFn: createInitialDraft,
@@ -145,6 +288,16 @@ const NewDocumentPageClient: React.FC<NewDocumentPageClientProps> = ({}) => {
 
   const handleCreateNewDocument = () => {
     createDraftMutation.mutate();
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setIsSearching(query.trim().length > 0);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setIsSearching(false);
   };
 
   const truncateContent = (content: string, maxLength: number = 180) => {
@@ -252,19 +405,25 @@ const NewDocumentPageClient: React.FC<NewDocumentPageClientProps> = ({}) => {
     return (
       <div className="rounded-2xl border border-dashed p-12 text-center">
         <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-muted">
-          {activeTab === "drafts" ? (
+          {isSearching ? (
+            <Search className="size-8 text-muted-foreground" />
+          ) : activeTab === "drafts" ? (
             <FileText className="size-8 text-muted-foreground" />
           ) : (
             <BookOpen className="size-8 text-muted-foreground" />
           )}
         </div>
-        <h3 className="mt-4 text-lg font-medium">No {activeTab} found</h3>
+        <h3 className="mt-4 text-lg font-medium">
+          {isSearching ? "No search results found" : `No ${activeTab} found`}
+        </h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          {activeTab === "drafts"
-            ? "Your drafts will appear here once you create them"
-            : "Your published documents will appear here once you publish them"}
+          {isSearching
+            ? `No ${activeTab === "drafts" ? "drafts" : "published documents"} match your search "${debouncedSearchQuery}"`
+            : activeTab === "drafts"
+              ? "Your drafts will appear here once you create them"
+              : "Your published documents will appear here once you publish them"}
         </p>
-        {activeTab === "drafts" && (
+        {!isSearching && activeTab === "drafts" && (
           <div className="mt-6">
             <Button
               onClick={handleCreateNewDocument}
@@ -310,6 +469,53 @@ const NewDocumentPageClient: React.FC<NewDocumentPageClientProps> = ({}) => {
           </Button>
         </div>
 
+        {/* Search Bar */}
+        <div className="mt-8">
+          <div className="relative">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder={`Search ${activeTab === "drafts" ? "drafts" : "published documents"}...`}
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="w-full rounded-lg border border-border bg-background py-3 pl-10 pr-10 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              {isDebouncing ? (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <div className="h-4 w-4 animate-spin rounded-full border border-muted-foreground border-t-transparent"></div>
+                </div>
+              ) : (
+                searchQuery && (
+                  <button
+                    onClick={handleClearSearch}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                )
+              )}
+            </div>
+            {isSearching && (
+              <div className="mt-2 text-sm text-muted-foreground">
+                Showing results for "{debouncedSearchQuery}"
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Documents Tabs */}
         <div className="mt-12">
           <Tabs
@@ -335,10 +541,22 @@ const NewDocumentPageClient: React.FC<NewDocumentPageClientProps> = ({}) => {
             </TabsList>
             <TabsContent value="drafts" className="mt-6">
               <h2 className="mb-4 text-xl font-semibold text-foreground">
-                Recent Drafts
+                {isSearching ? "Search Results" : "Recent Drafts"}
               </h2>
-              {renderDocumentGrid(drafts, isLoadingDrafts, "drafts")}
-              {hasMoreDrafts && (
+              {renderDocumentGrid(drafts, isLoadingDraftsFinal, "drafts")}
+              {isSearching && hasMoreSearchDrafts && (
+                <div
+                  ref={loadMoreSearchDraftsRef}
+                  className="mt-4 flex justify-center"
+                >
+                  {isFetchingMoreSearchDrafts && (
+                    <div className="py-4 text-center">
+                      <div className="inline-block h-6 w-6 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
+                    </div>
+                  )}
+                </div>
+              )}
+              {!isSearching && hasMoreDrafts && (
                 <div ref={loadMoreRef} className="mt-4 flex justify-center">
                   {isFetchingMoreDrafts && (
                     <div className="py-4 text-center">
@@ -350,10 +568,26 @@ const NewDocumentPageClient: React.FC<NewDocumentPageClientProps> = ({}) => {
             </TabsContent>
             <TabsContent value="published" className="mt-6">
               <h2 className="mb-4 text-xl font-semibold text-foreground">
-                Published Documents
+                {isSearching ? "Search Results" : "Published Documents"}
               </h2>
-              {renderDocumentGrid(published, isLoadingPublished, "published")}
-              {hasMorePublished && (
+              {renderDocumentGrid(
+                published,
+                isLoadingPublishedFinal,
+                "published",
+              )}
+              {isSearching && hasMoreSearchPublished && (
+                <div
+                  ref={loadMoreSearchPublishedRef}
+                  className="mt-4 flex justify-center"
+                >
+                  {isFetchingMoreSearchPublished && (
+                    <div className="py-4 text-center">
+                      <div className="inline-block h-6 w-6 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
+                    </div>
+                  )}
+                </div>
+              )}
+              {!isSearching && hasMorePublished && (
                 <div
                   ref={loadMorePublishedRef}
                   className="mt-4 flex justify-center"

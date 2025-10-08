@@ -114,3 +114,13 @@ export const pushDraftForApproval = async (id: string) => {
     throw error;
   }
 };
+
+export const searchDrafts = async (searchQuery: string, page: number = 1): Promise<IDraft[]> => {
+  try {
+    const drafts = await fetcher(`/api/v1/draft/search?q=${encodeURIComponent(searchQuery)}&page=${page}`);
+    return drafts;
+  } catch (error) {
+    console.error("Failed to search drafts:", error);
+    return [];
+  }
+};
