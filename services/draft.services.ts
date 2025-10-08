@@ -124,3 +124,19 @@ export const searchDrafts = async (searchQuery: string, page: number = 1): Promi
     return [];
   }
 };
+
+export const batchDeleteDrafts = async (draftIds: string[]): Promise<{ deletedCount: number }> => {
+  try {
+    const result = await fetcher(`/api/v1/draft/batch-delete`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ draftIds }),
+    });
+    return result;
+  } catch (error) {
+    console.error("Failed to batch delete drafts:", error);
+    throw error;
+  }
+};

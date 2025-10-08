@@ -7,7 +7,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { format, formatDistanceToNow } from "date-fns";
-import { BookOpen, Calendar, Edit3, FileText, Plus } from "lucide-react";
+import { BookOpen, Calendar, CheckSquare, Edit3, FileText, Plus, Square, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "@/app/_components/useRouter";
 import { Button } from "@/components/ui/button";
@@ -23,11 +23,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
+  batchDeleteDrafts,
   createInitialDraft,
   getDraftsByUserId,
   searchDrafts,
 } from "@/services/draft.services";
-import { fetchPostsByAuthorId, searchPosts } from "@/services/post.services";
+import { batchDeletePosts, fetchPostsByAuthorId, searchPosts } from "@/services/post.services";
 import { IDraft } from "@/types/draft.type";
 import { IPost } from "@/types/post.type";
 import { Search } from "lucide-react";
@@ -41,6 +42,12 @@ const NewDocumentPageClient: React.FC<NewDocumentPageClientProps> = ({}) => {
   const [activeTab, setActiveTab] = useState("drafts");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+
+  // Batch selection state
+  const [selectedDrafts, setSelectedDrafts] = useState<Set<string>>(new Set());
+  const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set());
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   // Debounce the search query to avoid excessive API calls
   const debouncedSearchQuery = useDebounce(searchQuery, 600);
@@ -286,6 +293,43 @@ const NewDocumentPageClient: React.FC<NewDocumentPageClientProps> = ({}) => {
     },
   });
 
+  // Batch delete mutations
+  const batchDeleteDraftsMutation = useMutation({
+    mutationFn: batchDeleteDrafts,
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({
+        queryKey: ["documents", { type: "drafts" }],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["documents", { type: "drafts", search: debouncedSearchQuery }],
+      });
+      setSelectedDrafts(new Set());
+      setIsSelectionMode(false);
+      console.log(`Successfully deleted ${result.deletedCount} drafts`);
+    },
+    onError: (error) => {
+      console.error("Failed to batch delete drafts:", error);
+    },
+  });
+
+  const batchDeletePostsMutation = useMutation({
+    mutationFn: batchDeletePosts,
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({
+        queryKey: ["documents", { type: "published" }],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["documents", { type: "published", search: debouncedSearchQuery }],
+      });
+      setSelectedPosts(new Set());
+      setIsSelectionMode(false);
+      console.log(`Successfully deleted ${result.deletedCount} posts`);
+    },
+    onError: (error) => {
+      console.error("Failed to batch delete posts:", error);
+    },
+  });
+
   const handleCreateNewDocument = () => {
     createDraftMutation.mutate();
   };
@@ -298,6 +342,68 @@ const NewDocumentPageClient: React.FC<NewDocumentPageClientProps> = ({}) => {
   const handleClearSearch = () => {
     setSearchQuery("");
     setIsSearching(false);
+  };
+
+  // Batch selection handlers
+  const toggleDraftSelection = (draftId: string) => {
+    setSelectedDrafts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(draftId)) {
+        newSet.delete(draftId);
+      } else {
+        newSet.add(draftId);
+      }
+      return newSet;
+    });
+  };
+
+  const togglePostSelection = (postId: string) => {
+    setSelectedPosts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAllDrafts = () => {
+    if (selectedDrafts.size === drafts.length && drafts.length > 0) {
+      setSelectedDrafts(new Set());
+    } else {
+      setSelectedDrafts(new Set(drafts.map(draft => draft._id)));
+    }
+  };
+
+  const toggleSelectAllPosts = () => {
+    if (selectedPosts.size === published.length && published.length > 0) {
+      setSelectedPosts(new Set());
+    } else {
+      setSelectedPosts(new Set(published.map(post => post._id)));
+    }
+  };
+
+  const handleBatchDelete = () => {
+    if (activeTab === "drafts") {
+      batchDeleteDraftsMutation.mutate(Array.from(selectedDrafts));
+    } else {
+      batchDeletePostsMutation.mutate(Array.from(selectedPosts));
+    }
+    setShowDeleteConfirmation(false);
+  };
+
+  const toggleSelectionMode = () => {
+    setIsSelectionMode(!isSelectionMode);
+    setSelectedDrafts(new Set());
+    setSelectedPosts(new Set());
+  };
+
+  const cancelSelectionMode = () => {
+    setIsSelectionMode(false);
+    setSelectedDrafts(new Set());
+    setSelectedPosts(new Set());
   };
 
   const truncateContent = (content: string, maxLength: number = 180) => {
@@ -313,6 +419,9 @@ const NewDocumentPageClient: React.FC<NewDocumentPageClientProps> = ({}) => {
     isLoading: boolean,
     type: "drafts" | "published",
   ) => {
+    const selectedCount = type === "drafts" ? selectedDrafts.size : selectedPosts.size;
+    const totalCount = documents.length;
+    const isAllSelected = selectedCount === totalCount && totalCount > 0;
     if (isLoading) {
       return (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -342,14 +451,92 @@ const NewDocumentPageClient: React.FC<NewDocumentPageClientProps> = ({}) => {
 
     if (documents.length > 0) {
       return (
-        <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
-          {documents.map((doc) => (
-            <Card
-              key={doc._id?.toString()}
-              className="group relative h-72 cursor-pointer overflow-hidden rounded-2xl border bg-transparent p-5 shadow-sm transition-all duration-300 hover:shadow-lg"
-              onClick={() => router.push(`/editor/${doc._id}`)}
-            >
-              <div className="absolute right-0 top-0 size-24 rounded-bl-full bg-primary/5 transition-all duration-500 group-hover:w-full"></div>
+        <div className="space-y-4">
+          {/* Batch Selection Controls */}
+          {isSelectionMode && (
+            <div className="flex items-center justify-between rounded-lg border bg-muted/30 p-4">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => type === "drafts" ? toggleSelectAllDrafts() : toggleSelectAllPosts()}
+                  className="flex items-center gap-2 text-sm font-medium hover:text-primary"
+                >
+                  {isAllSelected ? (
+                    <CheckSquare className="size-4 text-primary" />
+                  ) : (
+                    <Square className="size-4" />
+                  )}
+                  {isAllSelected ? "Deselect All" : "Select All"}
+                </button>
+                <span className="text-sm text-muted-foreground">
+                  {selectedCount} of {totalCount} selected
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={cancelSelectionMode}
+                  className="gap-2"
+                >
+                  <X className="size-4" />
+                  Cancel
+                </Button>
+                {selectedCount > 0 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setShowDeleteConfirmation(true)}
+                    disabled={batchDeleteDraftsMutation.isPending || batchDeletePostsMutation.isPending}
+                    className="gap-2"
+                  >
+                    <Trash2 className="size-4" />
+                    Delete ({selectedCount})
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+            {documents.map((doc) => {
+              const isSelected = type === "drafts"
+                ? selectedDrafts.has(doc._id)
+                : selectedPosts.has(doc._id);
+
+              return (
+                <Card
+                  key={doc._id?.toString()}
+                  className={`group relative h-72 overflow-hidden rounded-2xl border bg-transparent p-5 shadow-sm transition-all duration-300 hover:shadow-lg ${
+                    isSelectionMode ? "cursor-default" : "cursor-pointer"
+                  } ${isSelected ? "ring-2 ring-primary bg-primary/5" : ""}`}
+                  onClick={() => {
+                    if (isSelectionMode) {
+                      if (type === "drafts") {
+                        toggleDraftSelection(doc._id);
+                      } else {
+                        togglePostSelection(doc._id);
+                      }
+                    } else {
+                      router.push(`/editor/${doc._id}`);
+                    }
+                  }}
+                >
+              {/* Selection Checkbox */}
+              {isSelectionMode && (
+                <div className="absolute left-3 top-3 z-20">
+                  <div className={`flex size-6 items-center justify-center rounded-md border-2 transition-colors ${
+                    isSelected
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-background hover:border-primary"
+                  }`}>
+                    {isSelected && <CheckSquare className="size-4" />}
+                  </div>
+                </div>
+              )}
+
+              <div className={`absolute right-0 top-0 size-24 rounded-bl-full bg-primary/5 transition-all duration-500 ${
+                isSelectionMode && isSelected ? "bg-primary/10" : ""
+              } group-hover:w-full`}></div>
               <div className="relative z-10 flex h-full flex-col">
                 <div className="mb-3 flex items-center justify-between">
                   <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
@@ -397,7 +584,9 @@ const NewDocumentPageClient: React.FC<NewDocumentPageClientProps> = ({}) => {
                 </div>
               </div>
             </Card>
-          ))}
+              );
+            })}
+          </div>
         </div>
       );
     }
@@ -539,6 +728,23 @@ const NewDocumentPageClient: React.FC<NewDocumentPageClientProps> = ({}) => {
                 Published
               </TabsTrigger>
             </TabsList>
+
+            {/* Selection Mode Toggle */}
+            <div className="mt-4 flex items-center justify-end">
+              <Button
+                variant={isSelectionMode ? "default" : "outline"}
+                size="sm"
+                onClick={toggleSelectionMode}
+                className="gap-2"
+              >
+                {isSelectionMode ? (
+                  <CheckSquare className="size-4" />
+                ) : (
+                  <Square className="size-4" />
+                )}
+                {isSelectionMode ? "Exit Selection" : "Select Multiple"}
+              </Button>
+            </div>
             <TabsContent value="drafts" className="mt-6">
               <h2 className="mb-4 text-xl font-semibold text-foreground">
                 {isSearching ? "Search Results" : "Recent Drafts"}
@@ -603,6 +809,40 @@ const NewDocumentPageClient: React.FC<NewDocumentPageClientProps> = ({}) => {
           </Tabs>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirmation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="mx-4 max-w-md rounded-lg bg-background p-6 shadow-lg">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-foreground">
+                Confirm Deletion
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Are you sure you want to delete {activeTab === "drafts" ? selectedDrafts.size : selectedPosts.size} {activeTab === "drafts" ? "draft" : "published document"}{selectedDrafts.size > 1 || selectedPosts.size > 1 ? "s" : ""}? This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteConfirmation(false)}
+                disabled={batchDeleteDraftsMutation.isPending || batchDeletePostsMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleBatchDelete}
+                disabled={batchDeleteDraftsMutation.isPending || batchDeletePostsMutation.isPending}
+              >
+                {batchDeleteDraftsMutation.isPending || batchDeletePostsMutation.isPending
+                  ? "Deleting..."
+                  : "Delete"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

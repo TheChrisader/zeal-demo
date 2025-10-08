@@ -98,3 +98,19 @@ export const searchPosts = async (searchQuery: string, authorId: string, page: n
     return [];
   }
 };
+
+export const batchDeletePosts = async (postIds: string[]): Promise<{ deletedCount: number }> => {
+  try {
+    const result = await fetcher(`/api/v1/post/batch-delete`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ postIds }),
+    });
+    return result;
+  } catch (error) {
+    console.error("Failed to batch delete posts:", error);
+    throw error;
+  }
+};
