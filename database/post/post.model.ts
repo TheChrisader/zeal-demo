@@ -197,6 +197,11 @@ const PostSchema = new Schema<IPost>(
       type: Date || String,
       default: Date.now,
     },
+    has_been_processed: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
   },
   {
     timestamps: {
@@ -233,6 +238,7 @@ PostSchema.index({ prominence_score: -1, published_at: -1 });
 PostSchema.index({ initial_score: -1, published_at: -1 });
 PostSchema.index({ published: 1, published_at: -1 }); // For querying published posts
 PostSchema.index({ author_id: 1, published_at: -1 }); // For author-specific searches
+PostSchema.index({ has_been_processed: 1, published_at: -1 }); // For querying processed posts
 
 PostSchema.virtual("id").get(function () {
   return this._id.toHexString();

@@ -103,6 +103,20 @@ UserSchema.set("toObject", {
 
 UserSchema.plugin(mongooseLeanVirtuals);
 
+// Text index for search functionality
+UserSchema.index({
+  username: "text",
+  display_name: "text",
+  email: "text"
+});
+
+// Compound indexes for common query patterns
+UserSchema.index({ role: 1, created_at: -1 });
+UserSchema.index({ location: 1, created_at: -1 });
+UserSchema.index({ has_email_verified: 1, created_at: -1 });
+UserSchema.index({ auth_provider: 1, created_at: -1 });
+UserSchema.index({ last_login_at: -1 });
+
 const UserModel: Model<IUserWithPassword> =
   models.User || model<IUserWithPassword>("User", UserSchema);
 

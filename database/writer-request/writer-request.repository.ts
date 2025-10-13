@@ -6,6 +6,8 @@ import WriterRequestModel from "./writer-request.model";
 export const createWriterRequest = async (writerRequest: IWriterRequest) => {
   try {
     const newWriterRequest = await WriterRequestModel.create(writerRequest);
+    console.log(newWriterRequest);
+    // await newWriterRequest.save();
     return newWriterRequest.toObject();
   } catch (error) {
     throw error;

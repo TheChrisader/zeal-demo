@@ -13,7 +13,7 @@ interface QueryParams {
   fromDate?: string;
   toDate?: string;
   role?: string;
-  email_verified?: boolean;
+  has_email_verified?: boolean;
   auth_provider?: string;
   last_login_at?: Date;
 }
@@ -27,9 +27,9 @@ interface QueryObject {
   role?: string;
   location?: string;
   created_at?: { $gte?: Date; $lte?: Date };
-  email_verified?: boolean;
+  has_email_verified?: boolean;
   auth_provider?: string;
-  last_login_at?: Date;
+  last_login_at?: { $gte?: Date; $lte?: Date };
 }
 
 export async function GET(req: NextRequest) {
@@ -42,15 +42,15 @@ export async function GET(req: NextRequest) {
     const params: QueryParams = {
       page: Number(searchParams.get("page")) || 1,
       limit: Number(searchParams.get("limit")) || 10,
-      sort: searchParams.get("sort") || "published_at",
+      sort: searchParams.get("sort") || "created_at",
       order: (searchParams.get("order") as "asc" | "desc") || "desc",
       search: searchParams.get("search") || undefined,
       country: searchParams.get("country") || undefined,
       fromDate: searchParams.get("fromDate") || undefined,
       toDate: searchParams.get("toDate") || undefined,
       role: searchParams.get("role") || undefined,
-      email_verified: searchParams.get("email_verified")
-        ? searchParams.get("email_verified") === "true"
+      has_email_verified: searchParams.get("has_email_verified")
+        ? searchParams.get("has_email_verified") === "true"
         : undefined,
       auth_provider: searchParams.get("auth_provider") || undefined,
       last_login_at: searchParams.get("last_login_at")
@@ -87,8 +87,8 @@ export async function GET(req: NextRequest) {
       query.location = params.country;
     }
 
-    if (params.email_verified) {
-      query.email_verified = params.email_verified;
+    if (params.has_email_verified) {
+      query.has_email_verified = params.has_email_verified;
     }
 
     if (params.auth_provider) {
@@ -96,13 +96,10 @@ export async function GET(req: NextRequest) {
     }
 
     if (params.last_login_at) {
-      query.created_at = {};
+      query.last_login_at = {};
       if (params.last_login_at) {
-        query.created_at.$gte = new Date(params.last_login_at);
+        query.last_login_at.$gte = new Date(params.last_login_at);
       }
-      // if (params.toDate) {
-      //   query.created_at.$lte = new Date(params.toDate);
-      // }
     }
 
     // Calculate skip value for pagination
@@ -110,8 +107,6 @@ export async function GET(req: NextRequest) {
 
     // Get total count for pagination
     const total = await UserModel.countDocuments(query);
-
-    console.dir(query, { depth: null });
 
     // Execute query with pagination and sorting
     const users = await UserModel.find(query)

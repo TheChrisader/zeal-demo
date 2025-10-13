@@ -48,7 +48,7 @@ export const ImageEditBlock: React.FC<ImageEditBlockProps> = ({
       e.stopPropagation();
 
       if (link) {
-        editor.commands.setImages([{ src: link }]);
+        editor.commands.setFigure({ src: link });
         close();
       }
     },

@@ -27,24 +27,18 @@ const FileHandlePlugin = (options: FileHandlePluginOptions) => {
 
     props: {
       handleDrop(view, event) {
-        console.log(1);
         const { dataTransfer } = event;
         event.preventDefault();
         event.stopPropagation();
 
         if (!dataTransfer?.files.length) {
-          console.log("end");
           return false;
         }
-        console.log(2);
-
-        console.log(3);
 
         const pos = view.posAtCoords({
           left: event.clientX,
           top: event.clientY,
         });
-        console.log(4);
 
         const [validFiles, errors] = filterFiles(
           Array.from(dataTransfer.files),
@@ -54,17 +48,14 @@ const FileHandlePlugin = (options: FileHandlePluginOptions) => {
             allowBase64: options.allowBase64,
           },
         );
-        console.log(5);
 
         if (errors.length > 0 && onValidationError) {
           onValidationError(errors);
         }
-        console.log(6);
 
         if (validFiles.length > 0 && onDrop) {
           onDrop(editor, validFiles, pos?.pos ?? 0);
         }
-        console.log(7);
 
         return true;
       },

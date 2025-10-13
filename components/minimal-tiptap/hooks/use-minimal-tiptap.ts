@@ -141,11 +141,6 @@ const createExtensions = (placeholder: string) => [
       files.forEach(async (file) => {
         const src = await fileToBase64(file);
         const id = randomId();
-        console.log("image dropped");
-        // editor.commands.insertContentAt(pos, {
-        //   type: "image",
-        //   attrs: { src },
-        // });
         editor.commands.insertContentAt(pos, {
           type: "figure",
           content: [

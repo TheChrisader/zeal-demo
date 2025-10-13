@@ -5,6 +5,7 @@ import { connectToDatabase } from "@/lib/database";
 interface QueryParams {
   page: number;
   limit: number;
+  processed: number;
 }
 
 export async function GET(req: NextRequest) {
@@ -17,6 +18,7 @@ export async function GET(req: NextRequest) {
     const params: QueryParams = {
       page: Number(searchParams.get("page")) || 1,
       limit: Number(searchParams.get("limit")) || 10,
+      processed: Number(searchParams.get("processed")) || 0,
     };
 
     // Calculate skip value for pagination
@@ -28,13 +30,25 @@ export async function GET(req: NextRequest) {
     const endOfDay = new Date(today.setHours(23, 59, 59, 999) - 60 * 60 * 1000);
 
     // Build query for posts created today with source_type "auto"
-    const query = {
+    const query: any = {
       created_at: {
         $gte: startOfDay,
         $lte: endOfDay,
       },
       source_type: "auto",
     };
+
+    // Add has_been_processed condition
+    if (params.processed === 1) {
+      // If processed=1, only return posts where has_been_processed is true
+      query.has_been_processed = true;
+    } else {
+      // If processed=0 (default), return posts where has_been_processed is false OR doesn't exist
+      query.$or = [
+        { has_been_processed: false },
+        { has_been_processed: { $exists: false } }
+      ];
+    }
 
     // Get total count for pagination
     const total = await PostModel.countDocuments(query);

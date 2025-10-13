@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     const writerRequest = await request.json();
 
-    if (writerRequest.user_id !== user.id.toString()) {
+    if (writerRequest.user_id.toString() !== user.id.toString()) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

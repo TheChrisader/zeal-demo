@@ -92,6 +92,10 @@ export function formDataToJson<T = Record<string, unknown>>(
       } else {
         if (value === "null") {
           result[key] = null;
+        } else if (value === "true") {
+          result[key] = true;
+        } else if (value === "false") {
+          result[key] = false;
         } else {
           result[key] = value;
         }

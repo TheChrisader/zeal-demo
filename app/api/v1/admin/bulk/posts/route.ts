@@ -185,6 +185,99 @@ export async function GET(req: NextRequest) {
   }
 }
 
+export async function PATCH(req: NextRequest) {
+  try {
+    // Connect to MongoDB
+    await connectToDatabase();
+
+    // Get data from request body
+    const { ids, updateData } = await req.json();
+
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json(
+        {
+          status: "error",
+          message: "IDs array is required and cannot be empty",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    if (!updateData || typeof updateData !== "object") {
+      return NextResponse.json(
+        {
+          status: "error",
+          message: "Update data object is required",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    // Grab the posts from the db before update to get their categories for revalidation
+    const fetchedPosts = await PostModel.find({
+      _id: { $in: ids },
+    }).select<{ category: string[] }>("category");
+
+    const oldCategories = new Set<string>();
+    fetchedPosts.forEach((post) =>
+      post.category.forEach((c) => oldCategories.add(c)),
+    );
+
+    // Update posts
+    const updatedPosts = await PostModel.updateMany(
+      { _id: { $in: ids } },
+      { $set: updateData },
+      { runValidators: true }
+    );
+
+    // Get the updated posts to check for new categories
+    const updatedFetchedPosts = await PostModel.find({
+      _id: { $in: ids },
+    }).select<{ category: string[] }>("category");
+
+    const allCategories = new Set<string>();
+    updatedFetchedPosts.forEach((post) =>
+      post.category.forEach((c) => allCategories.add(c)),
+    );
+
+    // Combine old and new categories for revalidation
+    oldCategories.forEach((c) => allCategories.add(c));
+
+    // Revalidate all affected categories
+    allCategories.forEach((c) => revalidateTag(c));
+
+    // Return response
+    return NextResponse.json(
+      {
+        status: "success",
+        data: {
+          modifiedCount: updatedPosts.modifiedCount,
+          matchedCount: updatedPosts.matchedCount,
+        },
+      },
+      {
+        status: 200,
+      },
+    );
+  } catch (error) {
+    console.error("Posts API Error:", error);
+    return NextResponse.json(
+      {
+        status: "error",
+        message: "Internal Server Error",
+        error: process.env.NODE_ENV === "development" ? error : undefined,
+      },
+      {
+        status: 500,
+      },
+    );
+  }
+}
+
 export async function DELETE(req: NextRequest) {
   try {
     // Connect to MongoDB

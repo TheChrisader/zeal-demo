@@ -3,6 +3,7 @@
 import { useIsMutating, useQuery } from "@tanstack/react-query";
 import {
   Clock,
+  Eye,
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
@@ -27,6 +28,8 @@ import { IPost } from "@/types/post.type";
 import EditableDocumentTitle from "./EditableDocumentTitle";
 import { fetchById } from "../_utils/composites";
 import SchedulePostModal from "./SchedulePostModal";
+import PreviewDialog from "./PreviewDialog";
+import SplitButtonGroup from "@/components/custom/SplitButtonGroup";
 
 interface TopbarProps {}
 
@@ -36,6 +39,7 @@ const Topbar: React.FC<TopbarProps> = ({}) => {
   const [isPublishing, setIsPublishing] = useState(false);
   const [isScheduling, setIsScheduling] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
   const isLeftSidebarOpen = useSidebarStore((state) => state.isLeftSidebarOpen);
   const isRightSidebarOpen = useSidebarStore(
     (state) => state.isRightSidebarOpen,
@@ -179,7 +183,7 @@ const Topbar: React.FC<TopbarProps> = ({}) => {
             {`${wordCount} words`}
             <LoadingSpinner size={16} isLoading={isContentUpdating} />
           </span>
-          <button
+          {/* <button
             disabled={
               isMutating > 0 ||
               documentData?.published ||
@@ -199,8 +203,72 @@ const Topbar: React.FC<TopbarProps> = ({}) => {
             ) : (
               <Clock size={16} className="md:hidden" />
             )}
-          </button>
-          <button
+          </button> */}
+          <SplitButtonGroup
+            height={32}
+            disabled={
+              isMutating > 0 ||
+              documentData?.published ||
+              (documentData as IDraft)?.moderationStatus ===
+                "awaiting_approval" ||
+              (documentData as IDraft)?.moderationStatus === "published" ||
+              (documentData as IDraft)?.isScheduled
+            }
+            overrideDisabled={["Preview"]}
+            options={[
+              {
+                label: "Publish",
+                render: (
+                  <>
+                    <span className="hidden md:inline">
+                      {isPublishing ? "Publishing..." : "Publish"}
+                    </span>
+                    {isPublishing ? (
+                      <LoadingSpinner size={16} />
+                    ) : (
+                      <Pencil size={16} className="md:hidden" />
+                    )}
+                  </>
+                ),
+                description:
+                  "Publish this article immediately and make it live for all readers.",
+                action: () => validateBeforePublish(documentData as IPost),
+              },
+              {
+                label: "Schedule",
+                render: (
+                  <>
+                    <span className="hidden md:inline">
+                      {isScheduling ? "Scheduling..." : "Schedule"}
+                    </span>
+                    {isScheduling ? (
+                      <LoadingSpinner size={16} />
+                    ) : (
+                      <Clock size={16} className="md:hidden" />
+                    )}
+                  </>
+                ),
+                description:
+                  "Schedule this article to be published automatically at a future date and time.",
+                action: () => validateBeforeSchedule(documentData as IDraft),
+              },
+              {
+                label: "Preview",
+                render: (
+                  <>
+                    <span className="hidden md:inline">Preview</span>
+                    <Eye size={16} className="md:hidden" />
+                  </>
+                ),
+                description:
+                  "Open a preview dialog to see how your article will appear to readers.",
+                action: () => {
+                  setShowPreviewModal(true);
+                },
+              },
+            ]}
+          />
+          {/* <button
             disabled={
               isMutating > 0 ||
               documentData?.published ||
@@ -219,7 +287,7 @@ const Topbar: React.FC<TopbarProps> = ({}) => {
             ) : (
               <Pencil size={16} className="md:hidden" />
             )}
-          </button>
+          </button> */}
           <Button
             variant="ghost"
             size="icon"
@@ -250,6 +318,11 @@ const Topbar: React.FC<TopbarProps> = ({}) => {
           onSave={handleScheduleSuccess}
         />
       )}
+      <PreviewDialog
+        isOpen={showPreviewModal}
+        onClose={() => setShowPreviewModal(false)}
+        document={documentData}
+      />
     </>
   );
 };
