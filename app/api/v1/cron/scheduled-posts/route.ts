@@ -26,10 +26,11 @@ export const processScheduledPosts = async () => {
       try {
         if (draft.schedule_publish_type === "manual") {
           // Freelance writer flow: push for approval
-          await pushDraftForApproval(draft._id.toString());
+          // await pushDraftForApproval(draft._id.toString());
 
           // Update the draft to remove scheduling flags
           await updateDraft(draft._id.toString(), {
+            moderationStatus: "awaiting_approval",
             isScheduled: false,
             scheduled_at: undefined,
           });
