@@ -17,6 +17,7 @@ export const processScheduledPosts = async () => {
 
     // Get all scheduled drafts that are due to be published
     const scheduledDrafts = await getScheduledDrafts();
+    console.log(scheduledDrafts.length, "scheduled drafts found");
     let totalProcessed = 0;
 
     for (const draft of scheduledDrafts) {
@@ -93,7 +94,9 @@ export async function GET(request: NextRequest) {
   // }
 
   try {
+    console.log("Processing scheduled posts...");
     processScheduledPosts();
+    console.log("Scheduled posts processed successfully");
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: {
