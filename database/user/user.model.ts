@@ -83,6 +83,21 @@ const UserSchema = new Schema<IUserWithPassword>(
       type: String,
       required: true,
     },
+    referral_code: {
+      type: String,
+      unique: true,
+      sparse: true,
+      index: true,
+    },
+    referral_count: {
+      type: Number,
+      default: 0,
+    },
+    referred_by: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
   },
   {
     timestamps: {
@@ -116,6 +131,8 @@ UserSchema.index({ location: 1, created_at: -1 });
 UserSchema.index({ has_email_verified: 1, created_at: -1 });
 UserSchema.index({ auth_provider: 1, created_at: -1 });
 UserSchema.index({ last_login_at: -1 });
+UserSchema.index({ referral_code: 1 });
+UserSchema.index({ referred_by: 1 });
 
 const UserModel: Model<IUserWithPassword> =
   models.User || model<IUserWithPassword>("User", UserSchema);

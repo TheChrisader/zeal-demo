@@ -24,6 +24,9 @@ export const lucia = new Lucia(adapter, {
       has_email_verified: attributes.has_email_verified,
       bio: attributes.bio,
       upgrade_pending: attributes.upgrade_pending,
+      referral_code: attributes.referral_code,
+      referral_count: attributes.referral_count,
+      referred_by: attributes.referred_by,
     };
   },
 });

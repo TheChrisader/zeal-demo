@@ -1,21 +1,22 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata, Viewport } from "next";
 import dynamic from "next/dynamic";
-import { Poppins, Inter } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import localFont from "next/font/local";
 import "../globals.css";
+import { notFound } from "next/navigation";
+import { NextIntlClientProvider } from "next-intl";
+import { Suspense } from "react";
+import { Footer } from "@/components/layout/Footer";
+import { GlobalReferralInitializer } from "@/components/providers/GlobalReferralInitializer";
+import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 
-import { NextIntlClientProvider } from "next-intl";
 // import { getMessages } from "next-intl/server";
-import { notFound } from "next/navigation";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { routing } from "@/i18n/routing";
-import { Suspense } from "react";
 import ClearPushNotifications from "./(app)/_components/ClearPushNotifications";
 import GoogleAdsense from "./(app)/_components/GoogleAdsense";
-import { Footer } from "@/components/layout/Footer";
-import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 const PageProgressBar = dynamic(
   () => import("@/components/layout/PageProgressBar"),
@@ -153,6 +154,7 @@ export default async function RootLayout({
         >
           <ThemeProvider defaultTheme="system" attribute="class" enableSystem>
             <PageProgressBar />
+            <GlobalReferralInitializer />
             <ReactQueryProvider>
               <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
             </ReactQueryProvider>

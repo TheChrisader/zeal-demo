@@ -147,9 +147,10 @@ export default async function PostPage({
   }
 
   return (
-    <main className="flex min-h-[calc(100vh-60px)] w-[70vw] flex-col gap-3 px-12 py-4 max-[900px]:px-7 max-[750px]:w-auto max-[500px]:px-4">
-      {/* <NewsletterSignUpForm />
-      <StickyNewsletterBanner /> */}
+    <>
+        <main className="flex min-h-[calc(100vh-60px)] w-[70vw] flex-col gap-3 px-12 py-4 max-[900px]:px-7 max-[750px]:w-auto max-[500px]:px-4">
+        {/* <NewsletterSignUpForm />
+        <StickyNewsletterBanner /> */}
       <div className="flex flex-col gap-3">
         <h1 className="text-[22px] font-extrabold text-foreground-alt">
           {post.title}
@@ -165,7 +166,7 @@ export default async function PostPage({
           </div>
 
           <div className="flex items-center gap-3">
-            <ShareButton slug={article_slug} />
+            <ShareButton slug={article_slug} title={post.title} />
             {post.external && (
               <Suspense>
                 <OutboundLink
@@ -257,6 +258,7 @@ export default async function PostPage({
           keywords={post.keywords}
         />
       </Suspense>
-    </main>
+      </main>
+    </>
   );
 }

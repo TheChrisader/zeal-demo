@@ -44,6 +44,17 @@ const SettingSidebar = () => {
           </div>
           <li className="flex">
             <Link
+              href="/settings/referral"
+              className={`whitespace-nowrap text-center text-base ${pathname === "/settings/referral" ? "font-bold text-primary" : "text-[#959595]"}`}
+            >
+              Referrals
+            </Link>
+          </li>
+          <div className="h-5 min-[800px]:hidden">
+            <Separator orientation="vertical" className="w-[2px]" />
+          </div>
+          <li className="flex">
+            <Link
               href="/settings/security"
               className={`whitespace-nowrap text-center text-base ${pathname === "/settings/security" ? "font-bold text-primary" : "text-[#959595]"}`}
             >

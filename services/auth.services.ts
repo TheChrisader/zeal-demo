@@ -16,11 +16,13 @@ export const SignUpUserWithEmailAndPassword = async ({
   username,
   email,
   password,
+  referral_code,
 }: {
   display_name: string;
   email: string;
   password: string;
   username: string;
+  referral_code?: string;
 }): Promise<IUser | null> => {
   try {
     const data = await fetcher("/api/v1/auth/signup", {
@@ -30,6 +32,7 @@ export const SignUpUserWithEmailAndPassword = async ({
         email,
         password,
         username: username.trim().toLowerCase(),
+        ...(referral_code && { referral_code }),
       }),
       headers: {
         "Content-Type": "application/json",

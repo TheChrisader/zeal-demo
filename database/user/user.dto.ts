@@ -69,6 +69,7 @@ export type UpdateUserDTO = Omit<
   id: Id | string;
   has_email_verified?: boolean;
   last_login_at?: Date;
+  referral_code?: string;
 };
 
 export const UpdateUserAccountSchema = object({

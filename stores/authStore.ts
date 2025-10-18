@@ -7,6 +7,7 @@ interface AuthState {
   loading: boolean;
   initialized: boolean;
   initialize: () => Promise<User | null>;
+  refresh: () => Promise<User | null>;
   setUser: (user: User | null) => void;
   logout: () => void;
 }
@@ -65,6 +66,38 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setUser: (user: User | null) => {
     set({ user, loading: false, initialized: true });
+  },
+
+  refresh: async (): Promise<User | null> => {
+    try {
+      set({ loading: true });
+
+      const response = await fetch("/api/v1/auth/account", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          set({ user: null, loading: false, initialized: true });
+          return null;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const userData: User = await response.json();
+      set({ user: userData, loading: false, initialized: true });
+      return userData;
+    } catch (error) {
+      console.error("Error refreshing user data:", error);
+      toast.error("Failed to refresh user data. Please try again.");
+      const currentState = get();
+      set({ loading: false });
+      return currentState.user;
+    }
   },
 
   logout: () => {

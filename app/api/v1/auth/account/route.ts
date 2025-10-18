@@ -11,8 +11,8 @@ import {
   INVALID_INPUT_ERROR,
   USER_NOT_FOUND_ERROR,
 } from "@/utils/error/error-codes";
-import { User } from "lucia";
 import UserModel from "@/database/user/user.model";
+import { transformUserForClient } from "@/utils/user.transform";
 
 export const GET = async () => {
   try {
@@ -24,14 +24,15 @@ export const GET = async () => {
       return NextResponse.json({ message: "Unauthenticated" }, { status: 401 });
     }
 
-    const userData: User | null = await UserModel.findById(user.id).select(
-      "username email role display_name avatar bio country has_email_verified upgrade_pending",
+    const userDoc = await UserModel.findById(user.id).select(
+      "username email role display_name avatar bio country has_email_verified upgrade_pending referral_code referral_count referred_by",
     );
 
-    if (!userData) {
+    if (!userDoc) {
       return NextResponse.json({ message: "User not found." }, { status: 404 });
     }
 
+    const userData = transformUserForClient(userDoc);
     return NextResponse.json(userData);
   } catch (error: unknown) {
     console.log(`Error getting user data: ${error}`);

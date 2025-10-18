@@ -33,6 +33,9 @@ export interface IUser {
   location: string;
   ip_address: string;
   bio: string | null;
+  referral_code: string | null;
+  referral_count: number;
+  referred_by: Id | null;
   created_at: Date;
   updated_at: Date;
 }

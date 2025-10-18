@@ -2,15 +2,17 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { Link } from "@/i18n/routing";
-import { useRouter } from "@/app/_components/useRouter";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { object, string, z } from "zod";
+import { useRouter } from "@/app/_components/useRouter";
 import revalidatePathAction from "@/app/actions/revalidatePath";
 import { InputWithLabel } from "@/components/forms/Input/InputWithLabel";
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { useReferralClient } from "@/hooks/useReferralClient";
+import { Link } from "@/i18n/routing";
 import {
   SignInUserWithUsernameAndPassword,
   SignUpUserWithEmailAndPassword,
@@ -20,12 +22,12 @@ import { decodeJWTResponse } from "@/utils/jwt.utils";
 import AuthHeader from "../_components/AuthHeader";
 import ContinueWithSeparator from "../_components/ContinueWithSeparator";
 import SocialProviders from "../_components/SocialProviders";
-import { toast } from "sonner";
 
 const SignUpPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
+  const { referralCode } = useReferralClient();
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -76,6 +78,7 @@ const SignUpPage = () => {
       .email("Must be a valid email address")
       .min(1, "Email is required"),
     password: string().min(1, "Password is required"),
+    referral_code: string().optional(),
   });
 
   const form = useForm<z.infer<typeof SignUpFormSchema>>({
@@ -85,12 +88,20 @@ const SignUpPage = () => {
       username: "",
       email: "",
       password: "",
+      referral_code: referralCode || "",
     },
     mode: "onTouched",
   });
 
+  // Update form when referral code is loaded
+  useEffect(() => {
+    if (referralCode) {
+      form.setValue("referral_code", referralCode);
+    }
+  }, [referralCode, form]);
+
   const onSubmit = async (data: z.infer<typeof SignUpFormSchema>) => {
-    const { name, username, email, password } = data;
+    const { name, username, email, password, referral_code } = data;
     setIsLoading(true);
     try {
       await SignUpUserWithEmailAndPassword({
@@ -98,6 +109,7 @@ const SignUpPage = () => {
         username,
         email,
         password,
+        ...(referral_code && { referral_code }),
       });
 
       await SignInUserWithUsernameAndPassword({
@@ -123,7 +135,7 @@ const SignUpPage = () => {
         <AuthHeader title="Sign Up">
           <span className="text-sm font-normal text-[#9CA3AF]">
             Already have an account?{" "}
-            <Link className="text-success font-bold" href="/signin">
+            <Link className="font-bold text-success" href="/signin">
               Sign In
             </Link>
           </span>
@@ -201,6 +213,33 @@ const SignUpPage = () => {
               );
             }}
           />
+          <FormField
+            control={form.control}
+            name="referral_code"
+            render={({ field }) => {
+              return (
+                <FormItem>
+                  <InputWithLabel
+                    label="Referral Code (Optional)"
+                    type="text"
+                    id="referral_code"
+                    placeholder="Enter referral code"
+                    {...field}
+                  />
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+          {referralCode && (
+            <div className="rounded-lg border border-green-200 bg-green-50 p-3">
+              <p className="text-sm text-green-800">
+                <strong>Referral Applied:</strong> You're signing up with
+                referral code{" "}
+                <span className="font-mono font-bold">{referralCode}</span>
+              </p>
+            </div>
+          )}
           {error && !isLoading && (
             <p className="-mt-1 font-bold text-red-500">{error}</p>
           )}

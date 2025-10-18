@@ -1,10 +1,14 @@
+import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import { createPreferences } from "@/database/preferences/preferences.repository";
+import { ReferralCodeSchema } from "@/database/referral/referral.dto";
+import { applyReferralCode } from "@/database/referral/referral.repository";
 import { SignUpUserSchema } from "@/database/user/user.dto";
 import { createUser, findUserByEmail } from "@/database/user/user.repository";
 import { lucia } from "@/lib/auth/auth";
 import { connectToDatabase, newId } from "@/lib/database";
+import { getMMDB } from "@/lib/mmdb";
 import { generateOTP } from "@/lib/otp";
 import { sendAccountVerificationEmail } from "@/utils/email";
 import { buildError, sendError } from "@/utils/error";
@@ -14,8 +18,6 @@ import {
   USER_ALREADY_EXISTS_ERROR,
 } from "@/utils/error/error-codes";
 import { hashPassword } from "@/utils/password.utils";
-import { headers } from "next/headers";
-import { getMMDB } from "@/lib/mmdb";
 
 // TODO: case sensitive usernames? Search user by both email and username to find if
 // they exist
@@ -25,11 +27,11 @@ export const POST = async (request: NextRequest) => {
     await connectToDatabase();
     const body = await request.json();
 
-    const SignUpSchema = SignUpUserSchema.setKey(
+    const SignUpSchema = SignUpUserSchema.merge(ReferralCodeSchema).setKey(
       "password",
       z.string().min(8, "At least 8 characters."),
     );
-    const { email, username, password, display_name } =
+    const { email, username, password, display_name, referral_code } =
       SignUpSchema.parse(body);
 
     // get ip from request
@@ -98,6 +100,16 @@ export const POST = async (request: NextRequest) => {
       user_id: createdUser.id,
       country: locationPreference,
     });
+
+    // Apply referral code if provided
+    if (referral_code) {
+      try {
+        await applyReferralCode(referral_code, createdUser.id);
+      } catch (error) {
+        console.error("Failed to apply referral code:", error);
+        // Don't fail signup if referral code is invalid
+      }
+    }
 
     const session = await lucia.createSession(newId(createdUser.id), {});
     const sessionCookie = lucia.createSessionCookie(session.id);
