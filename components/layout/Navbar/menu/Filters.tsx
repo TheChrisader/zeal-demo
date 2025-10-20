@@ -4,7 +4,7 @@ import { usePathname } from "@/i18n/routing";
 import { useRouter } from "@/app/_components/useRouter";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { SOURCES } from "@/app/[locale]/(auth)/onboarding/_components/SourcesForm";
+import { NEWS_SOURCES } from "@/constants/news-sources";
 import SearchInput from "@/components/forms/Input/SearchInput";
 import {
   Accordion,

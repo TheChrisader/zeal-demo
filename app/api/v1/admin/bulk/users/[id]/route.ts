@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import UserModel from "@/database/user/user.model";
 import { connectToDatabase, newId } from "@/lib/database";
+import PreferencesModel from "@/database/preferences/preferences.model";
 
 interface UpdateUserBody {
   role?: string;
@@ -151,6 +152,10 @@ export async function DELETE(
     await connectToDatabase();
 
     const deletedUser = await UserModel.findByIdAndDelete(params.id);
+
+    // Delete associated posts
+    // await PostModel.deleteMany({ user_id: params.id });
+    await PreferencesModel.findOneAndDelete({ user_id: params.id });
 
     if (!deletedUser) {
       return NextResponse.json(

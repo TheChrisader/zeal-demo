@@ -7,7 +7,7 @@ import { CountryIconList } from "../_utils/svgs";
 import { onboardingVariants, useOnboardingContext } from "../page";
 
 const CountryForm = React.forwardRef(({ key }: { key: string }, _) => {
-  const { setStep } = useOnboardingContext();
+  const { setStep, shouldSkipReferral } = useOnboardingContext();
 
   return (
     <motion.div
@@ -33,7 +33,7 @@ const CountryForm = React.forwardRef(({ key }: { key: string }, _) => {
       <Button
         className="mb-6 w-full rounded-full"
         onClick={() => {
-          setStep("topics");
+          setStep(shouldSkipReferral ? "topics" : "referral");
         }}
       >
         Proceed

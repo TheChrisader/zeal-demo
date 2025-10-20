@@ -9,13 +9,15 @@ import {
   useContext,
   useMemo,
   useState,
+  useEffect,
 } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import CountryForm from "./_components/CountryForm";
-import SourcesForm from "./_components/SourcesForm";
+import ReferralForm from "./_components/ReferralForm";
 import TopicsForm from "./_components/TopicsForm";
 import AuthHeader from "../_components/AuthHeader";
 
-const OnboardingSteps = ["country", "topics", "sources"] as const;
+const OnboardingSteps = ["country", "referral", "topics"] as const;
 
 type OnboardingStep = (typeof OnboardingSteps)[number];
 
@@ -25,6 +27,7 @@ type OnboardingContextValue = {
   setError: Dispatch<SetStateAction<string | null>>;
   isLoading: boolean;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
+  shouldSkipReferral: boolean;
   // email: string;
   // setEmail: Dispatch<SetStateAction<string>>;
 };
@@ -33,31 +36,34 @@ export const OnboardingContext = createContext<OnboardingContextValue | null>(
   null,
 );
 
-const OnboardingHeader: Record<
-  OnboardingStep,
-  { subheader: string; stepTracker: () => JSX.Element }
-> = {
-  country: {
-    subheader:
-      "Kindly select the country in which you wish to get news relating to. You can always update this later.",
+const getOnboardingHeader = (
+  step: OnboardingStep,
+  totalSteps: number,
+  currentStep: number,
+) => {
+  const headers: Record<OnboardingStep, { subheader: string }> = {
+    country: {
+      subheader:
+        "Kindly select the country in which you wish to get news relating to. You can always update this later.",
+    },
+    referral: {
+      subheader:
+        "If you have a referral code, you can apply it here. This step is completely optional.",
+    },
+    topics: {
+      subheader:
+        "Kindly select your preferred news topics and categories. You can always update this later.",
+    },
+  };
+
+  return {
+    ...headers[step],
     stepTracker: () => (
-      <span className="text-sm font-normal text-[#9CA3AF] underline">1/2</span>
+      <span className="text-sm font-normal text-[#9CA3AF] underline">
+        {currentStep}/{totalSteps}
+      </span>
     ),
-  },
-  topics: {
-    subheader:
-      "Kindly select your preferred news topics and categories. You can always update this later.",
-    stepTracker: () => (
-      <span className="text-sm font-normal text-[#9CA3AF] underline">2/2</span>
-    ),
-  },
-  sources: {
-    subheader:
-      "Kindly select your preferred African news sources. You can always update this later.",
-    stepTracker: () => (
-      <span className="text-sm font-normal text-[#9CA3AF] underline">3/3</span>
-    ),
-  },
+  };
 };
 
 export const onboardingVariants = {
@@ -78,15 +84,43 @@ export const useOnboardingContext = () => {
 };
 
 const OnboardingPage = (/* { children }: { children: ReactNode } */) => {
+  const { user } = useAuth();
   const [step, setStep] = useState<OnboardingStep>("country");
   const [, /* error */ setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const AnimateCountryForm = useMemo(() => motion(CountryForm), []);
-  const AnimateTopicsForm = useMemo(() => motion(TopicsForm), []);
-  const AnimateSourcesForm = useMemo(() => motion(SourcesForm), []);
+  // Determine if user should skip referral step
+  const shouldSkipReferral = !!user?.referred_by;
 
-  const OnboardingHeaderValue = useMemo(() => OnboardingHeader[step], [step]);
+  // Calculate visible steps and current step number
+  const visibleSteps = useMemo(() => {
+    if (shouldSkipReferral) {
+      return OnboardingSteps.filter((s) => s !== "referral");
+    }
+    return OnboardingSteps;
+  }, [shouldSkipReferral]);
+
+  const currentStepNumber = useMemo(() => {
+    return visibleSteps.indexOf(step) + 1;
+  }, [step, visibleSteps]);
+
+  const totalSteps = visibleSteps.length;
+
+  // Auto-skip referral step if user already has a referrer
+  useEffect(() => {
+    if (shouldSkipReferral && step === "country") {
+      // This will be handled by CountryForm navigation logic
+    }
+  }, [shouldSkipReferral, step]);
+
+  const AnimateCountryForm = useMemo(() => motion(CountryForm), []);
+  const AnimateReferralForm = useMemo(() => motion(ReferralForm), []);
+  const AnimateTopicsForm = useMemo(() => motion(TopicsForm), []);
+
+  const OnboardingHeaderValue = useMemo(
+    () => getOnboardingHeader(step, totalSteps, currentStepNumber),
+    [step, totalSteps, currentStepNumber],
+  );
 
   const OnboardingContextValue: OnboardingContextValue = useMemo(
     () => ({
@@ -95,12 +129,14 @@ const OnboardingPage = (/* { children }: { children: ReactNode } */) => {
       setError,
       isLoading,
       setIsLoading,
+      shouldSkipReferral,
       //   email,
       //   setEmail,
     }),
     [
       step,
       isLoading,
+      shouldSkipReferral,
       // email
     ],
   );
@@ -109,14 +145,14 @@ const OnboardingPage = (/* { children }: { children: ReactNode } */) => {
       <AuthHeader title="Personalize your news!">
         <OnboardingHeaderValue.stepTracker />
       </AuthHeader>
-      <span className="text-muted-alt mb-3 text-sm font-normal">
+      <span className="mb-3 text-sm font-normal text-muted-alt">
         {OnboardingHeaderValue.subheader}
       </span>
       <OnboardingContext.Provider value={OnboardingContextValue}>
         <AnimatePresence mode="wait">
           {step === "country" && <AnimateCountryForm key="country" />}
+          {step === "referral" && <AnimateReferralForm key="referral" />}
           {step === "topics" && <AnimateTopicsForm key="topics" />}
-          {step === "sources" && <AnimateSourcesForm key="sources" />}
         </AnimatePresence>
         {/* {children} */}
       </OnboardingContext.Provider>

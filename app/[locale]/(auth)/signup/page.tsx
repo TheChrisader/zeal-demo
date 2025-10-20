@@ -100,6 +100,9 @@ const SignUpPage = () => {
     }
   }, [referralCode, form]);
 
+  // Watch the referral code input value to compare with the original referral code
+  const currentReferralCode = form.watch("referral_code");
+
   const onSubmit = async (data: z.infer<typeof SignUpFormSchema>) => {
     const { name, username, email, password, referral_code } = data;
     setIsLoading(true);
@@ -231,7 +234,7 @@ const SignUpPage = () => {
               );
             }}
           />
-          {referralCode && (
+          {referralCode && currentReferralCode === referralCode && (
             <div className="rounded-lg border border-green-200 bg-green-50 p-3">
               <p className="text-sm text-green-800">
                 <strong>Referral Applied:</strong> You're signing up with

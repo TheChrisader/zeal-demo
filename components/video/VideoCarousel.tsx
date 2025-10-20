@@ -264,7 +264,7 @@ const VideoCarousel: React.FC<VideoCarouselProps> = ({ videos }) => {
               }`}
               onClick={() => changeVideo(index)}
             >
-              <div className="aspect-video overflow-hidden rounded-lg bg-black">
+              <div className="relative aspect-video overflow-hidden rounded-lg bg-black">
                 <img
                   src={`https://img.youtube.com/vi_webp/${video.id}/sddefault.webp`}
                   alt={video.title}
@@ -276,8 +276,8 @@ const VideoCarousel: React.FC<VideoCarouselProps> = ({ videos }) => {
                   </div>
                 </div>
               </div>
-              <div className="mt-2 p-2 text-center text-sm text-card-foreground max-[650px]:hidden lg:text-left">
-                {video.title}
+              <div className="p-2 text-center text-sm text-card-foreground max-[650px]:hidden lg:text-left">
+                <span className="line-clamp-3">{video.title}</span>
               </div>
             </div>
           ))}

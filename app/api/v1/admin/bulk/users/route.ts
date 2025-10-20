@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import UserModel from "@/database/user/user.model";
 import { connectToDatabase } from "@/lib/database";
+import PreferencesModel from "@/database/preferences/preferences.model";
 
 // Types for query parameters
 interface QueryParams {
@@ -163,6 +164,7 @@ export async function DELETE(req: NextRequest) {
     const { ids } = await req.json();
 
     const deletedUsers = await UserModel.deleteMany({ _id: { $in: ids } });
+    await PreferencesModel.deleteMany({ user_id: { $in: ids } });
 
     return NextResponse.json(
       {

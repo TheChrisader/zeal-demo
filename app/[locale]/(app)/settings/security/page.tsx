@@ -17,7 +17,7 @@ const SecuritySettings = () => {
     if (checked) {
       try {
         setTwoFAModalOpen(true);
-        const response = await fetch("/api/2fa/generate", {
+        const response = await fetch("/api/v1/2fa/generate", {
           method: "POST",
         });
         const data = await response.json();
@@ -35,10 +35,10 @@ const SecuritySettings = () => {
     <div className="w-full">
       <div className="mb-4 flex w-full items-center justify-between">
         <div className="flex flex-col">
-          <h3 className="text-foreground-alt text-lg font-bold">
+          <h3 className="text-lg font-bold text-foreground-alt">
             Security Settings
           </h3>
-          <span className="text-muted-alt text-sm font-normal">
+          <span className="text-sm font-normal text-muted-alt">
             Change Passwords, Enable 2FA to make your account more secure
           </span>
         </div>
@@ -48,15 +48,15 @@ const SecuritySettings = () => {
         <PasswordModal>
           <div className="flex items-center gap-2">
             <LockIcon />
-            <span className="text-foreground-alt text-sm font-normal">
+            <span className="text-sm font-normal text-foreground-alt">
               Change Password
             </span>
           </div>
           <CaretRightIcon />
         </PasswordModal>
-        <label className="hover:bg-subtle-hover-bg flex cursor-pointer items-center justify-between py-2">
+        <label className="flex cursor-pointer items-center justify-between py-2 hover:bg-subtle-hover-bg">
           <div className="flex">
-            <span className="text-foreground-alt text-sm font-normal">
+            <span className="text-sm font-normal text-foreground-alt">
               Enable Login 2FA
             </span>
           </div>
