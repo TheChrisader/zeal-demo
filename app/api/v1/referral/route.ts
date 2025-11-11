@@ -5,6 +5,8 @@ import { setUserReferralCode } from "@/database/referral/referral.repository";
 import { validateRequest } from "@/lib/auth/auth";
 import { connectToDatabase } from "@/lib/database";
 import { buildError, sendError } from "@/utils/error";
+import { generateReferralLink } from "@/services/referral.services";
+import { sendReferralWelcomeEmail } from "@/utils/email";
 import {
   INTERNAL_ERROR,
   INVALID_INPUT_ERROR,
@@ -63,6 +65,17 @@ export const POST = async (request: NextRequest) => {
           status: 500,
         }),
       );
+    }
+
+    // Send welcome email for new referrers
+    if (updatedUser.referral_code && !user.referral_code) {
+      try {
+        const referralLink = generateReferralLink(updatedUser.referral_code);
+        await sendReferralWelcomeEmail(updatedUser, updatedUser.referral_code, referralLink);
+      } catch (emailError) {
+        console.error("Failed to send referral welcome email:", emailError);
+        // Don't fail the request if email sending fails
+      }
     }
 
     return NextResponse.json({

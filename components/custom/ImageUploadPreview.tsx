@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { UploadCloud, XCircle, Image as ImageIcon } from "lucide-react";
+import { validateThumbnailAspectRatio, ImageValidationError } from "@/utils/file.utils";
+import { toast } from "sonner";
 
 interface ImageUploadPreviewProps {
   currentImageUrl?: string | null;
@@ -22,34 +24,58 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
     setPreviewUrl(currentImageUrl || null);
   }, [currentImageUrl]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      onFileSelect(file);
-    }
-  };
+      try {
+        // Validate aspect ratio before proceeding
+        await validateThumbnailAspectRatio(file);
 
-  const handleDrop = useCallback(
-    (event: React.DragEvent<HTMLDivElement>) => {
-      event.preventDefault();
-      event.stopPropagation();
-      setIsDragging(false);
-      const file = event.dataTransfer.files?.[0];
-      if (file && file.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onloadend = () => {
           setPreviewUrl(reader.result as string);
         };
         reader.readAsDataURL(file);
         onFileSelect(file);
+      } catch (error) {
+        if (error instanceof ImageValidationError) {
+          toast.error(error.message);
+        } else {
+          toast.error("Failed to validate image. Please try again.");
+        }
+        // Reset the file input to allow re-selection
+        event.target.value = '';
+      }
+    }
+  };
+
+  const handleDrop = useCallback(
+    async (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+      setIsDragging(false);
+      const file = event.dataTransfer.files?.[0];
+      if (file && file.type.startsWith("image/")) {
+        try {
+          // Validate aspect ratio before proceeding
+          await validateThumbnailAspectRatio(file);
+
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setPreviewUrl(reader.result as string);
+          };
+          reader.readAsDataURL(file);
+          onFileSelect(file);
+        } catch (error) {
+          if (error instanceof ImageValidationError) {
+            toast.error(error.message);
+          } else {
+            toast.error("Failed to validate image. Please try again.");
+          }
+        }
       } else {
         // Handle invalid file type, maybe show a toast
-        console.warn("Invalid file type dropped.");
+        toast.warn("Invalid file type dropped. Please select an image file.");
       }
     },
     [onFileSelect],

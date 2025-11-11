@@ -19,6 +19,11 @@ const StickyNewsletterBanner = dynamic(
   { ssr: false },
 );
 
+const ReferralReminderPopup = dynamic(
+  () => import("@/components/promotion/ReferralReminderPopup"),
+  { ssr: false },
+);
+
 const AppLayoutClientComponents = () => {
   const { user } = useAuth();
 
@@ -27,6 +32,7 @@ const AppLayoutClientComponents = () => {
       {user && <MobileNav />}
       {user && <FloatingWrite />}
       <StickyNewsletterBanner />
+      <ReferralReminderPopup />
     </>
   );
 };

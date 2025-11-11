@@ -78,7 +78,7 @@ const MainArticleCard: React.FC<MainArticleCardProps> = ({ article }) => {
       {/* Content Section */}
       <div className="p-6">
         {/* Category and Newsletter Info */}
-        <div className="mb-3 flex w-fit items-center rounded-xl bg-primary px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-white">
+        <div className="mb-3 flex w-fit items-center rounded-xl bg-primary px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-special-text">
           <span>{article.category[0]}</span>
           {article.category[1] && (
             <>

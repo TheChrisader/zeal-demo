@@ -98,6 +98,10 @@ export const getKeyFromUrl = (url: string) => {
   return key;
 };
 
+// Aspect ratio configuration
+export const REQUIRED_ASPECT_RATIO = 16 / 9; // 1.777...
+export const ASPECT_RATIO_TOLERANCE = 0.01; // Allow small variations
+
 export class ImageValidationError extends Error {
   status: number;
   constructor(message: string, status: number) {
@@ -105,6 +109,53 @@ export class ImageValidationError extends Error {
     this.status = status;
   }
 }
+
+export const validateImageAspectRatio = (
+  file: File,
+): Promise<{ width: number; height: number; aspectRatio: number }> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    img.onload = () => {
+      const width = img.width;
+      const height = img.height;
+      const aspectRatio = width / height;
+
+      // Clean up the object URL
+      URL.revokeObjectURL(objectUrl);
+
+      resolve({ width, height, aspectRatio });
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new ImageValidationError("Failed to load image for validation.", 422));
+    };
+
+    img.src = objectUrl;
+  });
+};
+
+export const validateThumbnailAspectRatio = async (file: File): Promise<void> => {
+  try {
+    const { aspectRatio } = await validateImageAspectRatio(file);
+
+    const difference = Math.abs(aspectRatio - REQUIRED_ASPECT_RATIO);
+
+    if (difference > ASPECT_RATIO_TOLERANCE) {
+      throw new ImageValidationError(
+        `Image aspect ratio (${aspectRatio.toFixed(2)}) does not match required ratio (${REQUIRED_ASPECT_RATIO.toFixed(2)}). Please use an image with a 16:9 aspect ratio.`,
+        422
+      );
+    }
+  } catch (error) {
+    if (error instanceof ImageValidationError) {
+      throw error;
+    }
+    throw new ImageValidationError("Failed to validate image aspect ratio.", 422);
+  }
+};
 
 export const validateAndUploadImage = async (
   file: Blob & { name: string },
