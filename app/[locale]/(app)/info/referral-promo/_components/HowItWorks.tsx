@@ -1,3 +1,4 @@
+"use client";
 import type { FC } from "react";
 
 // SECTION: SVG Icons
@@ -265,42 +266,44 @@ const stepsData = [
 // SECTION: Main Component
 const HowItWorks: FC = () => {
   return (
-    <div className="bg-[#F7F8F7] px-4 py-16 font-sans sm:py-24">
+    <div id="how-it-works" className="px-4 py-2 font-sans sm:py-4">
       <div className="mx-auto max-w-7xl">
-        {/* Header */}
-        <header className="mb-12 text-center">
-          <h1 className="text-4xl font-bold text-[#1E4D2B] sm:text-5xl">
-            How it Works
-          </h1>
-          <p className="mt-4 text-lg text-[#1E4D2B] sm:text-xl">
-            Four simple steps – built to be fair, fast, and fun.
-          </p>
-        </header>
-
         {/* Main Content Layout */}
         <main className="grid grid-cols-1 items-start gap-10 lg:grid-cols-2">
           {/* Left Column: How it Works Steps */}
           <div className="flex w-full flex-col items-center">
-            <div className="w-full rounded-3xl border border-green-200/50 bg-white p-6 sm:p-8">
+            {/* Header */}
+            <header className="mb-2 text-center">
+              <h1 className="text-3xl font-bold text-[#1E4D2B] sm:text-3xl">
+                How it Works
+              </h1>
+              <p className="mt-1 text-lg text-[#1E4D2B] sm:text-lg">
+                Four simple steps – built to be fair, fast, and fun.
+              </p>
+            </header>
+
+            <div className="w-full rounded-3xl border border-emerald-800 p-2 sm:p-3">
               <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
                 {stepsData.map((step) => (
                   <div key={step.id}>
-                    <div className="flex items-start justify-between">
-                      <div>
+                    <div className="flex items-start justify-between rounded-lg bg-white p-4">
+                      <div className="flex flex-col">
+                        <span className="mb-3 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-500 text-sm font-bold text-white">
+                          {step.id}
+                        </span>
                         <div className="mb-2 flex items-center">
-                          <span className="mr-3 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-500 text-sm font-bold text-white">
-                            {step.id}
-                          </span>
-                          <h3 className="text-lg font-bold text-[#1E4D2B]">
-                            {step.title}
-                          </h3>
+                          <div>
+                            <h3 className="text-base font-bold text-[#1E4D2B]">
+                              {step.title}
+                            </h3>
+                            <p className="pr-2 text-xs text-emerald-900">
+                              {step.description}
+                            </p>
+                          </div>
+                          <div className="ml-2 flex-shrink-0">
+                            <step.icon />
+                          </div>
                         </div>
-                        <p className="pr-2 text-sm text-gray-600">
-                          {step.description}
-                        </p>
-                      </div>
-                      <div className="ml-2 flex-shrink-0">
-                        <step.icon />
                       </div>
                     </div>
                   </div>
@@ -309,7 +312,7 @@ const HowItWorks: FC = () => {
             </div>
 
             {/* Call to Action Button 1 */}
-            <button className="mt-8 rounded-full bg-[#1E4D2B] px-8 py-4 text-lg font-bold text-white shadow-md transition-colors duration-300 hover:bg-[#15381f]">
+            <button className="mt-4 rounded-full bg-[#1E4D2B] px-8 py-1 text-lg font-bold text-white underline shadow-md transition-colors duration-300 hover:bg-[#15381f]">
               Start Sharing. Start Winning. Join Now!
             </button>
           </div>
@@ -335,7 +338,7 @@ const HowItWorks: FC = () => {
             </div>
 
             {/* Call to Action Button 2 */}
-            <button className="mt-8 rounded-full bg-[#1E4D2B] px-8 py-4 text-center text-lg font-bold text-white shadow-md transition-colors duration-300 hover:bg-[#15381f]">
+            <button className="mt-8 rounded-full bg-[#1E4D2B] px-8 py-1 text-center text-lg font-bold text-white underline shadow-md transition-colors duration-300 hover:bg-[#15381f]">
               <span className="underline">Get your referral link today</span> –
               your first
               <br />

@@ -1,8 +1,8 @@
-import { FilterQuery } from "mongoose";
+import { FilterQuery, ObjectId } from "mongoose";
 import UserModel from "@/database/user/user.model";
 import { findUserById, updateUser } from "@/database/user/user.repository";
 import { Id } from "@/lib/database";
-import { IReferralUser } from "@/types/referral.type";
+import { IReferralUser, IAdminReferralSummary, IReferralLeaderboardEntry, IAdminReferralUserAnalytics } from "@/types/referral.type";
 import { IUser } from "@/types/user.type";
 
 /**
@@ -189,5 +189,296 @@ export const applyReferralCode = async (
   } catch (error) {
     console.error("Error applying referral code:", error);
     return false;
+  }
+};
+
+// Admin-specific functions
+
+/**
+ * Get admin-level referral summary with time-series data
+ * @param timeRange - Time range for data aggregation ("7d", "30d", "90d")
+ * @returns Comprehensive referral summary with daily/weekly breakdown
+ */
+export const getAdminReferralSummary = async (
+  timeRange: "7d" | "30d" | "90d" = "30d",
+): Promise<IAdminReferralSummary> => {
+  try {
+    const now = new Date();
+    let startDate: Date;
+    let bucketInterval: number; // in days
+    let groupFormat: string;
+
+    switch (timeRange) {
+      case "7d":
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        bucketInterval = 1; // Daily
+        groupFormat = "%Y-%m-%d";
+        break;
+      case "90d":
+        startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        bucketInterval = 7; // Weekly
+        groupFormat = "%Y-%U"; // Year-week
+        break;
+      case "30d":
+      default:
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        bucketInterval = 3; // Every 3 days
+        groupFormat = "%Y-%m-%d";
+        break;
+    }
+
+    // Get total referral counts and basic stats
+    const [totalReferrals, totalReferrers] = await Promise.all([
+      UserModel.countDocuments({ referred_by: { $exists: true, $ne: null } }),
+      UserModel.countDocuments({ referral_count: { $gt: 0 } }),
+    ]);
+
+    // Get time-series data
+    const timeSeriesData = await UserModel.aggregate([
+      {
+        $match: {
+          referred_by: { $exists: true, $ne: null },
+          created_at: { $gte: startDate },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: groupFormat,
+              date: "$created_at",
+            },
+          },
+          count: { $sum: 1 },
+          date: { $first: "$created_at" },
+        },
+      },
+      { $sort: { date: 1 } },
+    ]);
+
+    // Format the data for line chart consumption
+    const dailyReferrals = timeSeriesData.map((item) => ({
+      date: item._id,
+      count: item.count,
+    }));
+
+    // Calculate weekly aggregates
+    const weeklyReferrals = await UserModel.aggregate([
+      {
+        $match: {
+          referred_by: { $exists: true, $ne: null },
+          created_at: { $gte: startDate },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            week: {
+              $dateToString: {
+                format: "%Y-%U",
+                date: "$created_at",
+              },
+            },
+          },
+          count: { $sum: 1 },
+          startDate: { $min: "$created_at" },
+        },
+      },
+      { $sort: { startDate: 1 } },
+    ]);
+
+    const formattedWeeklyReferrals = weeklyReferrals.map((item) => ({
+      week: item._id.week,
+      count: item.count,
+    }));
+
+    return {
+      total_referrals: totalReferrals,
+      total_referrers: totalReferrers,
+      average_referrals_per_referrer: totalReferrers > 0 ? Math.round(totalReferrals / totalReferrers * 100) / 100 : 0,
+      daily_referrals: dailyReferrals,
+      weekly_referrals: formattedWeeklyReferrals,
+    };
+  } catch (error) {
+    console.error("Error getting admin referral summary:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get weekly referral leaderboard
+ * @param weekOffset - Number of weeks to offset from current week (0 = current week)
+ * @param limit - Maximum number of entries to return
+ * @returns Array of leaderboard entries with rankings
+ */
+export const getReferralLeaderboard = async (
+  weekOffset: number = 0,
+  limit: number = 50,
+): Promise<IReferralLeaderboardEntry[]> => {
+  try {
+    const now = new Date();
+    const currentDay = now.getDay(); // 0 = Sunday
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - currentDay + (weekOffset * 7));
+    weekStart.setHours(0, 0, 0, 0);
+
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    weekEnd.setHours(23, 59, 59, 999);
+
+    // Get users with referrals in the specified week
+    const leaderboardData = await UserModel.aggregate([
+      {
+        $match: {
+          referral_count: { $gt: 0 },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "referred_by",
+          as: "referred_users_in_week",
+          pipeline: [
+            {
+              $match: {
+                created_at: { $gte: weekStart, $lte: weekEnd },
+              },
+            },
+          ],
+        },
+      },
+      {
+        $addFields: {
+          recent_referrals: { $size: "$referred_users_in_week" },
+        },
+      },
+      {
+        $match: {
+          recent_referrals: { $gt: 0 },
+        },
+      },
+      {
+        $project: {
+          user_id: { $toString: "$_id" },
+          display_name: 1,
+          username: 1,
+          avatar: 1,
+          referral_count: 1,
+          recent_referrals: 1,
+          created_at: 1,
+        },
+      },
+      { $sort: { recent_referrals: -1, referral_count: -1 } },
+      { $limit: limit },
+    ]);
+
+    // Add rankings
+    const leaderboardWithRanks = leaderboardData.map((entry, index) => ({
+      ...entry,
+      rank: index + 1,
+    }));
+
+    return leaderboardWithRanks;
+  } catch (error) {
+    console.error("Error getting referral leaderboard:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get detailed analytics for a specific referrer
+ * @param userId - The user ID to get analytics for
+ * @returns Detailed referrer analytics or null if not found
+ */
+export const getAdminReferralUserAnalytics = async (
+  userId: string,
+): Promise<IAdminReferralUserAnalytics | null> => {
+  try {
+    // Get the user with referral code
+    const user = await UserModel.findById(userId)
+      .select({
+        password_hash: 0,
+        ip_address: 0,
+        location: 0,
+      })
+      .lean({ virtuals: ["id"] });
+
+    if (!user || !user.referral_code) {
+      return null;
+    }
+
+    // Get all referred users
+    const referredUsers = await UserModel.find(
+      { referred_by: userId },
+      {
+        password_hash: 0,
+        email: 0,
+        ip_address: 0,
+        location: 0,
+      },
+    )
+      .sort({ created_at: -1 })
+      .lean({ virtuals: ["id"] });
+
+    // Get monthly referral trends
+    const monthlyReferrals = await UserModel.aggregate([
+      {
+        $match: {
+          referred_by: new ObjectId(userId),
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m",
+              date: "$created_at",
+            },
+          },
+          count: { $sum: 1 },
+          month: { $first: "$created_at" },
+        },
+      },
+      { $sort: { month: 1 } },
+    ]);
+
+    // Get recent referrals for conversion rate calculation
+    const recentReferrals = referredUsers.slice(0, 10).map((referredUser) => ({
+      id: referredUser.id,
+      display_name: referredUser.display_name,
+      username: referredUser.username,
+      avatar: referredUser.avatar,
+      created_at: referredUser.created_at,
+    }));
+
+    // Calculate conversion rate (simplified - active referrals)
+    const conversionRate = referredUsers.length > 0
+      ? Math.round((referredUsers.filter(u => u.last_login_at && u.last_login_at > u.created_at).length / referredUsers.length) * 100)
+      : 0;
+
+    return {
+      user: {
+        id: user.id,
+        display_name: user.display_name,
+        username: user.username,
+        avatar: user.avatar,
+        email: user.email,
+        referral_code: user.referral_code,
+        created_at: user.created_at,
+      },
+      referral_stats: {
+        total_referrals: referredUsers.length,
+        referral_conversion_rate: conversionRate,
+        recent_referrals: recentReferrals,
+      },
+      monthly_referrals: monthlyReferrals.map((item) => ({
+        month: item._id,
+        count: item.count,
+      })),
+    };
+  } catch (error) {
+    console.error("Error getting admin referral user analytics:", error);
+    throw error;
   }
 };

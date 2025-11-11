@@ -5,7 +5,6 @@ import { Menu, Copy } from "lucide-react";
 const ReferralPromoHero1: React.FC = () => {
   const [email, setEmail] = useState("");
   const [handle, setHandle] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const generateLink = () => {
     if (email) {
@@ -22,120 +21,52 @@ const ReferralPromoHero1: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-gray-200">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            {/* Mobile menu button */}
-            <button
-              className="p-2 lg:hidden"
-              onClick={() => setMenuOpen(!menuOpen)}
-            >
-              <Menu className="h-6 w-6" />
-            </button>
-
-            {/* Logo */}
-            <div className="flex flex-1 items-center justify-center lg:flex-initial">
-              <div className="flex items-center gap-1">
-                <div className="h-6 w-6 -skew-x-12 transform bg-gradient-to-br from-orange-500 to-green-600"></div>
-                <span className="text-2xl font-bold">
-                  Zeal<span className="font-normal text-gray-600">News</span>
-                </span>
-              </div>
-            </div>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden flex-1 items-center justify-center gap-8 lg:flex">
-              <a href="#" className="text-gray-700 hover:text-gray-900">
-                How it works
-              </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">
-                Prizes
-              </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">
-                Timeline
-              </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">
-                Leaderboard
-              </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">
-                FAQ
-              </a>
-            </nav>
-
-            {/* CTA Buttons */}
-            <div className="flex items-center gap-3">
-              <button className="rounded border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50">
-                Rules
-              </button>
-              <button className="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800">
-                GetLink
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile Navigation */}
-          {menuOpen && (
-            <nav className="border-t border-gray-200 py-4 lg:hidden">
-              <a href="#" className="block py-2 text-gray-700">
-                How it works
-              </a>
-              <a href="#" className="block py-2 text-gray-700">
-                Prizes
-              </a>
-              <a href="#" className="block py-2 text-gray-700">
-                Timeline
-              </a>
-              <a href="#" className="block py-2 text-gray-700">
-                Leaderboard
-              </a>
-              <a href="#" className="block py-2 text-gray-700">
-                FAQ
-              </a>
-            </nav>
-          )}
-        </div>
-      </header>
-
+    <div className="min-h-screen">
       {/* Main Content */}
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl py-8">
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Left Column - Hero Section */}
           <div className="relative">
             {/* Green Background Card */}
-            <div className="overflow-hidden rounded-lg bg-gradient-to-br from-green-700 to-green-800">
+            <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-green-700 to-green-800 px-4 py-10">
               {/* Badge */}
-              <div className="absolute left-6 top-6 z-10">
-                <div className="rounded-full bg-white px-4 py-1.5 text-xs font-bold uppercase tracking-wider">
+              <div className="z-10">
+                <div className="w-fit rounded-full bg-white px-4 py-1 text-xs font-bold uppercase tracking-wider">
                   Weekly • Share & Win
                 </div>
               </div>
 
               {/* Hero Image */}
-              <div className="relative h-80 lg:h-96">
-                <div className="absolute inset-0 flex items-center justify-end pr-8">
-                  <div className="relative">
-                    {/* Money bills background */}
-                    <div className="absolute -left-12 -top-8 h-32 w-24 rotate-12 transform rounded-lg bg-green-500 opacity-40"></div>
-                    <div className="absolute -top-4 left-4 h-28 w-20 -rotate-6 transform rounded-lg bg-green-400 opacity-50"></div>
+              <div className="">
+                {/* <div className="absolute inset-0 flex items-center justify-end pr-8"> */}
+                {/* <div className="relative"> */}
+                {/* Money bills background */}
+                <img
+                  src="/referral/money_foreground.webp"
+                  className="absolute left-0 top-0 size-full"
+                ></img>
+                <img
+                  src="/referral/money_background.webp"
+                  className="absolute left-0 top-0 size-full opacity-30"
+                ></img>
 
-                    {/* Person placeholder */}
-                    <div className="relative h-64 w-48 rounded-t-full bg-gradient-to-b from-blue-200 to-blue-300"></div>
-                  </div>
-                </div>
+                {/* Person placeholder */}
+                {/* <div className="relative h-64 w-48 rounded-t-full bg-gradient-to-b from-blue-200 to-blue-300"></div> */}
+
+                {/* </div> */}
+                {/* </div> */}
 
                 {/* Hero Text Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                  <h1 className="mb-4 text-4xl font-bold leading-tight lg:text-5xl">
+                <div className="relative z-10 text-left text-white">
+                  <h1 className="mb-4 text-2xl font-bold leading-tight lg:text-3xl">
                     Turn your <span className="italic">influence</span>
                     <br />
                     into <span className="italic">wins.</span>
                   </h1>
-                  <div className="mb-4 inline-block rounded-full bg-white px-4 py-2 text-sm font-medium text-green-800">
+                  <div className="mb-4 inline-block rounded-full bg-white/50 px-4 py-1 text-sm font-bold text-black">
                     Every Friday @ 5:00 PM (WAT).
                   </div>
-                  <p className="text-sm leading-relaxed lg:text-base">
+                  <p className="lg:sm text-sm leading-relaxed">
                     Invite friends to a smarter, Africa-first news
                     <br />
                     brief. Each{" "}
@@ -150,12 +81,16 @@ const ReferralPromoHero1: React.FC = () => {
                     More entries, better odds.
                   </p>
                 </div>
+                <img
+                  src="/referral/girl_smiling.webp"
+                  className="absolute -right-20 bottom-0 z-0 h-72"
+                />
               </div>
             </div>
 
             {/* Sign Up Form */}
-            <div className="mt-6 space-y-4">
-              <div className="inline-block rounded bg-emerald-700 px-4 py-2 text-sm font-bold uppercase tracking-wider text-white">
+            <div className="mt-2 space-y-2">
+              <div className="inline-block rounded bg-emerald-700 px-4 py-1 text-sm font-bold uppercase tracking-wider text-white">
                 Sign Up Here
               </div>
 
@@ -164,7 +99,7 @@ const ReferralPromoHero1: React.FC = () => {
                 placeholder="Your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                className="w-full rounded border border-gray-300 px-4 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-600"
               />
 
               <input
@@ -172,11 +107,11 @@ const ReferralPromoHero1: React.FC = () => {
                 placeholder="Preferred handle (optional)"
                 value={handle}
                 onChange={(e) => setHandle(e.target.value)}
-                className="w-full rounded border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                className="w-full rounded border border-gray-300 px-4 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-600"
               />
 
               <button
-                className="rounded bg-emerald-700 px-6 py-3 font-bold uppercase tracking-wider text-white hover:bg-emerald-800"
+                className="rounded bg-emerald-700 px-6 py-1 font-bold uppercase tracking-wider text-white hover:bg-emerald-800"
                 onClick={() => email && alert("Link generated!")}
               >
                 Get Link
@@ -192,9 +127,9 @@ const ReferralPromoHero1: React.FC = () => {
                 </span>
                 <button
                   onClick={copyLink}
-                  className="ml-auto flex items-center gap-2 rounded bg-emerald-700 px-4 py-2 text-sm font-bold uppercase tracking-wider text-white hover:bg-emerald-800"
+                  className="ml-auto flex items-center gap-2 rounded bg-emerald-700 px-4 py-1 text-xs font-bold uppercase tracking-wider text-white hover:bg-emerald-800"
                 >
-                  <Copy className="h-4 w-4" />
+                  <Copy className="size-2" />
                   Copy
                 </button>
               </div>
@@ -202,17 +137,17 @@ const ReferralPromoHero1: React.FC = () => {
           </div>
 
           {/* Right Column - Prize Info */}
-          <div className="space-y-6">
+          <div className="space-y-6 rounded-lg bg-white p-4">
             {/* Prize Card */}
-            <div className="rounded-lg bg-green-50 p-8">
-              <div className="mb-2 text-sm font-bold text-emerald-700">
+            <div className="rounded-lg bg-green-50 p-4">
+              <div className="mb-2 text-sm font-bold text-emerald-800">
                 This week's prize
               </div>
               <h2 className="mb-4 text-4xl font-bold lg:text-5xl">
                 ₦50,000 cash +<br />
                 Branded T-Shirt
               </h2>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-emerald-800">
                 10 runner-ups: data vouchers
               </p>
             </div>
@@ -220,26 +155,26 @@ const ReferralPromoHero1: React.FC = () => {
             {/* Features Grid */}
             <div className="grid gap-4 sm:grid-cols-2">
               {/* Share Anywhere */}
-              <div className="rounded-lg border border-gray-200 p-6">
-                <h3 className="mb-3 font-bold">Share anywhere</h3>
-                <p className="text-sm text-gray-600">
+              <div className="rounded-lg border border-gray-200 bg-green-50/50 p-6">
+                <h3 className="mb-1 font-bold">Share anywhere</h3>
+                <p className="text-sm text-emerald-800">
                   WhatsApp, X, LinkedIn, email, communities
                 </p>
               </div>
 
               {/* Fair Tracking */}
-              <div className="rounded-lg border border-gray-200 p-6">
-                <h3 className="mb-3 font-bold">Fair tracking</h3>
-                <p className="text-sm text-gray-600">
+              <div className="rounded-lg border border-gray-200 bg-green-50/50 p-6">
+                <h3 className="mb-1 font-bold">Fair tracking</h3>
+                <p className="text-sm text-emerald-800">
                   Verified signups only — no spam
                 </p>
               </div>
             </div>
 
             {/* Pro Tip */}
-            <div className="rounded-lg border-l-4 border-yellow-400 bg-yellow-50 p-6">
-              <h3 className="mb-2 font-bold">Pro tip</h3>
-              <p className="text-sm text-gray-700">
+            <div className="rounded-lg border border-gray-200 bg-green-50/50 p-6">
+              <h3 className="mb-1 font-bold">Pro tip</h3>
+              <p className="text-sm text-emerald-800">
                 Add a short personal note when you share — converts 2–3× better
                 than bare links.
               </p>
