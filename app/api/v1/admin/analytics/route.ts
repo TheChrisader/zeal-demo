@@ -309,6 +309,7 @@ export async function GET(): Promise<
     }
 
     const { todayStart, todayEnd } = getTodayDateRange();
+    console.log(todayStart, todayEnd);
 
     // Fetch all data in parallel for optimal performance
     const [gaResponse, categoryDistribution, sourceDistribution] =
