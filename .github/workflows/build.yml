@@ -75,6 +75,9 @@ jobs:
 
         shell: bash
 
+      - name: Create credentials.json from secret
+        run: echo "${{ secrets.GCP_SA_KEY_JSON }}" > credentials.json
+
       - name: Build and push Docker image
         uses: ./.github/actions/nixpacks-build-push
         with:
