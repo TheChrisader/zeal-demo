@@ -70,6 +70,8 @@ jobs:
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
           echo "MAILERLITE_API_KEY=${{ secrets.MAILERLITE_API_KEY }}" >> .env
           echo "YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" >> .env
+          echo "GA4_PROPERTY_ID=${{ secrets.GA4_PROPERTY_ID }}" >> .env
+
         shell: bash
 
       - name: Build and push Docker image

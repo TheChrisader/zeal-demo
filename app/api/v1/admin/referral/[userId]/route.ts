@@ -5,18 +5,17 @@ import { AdminReferralUserParamsSchema } from "@/database/referral/referral.dto"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: { userId: string } },
 ) {
   try {
     await connectToDatabase();
 
     // Validate userId parameter
-    const validationResult = AdminReferralUserParamsSchema.safeParse({ userId: params.userId });
+    const validationResult = AdminReferralUserParamsSchema.safeParse({
+      userId: params.userId,
+    });
     if (!validationResult.success) {
-      return NextResponse.json(
-        { error: "Invalid user ID" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
     const { userId } = validationResult.data;
@@ -27,7 +26,7 @@ export async function GET(
     if (!analytics) {
       return NextResponse.json(
         { error: "User not found or user is not a referrer" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -41,7 +40,7 @@ export async function GET(
     console.error("Admin referral user analytics API Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

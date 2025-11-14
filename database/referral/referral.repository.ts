@@ -1,8 +1,13 @@
 import { FilterQuery, ObjectId } from "mongoose";
 import UserModel from "@/database/user/user.model";
 import { findUserById, updateUser } from "@/database/user/user.repository";
-import { Id } from "@/lib/database";
-import { IReferralUser, IAdminReferralSummary, IReferralLeaderboardEntry, IAdminReferralUserAnalytics } from "@/types/referral.type";
+import { Id, newId } from "@/lib/database";
+import {
+  IReferralUser,
+  IAdminReferralSummary,
+  IReferralLeaderboardEntry,
+  IAdminReferralUserAnalytics,
+} from "@/types/referral.type";
 import { IUser } from "@/types/user.type";
 
 /**
@@ -245,7 +250,7 @@ export const getAdminReferralSummary = async (
         $group: {
           _id: {
             $dateToString: {
-              format: groupFormat,
+              format: "%Y-%m-%d",
               date: "$created_at",
             },
           },
@@ -256,11 +261,26 @@ export const getAdminReferralSummary = async (
       { $sort: { date: 1 } },
     ]);
 
-    // Format the data for line chart consumption
-    const dailyReferrals = timeSeriesData.map((item) => ({
-      date: item._id,
-      count: item.count,
-    }));
+    // Create a map of dates to referral counts
+    const dailyReferralMap = new Map();
+    timeSeriesData.forEach((item) => {
+      dailyReferralMap.set(item._id, item.count);
+    });
+
+    // Generate all dates from startDate to now and fill missing ones with 0
+    const dailyReferrals = [];
+    const currentDate = new Date(startDate);
+
+    while (currentDate <= now) {
+      const dateStr = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+      dailyReferrals.push({
+        date: dateStr,
+        count: dailyReferralMap.get(dateStr) || 0,
+      });
+
+      // Move to next day
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
 
     // Calculate weekly aggregates
     const weeklyReferrals = await UserModel.aggregate([
@@ -287,15 +307,50 @@ export const getAdminReferralSummary = async (
       { $sort: { startDate: 1 } },
     ]);
 
-    const formattedWeeklyReferrals = weeklyReferrals.map((item) => ({
-      week: item._id.week,
-      count: item.count,
-    }));
+    // Create a map of weeks to referral counts
+    const weeklyReferralMap = new Map();
+    weeklyReferrals.forEach((item) => {
+      weeklyReferralMap.set(item._id.week, item.count);
+    });
+
+    // Generate all weeks from startDate to now and fill missing ones with 0
+    const formattedWeeklyReferrals = [];
+
+    // Get the week number for the start date
+    const startOfWeek = new Date(startDate);
+    const dayOfWeek = startOfWeek.getDay();
+    const sundayOffset = dayOfWeek; // Days until Sunday (0 = Sunday)
+    startOfWeek.setDate(startOfWeek.getDate() - sundayOffset);
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    // Get the week number for the current date
+    const endOfWeek = new Date(now);
+    const currentDayOfWeek = endOfWeek.getDay();
+    endOfWeek.setDate(endOfWeek.getDate() - currentDayOfWeek);
+    endOfWeek.setHours(0, 0, 0, 0);
+
+    // Generate all weeks between start and end
+    while (startOfWeek <= endOfWeek) {
+      const year = startOfWeek.getFullYear();
+      const weekNumber = Math.ceil(((startOfWeek.getTime() - new Date(year, 0, 1).getTime()) / 86400000 + 1) / 7);
+      const weekStr = `${year}-${String(weekNumber).padStart(2, '0')}`;
+
+      formattedWeeklyReferrals.push({
+        week: weekStr,
+        count: weeklyReferralMap.get(weekStr) || 0,
+      });
+
+      // Move to next week
+      startOfWeek.setDate(startOfWeek.getDate() + 7);
+    }
 
     return {
       total_referrals: totalReferrals,
       total_referrers: totalReferrers,
-      average_referrals_per_referrer: totalReferrers > 0 ? Math.round(totalReferrals / totalReferrers * 100) / 100 : 0,
+      average_referrals_per_referrer:
+        totalReferrers > 0
+          ? Math.round((totalReferrals / totalReferrers) * 100) / 100
+          : 0,
       daily_referrals: dailyReferrals,
       weekly_referrals: formattedWeeklyReferrals,
     };
@@ -319,7 +374,7 @@ export const getReferralLeaderboard = async (
     const now = new Date();
     const currentDay = now.getDay(); // 0 = Sunday
     const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() - currentDay + (weekOffset * 7));
+    weekStart.setDate(now.getDate() - currentDay + weekOffset * 7);
     weekStart.setHours(0, 0, 0, 0);
 
     const weekEnd = new Date(weekStart);
@@ -421,27 +476,64 @@ export const getAdminReferralUserAnalytics = async (
       .sort({ created_at: -1 })
       .lean({ virtuals: ["id"] });
 
-    // Get monthly referral trends
-    const monthlyReferrals = await UserModel.aggregate([
+    // Calculate current week's Monday-Friday date range
+    const now = new Date();
+    const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const mondayOffset = currentDay === 0 ? 6 : currentDay - 1; // Calculate days until Monday
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - mondayOffset);
+    monday.setHours(0, 0, 0, 0);
+
+    const friday = new Date(monday);
+    friday.setDate(monday.getDate() + 4); // Friday is 4 days after Monday
+    friday.setHours(23, 59, 59, 999);
+
+    // If today is before Friday, only show up to today
+    const endDate = now < friday ? now : friday;
+
+    // Get daily referral trends for current week (Monday-Friday)
+    const dailyReferrals = await UserModel.aggregate([
       {
         $match: {
-          referred_by: new ObjectId(userId),
+          referred_by: newId(userId),
+          created_at: { $gte: monday, $lte: endDate },
         },
       },
       {
         $group: {
           _id: {
             $dateToString: {
-              format: "%Y-%m",
+              format: "%Y-%m-%d",
               date: "$created_at",
             },
           },
           count: { $sum: 1 },
-          month: { $first: "$created_at" },
+          date: { $first: "$created_at" },
         },
       },
-      { $sort: { month: 1 } },
+      { $sort: { date: 1 } },
     ]);
+
+    // Create a map of dates to referral counts
+    const referralMap = new Map();
+    dailyReferrals.forEach((item) => {
+      referralMap.set(item._id, item.count);
+    });
+
+    // Generate all dates from Monday to endDate and fill missing ones with 0
+    const allDates = [];
+    const currentDate = new Date(monday);
+
+    while (currentDate <= endDate) {
+      const dateStr = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+      allDates.push({
+        date: dateStr,
+        count: referralMap.get(dateStr) || 0,
+      });
+
+      // Move to next day
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
 
     // Get recent referrals for conversion rate calculation
     const recentReferrals = referredUsers.slice(0, 10).map((referredUser) => ({
@@ -453,9 +545,16 @@ export const getAdminReferralUserAnalytics = async (
     }));
 
     // Calculate conversion rate (simplified - active referrals)
-    const conversionRate = referredUsers.length > 0
-      ? Math.round((referredUsers.filter(u => u.last_login_at && u.last_login_at > u.created_at).length / referredUsers.length) * 100)
-      : 0;
+    const conversionRate =
+      referredUsers.length > 0
+        ? Math.round(
+            (referredUsers.filter(
+              (u) => u.last_login_at && u.last_login_at > u.created_at,
+            ).length /
+              referredUsers.length) *
+              100,
+          )
+        : 0;
 
     return {
       user: {
@@ -472,10 +571,7 @@ export const getAdminReferralUserAnalytics = async (
         referral_conversion_rate: conversionRate,
         recent_referrals: recentReferrals,
       },
-      monthly_referrals: monthlyReferrals.map((item) => ({
-        month: item._id,
-        count: item.count,
-      })),
+      daily_referrals: allDates,
     };
   } catch (error) {
     console.error("Error getting admin referral user analytics:", error);

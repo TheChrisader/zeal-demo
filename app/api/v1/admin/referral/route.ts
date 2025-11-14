@@ -11,11 +11,13 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const timeRange = searchParams.get("timeRange") || "30d";
 
-    const validationResult = AdminReferralSummaryQuerySchema.safeParse({ timeRange });
+    const validationResult = AdminReferralSummaryQuerySchema.safeParse({
+      timeRange,
+    });
     if (!validationResult.success) {
       return NextResponse.json(
         { error: "Invalid time range. Allowed values: 7d, 30d, 90d" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -34,7 +36,7 @@ export async function GET(request: NextRequest) {
     console.error("Admin referral summary API Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

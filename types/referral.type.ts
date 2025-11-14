@@ -72,8 +72,8 @@ export interface IAdminReferralUserAnalytics {
     referral_conversion_rate: number;
     recent_referrals: IReferralUser[];
   };
-  monthly_referrals: Array<{
-    month: string;
+  daily_referrals: Array<{
+    date: string;
     count: number;
   }>;
 }
