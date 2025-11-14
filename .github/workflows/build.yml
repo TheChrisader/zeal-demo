@@ -71,6 +71,7 @@ jobs:
           echo "MAILERLITE_API_KEY=${{ secrets.MAILERLITE_API_KEY }}" >> .env
           echo "YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" >> .env
           echo "GA4_PROPERTY_ID=${{ secrets.GA4_PROPERTY_ID }}" >> .env
+          echo "GOOGLE_APPLICATION_CREDENTIALS=${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" >> .env
 
         shell: bash
 
