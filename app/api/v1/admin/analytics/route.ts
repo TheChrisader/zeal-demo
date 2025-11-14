@@ -62,8 +62,10 @@ const SOURCE_TYPES = ["user", "auto"];
 function getTodayDateRange() {
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
+  todayStart.setHours(todayStart.getHours() - 1);
   const todayEnd = new Date();
   todayEnd.setHours(23, 59, 59, 999);
+  todayEnd.setHours(todayEnd.getHours() - 1);
   return { todayStart, todayEnd };
 }
 
@@ -309,7 +311,6 @@ export async function GET(): Promise<
     }
 
     const { todayStart, todayEnd } = getTodayDateRange();
-    console.log(todayStart, todayEnd);
 
     // Fetch all data in parallel for optimal performance
     const [gaResponse, categoryDistribution, sourceDistribution] =
