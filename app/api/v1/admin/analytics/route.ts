@@ -170,7 +170,7 @@ async function fetchCategoryDistribution(todayStart: Date, todayEnd: Date) {
     {
       $match: {
         category: { $in: CATEGORIES },
-        created_at: {
+        published_at: {
           $gte: todayStart,
           $lte: todayEnd,
         },
@@ -196,7 +196,7 @@ async function fetchSourceDistribution(todayStart: Date, todayEnd: Date) {
     {
       $match: {
         source_type: { $in: SOURCE_TYPES },
-        created_at: {
+        published_at: {
           $gte: todayStart,
           $lte: todayEnd,
         },
