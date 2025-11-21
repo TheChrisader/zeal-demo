@@ -189,7 +189,7 @@ const handleAggregationTask = async (task: Task<AggregationTaskData>) => {
   };
 
   const result = await ai.models.generateContent({
-    model: "gemini-2.5-flash-preview-05-20",
+    model: "gemini-2.5-flash",
     contents: prompt,
     config: config,
   });
@@ -339,7 +339,7 @@ const handleGenerationTask = async (task: Task<GenerationTaskData>) => {
     `;
 
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash-preview-05-20",
+    model: "gemini-2.5-flash",
     contents: prompt,
     config: config,
   });
@@ -529,7 +529,7 @@ Review the article thoroughly, correct any issues, and provide your assessment. 
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-05-20",
+      model: "gemini-2.5-flash",
       contents: prompt,
       config: config,
     });
@@ -721,7 +721,7 @@ export const getBatches = async () => {
       };
 
       const result = await ai.models.generateContent({
-        model: "gemini-2.5-flash-preview-05-20",
+        model: "gemini-2.5-flash",
         contents: prompt,
         config: config,
       });
