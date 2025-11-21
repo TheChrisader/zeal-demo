@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { CATEGORIES } from "@/categories/flattened";
 import PostModel from "@/database/post/post.model";
 
+export const revalidate = 60 * 5;
+
 interface AnalyticsResponse {
   posts_views: FormattedAnalyticsData[];
   category_distribution: CategoryDistribution[];
