@@ -5,6 +5,7 @@ import { IUser } from "@/types/user.type";
 
 import EmailVerification from "./templates/EmailVerification";
 import ModeratorOnboarding from "./templates/ModeratorOnboarding";
+import NewsletterWelcome from "./templates/NewsletterWelcome";
 import ReferralWelcome from "./templates/ReferralWelcome";
 import ResetPassword from "./templates/ResetPassword";
 
@@ -87,6 +88,27 @@ export const sendModeratorOnboardingEmail = (
     sendEmail(user.email, [], [], emailSubject, emailPlainText, htmlBody)
       .then(resolve)
       .catch(reject);
+  });
+};
+
+export const sendNewsletterWelcomeEmail = (user: IUser) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const htmlBody = await render(
+        NewsletterWelcome({
+          user,
+          appName,
+        }),
+      );
+      const emailSubject = `Welcome to the ${appName} Newsletter!`;
+      const emailPlainText = `Welcome to the ${appName} Newsletter! Thank you for subscribing. Customize your preferences at ${process.env.NEXT_PUBLIC_APP_URL || 'https://lodge.app'}/newsletter/preferences`;
+
+      sendEmail(user.email, [], [], emailSubject, emailPlainText, htmlBody)
+        .then(resolve)
+        .catch(reject);
+    } catch (error) {
+      reject(error);
+    }
   });
 };
 

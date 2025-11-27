@@ -2,8 +2,10 @@ import { serialize } from "cookie";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import SubscriberModel from "@/database/subscriber/subscriber.model";
+import UserModel from "@/database/user/user.model";
 import { connectToDatabase } from "@/lib/database";
 import { isMongooseDuplicateKeyError } from "@/utils/mongoose.utils";
+import { sendNewsletterWelcomeEmail } from "@/utils/email";
 
 const subscribeSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -61,6 +63,20 @@ export async function POST(request: NextRequest) {
       status_updated_at: new Date(),
     });
     await newSubscriber.save();
+
+    // Send welcome email to new subscribers (non-blocking)
+    try {
+      // Check if email is registered to a user to get their name
+      const existingUser = await UserModel.findOne({ email: email }).select('display_name');
+
+      await sendNewsletterWelcomeEmail({
+        email: email,
+        display_name: existingUser ? existingUser.display_name : undefined,
+      });
+    } catch (emailError) {
+      console.error("Newsletter welcome email error: ", emailError);
+      // Don't fail the subscription if email fails
+    }
 
     const subscriptionCookie = serialize(
       "zealnews_subscribed_newsletter",
