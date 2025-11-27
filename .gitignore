@@ -43,3 +43,6 @@ public/swe-worker*
 
 # Credentials
 credentials.json
+
+# Scripts
+/scripts/

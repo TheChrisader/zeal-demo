@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/database";
 import PostModel from "@/database/post/post.model";
 import { createReactions } from "@/database/reaction/reaction.repository";
+import { connectToDatabase } from "@/lib/database";
+import { isMongooseDuplicateKeyError } from "@/utils/mongoose.utils";
 
 export const POST = async () => {
   try {
@@ -19,8 +20,7 @@ export const POST = async () => {
     try {
       await createReactions(postIDs);
     } catch (error) {
-      // @ts-expect-error TODO
-      if (error.code !== 11000) {
+      if (!isMongooseDuplicateKeyError(error)) {
         throw error;
       }
     }

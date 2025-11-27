@@ -1,16 +1,13 @@
-// app/api/subscribe/route.ts
-import MailerLite from "@mailerlite/mailerlite-nodejs";
 import { serialize } from "cookie";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import SubscriberModel from "@/database/subscriber/subscriber.model";
 import { connectToDatabase } from "@/lib/database";
+import { isMongooseDuplicateKeyError } from "@/utils/mongoose.utils";
 
-// Zod schema for request body validation
 const subscribeSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
-  categories: z.array(z.string()).optional(),
-  //   source: z.string().min(1, { message: "Source is required" }),
+  name: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -27,60 +24,52 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, categories } = validation.data;
+    const { email, name } = validation.data;
 
-    const mailerlite = new MailerLite({
-      api_key: process.env.MAILERLITE_API_KEY as string,
+    const existingSubscriber = await SubscriberModel.findOne({
+      email_address: email,
     });
 
-    // Check if email already exists
-    const existingSubscriber = await SubscriberModel.findOne({ email });
     if (existingSubscriber) {
-      // Optionally, update existing subscriber's categories or source if needed
-      // For now, we'll just consider it a successful "re-subscription" for cookie purposes
-      // but not create a duplicate entry.
-      // existingSubscriber.selectedCategories = categories || existingSubscriber.selectedCategories;
-      // existingSubscriber.source = source; // Or maybe log multiple sources
-      // await existingSubscriber.save();
+      if (name && name !== existingSubscriber.name) {
+        existingSubscriber.name = name;
+        await existingSubscriber.save();
+      }
 
-      // Set cookie even if already subscribed to ensure access
       const cookie = serialize("zealnews_subscribed_newsletter", "true", {
-        // httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
-        maxAge: 60 * 60 * 24 * 365, // 1 year
+        maxAge: 60 * 60 * 24 * 365,
       });
+
       const response = NextResponse.json(
         { message: "You are already subscribed. Access granted." },
         { status: 200 },
       );
+
       response.headers.set("Set-Cookie", cookie);
       return response;
     }
 
-    // Create new subscriber
     const newSubscriber = new SubscriberModel({
-      email,
-      selectedCategories: categories,
-      //   source,
+      email_address: email,
+      name: name,
+      global_status: "active",
+      is_verified: true,
+      verified_at: new Date(),
+      status_updated_at: new Date(),
     });
     await newSubscriber.save();
 
-    await mailerlite.subscribers.createOrUpdate({
-      email,
-    });
-
-    // Set the subscription cookie
     const subscriptionCookie = serialize(
       "zealnews_subscribed_newsletter",
       "true",
       {
-        // httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
-        maxAge: 60 * 60 * 24 * 365, // 1 year
+        maxAge: 60 * 60 * 24 * 365,
       },
     );
 
@@ -92,27 +81,24 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error: unknown) {
     console.error("Subscription API Error: ", error);
-    // Handle Mongoose duplicate key error (for email) specifically
-    if (error.code === 11000) {
-      // This case should ideally be caught by `existingSubscriber` check above,
-      // but this is a fallback.
+    let errorMessage = "Internal Server Error";
+    if (isMongooseDuplicateKeyError(error)) {
       const cookie = serialize("zealnews_subscribed_newsletter", "true", {
-        // httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
-        maxAge: 60 * 60 * 24 * 365, // 1 year
+        maxAge: 60 * 60 * 24 * 365,
       });
       const response = NextResponse.json(
         { message: "You are already subscribed. Access granted." },
-        { status: 200 }, // Or 409 Conflict if you prefer
+        { status: 200 },
       );
       response.headers.set("Set-Cookie", cookie);
       return response;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
     }
-    return NextResponse.json(
-      { message: "Internal Server Error", error: error.message },
-      { status: 500 },
-    );
+
+    return NextResponse.json({ message: errorMessage }, { status: 500 });
   }
 }
