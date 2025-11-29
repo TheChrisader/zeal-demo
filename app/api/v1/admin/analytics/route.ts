@@ -1,6 +1,10 @@
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { CATEGORIES } from "@/categories/flattened";
+import {
+  AnalyticsQuerySchema,
+  Timeframe,
+} from "@/database/analytics/analytics.dto";
 import PostModel from "@/database/post/post.model";
 
 export const revalidate = 60 * 5;
@@ -58,17 +62,42 @@ const SOURCE_TYPES = ["user", "auto"];
 // Helper Functions
 
 /**
- * Gets today's date range (start and end of day)
- * @returns Object with start and end Date objects for today
+ * Gets date range based on specified timeframe
+ * @param timeframe - The timeframe period ('1d', '7d', '30d')
+ * @returns Object with start and end Date objects for the timeframe
  */
-function getTodayDateRange() {
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  todayStart.setHours(todayStart.getHours() - 1);
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
-  todayEnd.setHours(todayEnd.getHours() - 1);
-  return { todayStart, todayEnd };
+function getDateRange(timeframe: Timeframe) {
+  const now = new Date();
+  let startDate: Date, endDate: Date;
+
+  switch (timeframe) {
+    case "1d":
+      startDate = new Date(now);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now);
+      endDate.setHours(23, 59, 59, 999);
+      break;
+    case "7d":
+      startDate = new Date(now);
+      startDate.setDate(now.getDate() - 6);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now);
+      endDate.setHours(23, 59, 59, 999);
+      break;
+    case "30d":
+      startDate = new Date(now);
+      startDate.setDate(now.getDate() - 29);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now);
+      endDate.setHours(23, 59, 59, 999);
+      break;
+  }
+
+  // Apply timezone adjustment (-1 hour to maintain existing behavior)
+  startDate.setHours(startDate.getHours() - 1);
+  endDate.setHours(endDate.getHours() - 1);
+
+  return { startDate, endDate };
 }
 
 /**
@@ -84,15 +113,22 @@ function extractSlugFromPath(path?: string): string {
 /**
  * Creates the Google Analytics query configuration
  * @param propertyId - The GA4 property ID
+ * @param timeframe - The timeframe period ('1d', '7d', '30d')
  * @returns The GA report request configuration
  */
-function createAnalyticsQuery(propertyId: string) {
+function createAnalyticsQuery(propertyId: string, timeframe: Timeframe) {
+  const { startDate, endDate } = getDateRange(timeframe);
+
+  // Convert dates to YYYY-MM-DD format for GA API
+  const gaStartDate = startDate.toISOString().split("T")[0];
+  const gaEndDate = endDate.toISOString().split("T")[0];
+
   return {
     property: `properties/${propertyId}`,
     dateRanges: [
       {
-        startDate: "yesterday",
-        endDate: "today",
+        startDate: gaStartDate,
+        endDate: gaEndDate,
       },
     ],
     dimensions: [
@@ -149,13 +185,22 @@ function createAnalyticsQuery(propertyId: string) {
 /**
  * Fetches Google Analytics data for the specified property
  * @param propertyId - The GA4 property ID
+ * @param timeframe - The timeframe period ('1d', '7d', '30d')
  * @returns Promise resolving to the GA response data
  */
-async function fetchGoogleAnalyticsData(propertyId: string) {
+async function fetchGoogleAnalyticsData(
+  propertyId: string,
+  timeframe: Timeframe,
+) {
   const analyticsDataClient = new BetaAnalyticsDataClient();
-  const query = createAnalyticsQuery(propertyId);
+  const query = createAnalyticsQuery(propertyId, timeframe);
 
-  console.log("Running report for property:", propertyId);
+  console.log(
+    "Running report for property:",
+    propertyId,
+    "timeframe:",
+    timeframe,
+  );
 
   const [response] = await analyticsDataClient.runReport(query);
   return response as GoogleAnalyticsResponse;
@@ -163,18 +208,18 @@ async function fetchGoogleAnalyticsData(propertyId: string) {
 
 /**
  * Fetches category distribution from MongoDB
- * @param todayStart - Start of today (Date object)
- * @param todayEnd - End of today (Date object)
+ * @param startDate - Start date for the timeframe (Date object)
+ * @param endDate - End date for the timeframe (Date object)
  * @returns Promise resolving to category distribution data
  */
-async function fetchCategoryDistribution(todayStart: Date, todayEnd: Date) {
+async function fetchCategoryDistribution(startDate: Date, endDate: Date) {
   return PostModel.aggregate([
     {
       $match: {
         category: { $in: CATEGORIES },
         published_at: {
-          $gte: todayStart,
-          $lte: todayEnd,
+          $gte: startDate,
+          $lte: endDate,
         },
       },
     },
@@ -189,18 +234,18 @@ async function fetchCategoryDistribution(todayStart: Date, todayEnd: Date) {
 
 /**
  * Fetches source distribution from MongoDB
- * @param todayStart - Start of today (Date object)
- * @param todayEnd - End of today (Date object)
+ * @param startDate - Start date for the timeframe (Date object)
+ * @param endDate - End date for the timeframe (Date object)
  * @returns Promise resolving to source distribution data
  */
-async function fetchSourceDistribution(todayStart: Date, todayEnd: Date) {
+async function fetchSourceDistribution(startDate: Date, endDate: Date) {
   return PostModel.aggregate([
     {
       $match: {
         source_type: { $in: SOURCE_TYPES },
         published_at: {
-          $gte: todayStart,
-          $lte: todayEnd,
+          $gte: startDate,
+          $lte: endDate,
         },
       },
     },
@@ -302,9 +347,9 @@ function transformAnalyticsData(
  * @param request - Next.js request object
  * @returns Promise resolving to analytics response with formatted data
  */
-export async function GET(): Promise<
-  NextResponse<AnalyticsResponse | { error: string }>
-> {
+export async function GET(
+  request: NextRequest,
+): Promise<NextResponse<AnalyticsResponse | { error: string }>> {
   try {
     const propertyId = process.env.GA4_PROPERTY_ID;
 
@@ -312,14 +357,32 @@ export async function GET(): Promise<
       throw new Error("GA4_PROPERTY_ID is not set in environment variables.");
     }
 
-    const { todayStart, todayEnd } = getTodayDateRange();
+    // Parse and validate timeframe parameter
+    const { searchParams } = new URL(request.url);
+    const timeframe = searchParams.get("timeframe") || "1d";
+
+    const validationResult = AnalyticsQuerySchema.safeParse({ timeframe });
+    if (!validationResult.success) {
+      return NextResponse.json(
+        {
+          error: "Invalid timeframe parameter. Allowed values: 1d, 7d, 30d",
+          ...(process.env.NODE_ENV === "development" && {
+            details: validationResult.error.errors,
+          }),
+        },
+        { status: 400 },
+      );
+    }
+
+    const { timeframe: validatedTimeframe } = validationResult.data;
+    const { startDate, endDate } = getDateRange(validatedTimeframe);
 
     // Fetch all data in parallel for optimal performance
     const [gaResponse, categoryDistribution, sourceDistribution] =
       await Promise.all([
-        fetchGoogleAnalyticsData(propertyId),
-        fetchCategoryDistribution(todayStart, todayEnd),
-        fetchSourceDistribution(todayStart, todayEnd),
+        fetchGoogleAnalyticsData(propertyId, validatedTimeframe),
+        fetchCategoryDistribution(startDate, endDate),
+        fetchSourceDistribution(startDate, endDate),
       ]);
 
     // Extract slugs from GA data for post lookup
