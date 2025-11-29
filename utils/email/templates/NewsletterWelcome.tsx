@@ -10,15 +10,15 @@ import * as React from "react";
 import { IUser } from "@/types/user.type";
 
 type NewsletterWelcomeProps = {
-  user: Partial<IUser>;
+  user: Partial<IUser> & { email: string };
   appName?: string;
 };
 
 const NewsletterWelcome = ({
-  user = { display_name: "" },
+  user = { display_name: "", email: "" },
   appName = "Lodge",
 }: NewsletterWelcomeProps) => {
-  const preferencesUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://lodge.app"}/en/newsletter/preferences`;
+  const preferencesUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://lodge.app"}/en/newsletter/preferences?email=${encodeURIComponent(user.email)}`;
 
   return (
     <Tailwind>

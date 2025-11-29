@@ -54,12 +54,12 @@ export default function NewsletterPage() {
         }),
       });
 
-      if (response.message) {
-        // Set cookie to indicate user has subscribed
-        document.cookie =
-          "zealnews_subscribed_newsletter=true; path=/; max-age=31536000"; // 1 year
-        setSubmitSuccess(true);
-      }
+      // if (response.message) {
+      //   // Set cookie to indicate user has subscribed
+      //   document.cookie =
+      //     "zealnews_subscribed_newsletter=true; path=/; max-age=31536000"; // 1 year
+      //   setSubmitSuccess(true);
+      // }
     } catch (error: unknown) {
       setSubmitError("An error occurred. Please try again.");
     } finally {

@@ -91,7 +91,9 @@ export const sendModeratorOnboardingEmail = (
   });
 };
 
-export const sendNewsletterWelcomeEmail = (user: IUser) => {
+export const sendNewsletterWelcomeEmail = (
+  user: Pick<IUser, "display_name" | "email">,
+) => {
   return new Promise(async (resolve, reject) => {
     try {
       const htmlBody = await render(
@@ -101,7 +103,7 @@ export const sendNewsletterWelcomeEmail = (user: IUser) => {
         }),
       );
       const emailSubject = `Welcome to the ${appName} Newsletter!`;
-      const emailPlainText = `Welcome to the ${appName} Newsletter! Thank you for subscribing. Customize your preferences at ${process.env.NEXT_PUBLIC_APP_URL || 'https://lodge.app'}/newsletter/preferences`;
+      const emailPlainText = `Welcome to the ${appName} Newsletter! Thank you for subscribing. Customize your preferences at ${process.env.NEXT_PUBLIC_APP_URL || "https://lodge.app"}/newsletter/preferences`;
 
       sendEmail(user.email, [], [], emailSubject, emailPlainText, htmlBody)
         .then(resolve)

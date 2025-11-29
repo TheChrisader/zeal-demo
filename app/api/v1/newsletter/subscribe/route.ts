@@ -4,8 +4,8 @@ import { z } from "zod";
 import SubscriberModel from "@/database/subscriber/subscriber.model";
 import UserModel from "@/database/user/user.model";
 import { connectToDatabase } from "@/lib/database";
-import { isMongooseDuplicateKeyError } from "@/utils/mongoose.utils";
 import { sendNewsletterWelcomeEmail } from "@/utils/email";
+import { isMongooseDuplicateKeyError } from "@/utils/mongoose.utils";
 
 const subscribeSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -67,11 +67,13 @@ export async function POST(request: NextRequest) {
     // Send welcome email to new subscribers (non-blocking)
     try {
       // Check if email is registered to a user to get their name
-      const existingUser = await UserModel.findOne({ email: email }).select('display_name');
+      const existingUser = await UserModel.findOne({ email: email }).select(
+        "display_name",
+      );
 
       await sendNewsletterWelcomeEmail({
         email: email,
-        display_name: existingUser ? existingUser.display_name : undefined,
+        display_name: existingUser ? existingUser.display_name : "",
       });
     } catch (emailError) {
       console.error("Newsletter welcome email error: ", emailError);
