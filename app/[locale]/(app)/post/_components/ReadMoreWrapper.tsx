@@ -9,6 +9,7 @@ import { ArticleDisplayManager } from "@/components/layout/NewsletterForm/Articl
 import { usePathname } from "@/i18n/routing";
 import { getArticleBySlug } from "../_actions/getArticleBySlug";
 import { IPost } from "@/types/post.type";
+import ArticleTracker from "./ArticleTracker";
 
 function getPWADisplayMode() {
   if (document.referrer.startsWith("android-app://")) return "twa";
@@ -102,6 +103,9 @@ const ReadMoreWrapper = ({
   if (open) {
     return (
       <div>
+        {slug && post?.category && (
+          <ArticleTracker slug={slug} categories={post?.category || []} />
+        )}
         {children}
         <ArticleDisplayManager
           shouldDisplayWall={post?.shouldShowCTA || false}
