@@ -272,7 +272,7 @@ export const getAdminReferralSummary = async (
     const currentDate = new Date(startDate);
 
     while (currentDate <= now) {
-      const dateStr = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+      const dateStr = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD format
       dailyReferrals.push({
         date: dateStr,
         count: dailyReferralMap.get(dateStr) || 0,
@@ -332,8 +332,12 @@ export const getAdminReferralSummary = async (
     // Generate all weeks between start and end
     while (startOfWeek <= endOfWeek) {
       const year = startOfWeek.getFullYear();
-      const weekNumber = Math.ceil(((startOfWeek.getTime() - new Date(year, 0, 1).getTime()) / 86400000 + 1) / 7);
-      const weekStr = `${year}-${String(weekNumber).padStart(2, '0')}`;
+      const weekNumber = Math.ceil(
+        ((startOfWeek.getTime() - new Date(year, 0, 1).getTime()) / 86400000 +
+          1) /
+          7,
+      );
+      const weekStr = `${year}-${String(weekNumber).padStart(2, "0")}`;
 
       formattedWeeklyReferrals.push({
         week: weekStr,
@@ -372,16 +376,16 @@ export const getReferralLeaderboard = async (
 ): Promise<IReferralLeaderboardEntry[]> => {
   try {
     const now = new Date();
-    const currentDay = now.getDay(); // 0 = Sunday
+    const dayOfWeek = now.getDay(); // 0 = Sunday
     const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() - currentDay + weekOffset * 7);
+    weekStart.setDate(now.getDate() - dayOfWeek - weekOffset * 7);
     weekStart.setHours(0, 0, 0, 0);
 
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekStart.getDate() + 6);
     weekEnd.setHours(23, 59, 59, 999);
 
-    // Get users with referrals in the specified week
+    // Direct aggregation without complex lookup
     const leaderboardData = await UserModel.aggregate([
       {
         $match: {
@@ -391,21 +395,21 @@ export const getReferralLeaderboard = async (
       {
         $lookup: {
           from: "users",
-          localField: "_id",
-          foreignField: "referred_by",
-          as: "referred_users_in_week",
+          let: { userId: "$_id" },
           pipeline: [
             {
               $match: {
+                $expr: { $eq: ["$referred_by", "$$userId"] },
                 created_at: { $gte: weekStart, $lte: weekEnd },
               },
             },
           ],
+          as: "recent_referrals",
         },
       },
       {
         $addFields: {
-          recent_referrals: { $size: "$referred_users_in_week" },
+          recent_referrals: { $size: "$recent_referrals" },
         },
       },
       {
@@ -525,7 +529,7 @@ export const getAdminReferralUserAnalytics = async (
     const currentDate = new Date(monday);
 
     while (currentDate <= endDate) {
-      const dateStr = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+      const dateStr = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD format
       allDates.push({
         date: dateStr,
         count: referralMap.get(dateStr) || 0,
