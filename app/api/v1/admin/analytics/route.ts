@@ -13,6 +13,7 @@ interface AnalyticsResponse {
   posts_views: FormattedAnalyticsData[];
   category_distribution: CategoryDistribution[];
   source_distribution: SourceDistribution[];
+  total_user_visits: string;
 }
 
 interface FormattedAnalyticsData {
@@ -111,6 +112,67 @@ function extractSlugFromPath(path?: string): string {
 }
 
 /**
+ * Creates the Google Analytics total users query configuration
+ * @param propertyId - The GA4 property ID
+ * @param timeframe - The timeframe period ('1d', '7d', '30d')
+ * @returns The GA report request configuration for total users aggregation
+ */
+function createTotalUsersQuery(propertyId: string, timeframe: Timeframe) {
+  const { startDate, endDate } = getDateRange(timeframe);
+
+  // Convert dates to YYYY-MM-DD format for GA API
+  const gaStartDate = startDate.toISOString().split("T")[0];
+  const gaEndDate = endDate.toISOString().split("T")[0];
+
+  return {
+    property: `properties/${propertyId}`,
+    dateRanges: [
+      {
+        startDate: gaStartDate,
+        endDate: gaEndDate,
+      },
+    ],
+    dimensions: [], // Empty for total aggregation
+    metrics: [
+      {
+        name: "totalUsers",
+      },
+    ],
+    // No limit needed for aggregation
+    dimensionFilter: {
+      andGroup: {
+        expressions: [
+          {
+            notExpression: {
+              filter: {
+                fieldName: "country",
+                stringFilter: {
+                  matchType: "EXACT" as const,
+                  value: "Singapore",
+                  caseSensitive: false,
+                },
+              },
+            },
+          },
+          {
+            notExpression: {
+              filter: {
+                fieldName: "city",
+                stringFilter: {
+                  matchType: "EXACT" as const,
+                  value: "Lanzhou",
+                  caseSensitive: false,
+                },
+              },
+            },
+          },
+        ],
+      },
+    },
+  };
+}
+
+/**
  * Creates the Google Analytics query configuration
  * @param propertyId - The GA4 property ID
  * @param timeframe - The timeframe period ('1d', '7d', '30d')
@@ -176,6 +238,30 @@ function createAnalyticsQuery(propertyId: string, timeframe: Timeframe) {
               },
             },
           },
+          {
+            notExpression: {
+              filter: {
+                fieldName: "country",
+                stringFilter: {
+                  matchType: "EXACT" as const,
+                  value: "Singapore",
+                  caseSensitive: false,
+                },
+              },
+            },
+          },
+          {
+            notExpression: {
+              filter: {
+                fieldName: "city",
+                stringFilter: {
+                  matchType: "EXACT" as const,
+                  value: "Lanzhou",
+                  caseSensitive: false,
+                },
+              },
+            },
+          },
         ],
       },
     },
@@ -204,6 +290,32 @@ async function fetchGoogleAnalyticsData(
 
   const [response] = await analyticsDataClient.runReport(query);
   return response as GoogleAnalyticsResponse;
+}
+
+/**
+ * Fetches total users from Google Analytics for the specified property
+ * @param propertyId - The GA4 property ID
+ * @param timeframe - The timeframe period ('1d', '7d', '30d')
+ * @returns Promise resolving to total users count as string
+ */
+async function fetchTotalUsers(
+  propertyId: string,
+  timeframe: Timeframe,
+): Promise<string> {
+  const analyticsDataClient = new BetaAnalyticsDataClient();
+  const query = createTotalUsersQuery(propertyId, timeframe);
+
+  console.log(
+    "Running total users report for property:",
+    propertyId,
+    "timeframe:",
+    timeframe,
+  );
+
+  const [response] = await analyticsDataClient.runReport(query);
+
+  // totalUsers will be at metric index 0 since it's the only metric
+  return response.rows?.[0]?.metricValues?.[0]?.value || "0";
 }
 
 /**
@@ -378,12 +490,20 @@ export async function GET(
     const { startDate, endDate } = getDateRange(validatedTimeframe);
 
     // Fetch all data in parallel for optimal performance
-    const [gaResponse, categoryDistribution, sourceDistribution] =
-      await Promise.all([
-        fetchGoogleAnalyticsData(propertyId, validatedTimeframe),
-        fetchCategoryDistribution(startDate, endDate),
-        fetchSourceDistribution(startDate, endDate),
-      ]);
+    const [
+      gaResponse,
+      totalUserVisits,
+      categoryDistribution,
+      sourceDistribution,
+    ] = await Promise.all([
+      fetchGoogleAnalyticsData(propertyId, validatedTimeframe),
+      fetchTotalUsers(propertyId, validatedTimeframe),
+      fetchCategoryDistribution(startDate, endDate),
+      fetchSourceDistribution(startDate, endDate),
+    ]);
+
+    // Use property-wide total users from separate query
+    const total_user_visits = totalUserVisits;
 
     // Extract slugs from GA data for post lookup
     const slugs =
@@ -405,6 +525,7 @@ export async function GET(
       posts_views,
       category_distribution,
       source_distribution,
+      total_user_visits,
     };
 
     return NextResponse.json(responseData, {
