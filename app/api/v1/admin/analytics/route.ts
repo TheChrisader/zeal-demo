@@ -5,15 +5,22 @@ import {
   AnalyticsQuerySchema,
   Timeframe,
 } from "@/database/analytics/analytics.dto";
+import { getTotalViewsByAllCategories } from "@/database/page-stats/page-stats.repository";
 import PostModel from "@/database/post/post.model";
 
 export const revalidate = 60 * 5;
+
+interface CategoryTotalViews {
+  category: string;
+  total_views: number;
+}
 
 interface AnalyticsResponse {
   posts_views: FormattedAnalyticsData[];
   category_distribution: CategoryDistribution[];
   source_distribution: SourceDistribution[];
   total_user_visits: string;
+  category_total_views: CategoryTotalViews[];
 }
 
 interface FormattedAnalyticsData {
@@ -238,30 +245,6 @@ function createAnalyticsQuery(propertyId: string, timeframe: Timeframe) {
               },
             },
           },
-          {
-            notExpression: {
-              filter: {
-                fieldName: "country",
-                stringFilter: {
-                  matchType: "EXACT" as const,
-                  value: "Singapore",
-                  caseSensitive: false,
-                },
-              },
-            },
-          },
-          {
-            notExpression: {
-              filter: {
-                fieldName: "city",
-                stringFilter: {
-                  matchType: "EXACT" as const,
-                  value: "Lanzhou",
-                  caseSensitive: false,
-                },
-              },
-            },
-          },
         ],
       },
     },
@@ -455,6 +438,50 @@ function transformAnalyticsData(
 }
 
 /**
+ * Fetches category total views from page-stats collection using optimized single query
+ * @param categories - Array of category names to include in response
+ * @param startDate - Start date in YYYY-MM-DD format
+ * @param endDate - End date in YYYY-MM-DD format
+ * @returns Promise resolving to category total views data with all categories included
+ */
+async function fetchCategoryTotalViews(
+  categories: string[],
+  startDate: string,
+  endDate: string,
+): Promise<CategoryTotalViews[]> {
+  // Get all categories with views in a single database call
+  const categoryStatsFromDb = await getTotalViewsByAllCategories(
+    startDate,
+    endDate,
+  );
+
+  // Create a Map for quick lookup
+  const statsMap = new Map(
+    categoryStatsFromDb.map((item) => [item.category, item.totalViews]),
+  );
+
+  // Ensure all categories from CATEGORIES are included, even if they have zero views
+  return categories.map((category) => ({
+    category,
+    total_views: statsMap.get(category) || 0,
+  }));
+}
+
+/**
+ * Transforms category total views to match existing interface format
+ * @param categoryTotalViews - Raw page-stats aggregation result
+ * @returns Formatted category total views array
+ */
+function formatCategoryTotalViews(
+  categoryTotalViews: CategoryTotalViews[],
+): CategoryTotalViews[] {
+  return categoryTotalViews.map((item) => ({
+    category: item.category,
+    total_views: item.total_views,
+  }));
+}
+
+/**
  * Analytics API endpoint that fetches and combines data from Google Analytics and MongoDB
  * @param request - Next.js request object
  * @returns Promise resolving to analytics response with formatted data
@@ -489,17 +516,27 @@ export async function GET(
     const { timeframe: validatedTimeframe } = validationResult.data;
     const { startDate, endDate } = getDateRange(validatedTimeframe);
 
+    // Convert dates to YYYY-MM-DD format for page-stats API
+    const pageStatsStartDate = startDate.toISOString().split("T")[0];
+    const pageStatsEndDate = endDate.toISOString().split("T")[0];
+
     // Fetch all data in parallel for optimal performance
     const [
       gaResponse,
       totalUserVisits,
       categoryDistribution,
       sourceDistribution,
+      categoryTotalViews,
     ] = await Promise.all([
       fetchGoogleAnalyticsData(propertyId, validatedTimeframe),
       fetchTotalUsers(propertyId, validatedTimeframe),
       fetchCategoryDistribution(startDate, endDate),
       fetchSourceDistribution(startDate, endDate),
+      fetchCategoryTotalViews(
+        CATEGORIES,
+        pageStatsStartDate as string,
+        pageStatsEndDate as string,
+      ),
     ]);
 
     // Use property-wide total users from separate query
@@ -520,12 +557,14 @@ export async function GET(
     const category_distribution =
       formatCategoryDistribution(categoryDistribution);
     const source_distribution = formatSourceDistribution(sourceDistribution);
+    const category_total_views = formatCategoryTotalViews(categoryTotalViews);
 
     const responseData: AnalyticsResponse = {
       posts_views,
       category_distribution,
       source_distribution,
       total_user_visits,
+      category_total_views,
     };
 
     return NextResponse.json(responseData, {

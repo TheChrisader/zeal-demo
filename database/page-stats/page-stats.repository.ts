@@ -281,3 +281,39 @@ export const getTotalViewsByCategory = async (
     throw error;
   }
 };
+
+// get total views by all categories in a single query
+export const getTotalViewsByAllCategories = async (
+  startDate?: string,
+  endDate?: string,
+): Promise<{ category: string; totalViews: number }[]> => {
+  try {
+    const query: {
+      date?: {
+        $gte: string;
+        $lte: string;
+      };
+    } = {};
+
+    if (startDate && endDate) {
+      query.date = { $gte: startDate, $lte: endDate };
+    }
+
+    const result = await PageStatsModel.aggregate([
+      { $match: query },
+      { $group: {
+          _id: "$category",
+          totalViews: { $sum: "$views" }
+        }
+      },
+      { $sort: { totalViews: -1 } }
+    ]);
+
+    return result.map(item => ({
+      category: item._id,
+      totalViews: item.totalViews
+    }));
+  } catch (error) {
+    throw error;
+  }
+};
