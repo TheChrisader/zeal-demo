@@ -36,7 +36,7 @@ const timelineItems: TimelineItem[] = [
 // --- Share Kit Data ---
 interface ShareOption {
   platform: string;
-  id: "whatsapp" | "twitter" | "linkedin";
+  id: "whatsapp" | "twitter" | "linkedin" | "facebook";
   content: React.ReactNode;
   textToCopy: string;
 }
@@ -90,6 +90,22 @@ const shareOptions: ShareOption[] = [
     textToCopy:
       "If you value credible, Africa-first reporting, try ZealNews. My link: https://zealnews.africa/r/your-handle. Weekly rewards for verified signups.",
   },
+  {
+    platform: "Facebook",
+    id: "facebook",
+    content: (
+      <p className="leading-relaxed text-gray-700">
+        Credible, concise Africa-first news via @ZealNews. Join through my link
+        →
+        <br />
+        <span className="text-[#1E824C]">
+          https://zealnews.africa/r/your-handle #ZealNews #ShareAndWin
+        </span>
+      </p>
+    ),
+    textToCopy:
+      "Credible, concise Africa-first news via @ZealNews. Join through my link → https://zealnews.africa/r/your-handle #ZealNews #ShareAndWin",
+  },
 ];
 
 // SECTION: Main Component
@@ -137,7 +153,7 @@ const WeeklyTimelineShare: React.FC = () => {
               </div>
             ))}
           </div>
-          <button className="mt-8 rounded-md bg-[#1E824C] px-10 py-3 font-bold text-white transition-colors duration-200 hover:bg-[#16643B]">
+          <button className="mt-8 rounded-md bg-red-700 px-10 py-3 font-bold text-white transition-colors duration-200 hover:bg-[#16643B]">
             Join now
           </button>
         </section>

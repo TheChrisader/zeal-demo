@@ -82,15 +82,19 @@ const ReferralPromoHero1: React.FC = () => {
                   </p>
                 </div>
                 <img
-                  src="/referral/girl_smiling.webp"
-                  className="absolute -right-20 bottom-0 z-0 h-72"
+                  src="/referral/girl_smiling_2.webp"
+                  className="absolute -right-12 bottom-0 z-[1] h-60"
+                />
+                <img
+                  src="/referral/guy_smiling.webp"
+                  className="absolute -right-40 bottom-0 z-0 h-72"
                 />
               </div>
             </div>
 
             {/* Sign Up Form */}
             <div className="mt-2 space-y-2">
-              <div className="inline-block rounded bg-emerald-700 px-4 py-1 text-sm font-bold uppercase tracking-wider text-white">
+              <div className="inline-block rounded bg-red-700 px-4 py-1 text-sm font-bold uppercase tracking-wider text-white">
                 Sign Up Here
               </div>
 
@@ -111,7 +115,7 @@ const ReferralPromoHero1: React.FC = () => {
               />
 
               <button
-                className="rounded bg-emerald-700 px-6 py-1 font-bold uppercase tracking-wider text-white hover:bg-emerald-800"
+                className="rounded bg-red-700 px-6 py-1 font-bold uppercase tracking-wider text-white hover:bg-emerald-800"
                 onClick={() => email && alert("Link generated!")}
               >
                 Get Link
@@ -127,7 +131,7 @@ const ReferralPromoHero1: React.FC = () => {
                 </span>
                 <button
                   onClick={copyLink}
-                  className="ml-auto flex items-center gap-2 rounded bg-emerald-700 px-4 py-1 text-xs font-bold uppercase tracking-wider text-white hover:bg-emerald-800"
+                  className="ml-auto flex items-center gap-2 rounded bg-red-700 px-4 py-1 text-xs font-bold uppercase tracking-wider text-white hover:bg-emerald-800"
                 >
                   <Copy className="size-2" />
                   Copy

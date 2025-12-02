@@ -312,7 +312,7 @@ const HowItWorks: FC = () => {
             </div>
 
             {/* Call to Action Button 1 */}
-            <button className="mt-4 rounded-full bg-[#1E4D2B] px-8 py-1 text-lg font-bold text-white underline shadow-md transition-colors duration-300 hover:bg-[#15381f]">
+            <button className="mt-4 rounded-full bg-red-700 px-8 py-1 text-lg font-bold text-white underline shadow-md transition-colors duration-300 hover:bg-[#15381f]">
               Start Sharing. Start Winning. Join Now!
             </button>
           </div>
@@ -338,7 +338,7 @@ const HowItWorks: FC = () => {
             </div>
 
             {/* Call to Action Button 2 */}
-            <button className="mt-8 rounded-full bg-[#1E4D2B] px-8 py-1 text-center text-lg font-bold text-white underline shadow-md transition-colors duration-300 hover:bg-[#15381f]">
+            <button className="mt-8 rounded-full bg-red-700 px-8 py-1 text-center text-lg font-bold text-white underline shadow-md transition-colors duration-300 hover:bg-[#15381f]">
               <span className="underline">Get your referral link today</span> –
               your first
               <br />
