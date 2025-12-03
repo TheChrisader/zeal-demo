@@ -94,7 +94,7 @@ const ReferralPromoHero1: React.FC = () => {
 
             {/* Sign Up Form */}
             <div className="mt-2 space-y-2">
-              <div className="inline-block rounded bg-red-700 px-4 py-1 text-sm font-bold uppercase tracking-wider text-white">
+              <div className="grow-shrink mx-auto flex w-fit rounded bg-red-600 px-4 py-1 text-sm font-bold uppercase tracking-wider text-white">
                 Sign Up Here
               </div>
 
@@ -115,27 +115,31 @@ const ReferralPromoHero1: React.FC = () => {
               />
 
               <button
-                className="rounded bg-red-700 px-6 py-1 font-bold uppercase tracking-wider text-white hover:bg-emerald-800"
+                className="grow-shrink mx-auto flex w-fit rounded bg-red-600 px-6 py-1 font-bold uppercase tracking-wider text-white hover:bg-emerald-800"
                 onClick={() => email && alert("Link generated!")}
               >
                 Get Link
               </button>
 
               {/* Link Preview */}
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">
-                  Your link preview:
-                </span>
-                <span className="text-sm font-medium text-emerald-700">
-                  {generateLink() || "https://zealnews.africa/r/your-handle"}
-                </span>
-                <button
-                  onClick={copyLink}
-                  className="ml-auto flex items-center gap-2 rounded bg-red-700 px-4 py-1 text-xs font-bold uppercase tracking-wider text-white hover:bg-emerald-800"
-                >
-                  <Copy className="size-2" />
-                  Copy
-                </button>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">
+                    Your link preview:
+                  </span>
+                  <span className="text-sm font-medium text-emerald-700">
+                    {generateLink() || "https://zealnews.africa/r/your-handle"}
+                  </span>
+                </div>
+                <div className="flex w-full items-center justify-center sm:w-fit">
+                  <button
+                    onClick={copyLink}
+                    className="grow-shrink flex items-center gap-2 rounded bg-red-600 px-4 py-1 text-xs font-bold uppercase tracking-wider text-white hover:bg-emerald-800"
+                  >
+                    <Copy className="size-2" />
+                    Copy
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -144,7 +148,7 @@ const ReferralPromoHero1: React.FC = () => {
           <div className="space-y-6 rounded-lg bg-white p-4">
             {/* Prize Card */}
             <div className="rounded-lg bg-green-50 p-4">
-              <div className="mb-2 text-sm font-bold text-emerald-800">
+              <div className="grow-shrink mb-2 text-sm font-bold text-emerald-800">
                 This week's prize
               </div>
               <h2 className="mb-4 text-4xl font-bold lg:text-5xl">
