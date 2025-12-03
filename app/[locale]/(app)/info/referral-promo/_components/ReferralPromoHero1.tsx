@@ -148,7 +148,7 @@ const ReferralPromoHero1: React.FC = () => {
           <div className="space-y-6 rounded-lg bg-white p-4">
             {/* Prize Card */}
             <div className="rounded-lg bg-green-50 p-4">
-              <div className="grow-shrink mb-2 text-sm font-bold text-emerald-800">
+              <div className="grow-shrink mb-2 flex w-fit text-sm font-bold text-emerald-800">
                 This week's prize
               </div>
               <h2 className="mb-4 text-4xl font-bold lg:text-5xl">

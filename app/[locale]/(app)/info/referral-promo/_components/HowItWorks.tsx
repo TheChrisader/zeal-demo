@@ -315,7 +315,7 @@ const HowItWorks: FC = () => {
             <button className="mt-4 rounded-xl bg-red-600 px-4 py-1 text-lg font-bold text-white shadow-md transition-colors duration-300 hover:bg-[#15381f]">
               Start Sharing. Start Winning.
             </button>
-            <button className="grow-shrink mt-4 rounded-xl bg-red-600 px-8 py-1 text-lg font-bold text-white shadow-md transition-colors duration-300 hover:bg-[#15381f]">
+            <button className="grow-shrink mt-4 rounded-xl bg-red-600 px-8 py-1 text-lg font-bold text-white shadow-md transition-colors hover:bg-[#15381f]">
               Join Now!
             </button>
           </div>

@@ -153,7 +153,7 @@ const WeeklyTimelineShare: React.FC = () => {
               </div>
             ))}
           </div>
-          <button className="grow-shrink mx-auto mt-8 flex w-fit rounded-md bg-red-600 px-10 py-3 font-bold text-white transition-colors duration-200 hover:bg-[#16643B]">
+          <button className="grow-shrink mx-auto mt-8 flex w-fit rounded-md bg-red-600 px-10 py-3 font-bold text-white transition-colors hover:bg-[#16643B]">
             Join now
           </button>
         </section>

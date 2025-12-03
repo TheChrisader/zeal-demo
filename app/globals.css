@@ -305,6 +305,7 @@
 
   .grow-shrink {
     animation: grow-shrink 0.7s infinite ease-out;
+    transform-origin: center center;
   }
 }
 
