@@ -14,7 +14,11 @@ type ModeratorOnboardingProps = {
 };
 
 const ModeratorOnboarding = ({
-  user,
+  user = {
+    name: "John Doe",
+    email: "Yw5K9@example.com",
+    password_plaintext: "password",
+  },
   appName = "Lodge",
 }: ModeratorOnboardingProps) => {
   return (

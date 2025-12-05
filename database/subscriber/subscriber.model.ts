@@ -21,7 +21,7 @@ const SubscriberSchema = new Schema<ISubscriber>(
     global_status: {
       type: String,
       enum: SubscriberStatuses,
-      default: "active",
+      default: "pending",
       index: true,
     },
     status_reason: {
@@ -79,6 +79,7 @@ SubscriberSchema.plugin(mongooseLeanVirtuals);
 
 // Add compound indexes for performance
 SubscriberSchema.index({ global_status: 1, created_at: -1 });
+SubscriberSchema.index({ global_status: 1, _id: 1 });
 
 const SubscriberModel: Model<ISubscriber> =
   models.Subscriber || model("Subscriber", SubscriberSchema);

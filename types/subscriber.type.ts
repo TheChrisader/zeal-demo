@@ -1,6 +1,7 @@
 import { Document, Types } from "mongoose";
 
 export const SubscriberStatuses = [
+  "pending",
   "active",
   "unsubscribed",
   "bounced",
