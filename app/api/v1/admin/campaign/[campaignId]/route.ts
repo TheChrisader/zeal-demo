@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import CampaignModel from "@/database/campaign/campaign.model";
 import {
   getCampaignById,
   updateCampaign,
 } from "@/database/campaign/campaign.repository";
 import { connectToDatabase, newId } from "@/lib/database";
-import {
-  CampaignTemplate,
-  CampaignSegment,
-  ICampaign,
-} from "@/types/campaign.type";
+import { ICampaign } from "@/types/campaign.type";
 
 // Schema for validating campaignId parameter
 const CampaignIdSchema = z.string().min(1, "Campaign ID is required");
@@ -169,6 +166,67 @@ export async function PUT(
     return NextResponse.json(formattedCampaign);
   } catch (error) {
     console.error("Update campaign error:", error);
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Validation Error", details: error.errors },
+        { status: 422 },
+      );
+    }
+
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { campaignId: string } },
+) {
+  try {
+    await connectToDatabase();
+
+    // Validate campaignId parameter
+    const { campaignId } = params;
+    const validatedCampaignId = CampaignIdSchema.parse(campaignId);
+
+    // Check if campaign exists
+    const existingCampaign = await getCampaignById(validatedCampaignId);
+    if (!existingCampaign) {
+      return NextResponse.json(
+        { error: "Campaign not found" },
+        { status: 404 },
+      );
+    }
+
+    // Prevent deletion of campaigns that are currently sending
+    if (existingCampaign.status === "sending") {
+      return NextResponse.json(
+        { error: "Cannot delete campaign that is currently sending" },
+        { status: 400 },
+      );
+    }
+
+    // Delete campaign from database
+    const deleteResult = await CampaignModel.deleteOne({
+      _id: validatedCampaignId,
+    });
+
+    if (deleteResult.deletedCount === 0) {
+      return NextResponse.json(
+        { error: "Failed to delete campaign" },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json({
+      message: "Campaign deleted successfully",
+      id: validatedCampaignId,
+    });
+  } catch (error) {
+    console.error("Delete campaign error:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(

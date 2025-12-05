@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import CampaignModel from "@/database/campaign/campaign.model";
-import { connectToDatabase } from "@/lib/database";
+import { connectToDatabase, newId } from "@/lib/database";
 import {
   CampaignSegments,
   CampaignStatus,
@@ -186,6 +186,77 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Create campaign error:", error);
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Validation Error", details: error.errors },
+        { status: 422 },
+      );
+    }
+
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
+  }
+}
+
+// Schema for validating DELETE request body with array of campaign IDs
+const DeleteCampaignsSchema = z.object({
+  campaign_ids: z.array(z.string()).min(1, "At least one campaign ID is required"),
+});
+
+export async function DELETE(request: NextRequest) {
+  try {
+    await connectToDatabase();
+
+    // Parse and validate request body
+    const body = await request.json();
+    const validatedData = DeleteCampaignsSchema.parse(body);
+
+    // Convert string IDs to ObjectIds
+    const campaignObjectIds = validatedData.campaign_ids.map(id => newId(id));
+
+    // Check which campaigns exist and their current status
+    const existingCampaigns = await CampaignModel.find({
+      _id: { $in: campaignObjectIds },
+    }).select("_id status");
+
+    if (existingCampaigns.length === 0) {
+      return NextResponse.json(
+        { error: "No campaigns found with the provided IDs" },
+        { status: 404 },
+      );
+    }
+
+    // Find campaigns that are currently sending (cannot be deleted)
+    const sendingCampaigns = existingCampaigns.filter(
+      campaign => campaign.status === "sending"
+    );
+
+    if (sendingCampaigns.length > 0) {
+      return NextResponse.json(
+        {
+          error: "Cannot delete campaigns that are currently sending",
+          sending_campaigns: sendingCampaigns.map(c => c._id.toHexString())
+        },
+        { status: 400 },
+      );
+    }
+
+    // Delete campaigns from database
+    const deleteResult = await CampaignModel.deleteMany({
+      _id: { $in: campaignObjectIds },
+      status: { $ne: "sending" } // Extra safety check
+    });
+
+    return NextResponse.json({
+      message: "Campaigns deleted successfully",
+      deleted_count: deleteResult.deletedCount,
+      requested_count: validatedData.campaign_ids.length,
+    });
+  } catch (error) {
+    console.error("Delete campaigns error:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
