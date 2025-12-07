@@ -15,8 +15,8 @@ export type CampaignTemplate = (typeof CampaignTemplates)[number];
 
 // Add 'ALL' to categories for segment options
 export const CampaignSegments = [
-  "ALL_BROADCAST",
-  "ALL_NEWSLETTER",
+  "ALL_USERS",
+  "ALL_SUBSCRIBERS",
   ...CATEGORIES,
 ] as const;
 export type CampaignSegment = (typeof CampaignSegments)[number];
@@ -60,6 +60,7 @@ export interface ICampaign extends Document<Types.ObjectId> {
   // When you click "Send", the system generates these.
   // The Sending Engine ONLY reads from here. It never looks at 'articleIds'.
   htmlSnapshot?: string;
+  snapshotPlaintext?: string;
 
   // We store the computed JSON data too, in case we need to re-render
   // with a new template design in the future.
@@ -70,6 +71,7 @@ export interface ICampaign extends Document<Types.ObjectId> {
 
   // Cursor for the batcher. If the server crashes, we resume after this ID.
   lastProcessedId?: Types.ObjectId;
+  lastProcessedUserId?: Types.ObjectId;
 
   started_at?: Date;
   completed_at?: Date;

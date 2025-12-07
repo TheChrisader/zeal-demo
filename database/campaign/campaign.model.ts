@@ -106,7 +106,7 @@ const CampaignSchema = new Schema<ICampaign>(
     segment: {
       type: String,
       enum: CampaignSegments,
-      default: "ALL_NEWSLETTER",
+      default: "ALL_SUBSCRIBERS",
       index: true,
     },
 
@@ -132,6 +132,10 @@ const CampaignSchema = new Schema<ICampaign>(
       type: String,
     },
 
+    snapshotPlaintext: {
+      type: String,
+    },
+
     // We store the computed JSON data too, in case we need to re-render
     // with a new template design in the future.
     dataSnapshot: {
@@ -150,6 +154,12 @@ const CampaignSchema = new Schema<ICampaign>(
     lastProcessedId: {
       type: Schema.Types.ObjectId,
       ref: "Subscriber",
+      sparse: true,
+    },
+
+    lastProcessedUserId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
       sparse: true,
     },
 
@@ -181,6 +191,7 @@ CampaignSchema.index({ status: 1, started_at: -1 });
 CampaignSchema.index({ subject: "text" });
 CampaignSchema.index({ internal_name: "text" });
 CampaignSchema.index({ lastProcessedId: 1 }, { sparse: true });
+CampaignSchema.index({ lastProcessedUserId: 1 }, { sparse: true });
 CampaignSchema.index({ started_at: -1 });
 CampaignSchema.index({ completed_at: -1 });
 CampaignSchema.index({ template_id: 1 });

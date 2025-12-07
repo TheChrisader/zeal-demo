@@ -34,7 +34,8 @@ export async function GET(
 
     // Format campaign response
     const formattedCampaign = {
-      id: campaign._id.toHexString(),
+      // id: campaign._id.toHexString(),
+      id: campaign.id,
       internal_name: campaign.internal_name,
       subject: campaign.subject,
       preheader: campaign.preheader,
@@ -43,6 +44,7 @@ export async function GET(
       articleIds: campaign.articleIds,
       body_content: campaign.body_content,
       htmlSnapshot: campaign.htmlSnapshot,
+      snapshotPlaintext: campaign.snapshotPlaintext,
       dataSnapshot: campaign.dataSnapshot,
       status: campaign.status,
       lastProcessedId: campaign.lastProcessedId,
@@ -144,7 +146,7 @@ export async function PUT(
 
     // Format campaign response
     const formattedCampaign = {
-      id: updatedCampaign._id.toHexString(),
+      id: updatedCampaign.id,
       internal_name: updatedCampaign.internal_name,
       subject: updatedCampaign.subject,
       preheader: updatedCampaign.preheader,
@@ -153,6 +155,7 @@ export async function PUT(
       articleIds: updatedCampaign.articleIds,
       body_content: updatedCampaign.body_content,
       htmlSnapshot: updatedCampaign.htmlSnapshot,
+      snapshotPlaintext: updatedCampaign.snapshotPlaintext,
       dataSnapshot: updatedCampaign.dataSnapshot,
       status: updatedCampaign.status,
       lastProcessedId: updatedCampaign.lastProcessedId,

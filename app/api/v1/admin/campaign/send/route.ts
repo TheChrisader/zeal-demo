@@ -25,7 +25,7 @@ const CampaignSendRequestSchema = z
       .min(1, "Internal name is required")
       .max(200, "Internal name too long"),
     template_id: z.enum(CampaignTemplates).default("standard"),
-    segment: z.string().default("ALL_NEWSLETTER"),
+    segment: z.string().default("ALL_SUBSCRIBERS"),
     article_ids: z.array(z.string()).optional(),
     subject: z
       .string()
@@ -69,6 +69,7 @@ export const POST = async (req: NextRequest) => {
     await connectToDatabase();
 
     let htmlSnapshot: string;
+    let snapshotPlaintext: string;
     let dataSnapshot: IDataSnapshot;
 
     if (template_id === "standard") {
@@ -83,7 +84,7 @@ export const POST = async (req: NextRequest) => {
         articles: articles,
         meta: {
           subject,
-          preheader,
+          preheader: preheader || "",
           unsubscribeUrl: "{{UNSUBSCRIBE_URL}}",
         },
       };
@@ -91,19 +92,29 @@ export const POST = async (req: NextRequest) => {
       htmlSnapshot = await render(
         ZealNewsletterCampaign(dataSnapshot as StandardDataSnapshot),
       );
+
+      snapshotPlaintext = await render(
+        ZealNewsletterCampaign(dataSnapshot as StandardDataSnapshot),
+        { plainText: true },
+      );
     } else {
       // Custom template with body content
       dataSnapshot = {
         bodyContent: body_content || "",
         meta: {
           subject,
-          preheader,
+          preheader: preheader || "",
           unsubscribeUrl: "{{UNSUBSCRIBE_URL}}",
         },
       };
 
       htmlSnapshot = await render(
         ZealCustomBroadcast(dataSnapshot as CustomDataSnapshot),
+      );
+
+      snapshotPlaintext = await render(
+        ZealCustomBroadcast(dataSnapshot as CustomDataSnapshot),
+        { plainText: true },
       );
     }
 
@@ -139,6 +150,7 @@ export const POST = async (req: NextRequest) => {
       articleIds: article_ids?.map((id) => newId(id)),
       body_content,
       htmlSnapshot,
+      snapshotPlaintext,
       dataSnapshot: campaignDataSnapshot,
       status: "sending", // Set initial status
       started_at: new Date(), // Set started timestamp

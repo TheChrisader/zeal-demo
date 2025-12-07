@@ -211,6 +211,7 @@ export const updateCampaignStatus = async (
     started_at?: Date;
     completed_at?: Date;
     htmlSnapshot?: string;
+    snapshotPlaintext?: string;
     dataSnapshot?: {
       articles?: Id[];
       body_content?: string;
@@ -290,16 +291,13 @@ export const getCampaignsReadyForSending = async (): Promise<ICampaign[]> => {
 };
 
 // get campaigns that are currently sending and need to be resumed
-export const getCampaignsToResume = async (): Promise<ICampaign[]> => {
+export const getCampaignToResume = async (): Promise<ICampaign | null> => {
   try {
-    const campaigns = await CampaignModel.find({
+    const campaign = await CampaignModel.findOne({
       status: "sending",
-      lastProcessedId: { $exists: true },
-    })
-      .populate("articleIds", "title slug")
-      .populate("lastProcessedId", "email_address")
-      .sort({ startedAt: 1 });
-    return campaigns.map((campaign) => campaign.toObject());
+    }).sort({ started_at: 1 });
+
+    return campaign?.toObject() || null;
   } catch (error) {
     throw error;
   }

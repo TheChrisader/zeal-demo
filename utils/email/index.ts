@@ -18,6 +18,8 @@ export const sendEmail = async (
   subject: string,
   plainText: string,
   htmlBody: string,
+  attachments: MailOptions["attachments"] = [],
+  headers: MailOptions["headers"] = {},
 ): Promise<SMTPTransport.SentMessageInfo> => {
   const mailOptions: MailOptions = {
     from: `"${appName} - Do not reply" <${process.env.EMAIL_FROM}>`,
@@ -27,6 +29,8 @@ export const sendEmail = async (
     subject,
     text: plainText,
     html: htmlBody,
+    attachments,
+    headers,
   };
 
   try {

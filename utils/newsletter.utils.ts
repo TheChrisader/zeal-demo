@@ -1,5 +1,4 @@
 import PostModel from "@/database/post/post.model";
-import { Id } from "@/lib/database";
 import { EmailArticle } from "@/types/newsletter.type";
 import { IPost } from "@/types/post.type";
 
@@ -8,17 +7,18 @@ export function adaptArticle(
   isSnapshot = false,
   campaignId: string | null = null,
 ): EmailArticle {
-  const DOMAIN = process.env.NEXT_PUBLIC_SITE_URL;
+  const DOMAIN = process.env.NEXT_PUBLIC_APP_URL;
 
   // 1. Build the raw destination URL
-  let finalUrl = `${DOMAIN}/articles/${doc.slug}`;
+  let finalUrl = `${DOMAIN}/en/post/${doc.slug}`;
 
   // 2. Link Wrapping Logic
   if (isSnapshot && campaignId) {
     // If we are locking this for send, we wrap the link for click tracking.
     // Notice {{UID}}: We don't know the user ID yet, so we use a placeholder.
-    const encodedDest = encodeURIComponent(finalUrl);
-    finalUrl = `${DOMAIN}/api/newsletter/track/click?cid=${campaignId}&uid={{UID}}&dest=${encodedDest}`;
+    // const encodedDest = encodeURIComponent(finalUrl);
+    // finalUrl = `${DOMAIN}/api/newsletter/track/click?cid=${campaignId}&uid={{UID}}&dest=${encodedDest}`;
+    finalUrl += `?utm_source=newsletter&utm_medium=email`; //TODO
   } else {
     // If this is just for preview, add UTM params for analytics visibility
     finalUrl += `?utm_source=newsletter&utm_medium=email`;

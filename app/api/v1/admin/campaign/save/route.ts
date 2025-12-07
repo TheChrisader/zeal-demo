@@ -18,7 +18,7 @@ const CampaignSaveRequestSchema = z
       .trim(),
     preheader: z.string().max(500, "Preheader too long").optional(),
     template_id: z.enum(CampaignTemplates).default("standard"),
-    segment: z.enum(CampaignSegments).default("ALL_NEWSLETTER"),
+    segment: z.enum(CampaignSegments).default("ALL_SUBSCRIBERS"),
     article_ids: z.array(z.string()).optional(),
     body_content: z.string().max(50000, "Body content too long").optional(),
   })

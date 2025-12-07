@@ -112,7 +112,7 @@ const CreateCampaignSchema = z
       .max(200, "Subject too long"),
     preheader: z.string().max(500, "Preheader too long").optional(),
     template_id: z.enum(CampaignTemplates).default("standard"),
-    segment: z.enum([...CampaignSegments]).default("ALL_NEWSLETTER"),
+    segment: z.enum([...CampaignSegments]).default("ALL_SUBSCRIBERS"),
     article_ids: z.array(z.string()).optional(),
     body_content: z.string().max(50000, "Body content too long").optional(),
   })
@@ -203,7 +203,9 @@ export async function POST(request: NextRequest) {
 
 // Schema for validating DELETE request body with array of campaign IDs
 const DeleteCampaignsSchema = z.object({
-  campaign_ids: z.array(z.string()).min(1, "At least one campaign ID is required"),
+  campaign_ids: z
+    .array(z.string())
+    .min(1, "At least one campaign ID is required"),
 });
 
 export async function DELETE(request: NextRequest) {
@@ -215,7 +217,7 @@ export async function DELETE(request: NextRequest) {
     const validatedData = DeleteCampaignsSchema.parse(body);
 
     // Convert string IDs to ObjectIds
-    const campaignObjectIds = validatedData.campaign_ids.map(id => newId(id));
+    const campaignObjectIds = validatedData.campaign_ids.map((id) => newId(id));
 
     // Check which campaigns exist and their current status
     const existingCampaigns = await CampaignModel.find({
@@ -231,14 +233,14 @@ export async function DELETE(request: NextRequest) {
 
     // Find campaigns that are currently sending (cannot be deleted)
     const sendingCampaigns = existingCampaigns.filter(
-      campaign => campaign.status === "sending"
+      (campaign) => campaign.status === "sending",
     );
 
     if (sendingCampaigns.length > 0) {
       return NextResponse.json(
         {
           error: "Cannot delete campaigns that are currently sending",
-          sending_campaigns: sendingCampaigns.map(c => c._id.toHexString())
+          sending_campaigns: sendingCampaigns.map((c) => c._id.toHexString()),
         },
         { status: 400 },
       );
@@ -247,7 +249,7 @@ export async function DELETE(request: NextRequest) {
     // Delete campaigns from database
     const deleteResult = await CampaignModel.deleteMany({
       _id: { $in: campaignObjectIds },
-      status: { $ne: "sending" } // Extra safety check
+      status: { $ne: "sending" }, // Extra safety check
     });
 
     return NextResponse.json({
