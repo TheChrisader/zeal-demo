@@ -9,7 +9,6 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import { IFile } from "@/types/file.type";
 import { generateUniqueNameFromFileName } from "@/utils/file.utils";
-import { validateRequest } from "./auth/auth";
 
 const config = {
   credentials: {

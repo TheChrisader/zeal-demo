@@ -72,6 +72,10 @@ jobs:
           echo "YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" >> .env
           echo "GA4_PROPERTY_ID=${{ secrets.GA4_PROPERTY_ID }}" >> .env
           echo "GOOGLE_APPLICATION_CREDENTIALS=${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" >> .env
+          echo "SES_ACCESS_KEY_ID=${{ secrets.SES_ACCESS_KEY_ID }}" >> .env
+          echo "SES_SECRET_ACCESS_KEY=${{ secrets.SES_SECRET_ACCESS_KEY }}" >> .env
+          echo "SES_REGION=${{ secrets.SES_REGION }}" >> .env
+          echo "NEWSLETTER_FROM=${{ secrets.NEWSLETTER_FROM }}" >> .env
 
         shell: bash
 

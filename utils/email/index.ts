@@ -11,6 +11,11 @@ import ResetPassword from "./templates/ResetPassword";
 
 const appName = process.env.NEXT_PUBLIC_APP_NAME;
 
+const MAIL_TYPE_MAP = {
+  email: process.env.EMAIL_FROM,
+  newsletter: process.env.NEWSLETTER_FROM,
+};
+
 export const sendEmail = async (
   to: string,
   cc: string[],
@@ -20,9 +25,10 @@ export const sendEmail = async (
   htmlBody: string,
   attachments: MailOptions["attachments"] = [],
   headers: MailOptions["headers"] = {},
+  mailType: "email" | "newsletter" = "email",
 ): Promise<SMTPTransport.SentMessageInfo> => {
   const mailOptions: MailOptions = {
-    from: `"${appName} - Do not reply" <${process.env.EMAIL_FROM}>`,
+    from: `"${appName} - Do not reply" <${MAIL_TYPE_MAP[mailType]}>`,
     to,
     cc,
     bcc,

@@ -205,6 +205,7 @@ export async function POST() {
           subscriberMail,
           [],
           headers,
+          "newsletter",
         );
       });
     });
@@ -217,6 +218,16 @@ export async function POST() {
     // Optional: Log errors for debugging
     if (errorCount > 0) {
       console.error(`${errorCount} emails failed to send in this batch.`);
+    }
+
+    if (sentCount === 0 && errorCount > 0 && errorCount === recipients.length) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "All emails failed to send in this batch.",
+        },
+        { status: 500 },
+      );
     }
 
     // Update cursor and sent count as the last step before returning
@@ -289,8 +300,7 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      results,
-      recipients: recipients,
+      message: "Queue processed successfully",
     });
   } catch (error) {
     console.error("Error processing broadcast queue:", error);
