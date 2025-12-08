@@ -38,6 +38,15 @@ const CampaignSaveRequestSchema = z
       ) {
         return false;
       }
+      if (data.template_id === "standard" && data.segment === "ALL_USERS") {
+        return false;
+      }
+      if (
+        data.template_id === "custom" &&
+        !["ALL_USERS", "ALL_SUBSCRIBERS"].includes(data.segment)
+      ) {
+        return false;
+      }
       return true;
     },
     {

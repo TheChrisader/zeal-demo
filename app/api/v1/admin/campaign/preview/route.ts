@@ -61,9 +61,6 @@ export const POST = async (req: NextRequest) => {
       };
 
       html = await render(ZealNewsletterCampaign(viewModel));
-      console.log(
-        await render(ZealNewsletterCampaign(viewModel), { plainText: true }),
-      );
     } else {
       const viewModel: CustomDataSnapshot = {
         bodyContent: body_content || "",

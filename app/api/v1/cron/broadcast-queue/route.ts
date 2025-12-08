@@ -1,3 +1,4 @@
+import Bottleneck from "bottleneck";
 import { NextResponse } from "next/server";
 import { CATEGORIES } from "@/categories/flattened";
 import {
@@ -9,6 +10,7 @@ import EmailSubscriptionModel from "@/database/email-subscription/email-subscrip
 import SubscriberModel from "@/database/subscriber/subscriber.model";
 import UserModel from "@/database/user/user.model";
 import { connectToDatabase, Id, newId } from "@/lib/database";
+import { MailOptions } from "@/lib/mailer";
 import { IEmailSubscription } from "@/types/email-subscription.type";
 import { ISubscriber } from "@/types/subscriber.type";
 import { IUser } from "@/types/user.type";
@@ -165,80 +167,136 @@ export async function POST() {
       });
     }
 
-    // Update cursor as the last step before returning
+    const limiter = new Bottleneck({
+      maxConcurrent: 1,
+      minTime: 100,
+    });
+
+    const tasks = recipients.map((recipient) => {
+      const unsubscribeUrl = generateUnsubscribeUrl(
+        recipient.subscriber_id,
+        IS_DIRECT_USER_EMAIL,
+      );
+
+      const subscriberMail = (campaign.htmlSnapshot as string).replaceAll(
+        "{{UNSUBSCRIBE_URL}}",
+        unsubscribeUrl,
+      );
+
+      const plaintext =
+        campaign.snapshotPlaintext?.replaceAll(
+          "{{UNSUBSCRIBE_URL}}",
+          unsubscribeUrl,
+        ) || "";
+
+      const headers: MailOptions["headers"] = {};
+      if (!IS_DIRECT_USER_EMAIL) {
+        headers["List-Unsubscribe"] = `<${unsubscribeUrl}>`;
+        headers["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click";
+      }
+
+      return limiter.schedule(async () => {
+        await sendEmail(
+          recipient.email_address,
+          [],
+          [],
+          campaign.subject,
+          plaintext,
+          subscriberMail,
+          [],
+          headers,
+        );
+      });
+    });
+
+    const results = await Promise.allSettled(tasks);
+
+    const sentCount = results.filter((r) => r.status === "fulfilled").length;
+    const errorCount = results.filter((r) => r.status === "rejected").length;
+
+    // Optional: Log errors for debugging
+    if (errorCount > 0) {
+      console.error(`${errorCount} emails failed to send in this batch.`);
+    }
+
+    // Update cursor and sent count as the last step before returning
     if (recipients.length > 0) {
       const lastRecipient = recipients[recipients.length - 1];
 
       if (lastRecipient) {
         if (segment === "ALL_USERS") {
-          await updateCampaign({
-            id: campaign.id,
-            lastProcessedUserId: newId(lastRecipient.subscriber_id),
-          });
+          await updateCampaign(
+            {
+              id: campaign.id,
+              lastProcessedUserId: newId(lastRecipient.subscriber_id),
+            },
+            {
+              sent: sentCount,
+            },
+          );
         } else {
-          await updateCampaign({
-            id: campaign.id,
-            lastProcessedId: newId(lastRecipient.subscriber_id),
-          });
+          await updateCampaign(
+            {
+              id: campaign.id,
+              lastProcessedId: newId(lastRecipient.subscriber_id),
+            },
+            {
+              sent: sentCount,
+            },
+          );
         }
       }
     }
 
-    console.log(
-      campaign.htmlSnapshot.replaceAll(
-        "{{UNSUBSCRIBE_URL}}",
-        `https://zealnews.africa/api/v1/newsletter/unsubscribe/id`,
-      ),
-    );
-
-    if (IS_DIRECT_USER_EMAIL) {
-    }
-
-    for (const recipient of recipients) {
-      if (IS_DIRECT_USER_EMAIL) {
-        await sendEmail(
-          recipient.email_address,
-          [],
-          [],
-          campaign.subject,
-          "",
-          campaign.htmlSnapshot.replaceAll(
-            "{{UNSUBSCRIBE_URL}}",
-            generateUnsubscribeUrl(
-              recipient.subscriber_id,
-              IS_DIRECT_USER_EMAIL,
-            ),
-          ),
-        );
-      } else {
-        await sendEmail(
-          recipient.email_address,
-          [],
-          [],
-          campaign.subject,
-          "",
-          campaign.htmlSnapshot.replaceAll(
-            "{{UNSUBSCRIBE_URL}}",
-            generateUnsubscribeUrl(
-              recipient.subscriber_id,
-              IS_DIRECT_USER_EMAIL,
-            ),
-          ),
-          [],
-          {
-            "List-Unsubscribe": `<${generateUnsubscribeUrl(recipient.subscriber_id, IS_DIRECT_USER_EMAIL)}>`,
-            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-          },
-        );
-      }
-    }
+    // for (const recipient of recipients) {
+    //   if (IS_DIRECT_USER_EMAIL) {
+    //     await sendEmail(
+    //       recipient.email_address,
+    //       [],
+    //       [],
+    //       campaign.subject,
+    //       "",
+    //       campaign.htmlSnapshot.replaceAll(
+    //         "{{UNSUBSCRIBE_URL}}",
+    //         generateUnsubscribeUrl(
+    //           recipient.subscriber_id,
+    //           IS_DIRECT_USER_EMAIL,
+    //         ),
+    //       ),
+    //     );
+    //   } else {
+    //     await sendEmail(
+    //       recipient.email_address,
+    //       [],
+    //       [],
+    //       campaign.subject,
+    //       "",
+    //       campaign.htmlSnapshot.replaceAll(
+    //         "{{UNSUBSCRIBE_URL}}",
+    //         generateUnsubscribeUrl(
+    //           recipient.subscriber_id,
+    //           IS_DIRECT_USER_EMAIL,
+    //         ),
+    //       ),
+    //       [],
+    //       {
+    //         "List-Unsubscribe": `<${generateUnsubscribeUrl(recipient.subscriber_id, IS_DIRECT_USER_EMAIL)}>`,
+    //         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    //       },
+    //     );
+    //   }
+    // }
 
     return NextResponse.json({
       success: true,
+      results,
       recipients: recipients,
     });
   } catch (error) {
     console.error("Error processing broadcast queue:", error);
-    return NextResponse.error();
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }

@@ -4,6 +4,7 @@ import {
   CampaignStatus,
   ICampaign,
   ICampaignDataSnapshotMeta,
+  ICampaignStats,
 } from "@/types/campaign.type";
 
 import CampaignModel from "./campaign.model";
@@ -44,11 +45,66 @@ export const createCampaign = async (
 // update campaign
 export const updateCampaign = async (
   campaign: Partial<ICampaign>,
+  statsToIncrement?: Partial<ICampaignStats>,
 ): Promise<ICampaign | null> => {
+  // Validate required field
+  if (!campaign.id) {
+    throw new Error("Campaign ID is required for update");
+  }
+
+  // Prevent stats conflict
+  if (campaign.stats && statsToIncrement) {
+    throw new Error(
+      "Cannot provide both campaign.stats and statsToIncrement - use one approach",
+    );
+  }
+
+  const incrementQuery: {
+    [key: string]: number;
+  } = {};
+
+  if (statsToIncrement?.sent) {
+    incrementQuery["stats.sent"] = statsToIncrement.sent;
+  }
+  if (statsToIncrement?.opened) {
+    incrementQuery["stats.opened"] = statsToIncrement.opened;
+  }
+  if (statsToIncrement?.clicked) {
+    incrementQuery["stats.clicked"] = statsToIncrement.clicked;
+  }
+  if (statsToIncrement?.bounced) {
+    incrementQuery["stats.bounced"] = statsToIncrement.bounced;
+  }
+  if (statsToIncrement?.unsubscribed) {
+    incrementQuery["stats.unsubscribed"] = statsToIncrement.unsubscribed;
+  }
+
   try {
+    // Extract id for query, stats for separate handling, and rest for $set
+    const { id, stats, ...campaignData } = campaign;
+
+    const updateQuery: {
+      $set: Partial<ICampaign>;
+      $inc?: {
+        [key: string]: number;
+      };
+    } = {
+      $set: campaignData,
+    };
+
+    // Add increment only if there are fields to increment
+    if (Object.keys(incrementQuery).length > 0) {
+      updateQuery.$inc = incrementQuery;
+    }
+
+    // Handle campaign.stats if provided (and no increment)
+    if (stats && !statsToIncrement) {
+      updateQuery.$set.stats = stats;
+    }
+
     const updatedCampaignDoc = await CampaignModel.findByIdAndUpdate(
-      campaign.id,
-      { $set: { ...campaign } },
+      id,
+      updateQuery,
       {
         new: true,
         runValidators: true,
