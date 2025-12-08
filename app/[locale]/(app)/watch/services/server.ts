@@ -1,12 +1,14 @@
-import { YouTubeService } from "../services/youtube.service";
 import { Video, VideoDetails } from "../services/types";
+import { YouTubeService } from "../services/youtube.service";
 
 interface PlaylistResponse {
   videos: Video[];
   nextPageToken?: string;
 }
 
-export async function getChannelVideos(pageToken?: string): Promise<PlaylistResponse> {
+export async function getChannelVideos(
+  pageToken?: string,
+): Promise<PlaylistResponse> {
   try {
     return await YouTubeService.fetchChannelVideos(pageToken);
   } catch (error) {
@@ -30,7 +32,7 @@ export async function getVideoDetails(videoId: string): Promise<VideoDetails> {
       description: "No description available.",
       subscriberCount: "0",
       likeCount: "0",
-      dislikeCount: "0"
+      dislikeCount: "0",
     };
   }
 }
