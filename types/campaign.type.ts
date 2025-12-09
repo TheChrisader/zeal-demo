@@ -27,6 +27,7 @@ export interface ICampaignStats {
   clicked: number;
   bounced: number;
   unsubscribed: number;
+  complained: number;
 }
 
 export interface ICampaignDataSnapshotMeta {

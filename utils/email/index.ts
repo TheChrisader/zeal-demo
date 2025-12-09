@@ -36,7 +36,10 @@ export const sendEmail = async (
     text: plainText,
     html: htmlBody,
     attachments,
-    headers,
+    headers: {
+      "X-SES-CONFIGURATION-SET": "ZealConfig",
+      ...headers,
+    },
   };
 
   try {

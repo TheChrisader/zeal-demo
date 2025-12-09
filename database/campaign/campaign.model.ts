@@ -38,6 +38,11 @@ const CampaignStatsSchema = new Schema<ICampaignStats>(
       default: 0,
       min: 0,
     },
+    complained: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
   { _id: false },
 );

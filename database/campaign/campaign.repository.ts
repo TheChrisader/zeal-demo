@@ -32,6 +32,7 @@ export const createCampaign = async (
         clicked: 0,
         bounced: 0,
         unsubscribed: 0,
+        complained: 0,
         ...campaign.stats,
       },
     });
@@ -77,6 +78,9 @@ export const updateCampaign = async (
   }
   if (statsToIncrement?.unsubscribed) {
     incrementQuery["stats.unsubscribed"] = statsToIncrement.unsubscribed;
+  }
+  if (statsToIncrement?.complained) {
+    incrementQuery["stats.complained"] = statsToIncrement.complained;
   }
 
   try {

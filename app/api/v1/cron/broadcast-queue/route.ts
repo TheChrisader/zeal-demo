@@ -189,7 +189,11 @@ export async function POST() {
           unsubscribeUrl,
         ) || "";
 
-      const headers: MailOptions["headers"] = {};
+      const headers: MailOptions["headers"] = {
+        "X-SES-MESSAGE-TAGS":
+          `campaign=${campaign.id},subscriber=${recipient.subscriber_id},is_direct_user_email=${IS_DIRECT_USER_EMAIL}`.trim(),
+      };
+
       if (!IS_DIRECT_USER_EMAIL) {
         headers["List-Unsubscribe"] = `<${unsubscribeUrl}>`;
         headers["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click";
