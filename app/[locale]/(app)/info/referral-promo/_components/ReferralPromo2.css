@@ -595,6 +595,16 @@
   border-radius: 14px;
   padding: 0.9rem 0.95rem 1rem;
   box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+  border-left: 4px solid rgba(251, 140, 0, 0.5);
+}
+
+.referral-promo-2 .why-card-green {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 0.9rem 0.95rem 1rem;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+  border-left: 4px solid rgb(3, 89, 23);
+  border-right: 4px solid rgb(3, 89, 23);
 }
 
 .referral-promo-2 .why-card-title {
