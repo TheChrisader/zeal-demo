@@ -1,0 +1,1103 @@
+/* ReferralPromo2 Component Styles */
+
+/* ------------------------------        Design tokens / base styles     ------------------------------ */
+.referral-promo-2 {
+  --red: #e53935;
+  --red-dark: #c62828;
+  --orange: #fb8c00;
+  --orange-dark: #ef6c00;
+  --yellow: #ffca28;
+  --text-dark: #1f2933;
+  --bg-light: #f9fafb;
+  --border-subtle: #e5e7eb;
+  --radius-card: 24px;
+  --shadow-soft: 0 16px 35px rgba(15, 23, 42, 0.16);
+  --shadow-light: 0 8px 20px rgba(15, 23, 42, 0.08);
+  --transition-fast: 150ms ease-out;
+  --green: #079e19;
+  --green-dark: #0a7f16;
+}
+
+/* Zoom in / out animation for CTAs */
+@keyframes cta-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+/* Apply it to buttons with .cta-pulse */
+.referral-promo-2 .btn.cta-pulse,
+.referral-promo-2 .joinbtn.cta-pulse {
+  animation: cta-pulse 1.4s ease-in-out infinite;
+}
+
+/* On hover: pause the animation and keep a nice hover transform */
+.referral-promo-2 .btn.cta-pulse:hover,
+.referral-promo-2 .joinbtn.cta-pulse:hover {
+  animation-play-state: paused;
+  transform: translateY(-1px) scale(1.03);
+}
+
+.referral-promo-2 * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.referral-promo-2 body {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  background: var(--bg-light);
+  color: var(--text-dark);
+  -webkit-font-smoothing: antialiased;
+  padding-bottom: 80px; /* room for sticky CTA on mobile */
+}
+
+.referral-promo-2 .zeal {
+  width: 20%;
+  margin-bottom: 1rem;
+}
+
+.referral-promo-2 img {
+  max-width: 100%;
+  display: block;
+}
+
+.referral-promo-2 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.referral-promo-2 button {
+  font: inherit;
+}
+
+.referral-promo-2 button:focus-visible,
+.referral-promo-2 a:focus-visible,
+.referral-promo-2 input:focus-visible,
+.referral-promo-2 select:focus-visible {
+  outline: 2px solid #111827;
+  outline-offset: 2px;
+}
+
+.referral-promo-2 .container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+.referral-promo-2 .section {
+  padding: 2.5rem 0;
+}
+
+.referral-promo-2 .section-title {
+  font-size: 1.375rem; /* 22px-ish */
+  font-weight: 650;
+  margin-bottom: 1rem;
+  color: var(--text-dark);
+}
+
+.referral-promo-2 .section-subtitle {
+  font-size: 0.95rem;
+  color: #4b5563;
+  margin-bottom: 2rem;
+}
+
+/* ------------------------------        Buttons & Pills     ------------------------------ */
+.referral-promo-2 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.75rem 1.3rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  min-height: 44px; /* accessibility */
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.referral-promo-2 .btn-primary {
+  background: var(--green);
+  color: #ffffff;
+  box-shadow: 0 12px 25px rgba(229, 57, 53, 0.4);
+}
+
+.referral-promo-2 .btn-primary:hover {
+  background: var(--green-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(10, 127, 22, 0.55);
+}
+
+.referral-promo-2 .joinbtn {
+  width: 100px;
+  margin: auto;
+  background: var(--green);
+  color: #ffffff;
+}
+
+.referral-promo-2 .joinbtn:hover {
+  background: var(--green-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(10, 127, 22, 0.55);
+}
+
+.referral-promo-2 .btn-outline {
+  background: transparent;
+  border: 1px solid var(--green);
+  color: var(--green);
+}
+
+.referral-promo-2 .btn-outline:hover {
+  background: rgba(7, 158, 25, 0.08);
+}
+
+.referral-promo-2 .btn-secondary-dark {
+  background: var(--green);
+  color: #f9fafb;
+  box-shadow: var(--shadow-light);
+}
+
+.referral-promo-2 .btn-secondary-dark:hover {
+  background: var(--green-dark);
+}
+
+.referral-promo-2 .link-underline {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 500;
+}
+
+.referral-promo-2 .pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.referral-promo-2 .why-card-t {
+  display: flex;
+  justify-content: center;
+}
+
+.referral-promo-2 .pill-green {
+  background: green;
+  color: white;
+  display: inline-flex; /* shrink to content */
+  justify-content: center; /* center text inside */
+  align-items: center;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap; /* center the pill in its parent */
+}
+
+.referral-promo-2 .pill-yellow {
+  background: var(--yellow);
+  color: var(--red);
+}
+
+.referral-promo-2 .pill-soft {
+  background: rgba(255, 255, 255, 0.14);
+  color: #f9fafb;
+}
+
+/* ------------------------------        Cards & icons     ------------------------------ */
+.referral-promo-2 .card {
+  background: #ffffff;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
+  padding: 1.5rem 1.5rem 1.75rem;
+}
+
+.referral-promo-2 .card-soft {
+  box-shadow: var(--shadow-light);
+}
+
+.referral-promo-2 .icon-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.referral-promo-2 .icon-orange {
+  background: rgba(251, 140, 0, 0.12);
+  color: var(--orange-dark);
+}
+
+.referral-promo-2 .icon-yellow {
+  background: rgba(255, 202, 40, 0.18);
+  color: #ca8a04;
+}
+
+.referral-promo-2 .icon-neutral {
+  background: rgba(15, 23, 42, 0.05);
+  color: #111827;
+}
+
+/* ------------------------------        Typography scale (mobile-first)     ------------------------------ */
+.referral-promo-2 .h1 {
+  font-size: 1.75rem; /* ~28px */
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+}
+
+.referral-promo-2 .h2 {
+  font-size: 1.35rem; /* ~21px */
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
+}
+
+.referral-promo-2 .body-text {
+  font-size: 0.95rem;
+  color: #4b5563;
+}
+
+.referral-promo-2 .caption {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* ------------------------------        HERO section     ------------------------------ */
+.referral-promo-2 .hero {
+  position: relative;
+  background:
+    radial-gradient(
+      circle at top left,
+      #ffb300 0,
+      #f57c00 18%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      #ff5252 0,
+      #d32f2f 22%,
+      transparent 55%
+    ),
+    linear-gradient(135deg, #c62828, #ef6c00);
+  color: #ffffff;
+  padding: 1.75rem 0 3.5rem;
+  overflow: hidden;
+}
+
+.referral-promo-2 .hero::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background-image:
+    radial-gradient(
+      circle at 10% 20%,
+      rgba(255, 255, 255, 0.09) 0,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 0%,
+      rgba(255, 255, 255, 0.08) 0,
+      transparent 55%
+    ),
+    radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.08) 0, transparent 55%);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.referral-promo-2 .hero-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  z-index: 1;
+}
+
+/* Top row: logo */
+.referral-promo-2 .hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: -60px;
+}
+
+.referral-promo-2 .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.referral-promo-2 .logo-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+}
+
+/* Main layout: stack on mobile, 2 cols on larger screens */
+.referral-promo-2 .hero-layout {
+  display: grid;
+  gap: 1.75rem;
+}
+
+/* Left hero card */
+.referral-promo-2 .hero-card {
+  backdrop-filter: blur(10px);
+  background: radial-gradient(
+    circle at top,
+    rgba(255, 255, 255, 0.19),
+    rgba(255, 255, 255, 0.04)
+  );
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  padding: 1.5rem 1.25rem 1.75rem;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.35);
+}
+
+.referral-promo-2 .hero-heading {
+  margin-top: 0.8rem;
+  margin-bottom: 0.3rem;
+}
+
+.referral-promo-2 .hero-subtext {
+  font-size: 0.98rem;
+  color: rgba(249, 250, 251, 0.9);
+  margin-bottom: 1.1rem;
+}
+
+.referral-promo-2 .hero-subtext strong {
+  color: #ffffff;
+}
+
+.referral-promo-2 .hero-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.referral-promo-2 .hero-secondary-link {
+  font-size: 0.9rem;
+  color: rgba(249, 250, 251, 0.92);
+}
+
+.referral-promo-2 .hero-secondary-link button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.referral-promo-2 .hero-note {
+  font-size: 0.8rem;
+  color: rgba(249, 250, 251, 0.8);
+  margin-top: 0.4rem;
+}
+
+/* Right column (Who we are + image) */
+.referral-promo-2 .hero-right {
+  display: flex;
+  flex-direction: column;
+  margin-top: 60px;
+  gap: 1.5rem;
+}
+
+/* Card with WHO WE ARE */
+.referral-promo-2 .why-card-green {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 0.9rem 0.95rem 1rem;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+  border-left: 4px solid rgb(3, 89, 23);
+  border-right: 4px solid rgb(3, 89, 23);
+}
+
+/* Center the green pill */
+.referral-promo-2 .why-card-t {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.referral-promo-2 .why-card-text {
+  font-size: 0.9rem;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+/* Image block */
+.referral-promo-2 .hero-right-image img {
+  width: 97%;
+  height: auto;
+  border-radius: 20px;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.35);
+  object-fit: cover;
+}
+
+.referral-promo-2 .hero-left {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ------------------------------        Section 2 – How it works     ------------------------------ */
+/* ------------------------------    Video section     ------------------------------ */
+.referral-promo-2 .video-section-title {
+  text-align: center;
+}
+
+.referral-promo-2 .video-section-subtitle {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.referral-promo-2 .video-card {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: var(--shadow-soft);
+  padding: 1.5rem 1.4rem 1.75rem;
+}
+
+/* Responsive 16:9 video wrapper */
+.referral-promo-2 .video-wrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow: hidden;
+  border-radius: 20px;
+  box-shadow: var(--shadow-soft);
+  background: #000;
+}
+
+.referral-promo-2 .video-wrapper iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Center the Join Now button */
+.referral-promo-2 .video-cta {
+  margin-top: 1.4rem;
+  display: flex;
+  justify-content: center;
+}
+
+.referral-promo-2 .steps-card {
+  border-radius: var(--radius-card);
+  background: #ffffff;
+  box-shadow: var(--shadow-soft);
+  padding: 1.5rem 1.4rem 1.6rem;
+  margin-top: -1.25rem;
+}
+
+.referral-promo-2 .steps-list {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 0.75rem;
+}
+
+/* Ensure icon + text line up nicely and stay responsive */
+.referral-promo-2 .step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.referral-promo-2 .step-item-title {
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+  font-size: 0.98rem;
+  color: #111827;
+}
+
+.referral-promo-2 .step-item-text {
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.referral-promo-2 .step-number {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--orange-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.15rem;
+}
+
+.referral-promo-2 .steps-note {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 1.1rem;
+  border-top: 1px dashed #e5e7eb;
+  padding-top: 0.7rem;
+}
+
+/* ------------------------------        Section 3 – Why join     ------------------------------ */
+.referral-promo-2 .why-section {
+  background: #f3f4f6;
+  border-top: 3px solid rgba(251, 140, 0, 0.4);
+}
+
+.referral-promo-2 .why-cards {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.referral-promo-2 .why-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 0.9rem 0.95rem 1rem;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+}
+
+.referral-promo-2 .why-card-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.2rem;
+  color: #111827;
+}
+
+/* ------------------------------        Section 4 – Signup form     ------------------------------ */
+.referral-promo-2 .form-section {
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.6), #ffffff);
+}
+
+.referral-promo-2 .form-card {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.referral-promo-2 .form-description {
+  font-size: 0.9rem;
+  color: #4b5563;
+  margin-bottom: 1rem;
+}
+
+.referral-promo-2 .form-grid {
+  display: grid;
+  gap: 0.85rem;
+  margin-bottom: 0.9rem;
+}
+
+.referral-promo-2 .form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.88rem;
+}
+
+.referral-promo-2 label {
+  font-weight: 500;
+  color: #111827;
+}
+
+.referral-promo-2 .required {
+  color: #dc2626;
+  margin-left: 0.1rem;
+}
+
+.referral-promo-2 input[type="text"],
+.referral-promo-2 input[type="email"],
+.referral-promo-2 input[type="tel"],
+.referral-promo-2 select {
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.75rem;
+  border: 1px solid #d1d5db;
+  font-size: 0.9rem;
+  background: #f9fafb;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background var(--transition-fast);
+  min-height: 44px;
+}
+
+.referral-promo-2 input::placeholder {
+  color: #9ca3af;
+  opacity: 0.9;
+}
+
+.referral-promo-2 input:focus,
+.referral-promo-2 select:focus {
+  outline: none;
+  border-color: var(--orange-dark);
+  box-shadow: 0 0 0 1px rgba(251, 146, 60, 0.5);
+  background: #ffffff;
+}
+
+.referral-promo-2 .checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 0.85rem;
+  color: #374151;
+  margin-top: 0.25rem;
+}
+
+.referral-promo-2 .checkbox-row input[type="checkbox"] {
+  margin-top: 0.08rem;
+  width: 18px;
+  height: 18px;
+}
+
+.referral-promo-2 .form-footnote {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 0.6rem;
+}
+
+.referral-promo-2 .form-success {
+  margin-top: 0.75rem;
+  font-size: 0.88rem;
+  color: #15803d;
+  display: block;
+}
+
+/* ------------------------------        Section 5 – Boost your chances     ------------------------------ */
+.referral-promo-2 .social-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.referral-promo-2 .social-card {
+  border-radius: 16px;
+  padding: 0.8rem 0.8rem 0.85rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 15px rgba(15, 23, 42, 0.06);
+  font-size: 0.88rem;
+}
+
+.referral-promo-2 .social-icon {
+  width: 20%;
+  border-radius: 4px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.referral-promo-2 .social-label {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.88rem;
+}
+
+.referral-promo-2 .whatsapp {
+  border-top: 3px solid #22c55e;
+}
+
+.referral-promo-2 .instagram {
+  border-top: 3px solid #fb7185;
+}
+
+.referral-promo-2 .facebook {
+  border-top: 3px solid #0810b1;
+}
+
+.referral-promo-2 .x-twitter {
+  border-top: 3px solid #111827;
+}
+
+.referral-promo-2 .linkedin {
+  border-top: 3px solid #06b6d4;
+}
+
+.referral-promo-2 .social-caption {
+  font-size: 0.82rem;
+  color: #4b5563;
+}
+
+.referral-promo-2 .pro-tip-banner {
+  border-radius: 16px;
+  padding: 0.9rem 0.95rem;
+  background: rgba(255, 202, 40, 0.14);
+  border: 1px dashed rgba(251, 140, 0, 0.75);
+  font-size: 0.86rem;
+  color: #78350f;
+}
+
+.referral-promo-2 .pro-tip-label {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.2rem;
+  display: inline-block;
+}
+
+/* ------------------------------        Section 6 – FAQ & trust     ------------------------------ */
+.referral-promo-2 .faq-section {
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+}
+
+.referral-promo-2 .faq-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.referral-promo-2 details {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.9rem;
+}
+
+.referral-promo-2 summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.referral-promo-2 summary::-webkit-details-marker {
+  display: none;
+}
+
+.referral-promo-2 .faq-question {
+  font-weight: 550;
+  margin-right: 0.75rem;
+  color: #111827;
+}
+
+.referral-promo-2 .faq-chevron {
+  font-size: 0.9rem;
+  color: #6b7280;
+  transition: transform var(--transition-fast);
+}
+
+.referral-promo-2 details[open] .faq-chevron {
+  transform: rotate(90deg);
+}
+
+.referral-promo-2 .faq-answer {
+  margin-top: 0.4rem;
+  color: #4b5563;
+  font-size: 0.88rem;
+}
+
+.referral-promo-2 .faq-meta {
+  margin-top: 1.25rem;
+  font-size: 0.82rem;
+  color: #6b7280;
+}
+
+.referral-promo-2 .tcs-link {
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ------------------------------        Section 7 – Footer     ------------------------------ */
+.referral-promo-2 .footer {
+  padding: 1.7rem 0 1.2rem;
+  border-top: 1px solid #e5e7eb;
+  font-size: 0.8rem;
+  color: #6b7280;
+  background: #ffffff;
+}
+
+.referral-promo-2 .footer-top {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.referral-promo-2 .footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  font-size: 0.82rem;
+}
+
+.referral-promo-2 .footer-links a {
+  text-decoration: none;
+  color: #4b5563;
+}
+
+.referral-promo-2 .footer-links a:hover {
+  text-decoration: underline;
+}
+
+.referral-promo-2 .footer-social {
+  display: flex;
+}
+
+/* ------------------------------        Sticky CTA bar (mobile)     ------------------------------ */
+.referral-promo-2 .sticky-cta {
+  position: fixed;
+  inset-inline: 0;
+  bottom: -80px;
+  background: linear-gradient(90deg, var(--red-dark), var(--orange-dark));
+  color: #ffffff;
+  padding: 0.6rem 1rem 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.35);
+  z-index: 40;
+  transition:
+    transform var(--transition-fast),
+    bottom var(--transition-fast),
+    opacity var(--transition-fast);
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.referral-promo-2 .sticky-cta.visible {
+  bottom: 0;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.referral-promo-2 .sticky-cta-text {
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.referral-promo-2 .sticky-cta-text strong {
+  font-size: 0.9rem;
+}
+
+.referral-promo-2 .sticky-cta .btn {
+  flex-shrink: 0;
+  padding-inline: 1rem;
+  font-size: 0.85rem;
+}
+
+/* ============================    RESPONSIVE BREAKPOINTS    ============================ */
+@media (max-width: 430px) {
+  .referral-promo-2 .container {
+    padding: 0 1rem;
+  }
+  .referral-promo-2 .zeal {
+    width: 50%;
+  }
+  /* Hero spacing gets tighter */
+  .referral-promo-2 .hero {
+    padding: 1.25rem 0 3rem;
+  }
+  .referral-promo-2 .hero-inner {
+    gap: 1.25rem;
+  }
+  /* Force hero to be strictly one column */
+  .referral-promo-2 .hero-layout {
+    display: block;
+  }
+  .referral-promo-2 .hero-card {
+    padding: 1.1rem 1rem 1.4rem;
+    border-radius: 16px;
+  }
+  /* Pill at the top of the hero card */
+  .referral-promo-2 .pill {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
+    white-space: normal; /* allow it to wrap on small screens */
+    text-align: center;
+  }
+  .referral-promo-2 .h1 {
+    font-size: 1.45rem;
+    line-height: 1.25;
+  }
+  .referral-promo-2 .hero-subtext {
+    font-size: 0.5rem;
+  }
+  .referral-promo-2 .hero-actions {
+    gap: 0.5rem;
+  }
+  /* Make the main CTA full width for easier tapping */
+  .referral-promo-2 .hero-actions .btn {
+    width: 100%;
+  }
+  /* Right side (WHO WE ARE + image) sits nicely below */
+  .referral-promo-2 .hero-right {
+    margin-top: 60px;
+    gap: 1rem;
+  }
+  .referral-promo-2 .hero-right-image img {
+    border-radius: 16px;
+    object-fit: cover;
+  }
+  /* Slightly smaller logo so it doesn't crowd the top */
+  .referral-promo-2 .logo {
+    font-size: 0.85rem;
+  }
+  .referral-promo-2 .logo-mark {
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+  }
+}
+
+/* Small tablets and up (>= 640px) */
+@media (min-width: 640px) {
+  .referral-promo-2 .section {
+    padding: 3rem 0;
+  }
+  .referral-promo-2 .hero {
+    padding: 2.5rem 0 4rem;
+  }
+  .referral-promo-2 .hero-card {
+    padding: 2rem 1.75rem 2.1rem;
+  }
+  .referral-promo-2 .h1 {
+    font-size: 2.1rem;
+  }
+  .referral-promo-2 .section-title {
+    font-size: 1.5rem;
+  }
+  .referral-promo-2 .section-subtitle {
+    font-size: 1rem;
+  }
+}
+
+/* Medium screens / tablets & small laptops (>= 768px) */
+@media (min-width: 768px) {
+  .referral-promo-2 .container {
+    padding: 0 1.5rem;
+    max-width: 1040px;
+  }
+  /* HERO: go from 1 column -> 2 columns */
+  .referral-promo-2 .hero-layout {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 2rem;
+  }
+  .referral-promo-2 .hero-inner {
+    gap: 2.25rem;
+  }
+  .referral-promo-2 .hero-right {
+    gap: 1.5rem;
+    margin-top: 0;
+  }
+  .referral-promo-2 .hero-card-main {
+    max-width: 620px;
+  }
+  .referral-promo-2 .h1 {
+    font-size: 2.3rem;
+  }
+  .referral-promo-2 .hero-subtext {
+    font-size: 1.02rem;
+  }
+  /* Steps: 3 columns instead of stacked */
+  .referral-promo-2 .steps-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+  .referral-promo-2 .step-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  /* Why cards: 3 in a row */
+  .referral-promo-2 .why-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.2rem;
+  }
+  /* Form card: a bit more spacious */
+  .referral-promo-2 .form-card {
+    padding: 2rem 1.75rem 2.1rem;
+  }
+  /* Social cards: 4 in a row */
+  .referral-promo-2 .social-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  /* FAQ: keep it narrower on large screens for readability */
+  .referral-promo-2 .faq-list {
+    max-width: 720px;
+  }
+  /* Footer layout side-by-side */
+  .referral-promo-2 .footer-top {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  /* On larger screens we usually don't need the sticky CTA */
+  .referral-promo-2 body {
+    padding-bottom: 0;
+  }
+  .referral-promo-2 .sticky-cta {
+    display: none;
+  }
+}
+
+/* Large desktops (>= 1024px) */
+@media (min-width: 1024px) {
+  .referral-promo-2 .container {
+    max-width: 1120px;
+  }
+  .referral-promo-2 .hero {
+    padding: 3rem 0 4.5rem;
+  }
+  .referral-promo-2 .h1 {
+    font-size: 2.6rem;
+  }
+  .referral-promo-2 .hero-subtext {
+    font-size: 1.05rem;
+  }
+  .referral-promo-2 .section-title {
+    font-size: 1.6rem;
+  }
+  .referral-promo-2 .section-subtitle,
+  .referral-promo-2 .body-text {
+    font-size: 1rem;
+  }
+  .referral-promo-2 .form-card {
+    max-width: 540px;
+  }
+}

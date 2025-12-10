@@ -15,6 +15,7 @@ import ReferralPromoHero1 from "./_components/ReferralPromoHero1";
 import RewardsCard from "./_components/RewardsCard";
 import UserProgress from "./_components/UserProgress";
 import WeeklyTimelineShare from "./_components/WeeklyTimelineShare";
+import ReferralPromo2 from "./_components/ReferralPromo2";
 
 const ReferralPromo1 = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -96,7 +97,7 @@ const ReferralPromo1 = () => {
   );
 };
 
-const ReferralPromo2 = () => {
+const ReferralPromo21 = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
