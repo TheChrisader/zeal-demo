@@ -120,7 +120,6 @@ if (!SQS_REGION || !QUEUE_URL) {
   throw new Error("Missing required SQS configuration");
 }
 
-// Initialize SQS Client
 const sqs = new SQSClient({
   region: SQS_REGION,
   credentials: {
