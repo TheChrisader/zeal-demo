@@ -77,7 +77,7 @@ export default function ReferralPromo2() {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    const { name, type, value, checked } = e.target;
+    const { name, type, value, checked } = e.target as HTMLInputElement;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -127,8 +127,8 @@ export default function ReferralPromo2() {
                   At Zeal News Africa, we redefine the African story. Bold,
                   curious, and unapologetically African, we deliver journalism
                   that is truthful, rich in context, and fearless, covering
-                  culture, investigation, and global perspectives. We don't just
-                  share news; we spark conversations that matter.
+                  culture, investigation, and global perspectives. We don&apos;t
+                  just share news; we spark conversations that matter.
                 </p>
               </section>
             </div>
@@ -189,7 +189,7 @@ export default function ReferralPromo2() {
           <div className="container">
             <div className="steps-card card-soft">
               <h2 className="section-title">
-                How the "Share & Win ₦50,000" contest works
+                How the &quot;Share & Win ₦50,000&quot; contest works
               </h2>
               <div className="steps-list">
                 <div className="step-item">
@@ -232,8 +232,8 @@ export default function ReferralPromo2() {
                 </div>
               </div>
               <p className="steps-note">
-                You'll be able to track your referrals on your contest dashboard
-                after you sign up.
+                You&apos;ll be able to track your referrals on your contest
+                dashboard after you sign up.
               </p>
             </div>
           </div>
@@ -272,7 +272,7 @@ export default function ReferralPromo2() {
                 Join the contest &amp; get your link
               </h2>
               <p className="form-description">
-                Takes less than 1 minute. It's free.
+                Takes less than 1 minute. It&apos;s free.
               </p>
               <form id="signup-form" onSubmit={handleSubmit} noValidate>
                 <div className="form-grid">
@@ -378,13 +378,14 @@ export default function ReferralPromo2() {
                   </button>
                 </div>
                 <p className="form-footnote">
-                  We'll never share your details. You can unsubscribe anytime.
+                  We&apos;ll never share your details. You can unsubscribe
+                  anytime.
                 </p>
                 {/* <p
                   className={`form-success ${showSuccess ? "" : "hidden"}`}
                   id="form-success"
                 >
-                  🎉 You're in! Next step: check your email for your login
+                  🎉 You&apos;re in! Next step: check your email for your login
                   details &amp; contest dashboard link.
                 </p> */}
               </form>
@@ -454,8 +455,9 @@ export default function ReferralPromo2() {
               <p>
                 Write a short message like:
                 <br />
-                "This is where I get my news in 3 minutes. Sign up free here 👉
-                <strong>[your link]</strong>"
+                &quot;This is where I get my news in 3 minutes. Sign up free
+                here 👉
+                <strong>[your link]</strong>&quot;
               </p>
             </div>
           </div>
@@ -463,7 +465,9 @@ export default function ReferralPromo2() {
         {/* FAQ SECTION */}
         <section className="section faq-section" id="faq">
           <div className="container">
-            <h2 className="section-title">Got questions? We've got answers.</h2>
+            <h2 className="section-title">
+              Got questions? We&apos;ve got answers.
+            </h2>
             <div className="faq-list">
               <details open>
                 <summary>
@@ -498,8 +502,8 @@ export default function ReferralPromo2() {
                   <span className="faq-chevron">›</span>
                 </summary>
                 <div className="faq-answer">
-                  We'll contact the winner directly and pay via bank transfer
-                  within
+                  We&apos;ll contact the winner directly and pay via bank
+                  transfer within
                   <strong>[X]</strong> working days.
                 </div>
               </details>
