@@ -76,6 +76,10 @@ jobs:
           echo "SES_SECRET_ACCESS_KEY=${{ secrets.SES_SECRET_ACCESS_KEY }}" >> .env
           echo "SES_REGION=${{ secrets.SES_REGION }}" >> .env
           echo "NEWSLETTER_FROM=${{ secrets.NEWSLETTER_FROM }}" >> .env
+          echo "SQS_ACCESS_KEY_ID=${{ secrets.SQS_ACCESS_KEY_ID }}" >> .env
+          echo "SQS_SECRET_ACCESS_KEY=${{ secrets.SQS_SECRET_ACCESS_KEY }}" >> .env
+          echo "SQS_REGION=${{ secrets.SQS_REGION }}" >> .env
+          echo "SES_FEEDBACK_QUEUE_URL=${{ secrets.SES_FEEDBACK_QUEUE_URL }}" >> .env
 
         shell: bash
 
