@@ -54,6 +54,8 @@ export default function NewsletterPage() {
         }),
       });
 
+      if (response) setSubmitSuccess(true);
+
       // if (response.message) {
       //   // Set cookie to indicate user has subscribed
       //   document.cookie =
