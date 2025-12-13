@@ -26,7 +26,7 @@ interface Mail {
   destination: string[];
   timestamp: string;
   source: string;
-  headers?: MailHeaders;
+  headers?: MailHeaders[];
   tags?: MessageTag;
 }
 
@@ -51,8 +51,19 @@ const BouncedRecipientSchema = z.object({
 });
 
 const BounceSchema = z.object({
-  bounceType: z.enum(["Permanent", "Transient", "Undetermined"]),
-  bounceSubType: z.enum(["General", "NoEmail", "Suppressed", "Undetermined"]),
+  bounceType: z.enum(["Undetermined", "Permanent", "Transient"]),
+  bounceSubType: z.enum([
+    "Undetermined",
+    "General",
+    "NoEmail",
+    "Suppressed",
+    "OnAccountSuppressionList",
+    "MailboxFull",
+    "MessageTooLarge",
+    "CustomTimeoutExceeded",
+    "ContentRejected",
+    "AttachmentRejected",
+  ]),
   bouncedRecipients: z.array(BouncedRecipientSchema),
   timestamp: z.string(),
   feedbackId: z.string(),
@@ -64,7 +75,10 @@ const ComplainedRecipientSchema = z.object({
 });
 
 const ComplaintSchema = z.object({
-  complaintFeedbackType: z.enum(["abuse", "fraud", "not-spam", "other"]),
+  complaintFeedbackType: z
+    .enum(["abuse", "auth-failure", "fraud", "not-spam", "other", "virus"])
+    .optional(),
+  complaintSubType: z.union([z.literal("OnAccountSuppressionList"), z.null()]),
   userAgent: z.string().optional(),
   complainedRecipients: z.array(ComplainedRecipientSchema),
   timestamp: z.string(),
@@ -75,8 +89,8 @@ const MailSchema = z.object({
   messageId: z.string(),
   destination: z.array(z.string()),
   timestamp: z.string(),
-  source: z.string().email(),
-  headers: z.record(z.string()).optional(),
+  source: z.string(),
+  headers: z.array(z.record(z.string())).optional(),
   tags: z
     .object({
       campaign: z.array(z.string()).optional(),
@@ -87,7 +101,7 @@ const MailSchema = z.object({
 });
 
 const SESMessageSchema = z.object({
-  notificationType: z.enum(["Bounce", "Complaint"]),
+  eventType: z.enum(["Bounce", "Complaint"]),
   mail: MailSchema,
   bounce: BounceSchema.optional(),
   complaint: ComplaintSchema.optional(),
@@ -232,10 +246,10 @@ async function handleComplaint(
 
 export async function POST(request: Request) {
   // --- SECURITY CHECK ---
-  const { searchParams } = new URL(request.url);
-  if (searchParams.get("key") !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  // const { searchParams } = new URL(request.url);
+  // if (searchParams.get("key") !== process.env.CRON_SECRET) {
+  //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // }
 
   let processedCount = 0;
   let keepPolling = true;
@@ -279,11 +293,11 @@ export async function POST(request: Request) {
             JSON.parse(snsBody.Message),
           );
 
-          const { notificationType, mail, bounce, complaint } = sesMessage;
+          const { eventType, mail, bounce, complaint } = sesMessage;
           const campaignId = extractCampaignId(mail);
 
           // --- HANDLE BOUNCES ---
-          if (notificationType === "Bounce" && bounce) {
+          if (eventType === "Bounce" && bounce) {
             const recipients = bounce.bouncedRecipients;
 
             if (bounce.bounceType === "Permanent") {
@@ -294,10 +308,12 @@ export async function POST(request: Request) {
           }
 
           // --- HANDLE COMPLAINTS ---
-          if (notificationType === "Complaint" && complaint) {
+          if (eventType === "Complaint" && complaint) {
             await handleComplaint(
               complaint.complainedRecipients,
-              complaint.complaintFeedbackType,
+              complaint.complaintFeedbackType ||
+                complaint.complaintSubType ||
+                "No Feedback Given.",
               campaignId,
             );
           }
@@ -314,7 +330,6 @@ export async function POST(request: Request) {
           processedCount++;
         } catch (parseError) {
           console.error("Error processing message:", parseError);
-
           // Try to extract receipt handle for deletion
           const receiptHandle = message.ReceiptHandle;
           if (receiptHandle) {
