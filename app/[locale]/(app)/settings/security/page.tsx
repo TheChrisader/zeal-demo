@@ -1,9 +1,18 @@
 "use client";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Key,
+  Lock,
+  RotateCw,
+  Shield,
+  ShieldCheck,
+  ShieldX,
+  Smartphone,
+} from "lucide-react";
 import { useState } from "react";
-import CaretRightIcon from "@/assets/svgs/utils/CaretRightIcon";
-import LockIcon from "@/assets/svgs/utils/LockIcon";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import PasswordModal from "./popup/PasswordModal";
 import TwoFAModal from "./popup/TwoFAModal";
@@ -12,8 +21,15 @@ const SecuritySettings = () => {
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [twoFAModalOpen, setTwoFAModalOpen] = useState(false);
   const [qrCodeData, setQrCodeData] = useState("");
+  const [isLoading2FA, setIsLoading2FA] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handle2FAToggle = async (checked: boolean) => {
+    setIsLoading2FA(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
     if (checked) {
       try {
         setTwoFAModalOpen(true);
@@ -24,48 +40,186 @@ const SecuritySettings = () => {
         setQrCodeData(data.qrCode);
       } catch (error) {
         console.error("Error generating 2FA:", error);
+        setErrorMessage("Failed to setup 2FA. Please try again.");
+      } finally {
+        setIsLoading2FA(false);
       }
     } else {
-      // TODO: Implement 2FA disable flow
-      setIs2FAEnabled(false);
+      try {
+        const response = await fetch("/api/v1/2fa/disable", {
+          method: "POST",
+        });
+        if (response.ok) {
+          setIs2FAEnabled(false);
+          setSuccessMessage("2FA disabled successfully");
+          setTimeout(() => setSuccessMessage(null), 3000);
+        }
+      } catch (error) {
+        console.error("Error disabling 2FA:", error);
+        setErrorMessage("Failed to disable 2FA. Please try again.");
+      } finally {
+        setIsLoading2FA(false);
+      }
     }
   };
 
   return (
-    <div className="w-full">
-      <div className="mb-4 flex w-full items-center justify-between">
-        <div className="flex flex-col">
-          <h3 className="text-lg font-bold text-foreground-alt">
-            Security Settings
-          </h3>
-          <span className="text-sm font-normal text-muted-alt">
-            Change Passwords, Enable 2FA to make your account more secure
+    <div className="w-full space-y-4 sm:mx-auto sm:max-w-4xl sm:space-y-6 sm:p-0">
+      {/* Header Section */}
+      <div className="flex flex-col space-y-3">
+        <CardTitle className="text-xl font-bold text-foreground/80 sm:text-2xl">
+          Security Settings
+        </CardTitle>
+        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground/70">
+          <span className="flex items-center gap-1">
+            <kbd className="rounded bg-muted/60 px-1.5 py-0.5 text-[10px]">
+              Ctrl+P
+            </kbd>
+            change password
+          </span>
+          <span className="flex items-center gap-1">
+            <kbd className="rounded bg-muted/60 px-1.5 py-0.5 text-[10px]">
+              Ctrl+2
+            </kbd>
+            toggle 2FA
+          </span>
+          <span className="flex items-center gap-1">
+            <kbd className="rounded bg-muted/60 px-1.5 py-0.5 text-[10px]">
+              Esc
+            </kbd>
+            cancel
           </span>
         </div>
       </div>
-      <Separator className="mb-6" />
-      <div className="flex w-full max-w-[40vw] flex-col gap-3 max-[500px]:max-w-full">
-        <PasswordModal>
-          <div className="flex items-center gap-2">
-            <LockIcon />
-            <span className="text-sm font-normal text-foreground-alt">
-              Change Password
-            </span>
+
+      {/* Messages */}
+      {successMessage && (
+        <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 animate-in fade-in-0 slide-in-from-top-2 dark:border-green-800 dark:bg-green-900/20">
+          <CheckCircle2 className="size-4 shrink-0 text-green-500" />
+          <span className="text-sm text-green-600 dark:text-green-400">
+            {successMessage}
+          </span>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 animate-in fade-in-0 slide-in-from-top-2 dark:border-red-800 dark:bg-red-900/20">
+          <AlertCircle className="size-4 shrink-0 text-red-500" />
+          <span className="text-sm text-red-600 dark:text-red-400">
+            {errorMessage}
+          </span>
+        </div>
+      )}
+
+      {/* Security Options Card */}
+      <Card className="w-full border-0 bg-gradient-to-br from-background via-background to-muted/20 shadow-sm">
+        <CardHeader className="px-0 pb-4">
+          <div className="space-y-1">
+            <CardTitle className="flex items-center gap-2 text-xl font-semibold">
+              <Shield className="size-5 text-muted-foreground" />
+              Security Options
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Manage your account security and authentication preferences
+            </p>
           </div>
-          <CaretRightIcon />
-        </PasswordModal>
-        <label className="flex cursor-pointer items-center justify-between py-2 hover:bg-subtle-hover-bg">
-          <div className="flex">
-            <span className="text-sm font-normal text-foreground-alt">
-              Enable Login 2FA
-            </span>
+        </CardHeader>
+        <CardContent className="space-y-4 px-0">
+          {/* Password Change Section */}
+          <div className="group relative rounded-lg border border-border/40 bg-gradient-to-r from-background/80 to-muted/5 p-4 transition-all duration-200 hover:border-primary/15 hover:bg-muted/10">
+            <div className="relative flex w-full items-center justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="shrink-0 rounded-lg bg-blue-500/5 p-3 transition-all duration-200 group-hover:bg-blue-500/10">
+                  <Key className="size-5 text-blue-600" />
+                </div>
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-foreground/80">
+                      Password
+                    </p>
+                    <Badge
+                      variant="outline"
+                      className="h-4 gap-1 px-1.5 text-[10px]"
+                    >
+                      Recommended
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Change your account password regularly to maintain security
+                  </p>
+                </div>
+              </div>
+              <PasswordModal>
+                <Lock className="size-4" />
+                <span className="hidden sm:inline">Change</span>
+              </PasswordModal>
+            </div>
           </div>
-          <Switch checked={is2FAEnabled} onCheckedChange={handle2FAToggle} />
-        </label>
-      </div>
-      <div className="mt-9 flex w-full justify-end">
-        <Button>Save Changes</Button>
-      </div>
+
+          {/* 2FA Section */}
+          <div className="group relative rounded-lg border border-border/40 bg-gradient-to-r from-background/80 to-muted/5 p-4 transition-all duration-200 hover:border-primary/15 hover:bg-muted/10">
+            <div className="relative flex items-center justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div
+                  className={`shrink-0 rounded-lg p-3 transition-all duration-200 ${
+                    is2FAEnabled
+                      ? "bg-green-500/10 group-hover:bg-green-500/20"
+                      : "bg-orange-500/5 group-hover:bg-orange-500/10"
+                  }`}
+                >
+                  {is2FAEnabled ? (
+                    <ShieldCheck className="size-5 text-green-600" />
+                  ) : (
+                    <ShieldX className="size-5 text-orange-600" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-foreground/80">
+                      Two-Factor Authentication
+                    </p>
+                    {is2FAEnabled ? (
+                      <Badge className="h-4 gap-1 bg-green-500/10 px-1.5 text-[10px] text-green-600">
+                        <CheckCircle2 className="size-2.5" />
+                        Enabled
+                      </Badge>
+                    ) : (
+                      <Badge
+                        variant="outline"
+                        className="h-4 gap-1 border-yellow-600 px-1.5 text-[10px] text-yellow-600"
+                      >
+                        <AlertCircle className="size-2.5" />
+                        Disabled
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {is2FAEnabled
+                      ? "Your account is protected with 2FA"
+                      : "Add an extra layer of security to your account"}
+                  </p>
+                  <div className="flex items-center gap-4 text-[10px] text-muted-foreground/60">
+                    <span className="flex items-center gap-1.5">
+                      <Smartphone className="size-2.5" />
+                      Authenticator app required
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={is2FAEnabled}
+                  onCheckedChange={handle2FAToggle}
+                  disabled={isLoading2FA}
+                  className="shrink-0 data-[state=checked]:bg-green-600"
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* TwoFA Modal */}
       <TwoFAModal
         open={twoFAModalOpen}
         onOpenChange={setTwoFAModalOpen}
@@ -81,11 +235,14 @@ const SecuritySettings = () => {
             if (response.ok) {
               setIs2FAEnabled(true);
               setTwoFAModalOpen(false);
+              setSuccessMessage("2FA enabled successfully!");
+              setTimeout(() => setSuccessMessage(null), 3000);
             } else {
               throw new Error("Verification failed");
             }
           } catch (error) {
             console.error("Error verifying 2FA:", error);
+            setErrorMessage("Invalid code. Please try again.");
             throw error;
           }
         }}

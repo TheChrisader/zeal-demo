@@ -189,7 +189,7 @@ export default function PasswordModal({
         <Button
           variant="unstyled"
           size="unstyled"
-          className="flex w-full items-center justify-between py-2"
+          className="flex items-center justify-center gap-2 p-2"
         >
           {children}
         </Button>
