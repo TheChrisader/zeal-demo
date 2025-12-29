@@ -9,12 +9,15 @@ import {
 } from "@/types/newsletter.type";
 import { ZealCustomBroadcast } from "@/utils/email/templates/CustomBroadcast";
 import ZealNewsletterCampaign from "@/utils/email/templates/NewsletterCampaign";
-import { prepareCampaignView } from "@/utils/newsletter.utils";
+import {
+  prepareCampaignView,
+  selectPostIdsFromCategories,
+} from "@/utils/newsletter.utils";
 
 const CampaignPreviewRequestSchema = z
   .object({
     template_id: z.enum(CampaignTemplates).default("standard"),
-    article_ids: z.array(z.string()).optional(),
+    article_ids: z.record(z.string(), z.array(z.string())).optional(),
     subject: z
       .string()
       .min(1, "Subject is required")
@@ -24,7 +27,9 @@ const CampaignPreviewRequestSchema = z
   })
   .refine(
     (data) => {
-      if (data.template_id === "standard" && !data.article_ids?.length) {
+      const totalObjectSize = Object.values(data?.article_ids || {}).flat()
+        .length;
+      if (data.template_id === "standard" && totalObjectSize <= 0) {
         return false;
       }
       if (data.template_id === "custom" && !data.body_content?.trim()) {
@@ -49,7 +54,16 @@ export const POST = async (req: NextRequest) => {
 
     if (template_id === "standard") {
       // Standard template with articles
-      const { articles } = await prepareCampaignView(article_ids!, false, null);
+      const selected_article_ids = selectPostIdsFromCategories(
+        Object.keys(article_ids || {}),
+        article_ids || {},
+      );
+
+      const { articles } = await prepareCampaignView(
+        selected_article_ids,
+        false,
+        null,
+      );
 
       const viewModel: StandardDataSnapshot = {
         articles,
@@ -80,6 +94,7 @@ export const POST = async (req: NextRequest) => {
     });
   } catch (error: unknown) {
     if (error instanceof ZodError) {
+      console.log(error);
       return NextResponse.json(
         {
           success: false,

@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useReferral } from "@/hooks/useReferral";
+import { toast } from "sonner";
 
 const AnimatedHero: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -7,6 +9,8 @@ const AnimatedHero: React.FC = () => {
   const [showLinkPreview, setShowLinkPreview] = useState(false);
   const [countdown, setCountdown] = useState("75:08:39");
   const [copyButtonText, setCopyButtonText] = useState("Copy");
+  const [isLoading, setIsLoading] = useState(false);
+  const { referralCode: urlReferralCode } = useReferral();
 
   // Countdown timer logic - counts down to Friday 5 PM WAT
   useEffect(() => {
@@ -40,20 +44,59 @@ const AnimatedHero: React.FC = () => {
     return cleanup;
   }, []);
 
-  const handleGenerateLink = () => {
+  const handleGenerateLink = async () => {
     if (!email.trim()) {
-      alert("Please enter your email to generate a link.");
+      toast.error("Please enter your email to generate a link.");
       return;
     }
 
-    const handle = email
-      .split("@")[0]
-      .replace(/[^a-z0-9]/gi, "")
-      .toLowerCase();
+    setIsLoading(true);
 
-    const link = `https://zealnews.africa/r/${handle}`;
-    setReferralLink(link);
-    setShowLinkPreview(true);
+    try {
+      const handle = email
+        .split("@")[0]
+        .replace(/[^a-z0-9]/gi, "")
+        .toLowerCase();
+
+      const response = await fetch("/api/v1/referral/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          handle,
+          referral_code: urlReferralCode || undefined,
+          newsletter_opt_in: true,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to generate referral link");
+      }
+
+      setReferralLink(data.referral_link);
+      setShowLinkPreview(true);
+
+      if (data.already_exists) {
+        toast.success(data.message);
+      } else {
+        toast.success(
+          "Account created! Check your email to verify and set your password."
+        );
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCopyLink = async () => {
@@ -61,8 +104,9 @@ const AnimatedHero: React.FC = () => {
       await navigator.clipboard.writeText(referralLink);
       setCopyButtonText("Copied");
       setTimeout(() => setCopyButtonText("Copy"), 1500);
+      toast.success("Link copied to clipboard!");
     } catch (e) {
-      alert("Copy failed, please select and copy manually.");
+      toast.error("Copy failed, please select and copy manually.");
     }
   };
 
@@ -97,27 +141,42 @@ const AnimatedHero: React.FC = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-full px-4 py-3 text-slate-800 focus:outline-none sm:w-72"
+              disabled={isLoading}
+              className="w-full rounded-full px-4 py-3 text-slate-800 focus:outline-none disabled:opacity-50 sm:w-72"
             />
             <button
               type="submit"
-              className="transform rounded-full bg-white px-6 py-3 font-semibold text-emerald-700 shadow transition hover:scale-105"
+              disabled={isLoading}
+              className="transform rounded-full bg-white px-6 py-3 font-semibold text-emerald-700 shadow transition hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
             >
-              Generate Referral Link
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <div className="size-4 animate-spin rounded-full border-2 border-emerald-700 border-t-transparent"></div>
+                  Creating...
+                </span>
+              ) : (
+                "Generate Referral Link"
+              )}
             </button>
           </form>
 
           {showLinkPreview && (
-            <p className="mt-3 text-sm opacity-90">
-              Your link:
-              <span className="break-all font-mono text-sm ml-2">{referralLink}</span>
-              <button
-                onClick={handleCopyLink}
-                className="ml-2 rounded bg-white/80 px-2 py-1 text-xs"
-              >
-                {copyButtonText}
-              </button>
-            </p>
+            <div className="mt-4 rounded-lg bg-white/10 backdrop-blur-sm p-4">
+              <p className="text-sm opacity-90">
+                Your referral link:
+              </p>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <span className="break-all font-mono text-sm font-semibold">
+                  {referralLink}
+                </span>
+                <button
+                  onClick={handleCopyLink}
+                  className="rounded bg-white/20 px-3 py-1 text-xs font-semibold hover:bg-white/30 transition"
+                >
+                  {copyButtonText}
+                </button>
+              </div>
+            </div>
           )}
 
           <div className="mt-6 flex items-center justify-center gap-3 md:justify-start">

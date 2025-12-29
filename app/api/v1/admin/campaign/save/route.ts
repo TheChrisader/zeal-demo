@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import { createCampaign } from "@/database/campaign/campaign.repository";
-import { connectToDatabase, newId } from "@/lib/database";
+import { connectToDatabase, Id, newId } from "@/lib/database";
 import { CampaignSegments, CampaignTemplates } from "@/types/campaign.type";
 
 const CampaignSaveRequestSchema = z
@@ -19,14 +19,16 @@ const CampaignSaveRequestSchema = z
     preheader: z.string().max(500, "Preheader too long").optional(),
     template_id: z.enum(CampaignTemplates).default("standard"),
     segment: z.enum(CampaignSegments).default("ALL_SUBSCRIBERS"),
-    article_ids: z.array(z.string()).optional(),
+    article_ids: z.record(z.string(), z.array(z.string())).optional(),
     body_content: z.string().max(50000, "Body content too long").optional(),
   })
   .refine(
     (data) => {
+      const totalObjectSize = Object.values(data?.article_ids || {}).flat()
+        .length;
       if (
         data.template_id === "standard" &&
-        (!data.article_ids || data.article_ids.length === 0) &&
+        // totalObjectSize <= 0 &&
         data.body_content
       ) {
         return false;
@@ -62,6 +64,16 @@ export const POST = async (req: NextRequest) => {
 
     await connectToDatabase();
 
+    const transformedMap = Object.keys(validatedData.article_ids || {}).reduce(
+      (acc: Record<string, Id[]>, key: string) => {
+        if (!validatedData.article_ids || !validatedData.article_ids[key])
+          return acc;
+        acc[key] = validatedData.article_ids[key].map((id) => newId(id));
+        return acc;
+      },
+      {},
+    );
+
     // Prepare campaign data
     const campaignData = {
       internal_name: validatedData.internal_name,
@@ -69,10 +81,8 @@ export const POST = async (req: NextRequest) => {
       preheader: validatedData.preheader,
       template_id: validatedData.template_id,
       segment: validatedData.segment,
-      articleIds:
-        validatedData.template_id === "standard"
-          ? validatedData.article_ids?.map((id) => newId(id))
-          : undefined,
+      article_ids:
+        validatedData.template_id === "standard" ? transformedMap : undefined,
       body_content:
         validatedData.template_id === "custom"
           ? validatedData.body_content

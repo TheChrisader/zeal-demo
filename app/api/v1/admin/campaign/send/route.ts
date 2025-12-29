@@ -2,8 +2,9 @@ import { render } from "@react-email/render";
 import { NextRequest, NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import CampaignModel from "@/database/campaign/campaign.model";
-import { connectToDatabase, newId } from "@/lib/database";
+import { connectToDatabase, Id, newId } from "@/lib/database";
 import {
+  CampaignSegments,
   CampaignTemplates,
   ICampaign,
   ICampaignDataSnapshot,
@@ -25,8 +26,8 @@ const CampaignSendRequestSchema = z
       .min(1, "Internal name is required")
       .max(200, "Internal name too long"),
     template_id: z.enum(CampaignTemplates).default("standard"),
-    segment: z.string().default("ALL_SUBSCRIBERS"),
-    article_ids: z.array(z.string()).optional(),
+    segment: z.enum(CampaignSegments).default("ALL_SUBSCRIBERS"),
+    article_ids: z.record(z.string(), z.array(z.string())).optional(),
     subject: z
       .string()
       .min(1, "Subject is required")
@@ -36,10 +37,9 @@ const CampaignSendRequestSchema = z
   })
   .refine(
     (data) => {
-      if (
-        data.template_id === "standard" &&
-        (!data.article_ids || data.article_ids.length === 0)
-      ) {
+      const totalObjectSize = Object.values(data?.article_ids || {}).flat()
+        .length;
+      if (data.template_id === "standard" && totalObjectSize <= 0) {
         return false;
       }
       if (data.template_id === "custom" && !data.body_content?.trim()) {
@@ -68,46 +68,18 @@ export const POST = async (req: NextRequest) => {
     } = CampaignSendRequestSchema.parse(body);
     await connectToDatabase();
 
-    let htmlSnapshot: string;
-    let snapshotPlaintext: string;
-    let dataSnapshot: IDataSnapshot;
+    let htmlSnapshot: string | undefined;
+    let snapshotPlaintext: string | undefined;
+    const dataSnapshot: IDataSnapshot = {
+      meta: {
+        subject,
+        preheader: preheader || "",
+        unsubscribeUrl: "{{UNSUBSCRIBE_URL}}",
+      },
+    };
 
     if (template_id === "standard") {
-      // Standard template with articles
-      const { articles } = await prepareCampaignView(
-        article_ids || [],
-        true,
-        campaign_id,
-      );
-
-      dataSnapshot = {
-        articles: articles,
-        meta: {
-          subject,
-          preheader: preheader || "",
-          unsubscribeUrl: "{{UNSUBSCRIBE_URL}}",
-        },
-      };
-
-      htmlSnapshot = await render(
-        ZealNewsletterCampaign(dataSnapshot as StandardDataSnapshot),
-      );
-
-      snapshotPlaintext = await render(
-        ZealNewsletterCampaign(dataSnapshot as StandardDataSnapshot),
-        { plainText: true },
-      );
     } else {
-      // Custom template with body content
-      dataSnapshot = {
-        bodyContent: body_content || "",
-        meta: {
-          subject,
-          preheader: preheader || "",
-          unsubscribeUrl: "{{UNSUBSCRIBE_URL}}",
-        },
-      };
-
       htmlSnapshot = await render(
         ZealCustomBroadcast(dataSnapshot as CustomDataSnapshot),
       );
@@ -118,27 +90,25 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    let campaignDataSnapshot = undefined;
+    // let campaignDataSnapshot = undefined;
 
-    if (dataSnapshot.articles?.length === 0) {
-      campaignDataSnapshot = {
-        articles: article_ids?.map((id) => newId(id)),
-        meta: {
-          subject,
-          preheader,
-          unsubscribeUrl: "{{UNSUBSCRIBE_URL}}",
-        },
-      } as ICampaignDataSnapshot;
-    } else {
-      campaignDataSnapshot = {
-        bodyContent: body_content || "",
-        meta: {
-          subject,
-          preheader,
-          unsubscribeUrl: "{{UNSUBSCRIBE_URL}}",
-        },
-      } as ICampaignDataSnapshot;
-    }
+    // if (Object.keys(dataSnapshot.articles || {}).length === 0) {
+    //   campaignDataSnapshot = {
+    //     meta: {
+    //       subject,
+    //       preheader,
+    //       unsubscribeUrl: "{{UNSUBSCRIBE_URL}}",
+    //     },
+    //   } as ICampaignDataSnapshot;
+    // } else {
+    //   campaignDataSnapshot = {
+    //     meta: {
+    //       subject,
+    //       preheader,
+    //       unsubscribeUrl: "{{UNSUBSCRIBE_URL}}",
+    //     },
+    //   } as ICampaignDataSnapshot;
+    // }
 
     // Save campaign with upsert logic
     const campaignData: Partial<ICampaign> = {
@@ -147,11 +117,18 @@ export const POST = async (req: NextRequest) => {
       preheader,
       template_id,
       segment,
-      articleIds: article_ids?.map((id) => newId(id)),
+      article_ids: Object.keys(article_ids || {}).reduce(
+        (acc: Record<string, Id[]>, key: string) => {
+          if (!article_ids || !article_ids[key]) return acc;
+          acc[key] = article_ids[key].map((id) => newId(id));
+          return acc;
+        },
+        {},
+      ),
       body_content,
       htmlSnapshot,
       snapshotPlaintext,
-      dataSnapshot: campaignDataSnapshot,
+      dataSnapshot,
       status: "sending", // Set initial status
       started_at: new Date(), // Set started timestamp
     };
@@ -167,7 +144,6 @@ export const POST = async (req: NextRequest) => {
     );
 
     return NextResponse.json({
-      htmlSnapshot,
       template_id,
     });
   } catch (error: unknown) {

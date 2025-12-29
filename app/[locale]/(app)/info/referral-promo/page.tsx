@@ -1,6 +1,9 @@
 "use client";
 import { Menu } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { useAuthStore } from "@/stores/authStore";
+import { copyReferralLink } from "@/services/referral.services";
+import { toast } from "sonner";
 
 import AnimatedHero from "./_components/AnimatedHero";
 import ExplainerVideo from "./_components/ExplainerVideo";
@@ -19,6 +22,35 @@ import ReferralPromo2 from "./_components/ReferralPromo2";
 
 const ReferralPromo1 = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { user, initialized } = useAuthStore();
+
+  const handleGetLink = async () => {
+    // If authenticated with referral code, copy referral link
+    if (user?.referral_code) {
+      const referralLink = `${typeof window !== 'undefined' ? window.location.origin : ''}?ref=${user.referral_code}`;
+      const success = await copyReferralLink(referralLink);
+      if (success) {
+        toast.success("Referral link copied to clipboard!");
+      } else {
+        toast.error("Failed to copy link");
+      }
+      return;
+    }
+
+    // If authenticated without referral code, scroll to signup
+    if (user && !user.referral_code) {
+      toast.info("Please generate your referral code first");
+      return;
+    }
+
+    // If not authenticated, scroll to signup form
+    document.querySelector("input[type='email']")?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+    (document.querySelector("input[type='email']") as HTMLInputElement)?.focus();
+    toast.info("Please enter your email to get started");
+  };
 
   return (
     <>
@@ -58,10 +90,10 @@ const ReferralPromo1 = () => {
 
             {/* CTA Buttons */}
             <div className="flex items-center gap-3">
-              <button className="rounded border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50">
-                Rules
-              </button>
-              <button className="rounded bg-red-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800">
+              <button
+                onClick={handleGetLink}
+                className="rounded bg-red-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800"
+              >
                 GetLink
               </button>
             </div>
@@ -99,6 +131,35 @@ const ReferralPromo1 = () => {
 
 const ReferralPromo21 = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { user } = useAuthStore();
+
+  const handleGetLink = async () => {
+    // If authenticated with referral code, copy referral link
+    if (user?.referral_code) {
+      const referralLink = `${typeof window !== 'undefined' ? window.location.origin : ''}?ref=${user.referral_code}`;
+      const success = await copyReferralLink(referralLink);
+      if (success) {
+        toast.success("Referral link copied to clipboard!");
+      } else {
+        toast.error("Failed to copy link");
+      }
+      return;
+    }
+
+    // If authenticated without referral code, scroll to signup
+    if (user && !user.referral_code) {
+      toast.info("Please generate your referral code first");
+      return;
+    }
+
+    // If not authenticated, scroll to signup form (in AnimatedHero)
+    const emailInput = document.querySelector("#email") as HTMLInputElement;
+    if (emailInput) {
+      emailInput.scrollIntoView({ behavior: "smooth", block: "center" });
+      emailInput.focus();
+    }
+    toast.info("Please enter your email to get started");
+  };
 
   useEffect(() => {
     // Reveal elements on scroll
@@ -161,7 +222,10 @@ const ReferralPromo21 = () => {
               <button className="rounded border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50">
                 Rules
               </button>
-              <button className="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800">
+              <button
+                onClick={handleGetLink}
+                className="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800"
+              >
                 Get Link
               </button>
             </div>

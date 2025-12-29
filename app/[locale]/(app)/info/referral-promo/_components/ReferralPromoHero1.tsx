@@ -1,23 +1,89 @@
 "use client";
 import React, { useState } from "react";
-import { Menu, Copy } from "lucide-react";
+import { Menu, Copy, Check, AlertCircle } from "lucide-react";
+import { useReferral } from "@/hooks/useReferral";
+import { toast } from "sonner";
 
 const ReferralPromoHero1: React.FC = () => {
   const [email, setEmail] = useState("");
   const [handle, setHandle] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [referralLink, setReferralLink] = useState("");
+  const [copyButtonText, setCopyButtonText] = useState("Copy");
+  const { referralCode: urlReferralCode } = useReferral();
 
-  const generateLink = () => {
-    if (email) {
-      return `https://zealnews.africa/r/${handle || "your-handle"}`;
+  const handleGetLink = async () => {
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
     }
-    return "";
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/v1/referral/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          handle: handle || undefined,
+          referral_code: urlReferralCode || undefined,
+          newsletter_opt_in: true,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to generate referral link");
+      }
+
+      setReferralLink(data.referral_link);
+
+      if (data.already_exists) {
+        toast.success(data.message);
+      } else {
+        toast.success(
+          "Account created! Check your email to verify and set your password."
+        );
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const copyLink = () => {
-    const link = generateLink();
-    if (link) {
-      navigator.clipboard.writeText(link);
+  const copyLink = async () => {
+    const linkToCopy = referralLink || generateLink();
+
+    if (!linkToCopy || linkToCopy.includes("your-handle")) {
+      toast.error("Please generate your link first");
+      return;
     }
+
+    try {
+      await navigator.clipboard.writeText(linkToCopy);
+      setCopyButtonText("Copied!");
+      setTimeout(() => setCopyButtonText("Copy"), 2000);
+      toast.success("Link copied to clipboard!");
+    } catch (error) {
+      toast.error("Failed to copy link");
+    }
+  };
+
+  const generateLink = () => {
+    if (handle) {
+      return `https://zealnews.africa/r/${handle}`;
+    }
+    return "https://zealnews.africa/r/your-handle";
   };
 
   return (
@@ -103,7 +169,8 @@ const ReferralPromoHero1: React.FC = () => {
                 placeholder="Your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded border border-gray-300 px-4 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                disabled={isLoading}
+                className="w-full rounded border border-gray-300 px-4 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-600 disabled:opacity-50"
               />
 
               <input
@@ -111,36 +178,46 @@ const ReferralPromoHero1: React.FC = () => {
                 placeholder="Preferred handle (optional)"
                 value={handle}
                 onChange={(e) => setHandle(e.target.value)}
-                className="w-full rounded border border-gray-300 px-4 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                disabled={isLoading}
+                className="w-full rounded border border-gray-300 px-4 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-600 disabled:opacity-50"
               />
 
               <button
-                className="grow-shrink mx-auto flex w-fit rounded bg-red-600 px-6 py-1 font-bold uppercase tracking-wider text-white hover:bg-emerald-800"
-                onClick={() => email && alert("Link generated!")}
+                className="grow-shrink mx-auto flex w-fit items-center gap-2 rounded bg-red-600 px-6 py-1 font-bold uppercase tracking-wider text-white hover:bg-emerald-800 disabled:opacity-50"
+                onClick={handleGetLink}
+                disabled={isLoading}
               >
-                Get Link
+                {isLoading ? (
+                  <>
+                    <div className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                    Creating...
+                  </>
+                ) : (
+                  "Get Link"
+                )}
               </button>
 
               {/* Link Preview */}
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600">
-                    Your link preview:
-                  </span>
-                  <span className="text-sm font-medium text-emerald-700">
-                    {generateLink() || "https://zealnews.africa/r/your-handle"}
-                  </span>
-                </div>
-                <div className="flex w-full items-center justify-center sm:w-fit">
+              {referralLink && (
+                <div className="flex flex-wrap items-center gap-2 rounded bg-green-50 p-3">
+                  <Check className="size-5 text-green-600" />
+                  <div className="flex flex-1 flex-col sm:flex-row sm:items-center gap-2">
+                    <span className="text-sm font-medium text-green-800">
+                      Your referral link:
+                    </span>
+                    <span className="text-sm font-medium text-emerald-700 break-all">
+                      {referralLink}
+                    </span>
+                  </div>
                   <button
                     onClick={copyLink}
-                    className="grow-shrink flex items-center gap-2 rounded bg-red-600 px-4 py-1 text-xs font-bold uppercase tracking-wider text-white hover:bg-emerald-800"
+                    className="grow-shrink flex items-center gap-2 rounded bg-green-600 px-4 py-1 text-xs font-bold uppercase tracking-wider text-white hover:bg-emerald-700"
                   >
-                    <Copy className="size-2" />
-                    Copy
+                    <Copy className="size-3" />
+                    {copyButtonText}
                   </button>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 

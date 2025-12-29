@@ -1,8 +1,6 @@
 "use client";
-import React, { useState } from "react";
-
-// SECTION: Data for the component
-// This can be fetched from an API in a real-world scenario
+import React, { useMemo, useState } from "react";
+import { useReferralData } from "@/hooks/useReferralData";
 
 // --- Timeline Data ---
 interface TimelineItem {
@@ -37,80 +35,81 @@ const timelineItems: TimelineItem[] = [
 interface ShareOption {
   platform: string;
   id: "whatsapp" | "twitter" | "linkedin" | "facebook";
-  content: React.ReactNode;
-  textToCopy: string;
+  content: (referralLink: string) => React.ReactNode;
+  getTextToCopy: (referralLink: string) => string;
 }
 
 const shareOptions: ShareOption[] = [
   {
     platform: "WhatsApp",
     id: "whatsapp",
-    content: (
+    content: (referralLink) => (
       <p className="leading-relaxed text-gray-700">
         I'm loving ZealNews — concise, credible Africa-first news. Join via my
         link and you could win this week!
         <br />
-        <span className="text-[#1E824C]">
-          https://zealnews.africa/r/your-handle
-        </span>
+        <span className="text-[#1E824C]">{referralLink}</span>
       </p>
     ),
-    textToCopy:
-      "I'm loving ZealNews — concise, credible Africa-first news. Join via my link and you could win this week! https://zealnews.africa/r/your-handle",
+    getTextToCopy: (referralLink) =>
+      `I'm loving ZealNews — concise, credible Africa-first news. Join via my link and you could win this week! ${referralLink}`,
   },
   {
     platform: "X / Twitter",
     id: "twitter",
-    content: (
+    content: (referralLink) => (
       <p className="leading-relaxed text-gray-700">
         Credible, concise Africa-first news via @ZealNews. Join through my link
         →
         <br />
         <span className="text-[#1E824C]">
-          https://zealnews.africa/r/your-handle #ZealNews #ShareAndWin
+          {referralLink} #ZealNews #ShareAndWin
         </span>
       </p>
     ),
-    textToCopy:
-      "Credible, concise Africa-first news via @ZealNews. Join through my link → https://zealnews.africa/r/your-handle #ZealNews #ShareAndWin",
+    getTextToCopy: (referralLink) =>
+      `Credible, concise Africa-first news via @ZealNews. Join through my link → ${referralLink} #ZealNews #ShareAndWin`,
   },
   {
     platform: "LinkedIn",
     id: "linkedin",
-    content: (
+    content: (referralLink) => (
       <p className="leading-relaxed text-gray-700">
         If you value credible, Africa-first reporting, try ZealNews. My link:
         <br />
         <span className="text-[#1E824C]">
-          https://zealnews.africa/r/your-handle. Weekly rewards for verified
-          signups.
+          {referralLink}. Weekly rewards for verified signups.
         </span>
       </p>
     ),
-    textToCopy:
-      "If you value credible, Africa-first reporting, try ZealNews. My link: https://zealnews.africa/r/your-handle. Weekly rewards for verified signups.",
+    getTextToCopy: (referralLink) =>
+      `If you value credible, Africa-first reporting, try ZealNews. My link: ${referralLink}. Weekly rewards for verified signups.`,
   },
   {
     platform: "Facebook",
     id: "facebook",
-    content: (
+    content: (referralLink) => (
       <p className="leading-relaxed text-gray-700">
         Credible, concise Africa-first news via @ZealNews. Join through my link
         →
         <br />
         <span className="text-[#1E824C]">
-          https://zealnews.africa/r/your-handle #ZealNews #ShareAndWin
+          {referralLink} #ZealNews #ShareAndWin
         </span>
       </p>
     ),
-    textToCopy:
-      "Credible, concise Africa-first news via @ZealNews. Join through my link → https://zealnews.africa/r/your-handle #ZealNews #ShareAndWin",
+    getTextToCopy: (referralLink) =>
+      `Credible, concise Africa-first news via @ZealNews. Join through my link → ${referralLink} #ZealNews #ShareAndWin`,
   },
 ];
 
 // SECTION: Main Component
 const WeeklyTimelineShare: React.FC = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const { referralLink, isAuthenticated } = useReferralData();
+
+  // Use real referral link if authenticated, otherwise use placeholder
+  const displayReferralLink = referralLink || "https://zealnews.africa/r/your-handle";
 
   const handleCopy = (text: string, id: string) => {
     navigator.clipboard
@@ -123,7 +122,6 @@ const WeeklyTimelineShare: React.FC = () => {
       })
       .catch((err) => {
         console.error("Could not copy text: ", err);
-        // You could add a user-facing error message here
       });
   };
 
@@ -161,29 +159,39 @@ const WeeklyTimelineShare: React.FC = () => {
         {/* --- Share Kit Section --- */}
         <section>
           <div className="h-full rounded-lg bg-white p-6">
-            <h2 className="mb-6 text-2xl font-bold text-gray-900">
-              Share kit (one-click copy)
-            </h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Share kit (one-click copy)
+              </h2>
+              {!isAuthenticated && (
+                <span className="text-xs text-gray-500">
+                  Sign in to use your referral link
+                </span>
+              )}
+            </div>
             <div className="space-y-6">
-              {shareOptions.map((option) => (
-                <div
-                  key={option.id}
-                  className="space-y-2 rounded-lg border border-dashed border-green-800 p-4"
-                >
-                  <h3 className="font-bold text-gray-900">{option.platform}</h3>
-                  {option.content}
-                  <button
-                    onClick={() => handleCopy(option.textToCopy, option.id)}
-                    className={`rounded-md px-5 py-1.5 text-sm font-medium transition-all duration-200 ease-in-out ${
-                      copiedId === option.id
-                        ? "bg-green-600 text-white"
-                        : "bg-[#FEECE9] text-[#A94442] hover:bg-[#FCDAD6]"
-                    }`}
+              {shareOptions.map((option) => {
+                const textToCopy = option.getTextToCopy(displayReferralLink);
+                return (
+                  <div
+                    key={option.id}
+                    className="space-y-2 rounded-lg border border-dashed border-green-800 p-4"
                   >
-                    {copiedId === option.id ? "Copied!" : "Copy Link"}
-                  </button>
-                </div>
-              ))}
+                    <h3 className="font-bold text-gray-900">{option.platform}</h3>
+                    {option.content(displayReferralLink)}
+                    <button
+                      onClick={() => handleCopy(textToCopy, option.id)}
+                      className={`rounded-md px-5 py-1.5 text-sm font-medium transition-all duration-200 ease-in-out ${
+                        copiedId === option.id
+                          ? "bg-green-600 text-white"
+                          : "bg-[#FEECE9] text-[#A94442] hover:bg-[#FCDAD6]"
+                      }`}
+                    >
+                      {copiedId === option.id ? "Copied!" : "Copy Link"}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>

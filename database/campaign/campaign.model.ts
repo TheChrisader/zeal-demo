@@ -66,15 +66,6 @@ const CampaignDataSnapshotMetaSchema = new Schema<ICampaignDataSnapshotMeta>(
 
 const CampaignDataSnapshotSchema = new Schema<ICampaignDataSnapshot>(
   {
-    articles: {
-      type: [Schema.Types.ObjectId],
-      ref: "Post",
-      default: undefined,
-    },
-    bodyContent: {
-      type: String,
-      default: undefined,
-    },
     meta: {
       type: CampaignDataSnapshotMetaSchema,
       required: true,
@@ -115,11 +106,10 @@ const CampaignSchema = new Schema<ICampaign>(
       index: true,
     },
 
-    // We only store IDs here. The Admin UI populates the view using these.
+    // Map of category names to article IDs. The Admin UI populates the view using these.
     // Optional for custom templates.
-    articleIds: {
-      type: [Schema.Types.ObjectId],
-      ref: "Post",
+    article_ids: {
+      type: Object,
       default: undefined,
       index: true,
     },
@@ -203,7 +193,7 @@ CampaignSchema.index({ template_id: 1 });
 CampaignSchema.index({ segment: 1 });
 
 // Compound indexes
-CampaignSchema.index({ status: 1, articleIds: 1 });
+CampaignSchema.index({ status: 1, article_ids: 1 });
 CampaignSchema.index({ status: 1, started_at: -1, completed_at: -1 });
 CampaignSchema.index({ status: 1, template_id: 1, segment: 1 });
 CampaignSchema.index({ template_id: 1, segment: 1, created_at: -1 });

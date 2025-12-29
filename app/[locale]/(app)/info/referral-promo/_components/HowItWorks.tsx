@@ -323,20 +323,16 @@ const HowItWorks: FC = () => {
           {/* Right Column: Video Preview */}
           <div className="flex w-full flex-col items-center">
             <div className="w-full rounded-3xl border border-green-200/50 bg-white p-3 sm:p-4">
-              <div className="group relative aspect-video w-full overflow-hidden rounded-2xl bg-gray-100">
-                <img
-                  src="https://images.pexels.com/photos/404280/pexels-photo-404280.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-                  alt="Hand holding a smartphone"
+              <div className="aspect-video w-full overflow-hidden rounded-2xl bg-gray-100">
+                <video
+                  src="https://d3hovs1ug0rvor.cloudfront.net/videos/referral_promo.mp4"
+                  poster="/referral/referral-promo-video.png"
+                  title="Share & Win ₦50,000 – ZealNews Africa Contest"
+                  controls
+                  preload="metadata"
+                  playsInline
                   className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-10">
-                  <button
-                    className="flex h-16 w-16 transform cursor-pointer items-center justify-center rounded-full bg-gray-900 bg-opacity-60 transition-transform duration-300 group-hover:scale-110 group-hover:bg-opacity-75 sm:h-20 sm:w-20"
-                    aria-label="Play video"
-                  >
-                    <PlayIcon />
-                  </button>
-                </div>
               </div>
             </div>
 

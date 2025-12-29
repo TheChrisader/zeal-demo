@@ -1,40 +1,7 @@
 "use client";
-import React, { useState } from "react";
-
-interface LeaderboardEntry {
-  rank: number;
-  handle: string;
-  signups: number;
-  status: string;
-}
+import React from "react";
 
 const LeaderboardTable: React.FC = () => {
-  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([
-    { rank: 1, handle: "@amina", signups: 42, status: "Hot Streak" },
-    { rank: 2, handle: "@tobi", signups: 39, status: "Consistent" },
-    { rank: 3, handle: "@kwame", signups: 36, status: "Rising" },
-    { rank: 4, handle: "@zara", signups: 30, status: "Rising" },
-    { rank: 5, handle: "@obi", signups: 27, status: "Rising" },
-  ]);
-
-  const refreshLeaderboard = () => {
-    // Simulate refreshing with random variations
-    const refreshedData = leaderboardData.map((entry) => ({
-      ...entry,
-      signups: entry.signups + Math.floor(Math.random() * 3) - 1, // Random +/- 1 or 0
-    }));
-
-    // Sort by signups again
-    refreshedData.sort((a, b) => b.signups - a.signups);
-
-    // Update ranks
-    refreshedData.forEach((entry, index) => {
-      entry.rank = index + 1;
-    });
-
-    setLeaderboardData(refreshedData);
-  };
-
   return (
     <section id="leaderboard" className="reveal mt-12">
       <style jsx>{`
@@ -51,38 +18,62 @@ const LeaderboardTable: React.FC = () => {
       `}</style>
 
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Leaderboard (preview)</h2>
+        <h2 className="text-2xl font-bold">Leaderboard</h2>
 
         <button
-          onClick={refreshLeaderboard}
-          className="rounded bg-white/90 px-3 py-2 text-sm hover:bg-white"
+          disabled
+          className="rounded bg-gray-200 px-3 py-2 text-sm text-gray-400 cursor-not-allowed"
+          title="Coming soon"
         >
           Refresh
         </button>
       </div>
 
-      <div className="mt-4 overflow-x-auto">
-        <table className="min-w-full rounded-lg bg-white shadow-sm">
-          <thead>
-            <tr className="text-left text-xs uppercase">
-              <th className="p-3">Rank</th>
-              <th className="p-3">Handle</th>
-              <th className="p-3">Verified Signups</th>
-              <th className="p-3">Status</th>
-            </tr>
-          </thead>
+      <div className="mt-4 rounded-lg border-2 border-dashed border-emerald-300 bg-emerald-50 p-8 text-center">
+        <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-emerald-100">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="size-8 text-emerald-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+            />
+          </svg>
+        </div>
+        <h3 className="text-xl font-bold text-emerald-800">
+          Leaderboard coming soon!
+        </h3>
+        <p className="mt-2 text-sm text-emerald-700">
+          Start referring friends to see your name on the leaderboard.
+          <br />
+          Top referrers win prizes every Friday!
+        </p>
+      </div>
 
-          <tbody>
-            {leaderboardData.map((entry) => (
-              <tr key={entry.rank} className="border-t">
-                <td className="p-3 font-semibold">{entry.rank}</td>
-                <td className="p-3">{entry.handle}</td>
-                <td className="p-3">{entry.signups}</td>
-                <td className="p-3 text-emerald-600">{entry.status}</td>
+      {/* Keep table structure for future implementation */}
+      {/* Hidden until backend is ready */}
+      <div className="mt-4 hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full rounded-lg bg-white shadow-sm">
+            <thead>
+              <tr className="text-left text-xs uppercase text-gray-500">
+                <th className="p-3">Rank</th>
+                <th className="p-3">Handle</th>
+                <th className="p-3">Verified Signups</th>
+                <th className="p-3">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {/* Data will be populated when backend is ready */}
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   );

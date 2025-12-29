@@ -1,72 +1,6 @@
 "use client";
 import React from "react";
 
-// SECTION: Type Definitions
-// Defines the structure for a single referrer's data.
-type ReferrerStatus = "Hot streak" | "Consistent" | "Rising";
-
-interface Referrer {
-  rank: number;
-  handle: string;
-  verifiedSignups: number;
-  status: ReferrerStatus;
-}
-
-// SECTION: Data
-// Mock data for the leaderboard, matching the provided image.
-const leaderboardData: Referrer[] = [
-  { rank: 1, handle: "@amina", verifiedSignups: 42, status: "Hot streak" },
-  { rank: 2, handle: "@tobi", verifiedSignups: 39, status: "Consistent" },
-  { rank: 3, handle: "@kwame", verifiedSignups: 36, status: "Consistent" },
-  { rank: 4, handle: "@zara", verifiedSignups: 30, status: "Rising" },
-  { rank: 5, handle: "@obi", verifiedSignups: 27, status: "Rising" },
-];
-
-// SECTION: Helper Components
-// A reusable icon component for the dropdown arrow.
-const ChevronDownIcon: React.FC<{ className?: string }> = ({
-  className = "",
-}) => (
-  <svg
-    className={`h-5 w-5 ${className}`}
-    fill="currentColor"
-    viewBox="0 0 20 20"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      fillRule="evenodd"
-      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-      clipRule="evenodd"
-    />
-  </svg>
-);
-
-// A component to render the status badge with styles based on the status type.
-// This is designed to look like an interactive dropdown/button as in the image.
-const StatusBadge: React.FC<{ status: ReferrerStatus }> = ({ status }) => {
-  const commonClasses =
-    "flex items-center justify-between w-[130px] text-sm font-medium py-1.5 px-3 rounded-lg cursor-pointer";
-
-  if (status === "Hot streak") {
-    return (
-      <div className={`${commonClasses} bg-green-100 text-green-800`}>
-        <span>{status}</span>
-        <ChevronDownIcon className="text-green-700" />
-      </div>
-    );
-  }
-
-  // Consistent & Rising statuses share the same style
-  return (
-    <div
-      className={`${commonClasses} border border-gray-300 bg-white text-gray-700`}
-    >
-      <span>{status}</span>
-      <ChevronDownIcon className="text-gray-500" />
-    </div>
-  );
-};
-
 // SECTION: Main Leaderboard Component
 const LeaderboardPreview: React.FC = () => {
   return (
@@ -77,69 +11,88 @@ const LeaderboardPreview: React.FC = () => {
         <div className="mx-auto">
           {/* Header Section */}
           <header>
-            <h1 className="text-3xl font-bold text-green-800">
-              Leaderboard (preview)
-            </h1>
+            <h1 className="text-3xl font-bold text-green-800">Leaderboard</h1>
             <p className="mt-2 max-w-[500px] text-sm text-green-900 opacity-90">
-              Top referrers update hourly. Verified signups only. Ties resolved
-              by earliest timestamp.
+              Top referrers win prizes every Friday. Verified signups only.
             </p>
           </header>
 
-          {/* Leaderboard Table Section */}
-          <div className="mt-8 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-max">
-                {/* Table Header */}
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="px-6 py-4 text-left text-sm font-semibold text-gray-600"
-                    >
-                      Rank
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-4 text-left text-sm font-semibold text-gray-600"
-                    >
-                      Handle
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-4 text-left text-sm font-semibold text-gray-600"
-                    >
-                      Verified signups
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-4 text-left text-sm font-semibold text-gray-600"
-                    >
-                      Status
-                    </th>
-                  </tr>
-                </thead>
+          {/* Empty State */}
+          <div className="mt-8 rounded-lg border-2 border-dashed border-green-300 bg-green-50 p-12 text-center">
+            <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-full bg-green-100">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="size-10 text-green-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
+                />
+              </svg>
+            </div>
+            <h2 className="mb-3 text-2xl font-bold text-green-800">
+              Be the first to refer!
+            </h2>
+            <p className="mx-auto max-w-md text-green-700">
+              Top referrers win prizes every Friday. Sign up and start sharing
+              your link to climb the leaderboard.
+            </p>
+            <div className="mt-6 flex justify-center">
+              <a
+                href="#signup"
+                className="rounded-lg bg-green-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-green-700"
+              >
+                Get Your Referral Link
+              </a>
+            </div>
+          </div>
 
-                {/* Table Body */}
-                <tbody className="divide-y divide-gray-200">
-                  {leaderboardData.map((user) => (
-                    <tr key={user.rank}>
-                      <td className="whitespace-nowrap px-6 py-4 text-gray-800">
-                        {user.rank}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 font-medium text-gray-900">
-                        {user.handle}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-gray-800">
-                        {user.verifiedSignups}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <StatusBadge status={user.status} />
-                      </td>
+          {/* Keep table structure hidden for future implementation */}
+          <div className="mt-8 hidden">
+            <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-max">
+                  {/* Table Header */}
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th
+                        scope="col"
+                        className="px-6 py-4 text-left text-sm font-semibold text-gray-600"
+                      >
+                        Rank
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-4 text-left text-sm font-semibold text-gray-600"
+                      >
+                        Handle
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-4 text-left text-sm font-semibold text-gray-600"
+                      >
+                        Verified signups
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-4 text-left text-sm font-semibold text-gray-600"
+                      >
+                        Status
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+
+                  {/* Table Body */}
+                  <tbody className="divide-y divide-gray-200">
+                    {/* Data will be populated when backend is ready */}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

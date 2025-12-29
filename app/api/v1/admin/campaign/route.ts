@@ -113,12 +113,14 @@ const CreateCampaignSchema = z
     preheader: z.string().max(500, "Preheader too long").optional(),
     template_id: z.enum(CampaignTemplates).default("standard"),
     segment: z.enum([...CampaignSegments]).default("ALL_SUBSCRIBERS"),
-    article_ids: z.array(z.string()).optional(),
+    article_ids: z.record(z.string(), z.array(z.string())).optional(),
     body_content: z.string().max(50000, "Body content too long").optional(),
   })
   .refine(
     (data) => {
-      if (data.template_id === "standard" && !data.article_ids?.length) {
+      const totalObjectSize = Object.values(data?.article_ids || {}).flat()
+        .length;
+      if (data.template_id === "standard" && totalObjectSize <= 0) {
         return false;
       }
       if (data.template_id === "custom" && !data.body_content?.trim()) {
@@ -148,7 +150,7 @@ export async function POST(request: NextRequest) {
       preheader: validatedData.preheader,
       template_id: validatedData.template_id,
       segment: validatedData.segment,
-      articleIds: validatedData.article_ids,
+      article_ids: validatedData.article_ids,
       body_content: validatedData.body_content,
       status: "draft",
       stats: {
@@ -163,7 +165,7 @@ export async function POST(request: NextRequest) {
     // Populate article data if provided
     const populatedCampaign = await CampaignModel.findById(
       newCampaign._id,
-    ).populate("articleIds", "title slug description category image_url");
+    ).populate("article_ids", "title slug description category image_url");
 
     if (!populatedCampaign) {
       throw new Error("Failed to retrieve created campaign");
@@ -177,7 +179,7 @@ export async function POST(request: NextRequest) {
         preheader: populatedCampaign.preheader,
         template_id: populatedCampaign.template_id,
         segment: populatedCampaign.segment,
-        articleIds: populatedCampaign.articleIds,
+        article_ids: populatedCampaign.article_ids,
         body_content: populatedCampaign.body_content,
         status: populatedCampaign.status,
         stats: populatedCampaign.stats,

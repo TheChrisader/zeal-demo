@@ -1,3 +1,4 @@
+import { render } from "@react-email/render";
 import Bottleneck from "bottleneck";
 import { NextResponse } from "next/server";
 import { CATEGORIES } from "@/categories/flattened";
@@ -12,9 +13,15 @@ import UserModel from "@/database/user/user.model";
 import { connectToDatabase, Id, newId } from "@/lib/database";
 import { MailOptions } from "@/lib/mailer";
 import { IEmailSubscription } from "@/types/email-subscription.type";
+import { StandardDataSnapshot } from "@/types/newsletter.type";
 import { ISubscriber } from "@/types/subscriber.type";
 import { IUser } from "@/types/user.type";
 import { sendEmail } from "@/utils/email";
+import ZealNewsletterCampaign from "@/utils/email/templates/NewsletterCampaign";
+import {
+  prepareCampaignView,
+  selectPostIdsFromCategories,
+} from "@/utils/newsletter.utils";
 
 const generateUnsubscribeUrl = (
   id: string,
@@ -40,12 +47,7 @@ export async function POST() {
       });
     }
 
-    if (
-      !campaign.htmlSnapshot ||
-      !campaign.snapshotPlaintext ||
-      !campaign.dataSnapshot ||
-      !campaign.subject
-    ) {
+    if (!campaign.dataSnapshot || !campaign.subject) {
       return NextResponse.json({
         success: false,
         message: "Invalid campaign data",
@@ -60,44 +62,43 @@ export async function POST() {
     }[] = [];
 
     // Check if segment exists in categories and fetch from EmailSubscriptionModel
-    if (segment && CATEGORIES.includes(segment)) {
-      const query: {
-        list_id: string;
-        status: "subscribed";
-        subscriber_id?: { $gt: Id };
-      } = {
-        list_id: segment,
-        status: "subscribed",
-      };
+    // if (segment && CATEGORIES.includes(segment)) {
+    //   const query: {
+    //     list_id: string;
+    //     status: "subscribed";
+    //     subscriber_id?: { $gt: Id };
+    //   } = {
+    //     list_id: segment,
+    //     status: "subscribed",
+    //   };
 
-      // Add cursor filtering if lastProcessedId exists
-      if (campaign.lastProcessedId) {
-        query.subscriber_id = { $gt: campaign.lastProcessedId };
-      }
+    //   // Add cursor filtering if lastProcessedId exists
+    //   if (campaign.lastProcessedId) {
+    //     query.subscriber_id = { $gt: campaign.lastProcessedId };
+    //   }
 
-      const emailSubscriptions = await EmailSubscriptionModel.find(query)
-        .populate<{
-          subscriber_id: { _id: Id; email_address: string; name: string };
-        }>("subscriber_id", "_id email_address name")
-        .sort({ subscriber_id: 1 })
-        .limit(20)
-        .lean();
+    //   const emailSubscriptions = await EmailSubscriptionModel.find(query)
+    //     .populate<{
+    //       subscriber_id: { _id: Id; email_address: string; name: string };
+    //     }>("subscriber_id", "_id email_address name")
+    //     .sort({ subscriber_id: 1 })
+    //     .limit(20)
+    //     .lean();
 
-      // Transform the data to match expected structure
-      recipients = emailSubscriptions.map(
-        (
-          subscription: Omit<IEmailSubscription, "subscriber_id"> & {
-            subscriber_id: { _id: Id; email_address: string; name: string };
-          },
-        ) => ({
-          subscriber_id: subscription.subscriber_id._id.toHexString(),
-          email_address: subscription.subscriber_id.email_address,
-          name: subscription.subscriber_id.name,
-        }),
-      );
-    }
-    // Check if segment is ALL_SUBSCRIBERS
-    else if (segment === "ALL_SUBSCRIBERS") {
+    //   // Transform the data to match expected structure
+    //   recipients = emailSubscriptions.map(
+    //     (
+    //       subscription: Omit<IEmailSubscription, "subscriber_id"> & {
+    //         subscriber_id: { _id: Id; email_address: string; name: string };
+    //       },
+    //     ) => ({
+    //       subscriber_id: subscription.subscriber_id._id.toHexString(),
+    //       email_address: subscription.subscriber_id.email_address,
+    //       name: subscription.subscriber_id.name,
+    //     }),
+    //   );
+    // }
+    if (segment === "ALL_SUBSCRIBERS") {
       const query: {
         global_status: "active";
         _id?: {
@@ -172,22 +173,65 @@ export async function POST() {
       minTime: 100,
     });
 
-    const tasks = recipients.map((recipient) => {
+    const tasks = recipients.map(async (recipient) => {
+      let htmlSnapshot = campaign.htmlSnapshot;
+      let snapshotPlaintext = campaign.snapshotPlaintext;
+
+      if (campaign.article_ids) {
+        const fetchedSubscriptions = await EmailSubscriptionModel.find({
+          subscriber_id: newId(recipient.subscriber_id),
+        })
+          .populate<{
+            list_id: string;
+          }>("list_id")
+          .sort({ subscriber_id: 1 })
+          .lean();
+
+        const subscriptions = fetchedSubscriptions.map((sub) => sub.list_id);
+
+        const article_ids = selectPostIdsFromCategories(
+          subscriptions,
+          campaign.article_ids,
+        );
+
+        const { articles } = await prepareCampaignView(
+          article_ids || {},
+          true,
+          campaign.id.toString(),
+        );
+
+        const dataSnapshot = {
+          articles,
+          meta: {
+            subject: campaign.subject,
+            preheader: campaign.preheader || "",
+            unsubscribeUrl: "{{UNSUBSCRIBE_URL}}",
+          },
+        };
+
+        htmlSnapshot = await render(
+          ZealNewsletterCampaign(dataSnapshot as StandardDataSnapshot),
+        );
+
+        snapshotPlaintext = await render(
+          ZealNewsletterCampaign(dataSnapshot as StandardDataSnapshot),
+          { plainText: true },
+        );
+      }
+
       const unsubscribeUrl = generateUnsubscribeUrl(
         recipient.subscriber_id,
         IS_DIRECT_USER_EMAIL,
       );
 
-      const subscriberMail = (campaign.htmlSnapshot as string).replaceAll(
+      const subscriberMail = (htmlSnapshot as string).replaceAll(
         "{{UNSUBSCRIBE_URL}}",
         unsubscribeUrl,
       );
 
       const plaintext =
-        campaign.snapshotPlaintext?.replaceAll(
-          "{{UNSUBSCRIBE_URL}}",
-          unsubscribeUrl,
-        ) || "";
+        snapshotPlaintext?.replaceAll("{{UNSUBSCRIBE_URL}}", unsubscribeUrl) ||
+        "";
 
       const headers: MailOptions["headers"] = {
         "X-SES-MESSAGE-TAGS":

@@ -5,8 +5,8 @@ import {
   getCampaignById,
   updateCampaign,
 } from "@/database/campaign/campaign.repository";
-import { connectToDatabase, newId } from "@/lib/database";
-import { ICampaign } from "@/types/campaign.type";
+import { connectToDatabase, Id, newId } from "@/lib/database";
+import { CampaignSegments, ICampaign } from "@/types/campaign.type";
 
 // Schema for validating campaignId parameter
 const CampaignIdSchema = z.string().min(1, "Campaign ID is required");
@@ -41,7 +41,7 @@ export async function GET(
       preheader: campaign.preheader,
       template_id: campaign.template_id,
       segment: campaign.segment,
-      articleIds: campaign.articleIds,
+      article_ids: campaign.article_ids,
       body_content: campaign.body_content,
       htmlSnapshot: campaign.htmlSnapshot,
       snapshotPlaintext: campaign.snapshotPlaintext,
@@ -79,8 +79,8 @@ const UpdateCampaignSchema = z.object({
   subject: z.string().min(1, "Subject is required").optional(),
   preheader: z.string().optional(),
   template_id: z.enum(["custom", "standard"]).optional(),
-  segment: z.string().optional(),
-  article_ids: z.array(z.string()).optional(),
+  segment: z.enum(CampaignSegments),
+  article_ids: z.record(z.string(), z.array(z.string())).optional(),
   body_content: z.string().optional(),
 });
 
@@ -131,7 +131,14 @@ export async function PUT(
 
     // Convert string IDs to ObjectId for articleIds if present
     if (article_ids) {
-      updateData.articleIds = article_ids.map((id) => newId(id));
+      updateData.article_ids = Object.keys(article_ids).reduce(
+        (acc: Record<string, Id[]>, key: string) => {
+          if (!article_ids || !article_ids[key]) return acc;
+          acc[key] = article_ids[key].map((id) => newId(id));
+          return acc;
+        },
+        {},
+      );
     }
 
     // Update campaign using repository function
@@ -152,7 +159,7 @@ export async function PUT(
       preheader: updatedCampaign.preheader,
       template_id: updatedCampaign.template_id,
       segment: updatedCampaign.segment,
-      articleIds: updatedCampaign.articleIds,
+      articleIds: updatedCampaign.article_ids,
       body_content: updatedCampaign.body_content,
       htmlSnapshot: updatedCampaign.htmlSnapshot,
       snapshotPlaintext: updatedCampaign.snapshotPlaintext,

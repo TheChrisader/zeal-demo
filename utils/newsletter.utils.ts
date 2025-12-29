@@ -1,4 +1,5 @@
 import PostModel from "@/database/post/post.model";
+import { Id } from "@/lib/database";
 import { EmailArticle } from "@/types/newsletter.type";
 import { IPost } from "@/types/post.type";
 
@@ -129,4 +130,67 @@ export function validateCampaignContent(
   }
 
   return { isValid: false, error: "Invalid template type" };
+}
+
+/**
+ * Selects post IDs from categories, distributing evenly across passes.
+ *
+ * @param categories - Array of category names to pull from
+ * @param categoryPostMapping - Object mapping category names to arrays of post IDs
+ * @param targetCount - Target number of total post IDs to return (default: 15)
+ * @returns Array of randomly selected post IDs
+ */
+export function selectPostIdsFromCategories(
+  categories: readonly string[],
+  categoryPostMapping: Record<string, (string | Id)[]>,
+  targetCount: number = 15,
+): string[] {
+  const selectedIds: string[] = [];
+  const takenFromCategory: Record<string, number> = {};
+
+  // Shuffle each category's IDs upfront for randomness
+  const shuffledMapping: Record<string, string[]> = {};
+  for (const [cat, ids] of Object.entries(categoryPostMapping)) {
+    shuffledMapping[cat] = shuffleArray([...ids.map((id) => id.toString())]);
+  }
+
+  // Multiple passes: take 1 from each category per pass
+  while (selectedIds.length < targetCount) {
+    let addedAny = false;
+
+    for (const category of categories) {
+      if (selectedIds.length >= targetCount) break;
+
+      const shuffled = shuffledMapping[category];
+      if (!shuffled || shuffled.length === 0) continue;
+
+      const takenSoFar = takenFromCategory[category] ?? 0;
+      if (takenSoFar >= shuffled.length) continue;
+
+      const postId = shuffled[takenSoFar];
+      if (!postId) continue; // Strict null check for array access
+
+      selectedIds.push(postId);
+      takenFromCategory[category] = takenSoFar + 1;
+      addedAny = true;
+    }
+
+    if (!addedAny) break; // No more posts available
+  }
+
+  return selectedIds;
+}
+
+/**
+ * Fisher-Yates shuffle for random selection (non-mutating)
+ */
+function shuffleArray<T>(array: readonly T[]): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = result[i]!;
+    result[i] = result[j]!;
+    result[j] = temp;
+  }
+  return result;
 }

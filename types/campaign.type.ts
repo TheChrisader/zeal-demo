@@ -1,5 +1,4 @@
 import { Document, Types } from "mongoose";
-import { CATEGORIES } from "@/categories/flattened";
 
 export const CampaignStatuses = [
   "draft",
@@ -14,11 +13,7 @@ export const CampaignTemplates = ["custom", "standard"] as const;
 export type CampaignTemplate = (typeof CampaignTemplates)[number];
 
 // Add 'ALL' to categories for segment options
-export const CampaignSegments = [
-  "ALL_USERS",
-  "ALL_SUBSCRIBERS",
-  ...CATEGORIES,
-] as const;
+export const CampaignSegments = ["ALL_USERS", "ALL_SUBSCRIBERS"] as const;
 export type CampaignSegment = (typeof CampaignSegments)[number];
 
 export interface ICampaignStats {
@@ -37,8 +32,8 @@ export interface ICampaignDataSnapshotMeta {
 }
 
 export interface ICampaignDataSnapshot {
-  articles?: Types.ObjectId[];
-  bodyContent?: string;
+  // articles?: Record<string, Types.ObjectId[]>;
+  // bodyContent?: string;
   meta: ICampaignDataSnapshotMeta;
 }
 
@@ -50,9 +45,9 @@ export interface ICampaign extends Document<Types.ObjectId> {
   template_id: CampaignTemplate;
   segment: CampaignSegment;
 
-  // We only store IDs here. The Admin UI populates the view using these.
-  // Optional for custom templates
-  articleIds?: Types.ObjectId[];
+  // Map of category names to article IDs. The Admin UI populates the view using these.
+  // Optional for custom templates.
+  article_ids?: Record<string, Types.ObjectId[]>;
 
   // For custom templates - raw HTML content
   body_content?: string;

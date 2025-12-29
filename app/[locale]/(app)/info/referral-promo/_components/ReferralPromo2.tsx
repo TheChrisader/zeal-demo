@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useReferral } from "@/hooks/useReferral";
+import { toast } from "sonner";
 import "./ReferralPromo2.css";
 
 interface FormData {
@@ -23,8 +25,11 @@ export default function ReferralPromo2() {
   });
   const [showSuccess, setShowSuccess] = useState(false);
   const [showSticky, setShowSticky] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [referralLink, setReferralLink] = useState("");
   const heroRef = useRef<HTMLElement>(null);
   const [requiredFields] = useState(["full-name", "email", "phone", "terms"]);
+  const { referralCode: urlReferralCode } = useReferral();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,7 +52,7 @@ export default function ReferralPromo2() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Basic validation
@@ -57,21 +62,63 @@ export default function ReferralPromo2() {
       !formData.phone ||
       !formData.terms
     ) {
-      alert(`Please fill
-  all required fields and accept the terms.`);
+      toast.error("Please fill all required fields and accept the terms.");
       return;
     }
 
-    // Reset form and show success
-    setFormData({
-      fullName: "",
-      email: "",
-      phone: "",
-      source: "",
-      terms: false,
-      dailyNews: false,
-    });
-    setShowSuccess(true);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/v1/referral/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          display_name: formData.fullName,
+          phone: formData.phone,
+          referral_code: urlReferralCode || undefined,
+          newsletter_opt_in: formData.dailyNews,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to create account");
+      }
+
+      setReferralLink(data.referral_link);
+      setShowSuccess(true);
+
+      // Reset form
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        source: "",
+        terms: false,
+        dailyNews: false,
+      });
+
+      if (data.already_exists) {
+        toast.success(data.message);
+      } else {
+        toast.success(
+          "Account created! Check your email to verify and set your password."
+        );
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleInputChange = (
@@ -82,6 +129,17 @@ export default function ReferralPromo2() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+  };
+
+  const copyReferralLink = async () => {
+    if (!referralLink) return;
+
+    try {
+      await navigator.clipboard.writeText(referralLink);
+      toast.success("Link copied to clipboard!");
+    } catch (error) {
+      toast.error("Failed to copy link");
+    }
   };
 
   return (
@@ -136,12 +194,14 @@ export default function ReferralPromo2() {
               <section className="section hero-video !pt-2" id="contest-video">
                 <div className="video-card card-soft">
                   <div className="video-wrapper">
-                    <iframe
-                      src="https://www.youtube.com/embed/NC4OC3fjYuE"
+                    <video
+                      src="https://d3hovs1ug0rvor.cloudfront.net/videos/referral_promo.mp4"
+                      poster="/referral/referral-promo-video.png"
                       title="Share & Win ₦50,000 – ZealNews Africa Contest"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                    ></iframe>
+                      controls
+                      preload="metadata"
+                      playsInline
+                    />
                   </div>
                   <div className="video-cta">
                     <button
@@ -373,21 +433,74 @@ export default function ReferralPromo2() {
                     type="submit"
                     className="btn btn-secondary-dark"
                     style={{ width: "100%" }}
+                    disabled={isLoading}
                   >
-                    Create my account &amp; generate my link
+                    {isLoading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <div className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                        Creating account...
+                      </span>
+                    ) : (
+                      "Create my account &amp; generate my link"
+                    )}
                   </button>
                 </div>
                 <p className="form-footnote">
                   We&apos;ll never share your details. You can unsubscribe
                   anytime.
                 </p>
-                {/* <p
-                  className={`form-success ${showSuccess ? "" : "hidden"}`}
-                  id="form-success"
-                >
-                  🎉 You&apos;re in! Next step: check your email for your login
-                  details &amp; contest dashboard link.
-                </p> */}
+
+                {/* Success Message with Referral Link */}
+                {showSuccess && referralLink && (
+                  <div
+                    className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4"
+                    id="form-success"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0">
+                        <svg
+                          className="w-6 h-6 text-green-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-green-800 mb-1">
+                          🎉 You&apos;re in!
+                        </h3>
+                        <p className="text-sm text-green-700 mb-3">
+                          Your account has been created. Check your email to set
+                          your password and start sharing!
+                        </p>
+                        <div className="bg-white rounded p-3 border border-green-200">
+                          <p className="text-xs text-gray-600 mb-1">
+                            Your referral link:
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-mono text-green-700 break-all flex-1">
+                              {referralLink}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={copyReferralLink}
+                              className="flex-shrink-0 bg-green-600 text-white px-3 py-1.5 rounded text-xs font-semibold hover:bg-green-700 transition"
+                            >
+                              Copy
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </form>
             </div>
           </div>

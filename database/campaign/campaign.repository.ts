@@ -3,9 +3,11 @@ import { Id } from "@/lib/database";
 import {
   CampaignStatus,
   ICampaign,
+  ICampaignDataSnapshot,
   ICampaignDataSnapshotMeta,
   ICampaignStats,
 } from "@/types/campaign.type";
+import { IPost } from "@/types/post.type";
 
 import CampaignModel from "./campaign.model";
 import PostModel from "../post/post.model";
@@ -17,6 +19,9 @@ export type QueryOptions<C> = {
   skip?: number;
   limit?: number;
 };
+
+// Type for article_ids populated with full post data
+export type PopulatedArticleIds = Record<string, IPost[]>;
 
 // create campaign
 export const createCampaign = async (
@@ -121,18 +126,52 @@ export const updateCampaign = async (
   }
 };
 
+// Helper function to populate articles for a campaign
+const populateArticlesForCampaign = async (
+  campaign: ICampaign,
+  selectFields?: string,
+): Promise<void> => {
+  if (campaign.article_ids) {
+    const populatedArticleIds: PopulatedArticleIds = {};
+
+    for (const [category, articleIds] of Object.entries(campaign.article_ids)) {
+      const query = PostModel.find({
+        _id: { $in: articleIds },
+      });
+
+      if (selectFields) {
+        query.select(selectFields);
+      }
+
+      const articles = await query;
+      populatedArticleIds[category] = articles.map((article) =>
+        article.toObject(),
+      );
+    }
+
+    (campaign.article_ids as unknown) = populatedArticleIds;
+  }
+};
+
 // get campaign by id
 export const getCampaignById = async (
   campaignId: string | Id,
 ): Promise<ICampaign | null> => {
   try {
-    const campaignDoc = await CampaignModel.findById(campaignId)
-      .populate(
-        "articleIds",
-        "title slug description image_url category published_at",
-      )
-      .populate("lastProcessedId", "email_address");
+    const campaignDoc = await CampaignModel.findById(campaignId).populate(
+      "lastProcessedId",
+      "email_address",
+    );
     const campaign = campaignDoc?.toObject() || null;
+
+    // Populate articles for each category
+    if (campaign?.article_ids) {
+      await populateArticlesForCampaign(
+        campaign,
+        "title slug description image_url category published_at",
+      );
+    }
+
     return campaign;
   } catch (error) {
     throw error;
@@ -144,10 +183,17 @@ export const getCampaignWithArticles = async (
   campaignId: string | Id,
 ): Promise<ICampaign | null> => {
   try {
-    const campaignDoc = await CampaignModel.findById(campaignId)
-      .populate("articleIds")
-      .populate("lastProcessedId", "email_address");
+    const campaignDoc = await CampaignModel.findById(campaignId).populate(
+      "lastProcessedId",
+      "email_address",
+    );
     const campaign = campaignDoc?.toObject() || null;
+
+    // Populate articles for each category
+    if (campaign?.article_ids) {
+      await populateArticlesForCampaign(campaign);
+    }
+
     return campaign;
   } catch (error) {
     throw error;
@@ -171,10 +217,17 @@ export const deleteCampaignById = async (
 // get all campaigns
 export const getCampaigns = async (): Promise<ICampaign[]> => {
   try {
-    const campaigns = await CampaignModel.find()
-      .populate("articleIds", "title slug image_url")
-      .sort({ created_at: -1 });
-    return campaigns.map((campaign) => campaign.toObject());
+    const campaigns = await CampaignModel.find().sort({ created_at: -1 });
+    const campaignsObj = campaigns.map((campaign) => campaign.toObject());
+
+    // Populate articles for each campaign
+    for (const campaign of campaignsObj) {
+      if (campaign.article_ids) {
+        await populateArticlesForCampaign(campaign, "title slug image_url");
+      }
+    }
+
+    return campaignsObj;
   } catch (error) {
     throw error;
   }
@@ -189,11 +242,19 @@ export const getCampaignsByStatus = async (
     const { sort = { created_at: -1 }, skip = 0, limit = 20 } = options;
 
     const campaigns = await CampaignModel.find({ status })
-      .populate("articleIds", "title slug image_url")
       .sort(sort)
       .skip(skip)
       .limit(limit);
-    return campaigns.map((campaign) => campaign.toObject());
+    const campaignsObj = campaigns.map((campaign) => campaign.toObject());
+
+    // Populate articles for each campaign
+    for (const campaign of campaignsObj) {
+      if (campaign.article_ids) {
+        await populateArticlesForCampaign(campaign, "title slug image_url");
+      }
+    }
+
+    return campaignsObj;
   } catch (error) {
     throw error;
   }
@@ -252,12 +313,19 @@ export const getCampaignsByFilters = async (filters: {
     }
 
     const campaigns = await CampaignModel.find(queryFilters)
-      .populate("articleIds", "title slug image_url")
       .sort(filters.sort || { created_at: -1 })
       .skip(filters.skip || 0)
       .limit(filters.limit || 20);
+    const campaignsObj = campaigns.map((campaign) => campaign.toObject());
 
-    return campaigns.map((campaign) => campaign.toObject());
+    // Populate articles for each campaign
+    for (const campaign of campaignsObj) {
+      if (campaign.article_ids) {
+        await populateArticlesForCampaign(campaign, "title slug image_url");
+      }
+    }
+
+    return campaignsObj;
   } catch (error) {
     throw error;
   }
@@ -272,11 +340,7 @@ export const updateCampaignStatus = async (
     completed_at?: Date;
     htmlSnapshot?: string;
     snapshotPlaintext?: string;
-    dataSnapshot?: {
-      articles?: Id[];
-      body_content?: string;
-      meta: ICampaignDataSnapshotMeta;
-    };
+    dataSnapshot?: ICampaignDataSnapshot;
   },
 ): Promise<ICampaign | null> => {
   try {
@@ -333,7 +397,7 @@ export const getCampaignsReadyForSending = async (): Promise<ICampaign[]> => {
         // Standard template with articles
         {
           template_id: "standard",
-          articleIds: { $exists: true, $ne: [] },
+          article_ids: { $exists: true, $ne: null },
         },
         // Custom template with body content
         {
@@ -341,10 +405,31 @@ export const getCampaignsReadyForSending = async (): Promise<ICampaign[]> => {
           body_content: { $exists: true, $ne: "" },
         },
       ],
-    })
-      .populate("articleIds", "title slug description category image_url")
-      .sort({ created_at: -1 });
-    return campaigns.map((campaign) => campaign.toObject());
+    }).sort({ created_at: -1 });
+    const campaignsObj = campaigns.map((campaign) => campaign.toObject());
+
+    // Filter out campaigns with empty article_ids and populate articles
+    const result: ICampaign[] = [];
+    for (const campaign of campaignsObj) {
+      // Skip standard templates with empty article_ids
+      if (
+        campaign.template_id === "standard" &&
+        (!campaign.article_ids || Object.keys(campaign.article_ids).length === 0)
+      ) {
+        continue;
+      }
+
+      if (campaign.article_ids) {
+        await populateArticlesForCampaign(
+          campaign,
+          "title slug description category image_url",
+        );
+      }
+
+      result.push(campaign);
+    }
+
+    return result;
   } catch (error) {
     throw error;
   }
@@ -368,7 +453,7 @@ export const generateCampaignSnapshot = async (
   campaignId: string | Id,
 ): Promise<ICampaign | null> => {
   try {
-    const campaign = await getCampaignWithArticles(campaignId);
+    const campaign = await getCampaignById(campaignId);
     if (!campaign) {
       throw new Error("Campaign not found");
     }
@@ -376,7 +461,7 @@ export const generateCampaignSnapshot = async (
     // Validate template-specific content requirements
     if (
       campaign.template_id === "standard" &&
-      (!campaign.articleIds || campaign.articleIds.length === 0)
+      (!campaign.article_ids || Object.keys(campaign.article_ids).length === 0)
     ) {
       throw new Error("Standard template requires at least one article");
     }
@@ -391,29 +476,9 @@ export const generateCampaignSnapshot = async (
       unsubscribeUrl: "{{UNSUBSCRIBE_URL}}",
     };
 
-    const dataSnapshot: {
-      articles?: Id[];
-      bodyContent?: string;
-      meta: ICampaignDataSnapshotMeta;
-    } = {
+    const dataSnapshot = {
       meta,
     };
-
-    if (campaign.template_id === "standard") {
-      // Get the actual article documents for standard templates
-      const articles = await PostModel.find({
-        _id: { $in: campaign.articleIds },
-      });
-      if (articles.length === 0 || !articles[0]) {
-        throw new Error("No articles found for this campaign");
-      }
-
-      const articles_ids = articles.map((article) => article.toObject()._id);
-      dataSnapshot.articles = articles_ids;
-    } else if (campaign.template_id === "custom") {
-      // For custom templates, store the body content
-      dataSnapshot.bodyContent = campaign.body_content;
-    }
 
     const updatedCampaign = await updateCampaignStatus(campaignId, "sending", {
       dataSnapshot,
