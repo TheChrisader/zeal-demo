@@ -91,7 +91,7 @@ const MOCK_SUBSCRIBERS: Record<string, MockSubscriber[]> = {
     },
     {
       subscriber_id: "507f1f77bcf86cd799439014-test",
-      email_address: "mark.odigie@techmall.com.ng",
+      email_address: "ebasaokeoghene@gmail.com",
       subscriptions: ["Movies", "AI", "Global", "Local"],
     },
   ],
