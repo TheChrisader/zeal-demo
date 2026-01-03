@@ -4,7 +4,7 @@ export interface Promotion {
   subheading: string;
   statement: string;
   quote: string;
-  imagePath: string;
+  image: string;
 }
 
 export const PROMOTION_KEYS = [
@@ -45,7 +45,7 @@ export const PROMOTION_DETAIL_MAP: Record<
     subheading: "Read Between the Lines of African Society",
     statement: "Your Gateway to Africa's Untold Cultural Narratives.",
     quote: "Culture isn't just history. It's the rhythm of who we are.",
-    imagePath: "/ads/culture",
+    image: "/culture.png",
   },
   "Diaspora Connect": {
     title: "Diaspora Connect",
@@ -54,7 +54,7 @@ export const PROMOTION_DETAIL_MAP: Record<
     subheading: "Stay Connected to Home",
     statement: "From Lagos to London, Accra to Atlanta - We Cover It All.",
     quote: "No matter the distance, your roots still run deep.",
-    imagePath: "/ads/diaspora-connect",
+    image: "/diaspora-connect.png",
   },
   History: {
     title: "History",
@@ -64,7 +64,7 @@ export const PROMOTION_DETAIL_MAP: Record<
     statement: "A Journey Through Time, Narrated with Insight.",
     quote:
       "To understand the present, we must walk through the footsteps of the past.",
-    imagePath: "/ads/history",
+    image: "/history.png",
   },
   "Latest Tech News": {
     title: "Latest Tech News",
@@ -74,7 +74,7 @@ export const PROMOTION_DETAIL_MAP: Record<
     statement: "From Startups to Fintech Hubs - We Cover It All.",
     quote:
       "The future isn't coming. It's already here, just not evenly distributed.",
-    imagePath: "/ads/latest-tech-news",
+    image: "/latest-tech-news.png",
   },
   "Social Insight": {
     title: "Social Insight",
@@ -83,6 +83,6 @@ export const PROMOTION_DETAIL_MAP: Record<
     subheading: "Navigate the Rhythms of African Communities",
     statement: "Bold Conversations. Real Impact. True Narratives.",
     quote: "Society speaks in whispers and in echoes, are you listening?",
-    imagePath: "/ads/social-insight",
+    image: "/social-insight.png",
   },
 };

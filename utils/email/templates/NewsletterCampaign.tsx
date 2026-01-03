@@ -12,7 +12,6 @@ import { Section } from "@react-email/section";
 import { Tailwind } from "@react-email/tailwind";
 import { Text } from "@react-email/text";
 import * as React from "react";
-import ZealLogo from "@/assets/ZealLogo";
 import { EmailArticle } from "@/types/newsletter.type";
 
 // The props your component accepts
@@ -32,7 +31,7 @@ const genericArticles = array.map((_, i) => ({
   excerpt: `Article ${i + 1} Excerpt. Lorem Ipsum and blh blah blah elena blah blah blah blah blah blah blah blah  blah blah elena blah blah blah blah blah blah blah`,
   category: `Category`,
   url: "https://domain.com/post/slug",
-  thumbnailUrl: "https://domain.com/post/slug/thumbnail",
+  thumbnailUrl: "https://i.ytimg.com/vi/7f-lBjbfky8/maxresdefault.jpg",
   dateStr: "2025-11-30 10:44:59",
 }));
 
@@ -81,40 +80,60 @@ export const ZealNewsletterCampaign = ({
         <Preview>{meta.preheader}</Preview>
         <Body className="bg-bglight m-auto font-sans">
           <Container className="mx-auto w-full max-w-[600px] rounded-lg border border-gray-200 bg-white p-0 shadow-lg sm:w-auto">
-            {/* --- HEADER --- */}
-            <Section className="from-brand to-brandLight rounded-t-lg bg-gradient-to-r p-4 sm:p-6">
-              <Row>
-                <Column className="w-full">
-                  <div className="flex flex-col items-center gap-3 sm:gap-4">
-                    <div className="flex items-center space-x-2 text-center sm:space-x-3">
-                      <div className="rounded-lg bg-white p-2">
-                        <Link href="https://zealnews.africa/en">
-                          <ZealLogo />
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </Column>
-              </Row>
+            <Section className="bg-brand mb-4 rounded-t-md text-center">
+              <Text className="m-0 text-[10px] font-medium uppercase tracking-[0.2em] text-white">
+                Zeal News africa •{" "}
+                {new Date().toLocaleDateString("en-US", {
+                  weekday: "short",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </Text>
             </Section>
+
+            {/* Brand Logo Placeholder */}
+            <Section className="mb-4 text-center">
+              <Link href="https://zealnews.africa/en">
+                <Img
+                  src="https://d3hovs1ug0rvor.cloudfront.net/assets/zeal_news_logo_dynamic.png"
+                  alt="Zeal News"
+                  width="100"
+                  className="mx-auto"
+                  style={{ width: "100px", height: "auto" }}
+                />
+              </Link>
+            </Section>
+
+            {/* Aesthetic Thin Divider */}
+            <Hr className="border-brand mb-2 border-t" />
+
+            {/* Secondary Navigation / Sub-Header */}
+            <Section className="rounded-xl text-center">
+              <Text className="text-brand text-sm italic leading-relaxed">
+                &quot;The stories that matter, delivered directly to your
+                inbox.&quot;
+              </Text>
+            </Section>
+
+            <Hr className="border-brand mb-4 mt-2 border-t" />
 
             {/* --- DATE & TOP STORIES HEADER --- */}
             <Section className="border-b border-gray-100 px-4 py-3 sm:px-6 sm:py-4">
               <Row>
                 <Column>
-                  <Text className="text-brand m-0 text-sm font-bold uppercase tracking-wide">
+                  <Text className="text-brand bg-brand/5 m-0 rounded-xl px-9 py-2 text-center text-xl font-bold uppercase tracking-wide">
                     Top Stories
                   </Text>
                 </Column>
-                <Column align="right">
-                  <Text className="text-graytext m-0 text-right text-xs sm:text-sm">
+                {/* <Column align="right">
+                  <Text className="m-0 text-right text-xs text-white sm:text-sm">
                     {new Date().toLocaleDateString("en-US", {
                       weekday: "short",
                       month: "short",
                       day: "numeric",
                     })}
                   </Text>
-                </Column>
+                </Column> */}
               </Row>
             </Section>
 
@@ -220,7 +239,13 @@ export const ZealNewsletterCampaign = ({
                   href="https://zealnews.africa/en"
                   className="mx-auto mb-4 w-fit"
                 >
-                  <ZealLogo />
+                  <Img
+                    src="https://d3hovs1ug0rvor.cloudfront.net/assets/zeal_news_logo_dynamic.png"
+                    className="mx-auto mb-4"
+                    alt="Zeal News"
+                    width="100"
+                    style={{ width: "100px", height: "auto" }}
+                  />
                 </Link>
                 <Text className="text-graytext m-0 mx-auto mb-4 max-w-md text-xs leading-relaxed">
                   Balanced news from trusted sources, delivered weekly. We bring

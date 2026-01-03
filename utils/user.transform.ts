@@ -1,6 +1,6 @@
 import { User } from "lucia";
-import { IUser } from "@/types/user.type";
 import { Document } from "mongoose";
+import { IUser } from "@/types/user.type";
 
 /**
  * Transform a MongoDB user document to the client-expected format
@@ -41,7 +41,7 @@ export function normalizeUserId(user: any): User {
   if (user._id && !user.id) {
     return {
       ...user,
-      id: typeof user._id === 'object' ? user._id.toHexString() : user._id,
+      id: typeof user._id === "object" ? user._id.toHexString() : user._id,
       _id: undefined,
     };
   }
