@@ -142,8 +142,9 @@ const AdvertiseWithUs = () => {
         <li>
           <p>
             Targeted Audience: Our platform attracts a targeted audience
-            interested in [specific topics or industries], ensuring your message
-            reaches the right people.
+            interested in African news, current affairs, politics, business,
+            culture, social issues, lifestyle, entertainment, sports, and
+            technology, ensuring your message reaches the right people.
           </p>
         </li>
         <li>
@@ -198,13 +199,13 @@ const AdvertiseWithUs = () => {
       </p>
       <ul>
         <li>
-          <p>Email: [advertising email]</p>
+          <p>
+            Email:{" "}
+            <a href="mailto:info@zealnews.africa">info@zealnews.africa</a>
+          </p>
         </li>
         <li>
-          <p>Phone: [advertising phone number]</p>
-        </li>
-        <li>
-          <p>Contact Form: [advertising contact form]</p>
+          <p>Phone: 0906-315-3324</p>
         </li>
       </ul>
     </div>

@@ -18,8 +18,14 @@ const PrivacyPolicy = () => {
         our website.
       </p>
       <p>
-        Our company, Zeal News, is located at 24, Pa Taiwo, Oyo 200253, Nigeria.
-        You can reach us at zealnewsinfo@aggregate.com or 08055737960.
+        Our company, Zeal News, is located at{" "}
+        <Link href="https://www.google.com/maps/search/?api=1&query=31+Afolabi+Aina+St,+Omole+Phase+1,+Lagos+101233">
+          Block A, 31 Afolabi Aina St, Omole Phase 1, Lagos 101233, Lagos
+        </Link>
+        , Nigeria. You can reach us at{" "}
+        <Link href="mailto:info@zealnews.africa">info@zealnews.africa</Link>{" "}
+        or{" "}
+        <Link href="tel:0906-315-3324">0906-315-3324</Link>.
       </p>
       <p>
         <strong>NOTICE TO USERS</strong>
@@ -265,9 +271,9 @@ const PrivacyPolicy = () => {
       </h1>
       <p>
         Zeal News is dedicated to protecting your privacy and adhering to
-        applicable data protection laws [see section 3 of section b of our{" "}
-        <Link href="/terms-and-conditions">Terms and Conditions</Link>]. Key
-        legal frameworks include:
+        applicable data protection laws. See{" "}
+        <Link href="/terms-and-conditions">Terms and Conditions</Link> for more
+        details. Key legal frameworks include:
       </p>
       <p>
         <strong>1.</strong>{" "}
@@ -400,7 +406,19 @@ const PrivacyPolicy = () => {
         <strong>Our Contact Information:</strong>
       </p>
       <p>Zeal News Aggregation App</p>
-      <p>Magodo, Lagos</p>
+      <p>
+        <Link href="https://www.google.com/maps/search/?api=1&query=31+Afolabi+Aina+St,+Omole+Phase+1,+Lagos+101233">
+          Block A, 31 Afolabi Aina St, Omole Phase 1, Lagos 101233, Lagos
+        </Link>
+      </p>
+      <p>
+        <strong>Email:</strong>{" "}
+        <Link href="mailto:info@zealnews.africa">info@zealnews.africa</Link>
+      </p>
+      <p>
+        <strong>Phone:</strong>{" "}
+        <Link href="tel:0906-315-3324">0906-315-3324</Link>
+      </p>
       <p>
         <strong>Effective Date</strong>
       </p>

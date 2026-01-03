@@ -5,7 +5,7 @@ const TermsAndConditions = () => {
     <div className="prose mx-auto flex flex-col px-3 py-4 lg:max-w-[80vw]">
       <p>
         <strong>
-          Effective Date: Dec 2<sup className="text-xs">nd</sup>
+          Effective Date: 02-DEC-2024
         </strong>
       </p>
       <p>
@@ -422,7 +422,7 @@ const TermsAndConditions = () => {
       </p>
       <p>
         <strong>Phone</strong>:{" "}
-        <Link href="tel:0800-123-4567">0808-566-7381</Link>
+        <Link href="tel:0906-315-3324">0906-315-3324</Link>
       </p>
       <p>
         <strong>Mailing Address</strong>:{" "}

@@ -203,10 +203,10 @@ const MindsBehind = () => {
             shifts, and public interest updates.
           </p>
           <p>
-            With a sharp news sense and a clear, accessible style, Joy delivers
-            information that matters when it matters most. Her work is grounded
-            in accuracy, timeliness,  and a deep understanding of the African
-            context, making her a trusted voice in Zeal’s newsroom
+            With a sharp news sense and a clear, accessible style, Pelumi
+            delivers information that matters when it matters most. Her work is
+            grounded in accuracy, timeliness, and a deep understanding of the
+            African context, making her a trusted voice in Zeal's newsroom.
           </p>
         </div>
       </div>

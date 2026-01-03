@@ -13,8 +13,12 @@ const CookiePolicyPage = () => {
         online experience.
       </p>
       <p>
-        Still have further enquires see our terms and condition, privacy policy
-        or reach us (email)
+        Still have further inquiries, see our{" "}
+        <Link href="/info/terms-and-conditions">terms and conditions</Link>
+        ,{" "}
+        <Link href="/info/privacy-policy">privacy policy</Link>
+        , or reach us at{" "}
+        <Link href="mailto:info@zealnews.africa">info@zealnews.africa</Link>.
       </p>
       <p>
         <strong>
@@ -206,12 +210,12 @@ const CookiePolicyPage = () => {
       <ul>
         <li>
           <p>
-            <Link href="/info/cookie-policy">Cookie Policy</Link>
+            <Link href="/info/privacy-policy">Privacy Policy</Link>
           </p>
         </li>
         <li>
           <p>
-            <Link href="/info/privacy-policy">Privacy Policy</Link>
+            <Link href="/info/terms-and-conditions">Terms and Conditions</Link>
           </p>
         </li>
         <li>
@@ -287,9 +291,6 @@ const CookiePolicyPage = () => {
           </p>
         </li>
         <li>
-          <p>Contact Form: Available on our website [provide link]</p>
-        </li>
-        <li>
           <p>
             Postal Address: Zeal News Network,{" "}
             <Link href="https://www.google.com/maps/search/?api=1&query=31+Afolabi+Aina+St,+Omole+Phase+1,+Lagos+101233">
@@ -304,16 +305,9 @@ const CookiePolicyPage = () => {
       </p>
       <p>
         Additionally, if you&#39;d like to learn more about our approach to data
-        protection and privacy, please visit:
+        protection and privacy, please visit our{" "}
+        <Link href="/info/privacy-policy">Privacy Policy</Link>.
       </p>
-      <ul>
-        <li>
-          <p>Our Privacy Policy: [link]</p>
-        </li>
-        <li>
-          <p>Our Data Protection Page: [link]</p>
-        </li>
-      </ul>
     </div>
   );
 };
