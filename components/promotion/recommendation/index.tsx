@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Link } from "@/i18n/routing";
+import { useRouter } from "@/app/_components/useRouter";
+import { Button } from "@/components/ui/button";
 import { getRandomItem } from "@/utils/array.utils";
 import {
   Promotion,
@@ -12,6 +13,7 @@ import {
 } from "../data";
 
 export default function RecommendedPromotion() {
+  const router = useRouter();
   const [banner, setBanner] = useState<Promotion | null>(null);
   // const banner: Promotion = PROMOTION_DETAIL_MAP["Diaspora Connect"];
 
@@ -29,8 +31,8 @@ export default function RecommendedPromotion() {
   }
 
   return (
-    <Link href="/newsletter">
-      <section className="bg-white p-4 font-sans dark:bg-card-alt-bg">
+    <>
+      <section className="rounded-lg border-2 border-dashed border-primary/70 bg-white p-4 font-sans dark:bg-card-alt-bg">
         <div className="mx-auto w-full max-w-md space-y-4">
           {/* Badge */}
           <div className="inline-block rounded-md bg-primary px-4 py-1.5">
@@ -68,8 +70,16 @@ export default function RecommendedPromotion() {
               />
             </div>
           </div>
+          <div className="flex justify-center pt-4">
+            <Button
+              className="w-full rounded-full bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-success-hover-bg"
+              onClick={() => router.push("/newsletter")}
+            >
+              Join Now
+            </Button>
+          </div>
         </div>
       </section>
-    </Link>
+    </>
   );
 }

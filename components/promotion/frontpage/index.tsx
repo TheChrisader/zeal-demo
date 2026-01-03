@@ -2,9 +2,8 @@
 
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import { useRouter } from "@/app/_components/useRouter";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
-import { Link } from "@/i18n/routing";
 import { getRandomItem } from "@/utils/array.utils";
 import {
   Promotion,
@@ -12,13 +11,10 @@ import {
   PROMOTION_DETAIL_MAP,
   PROMOTION_KEYS,
 } from "../data";
-import { NewsletterPopup } from "../NewsletterPopup";
 
 export default function FrontpagePromotion() {
+  const router = useRouter();
   const [banner, setBanner] = useState<Promotion | null>(null);
-  const [showPopup, setShowPopup] = useState(false);
-  const { isAuthenticated, initialized } = useAuth();
-  const [canShowPopup, setCanShowPopup] = useState(false);
 
   useEffect(() => {
     const fetchBanner = async () => {
@@ -33,36 +29,13 @@ export default function FrontpagePromotion() {
     fetchBanner();
   }, []);
 
-  // Check if we should show the popup (no user logged in and cookie doesn't exist)
-  useEffect(() => {
-    if (!initialized || !banner) return;
-
-    const hasSubscribed = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("zealnews_subscribed_newsletter="));
-
-    if (!isAuthenticated && !hasSubscribed) {
-      // Small delay to ensure page is loaded
-      const timer = setTimeout(() => {
-        setCanShowPopup(true);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [isAuthenticated, initialized, banner]);
-
-  // useEffect(() => {
-  //   if (canShowPopup) {
-  //     setShowPopup(true);
-  //   }
-  // }, [canShowPopup]);
-
   if (!banner) {
     return null;
   }
 
   return (
-    <Link href="/newsletter">
-      <section className="bg-white font-sans dark:bg-card-alt-bg">
+    <>
+      <section className="rounded-lg border-2 border-dashed border-primary/70 bg-white font-sans dark:bg-card-alt-bg">
         <div className="container mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:py-4">
           <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-3 lg:gap-12">
             {/* Left Section (2/3 width on desktop) */}
@@ -105,25 +78,17 @@ export default function FrontpagePromotion() {
                   className="h-auto w-full object-cover"
                 />
               </div>
-              {canShowPopup && (
-                <Button
-                  size="lg"
-                  className="w-full max-w-xs rounded-full bg-primary px-10 py-6 text-base font-bold text-primary-foreground shadow-lg transition-colors hover:bg-success-hover-bg sm:w-auto"
-                  onClick={() => setShowPopup(true)}
-                >
-                  Join Here
-                </Button>
-              )}
+              <Button
+                size="lg"
+                className="w-full max-w-xs rounded-full bg-primary px-10 py-6 text-base font-bold text-primary-foreground shadow-lg transition-colors hover:bg-success-hover-bg sm:w-auto"
+                onClick={() => router.push("/newsletter")}
+              >
+                Join Now
+              </Button>
             </div>
           </div>
         </div>
       </section>
-
-      <NewsletterPopup
-        category={banner.title}
-        open={showPopup}
-        onOpenChange={setShowPopup}
-      />
-    </Link>
+    </>
   );
 }

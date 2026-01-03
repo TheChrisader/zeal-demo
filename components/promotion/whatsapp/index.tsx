@@ -13,7 +13,7 @@ import Image from "next/image";
 export default function WhatsappPromotion() {
   return (
     <Link
-      className="flex"
+      className="flex rounded-lg border-2 border-dashed border-primary/70"
       href={`https://whatsapp.com/channel/0029VauJGl7H5JLyeFUDGj1G`}
     >
       <Image
