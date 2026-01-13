@@ -37,22 +37,22 @@ export const POST = async (request: NextRequest) => {
 
     // get ip from request
     const header = headers();
-    let ip_address = header.get("CF-Connecting-IP");
+    const ip_address = header.get("CF-Connecting-IP");
 
-    let location: string;
-    if (ip_address === "::1" || !ip_address) {
-      ip_address = "127.0.0.1";
-      location = "Nigeria";
-    } else {
-      const mmdb = await getMMDB();
-      const result = mmdb.get(ip_address);
+    const location: string = "Nigeria";
+    // if (ip_address === "::1" || !ip_address) {
+    //   ip_address = "127.0.0.1";
+    //   location = "Nigeria";
+    // } else {
+    //   const mmdb = await getMMDB();
+    //   const result = mmdb.get(ip_address);
 
-      if (!result?.country?.names["en"]) {
-        location = "Nigeria";
-      } else {
-        location = result?.country?.names["en"];
-      }
-    }
+    //   if (!result?.country?.names["en"]) {
+    //     location = "Nigeria";
+    //   } else {
+    //     location = result?.country?.names["en"];
+    //   }
+    // }
     console.log("location extracted");
 
     const existingUser = await findUserByEmail(email);
