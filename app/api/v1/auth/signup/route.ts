@@ -33,6 +33,7 @@ export const POST = async (request: NextRequest) => {
     );
     const { email, username, password, display_name, referral_code } =
       SignUpSchema.parse(body);
+    console.log("Signup schema parsed");
 
     // get ip from request
     const header = headers();
@@ -52,6 +53,7 @@ export const POST = async (request: NextRequest) => {
         location = result?.country?.names["en"];
       }
     }
+    console.log("location extracted");
 
     const existingUser = await findUserByEmail(email);
 
@@ -64,6 +66,8 @@ export const POST = async (request: NextRequest) => {
         }),
       );
     }
+
+    console.log("existing user checked");
 
     const hashedPassword = await hashPassword(password);
 
