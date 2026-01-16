@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useRouter } from "@/app/_components/useRouter";
 import { useReferral } from "@/hooks/useReferral";
 import { Link } from "@/i18n/routing";
 import "./ReferralPromo2.css";
@@ -24,13 +25,10 @@ export default function ReferralPromo2() {
     terms: false,
     dailyNews: false,
   });
-  const [showSuccess, setShowSuccess] = useState(false);
   const [showSticky, setShowSticky] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [referralLink, setReferralLink] = useState("");
   const heroRef = useRef<HTMLElement>(null);
-  const [requiredFields] = useState(["full-name", "email", "phone", "terms"]);
   const { referralCode: urlReferralCode } = useReferral();
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -53,9 +51,7 @@ export default function ReferralPromo2() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const transferToSignup = () => {
     // Basic validation
     if (
       !formData.fullName ||
@@ -67,59 +63,33 @@ export default function ReferralPromo2() {
       return;
     }
 
-    setIsLoading(true);
+    // Store basic form data for pre-filling the signup form
+    sessionStorage.setItem('referral_signup_data', JSON.stringify({
+      fullName: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      source: formData.source,
+      dailyNews: formData.dailyNews,
+      terms: formData.terms,
+      referral_code: urlReferralCode,
+    }));
 
-    try {
-      const response = await fetch("/api/v1/referral/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          display_name: formData.fullName,
-          phone: formData.phone,
-          referral_code: urlReferralCode || undefined,
-          newsletter_opt_in: formData.dailyNews,
-        }),
-      });
+    // Store referral metadata separately to be sent with the signup request
+    sessionStorage.setItem('referral_signup_metadata', JSON.stringify({
+      phone: formData.phone,
+      source: formData.source,
+      terms_accepted: formData.terms,
+    }));
 
-      const data = await response.json();
+    // Store promo signup flag for later redirect to referral dashboard
+    sessionStorage.setItem('promo_signup', 'true');
 
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to create account");
-      }
-
-      setReferralLink(data.referral_link);
-      setShowSuccess(true);
-
-      // Reset form
-      setFormData({
-        fullName: "",
-        email: "",
-        phone: "",
-        source: "",
-        terms: false,
-        dailyNews: false,
-      });
-
-      if (data.already_exists) {
-        toast.success(data.message);
-      } else {
-        toast.success(
-          "Account created! Check your email to verify and set your password.",
-        );
-      }
-    } catch (error) {
-      console.error("Signup error:", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Something went wrong. Please try again.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
+    // Navigate to signup page
+    const params = new URLSearchParams({
+      promo: 'true',
+      ...(urlReferralCode && { ref: urlReferralCode }),
+    });
+    router.push(`/signup?${params.toString()}`);
   };
 
   const handleInputChange = (
@@ -130,17 +100,6 @@ export default function ReferralPromo2() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-  };
-
-  const copyReferralLink = async () => {
-    if (!referralLink) return;
-
-    try {
-      await navigator.clipboard.writeText(referralLink);
-      toast.success("Link copied to clipboard!");
-    } catch (error) {
-      toast.error("Failed to copy link");
-    }
   };
 
   return (
@@ -334,7 +293,7 @@ export default function ReferralPromo2() {
               <p className="form-description">
                 Takes less than 1 minute and it&apos;s free.
               </p>
-              <form id="signup-form" onSubmit={handleSubmit} noValidate>
+              <form id="signup-form" onSubmit={(e) => { e.preventDefault(); transferToSignup(); }} noValidate>
                 <div className="form-grid">
                   <div className="form-field">
                     <label htmlFor="full-name">
@@ -433,74 +392,14 @@ export default function ReferralPromo2() {
                     type="submit"
                     className="btn btn-secondary-dark"
                     style={{ width: "100%" }}
-                    disabled={isLoading}
                   >
-                    {isLoading ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <div className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                        Creating account...
-                      </span>
-                    ) : (
-                      "Create my account and generate my link"
-                    )}
+                    Continue to sign up
                   </button>
                 </div>
                 <p className="form-footnote">
                   We&apos;ll never share your details. You can unsubscribe
                   anytime.
                 </p>
-
-                {/* Success Message with Referral Link */}
-                {showSuccess && referralLink && (
-                  <div
-                    className="mt-4 rounded-lg border border-green-200 bg-green-50 p-4"
-                    id="form-success"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="shrink-0">
-                        <svg
-                          className="size-6 text-green-600"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="mb-1 text-lg font-semibold text-green-800">
-                          🎉 You&apos;re in!
-                        </h3>
-                        <p className="mb-3 text-sm text-green-700">
-                          Your account has been created. Check your email to set
-                          your password and start sharing!
-                        </p>
-                        <div className="rounded border border-green-200 bg-white p-3">
-                          <p className="mb-1 text-xs text-gray-600">
-                            Your referral link:
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <span className="flex-1 break-all font-mono text-sm text-green-700">
-                              {referralLink}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={copyReferralLink}
-                              className="shrink-0 rounded bg-green-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-green-700"
-                            >
-                              Copy
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </form>
             </div>
           </div>

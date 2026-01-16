@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { AlertCircle, CheckCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AlertCircle, CheckCircle } from "lucide-react";
-import { onboardingVariants, useOnboardingContext } from "../page";
 import { useReferralClient } from "@/hooks/useReferralClient";
+import { onboardingVariants, useOnboardingContext } from "../page";
 
 const ReferralForm = ({ key }: { key: string }) => {
   const { setStep, setIsLoading } = useOnboardingContext();
-  const { referralCode, clearReferralCode, setReferralCodeManually } = useReferralClient();
+  const { referralCode, clearReferralCode, setReferralCodeManually } =
+    useReferralClient();
   const [manualCode, setManualCode] = useState("");
   const [showManualInput, setShowManualInput] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,7 +79,7 @@ const ReferralForm = ({ key }: { key: string }) => {
       variants={onboardingVariants}
       className="space-y-6"
     >
-      <div className="text-center space-y-2">
+      <div className="space-y-2 text-center">
         <h3 className="text-lg font-semibold">Referral Code (Optional)</h3>
         <p className="text-sm text-muted-foreground">
           If you have a referral code, you can apply it here
@@ -86,13 +87,14 @@ const ReferralForm = ({ key }: { key: string }) => {
       </div>
 
       {hasReferralCode && !showManualInput && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
+        <div className="space-y-3 rounded-lg border border-green-200 bg-green-50 p-4">
           <div className="flex items-center gap-2 text-green-800">
-            <CheckCircle className="w-5 h-5" />
+            <CheckCircle className="size-5" />
             <span className="font-medium">Referral Code Detected</span>
           </div>
           <p className="text-green-700">
-            You were referred by: <span className="font-mono font-bold">{referralCode}</span>
+            You were referred by:{" "}
+            <span className="font-mono font-bold">{referralCode}</span>
           </p>
           <div className="flex gap-2">
             <Button
@@ -113,7 +115,7 @@ const ReferralForm = ({ key }: { key: string }) => {
         </div>
       )}
 
-      {(!hasReferralCode || showManualInput) && (
+      {showManualInput && (
         <div className="space-y-4">
           <div className="space-y-2">
             <label htmlFor="referral-code" className="text-sm font-medium">
@@ -130,8 +132,8 @@ const ReferralForm = ({ key }: { key: string }) => {
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-lg">
-              <AlertCircle className="w-4 h-4" />
+            <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+              <AlertCircle className="size-4" />
               <span>{error}</span>
             </div>
           )}
@@ -142,7 +144,11 @@ const ReferralForm = ({ key }: { key: string }) => {
               disabled={isApplying || (!manualCode.trim() && !hasReferralCode)}
               className="w-full"
             >
-              {isApplying ? "Applying..." : manualCode.trim() ? "Apply Referral Code" : "Continue"}
+              {isApplying
+                ? "Applying..."
+                : manualCode.trim()
+                  ? "Apply Referral Code"
+                  : "Continue"}
             </Button>
 
             {hasReferralCode && showManualInput && (
@@ -178,7 +184,7 @@ const ReferralForm = ({ key }: { key: string }) => {
           <Button
             variant="ghost"
             onClick={handleContinueWithoutReferral}
-            className="w-full mt-2 text-muted-foreground hover:text-foreground"
+            className="mt-2 w-full text-muted-foreground hover:text-foreground"
           >
             Continue without referral code
           </Button>

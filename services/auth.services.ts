@@ -17,12 +17,20 @@ export const SignUpUserWithEmailAndPassword = async ({
   email,
   password,
   referral_code,
+  newsletter_opt_in = false,
+  phone,
+  source,
+  terms_accepted = false,
 }: {
   display_name: string;
   email: string;
   password: string;
   username: string;
   referral_code?: string;
+  newsletter_opt_in?: boolean;
+  phone?: string;
+  source?: string;
+  terms_accepted?: boolean;
 }): Promise<IUser | null> => {
   try {
     const data = await fetcher("/api/v1/auth/signup", {
@@ -33,6 +41,10 @@ export const SignUpUserWithEmailAndPassword = async ({
         password,
         username: username.trim().toLowerCase(),
         ...(referral_code && { referral_code }),
+        newsletter_opt_in,
+        ...(phone && { phone }),
+        ...(source && { source }),
+        ...(terms_accepted && { terms_accepted }),
       }),
       headers: {
         "Content-Type": "application/json",

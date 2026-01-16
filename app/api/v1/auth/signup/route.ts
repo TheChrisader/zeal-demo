@@ -4,13 +4,16 @@ import { z, ZodError } from "zod";
 import { createPreferences } from "@/database/preferences/preferences.repository";
 import { ReferralCodeSchema } from "@/database/referral/referral.dto";
 import { applyReferralCode } from "@/database/referral/referral.repository";
+import SubscriberModel from "@/database/subscriber/subscriber.model";
 import { SignUpUserSchema } from "@/database/user/user.dto";
 import { createUser, findUserByEmail } from "@/database/user/user.repository";
 import { lucia } from "@/lib/auth/auth";
 import { connectToDatabase, newId } from "@/lib/database";
-import { getMMDB } from "@/lib/mmdb";
 import { generateOTP } from "@/lib/otp";
-import { sendAccountVerificationEmail } from "@/utils/email";
+import {
+  sendAccountVerificationEmail,
+  sendNewsletterWelcomeEmail,
+} from "@/utils/email";
 import { buildError, sendError } from "@/utils/error";
 import {
   INTERNAL_ERROR,
@@ -27,23 +30,39 @@ export const POST = async (request: NextRequest) => {
     await connectToDatabase();
     const body = await request.json();
 
-    const SignUpSchema = SignUpUserSchema.merge(ReferralCodeSchema).setKey(
-      "password",
-      z.string().min(8, "At least 8 characters."),
-    );
-    const { email, username, password, display_name, referral_code } =
-      SignUpSchema.parse(body);
+    const SignUpSchema = SignUpUserSchema.merge(ReferralCodeSchema)
+      .setKey("password", z.string().min(8, "At least 8 characters."))
+      .merge(
+        z.object({
+          newsletter_opt_in: z.boolean().optional().default(false),
+          phone: z.string().optional(),
+          source: z.string().optional(),
+          terms_accepted: z.boolean().optional().default(false),
+        }),
+      );
+    const {
+      email,
+      username,
+      password,
+      display_name,
+      referral_code,
+      newsletter_opt_in,
+      phone,
+      source,
+      terms_accepted,
+    } = SignUpSchema.parse(body);
     console.log("Signup schema parsed");
 
     // get ip from request
     const header = headers();
-    const ip_address = header.get("CF-Connecting-IP");
+    let ip_address = header.get("CF-Connecting-IP");
 
     const location: string = "Nigeria";
-    // if (ip_address === "::1" || !ip_address) {
-    //   ip_address = "127.0.0.1";
-    //   location = "Nigeria";
-    // } else {
+    if (ip_address === "::1" || !ip_address) {
+      ip_address = "127.0.0.1";
+      // location = "Nigeria";
+    }
+    // else {
     //   const mmdb = await getMMDB();
     //   const result = mmdb.get(ip_address);
 
@@ -77,7 +96,7 @@ export const POST = async (request: NextRequest) => {
       display_name,
       password: hashedPassword,
       location,
-      ip_address,
+      ip_address: ip_address || undefined,
       auth_provider: "email",
       role: "user",
       has_password: true,
@@ -112,6 +131,60 @@ export const POST = async (request: NextRequest) => {
       } catch (error) {
         console.error("Failed to apply referral code:", error);
         // Don't fail signup if referral code is invalid
+      }
+    }
+
+    // Store referral metadata if provided (phone, source, terms_accepted)
+    if (phone || source || terms_accepted) {
+      try {
+        const ReferralSignupModel = await import(
+          "@/database/referral-signup/referral-signup.model"
+        );
+        await ReferralSignupModel.default.create({
+          user_id: createdUser.id,
+          phone: phone || null,
+          source: source || null,
+          terms_accepted: terms_accepted || false,
+          promo_campaign: "referral-promo-2",
+          signed_up_at: new Date(),
+        });
+      } catch (error) {
+        console.error("Failed to store referral metadata:", error);
+        // Don't fail signup if metadata storage fails
+      }
+    }
+
+    // Handle newsletter opt-in
+    if (newsletter_opt_in) {
+      try {
+        const existingSubscriber = await SubscriberModel.findOne({
+          email_address: email,
+        });
+
+        if (!existingSubscriber) {
+          const newSubscriber = new SubscriberModel({
+            email_address: email,
+            name: display_name,
+            global_status: "active",
+            is_verified: true,
+            verified_at: new Date(),
+            status_updated_at: new Date(),
+          });
+          await newSubscriber.save();
+
+          // Send newsletter welcome email (non-blocking)
+          try {
+            await sendNewsletterWelcomeEmail({
+              email: email,
+              display_name: display_name,
+            });
+          } catch (emailError) {
+            console.error("Newsletter welcome email error:", emailError);
+          }
+        }
+      } catch (subscriberError) {
+        console.error("Failed to subscribe to newsletter:", subscriberError);
+        // Don't fail signup if newsletter subscription fails
       }
     }
 

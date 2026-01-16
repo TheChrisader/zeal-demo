@@ -1,36 +1,19 @@
 import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
+import { useRouter } from "@/app/_components/useRouter";
+import Categories from "@/categories";
 import NamedCheckbox from "@/components/forms/Input/NamedCheckbox";
 import SearchInput from "@/components/forms/Input/SearchInput";
 import { Button } from "@/components/ui/button";
-import { onboardingVariants, useOnboardingContext } from "../page";
-import { useRouter } from "@/app/_components/useRouter";
-import { flattenCategories } from "@/utils/category.utils";
-import Categories from "@/categories";
-import { IPreferences } from "@/types/preferences.type";
 import {
   getPreferences,
   updatePreferences,
 } from "@/services/preferences.services";
-
-const TOPICS = [
-  "Technology",
-  "Sports",
-  "Agriculture",
-  "Medicine",
-  "Enviornment",
-  "Food",
-  "Domestic",
-  "Health",
-  "Education",
-  "Tourism",
-  "Business",
-  "Crime",
-  "Lifestyle",
-];
+import { IPreferences } from "@/types/preferences.type";
+import { flattenCategories } from "@/utils/category.utils";
+import { onboardingVariants } from "../page";
 
 const TopicsForm = React.forwardRef(({ key }: { key: string }, _) => {
-  // const { setStep } = useOnboardingContext();
   const TOPICS = flattenCategories(Categories)
     .filter((c) => c !== "Home")
     .filter((c) => c !== "Headlines");
@@ -65,7 +48,16 @@ const TopicsForm = React.forwardRef(({ key }: { key: string }, _) => {
           ...new Set([...preferences!.category_updates, ...topics]),
         ],
       });
-      router.push("/");
+
+      // Check if user came from promo signup
+      const isPromoSignup = sessionStorage.getItem("promo_signup") === "true";
+
+      // Clear the promo flag
+      sessionStorage.removeItem("promo_signup");
+
+      // Redirect to referral dashboard if promo signup, otherwise home
+      router.push(isPromoSignup ? "/settings/referral" : "/");
+      router.refresh();
     } catch {
     } finally {
       setIsLoading(false);
@@ -93,7 +85,7 @@ const TopicsForm = React.forwardRef(({ key }: { key: string }, _) => {
         onClick={async () => {
           await handleSubmit();
         }}
-        disabled={!preferences}
+        disabled={!preferences || isLoading}
       >
         Finish Account Creation
       </Button>

@@ -32,6 +32,14 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
+    // Check if email is verified
+    if (!user.has_email_verified) {
+      return NextResponse.json(
+        { error: "Please verify your email before generating a referral code." },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const { userId } = GenerateReferralCodeSchema.parse(body);
 

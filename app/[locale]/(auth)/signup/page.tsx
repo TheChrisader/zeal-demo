@@ -2,14 +2,16 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { object, string, z } from "zod";
+import { boolean, object, string, z } from "zod";
 import { useRouter } from "@/app/_components/useRouter";
 import revalidatePathAction from "@/app/actions/revalidatePath";
 import { InputWithLabel } from "@/components/forms/Input/InputWithLabel";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { useReferralClient } from "@/hooks/useReferralClient";
 import { Link } from "@/i18n/routing";
@@ -27,7 +29,11 @@ const SignUpPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { referralCode } = useReferralClient();
+
+  // Check if this is a promo signup
+  const isPromo = searchParams?.get("promo") === "true";
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -69,7 +75,7 @@ const SignUpPage = () => {
     return () => {
       document.body.removeChild(script);
     };
-  }, []);
+  }, [router]);
 
   const SignUpFormSchema = object({
     name: string().min(1, "Name is required"),
@@ -79,6 +85,7 @@ const SignUpPage = () => {
       .min(1, "Email is required"),
     password: string().min(1, "Password is required"),
     referral_code: string().optional(),
+    newsletter_opt_in: boolean().optional().default(false),
   });
 
   const form = useForm<z.infer<typeof SignUpFormSchema>>({
@@ -89,9 +96,17 @@ const SignUpPage = () => {
       email: "",
       password: "",
       referral_code: referralCode || "",
+      newsletter_opt_in: false,
     },
     mode: "onTouched",
   });
+
+  // Store promo mode in sessionStorage for later redirect
+  useEffect(() => {
+    if (isPromo) {
+      sessionStorage.setItem("promo_signup", "true");
+    }
+  }, [isPromo]);
 
   // Update form when referral code is loaded
   useEffect(() => {
@@ -100,19 +115,59 @@ const SignUpPage = () => {
     }
   }, [referralCode, form]);
 
+  // Receive transferred data from sessionStorage if from referral promo
+  useEffect(() => {
+    const transferredData = sessionStorage.getItem("referral_signup_data");
+    if (transferredData) {
+      try {
+        const data = JSON.parse(transferredData);
+        // Pre-fill relevant fields
+        if (data.fullName) form.setValue("name", data.fullName);
+        if (data.email) form.setValue("email", data.email);
+        if (data.referral_code)
+          form.setValue("referral_code", data.referral_code);
+        if (data.newsletter_opt_in !== undefined)
+          form.setValue("newsletter_opt_in", data.newsletter_opt_in);
+        // Clear the transferred data after using it
+        sessionStorage.removeItem("referral_signup_data");
+      } catch (error) {
+        console.error("Failed to parse transferred data:", error);
+      }
+    }
+  }, [form]);
+
   // Watch the referral code input value to compare with the original referral code
   const currentReferralCode = form.watch("referral_code");
 
   const onSubmit = async (data: z.infer<typeof SignUpFormSchema>) => {
-    const { name, username, email, password, referral_code } = data;
+    const {
+      name,
+      username,
+      email,
+      password,
+      referral_code,
+      newsletter_opt_in,
+    } = data;
     setIsLoading(true);
     try {
+      // Get transferred referral metadata from sessionStorage
+      const transferredDataRaw = sessionStorage.getItem(
+        "referral_signup_metadata",
+      );
+      const transferredData = transferredDataRaw
+        ? JSON.parse(transferredDataRaw)
+        : {};
+
       await SignUpUserWithEmailAndPassword({
         display_name: name,
         username,
         email,
         password,
         ...(referral_code && { referral_code }),
+        newsletter_opt_in,
+        phone: transferredData.phone,
+        source: transferredData.source,
+        terms_accepted: transferredData.terms_accepted,
       });
 
       await SignInUserWithUsernameAndPassword({
@@ -120,12 +175,15 @@ const SignUpPage = () => {
         password,
       });
 
+      // Clear the transferred metadata after using it
+      sessionStorage.removeItem("referral_signup_metadata");
+
       router.push("/verify-email");
     } catch (error) {
       console.log(error);
-      // @ts-ignore
+      // @ts-expect-error - error object from API may have status property
       if (error.status === 500) toast.error("Something went wrong");
-      // @ts-ignore
+      // @ts-expect-error - error object from API may have message property
       setError(error.message);
     } finally {
       setIsLoading(false);
@@ -234,10 +292,37 @@ const SignUpPage = () => {
               );
             }}
           />
+          <FormField
+            control={form.control}
+            name="newsletter_opt_in"
+            render={({ field }) => {
+              return (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <Checkbox
+                    id="newsletter_opt_in"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                  <div className="space-y-1 leading-none">
+                    <label
+                      htmlFor="newsletter_opt_in"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Send me daily news highlights
+                    </label>
+                    <p className="text-xs text-muted-foreground">
+                      Get the top stories delivered to your inbox every week.
+                    </p>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
           {referralCode && currentReferralCode === referralCode && (
             <div className="rounded-lg border border-green-200 bg-green-50 p-3">
               <p className="text-sm text-green-800">
-                <strong>Referral Applied:</strong> You're signing up with
+                <strong>Referral Applied:</strong> You&apos;re signing up with
                 referral code{" "}
                 <span className="font-mono font-bold">{referralCode}</span>
               </p>
