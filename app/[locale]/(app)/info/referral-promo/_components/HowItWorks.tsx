@@ -222,7 +222,7 @@ const PlayIcon: FC = () => (
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
     fill="currentColor"
-    className="ml-1 h-10 w-10 text-white"
+    className="ml-1 size-10 text-white"
   >
     <path
       fillRule="evenodd"
@@ -238,14 +238,14 @@ const stepsData = [
     id: 1,
     title: "Get your link",
     description:
-      "Enter your email and (optionally) a handle. We generate your unique referral link.",
+      "Sign up as a user on the Zeal official website and for the affiliate program with your email to get your referral link.",
     icon: GetLinkIcon,
   },
   {
     id: 2,
     title: "Share anywhere",
     description:
-      "WhatsApp, X, LinkedIn, communities — add a one-liner on why ZealNews is worth it.",
+      "WhatsApp, X, LinkedIn, communities. Add a one-liner on why ZealNews is worth it.",
     icon: ShareAnywhereIcon,
   },
   {
@@ -258,7 +258,8 @@ const stepsData = [
   {
     id: 4,
     title: "Win weekly",
-    description: "Winners are picked at random and notified within 24 hours.",
+    description:
+      "Winners are announced at the end of every week and notified within 24 hours.",
     icon: WinWeeklyIcon,
   },
 ];
@@ -277,9 +278,9 @@ const HowItWorks: FC = () => {
               <h1 className="text-3xl font-bold text-[#1E4D2B] sm:text-3xl">
                 How it Works
               </h1>
-              <p className="mt-1 text-lg text-[#1E4D2B] sm:text-lg">
+              {/* <p className="mt-1 text-lg text-[#1E4D2B] sm:text-lg">
                 Four simple steps – built to be fair, fast, and fun.
-              </p>
+              </p> */}
             </header>
 
             <div className="w-full rounded-3xl border border-emerald-800 p-2 sm:p-3">
@@ -288,7 +289,7 @@ const HowItWorks: FC = () => {
                   <div key={step.id}>
                     <div className="flex items-start justify-between rounded-lg bg-white p-4">
                       <div className="flex flex-col">
-                        <span className="mb-3 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-500 text-sm font-bold text-white">
+                        <span className="mb-3 flex size-6 shrink-0 items-center justify-center rounded-full bg-green-500 text-sm font-bold text-white">
                           {step.id}
                         </span>
                         <div className="mb-2 flex items-center">
@@ -300,7 +301,7 @@ const HowItWorks: FC = () => {
                               {step.description}
                             </p>
                           </div>
-                          <div className="ml-2 flex-shrink-0">
+                          <div className="ml-2 shrink-0">
                             <step.icon />
                           </div>
                         </div>
@@ -331,7 +332,7 @@ const HowItWorks: FC = () => {
                   controls
                   preload="metadata"
                   playsInline
-                  className="h-full w-full object-cover"
+                  className="size-full object-cover"
                 />
               </div>
             </div>

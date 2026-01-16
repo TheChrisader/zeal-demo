@@ -13,7 +13,7 @@ const LeaderboardPreview: React.FC = () => {
           <header>
             <h1 className="text-3xl font-bold text-green-800">Leaderboard</h1>
             <p className="mt-2 max-w-[500px] text-sm text-green-900 opacity-90">
-              Top referrers win prizes every Friday. Verified signups only.
+              View The Top Referrers.
             </p>
           </header>
 

@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useReferral } from "@/hooks/useReferral";
 import { toast } from "sonner";
+import { useReferral } from "@/hooks/useReferral";
+import { Link } from "@/i18n/routing";
 import "./ReferralPromo2.css";
 
 interface FormData {
@@ -106,7 +107,7 @@ export default function ReferralPromo2() {
         toast.success(data.message);
       } else {
         toast.success(
-          "Account created! Check your email to verify and set your password."
+          "Account created! Check your email to verify and set your password.",
         );
       }
     } catch (error) {
@@ -114,7 +115,7 @@ export default function ReferralPromo2() {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Something went wrong. Please try again."
+          : "Something went wrong. Please try again.",
       );
     } finally {
       setIsLoading(false);
@@ -148,13 +149,13 @@ export default function ReferralPromo2() {
       <header ref={heroRef} id="hero" className="hero">
         <div className="hero-inner container">
           <div className="hero-top !pb-5">
-            <a href="/" className="logo">
+            <Link href="/" className="logo">
               <img
                 src="/zeal_news_logo.png"
                 alt="ZealNews Africa logo"
                 className="zeal"
               />
-            </a>
+            </Link>
           </div>
           <div className="hero-layout">
             <div className="hero-right">
@@ -182,11 +183,11 @@ export default function ReferralPromo2() {
                   </div>
                 </div>
                 <p className="why-card-text">
-                  At Zeal News Africa, we redefine the African story. Bold,
-                  curious, and unapologetically African, we deliver journalism
-                  that is truthful, rich in context, and fearless, covering
-                  culture, investigation, and global perspectives. We don&apos;t
-                  just share news; we spark conversations that matter.
+                  At Zeal News Africa, we deliver journalism that is truthful,
+                  rich in contextvajdcfearless, covering culture, investigation,
+                  and global perspective. We tell stories in a way that&apos;s
+                  bold, curious and unapologetically African. We don&apos;t just
+                  share news; we spark conversations that matter.
                 </p>
               </section>
             </div>
@@ -219,15 +220,15 @@ export default function ReferralPromo2() {
                 </div>
                 <div className="hero-heading">
                   <h1 className="h2">
-                    Stay Ahead of the News. Get Paid to Share It.
+                    Stay Ahead of the News and Get Paid to Share It.
                   </h1>
                 </div>
                 <p className="hero-subtext">
                   Invite friends to sign up on <strong>ZealNews Africa</strong>.
-                  The top referrer wins
-                  <strong>₦50,000 + a ZealNews Branded T-Shirt</strong>, 1st
-                  runner-up gets <strong>₦30,000</strong>, 2nd runner-up gets
-                  <strong>₦20,000</strong>, plus
+                  The top referrer wins{" "}
+                  <strong>₦50,000 + a ZealNews Branded T-Shirt</strong>, the 1st
+                  runner-up gets <strong>₦30,000</strong>, 2nd runner-up gets{" "}
+                  <strong>₦20,000</strong>. There are also{" "}
                   <strong>10 consolation prizes worth ₦5,000 each.</strong>
                 </p>
                 <div className="hero-actions">
@@ -279,14 +280,10 @@ export default function ReferralPromo2() {
                   <div className="icon-circle icon-yellow">🏆</div>
                   <div>
                     <div className="step-number">Step 3</div>
-                    <div className="step-item-title">
-                      Cash prizes for the top referrers
-                    </div>
+                    <div className="step-item-title">Repeat</div>
                     <p className="step-item-text">
-                      Every friend that signs up with your link = 1 point. 1st
-                      place wins ₦50,000 + A ZealNews Branded T-Shirt, 1st
-                      runner-up gets ₦30,000, 2nd runner-up gets ₦20,000 and 10
-                      more people win ₦5,000 consolation prizes.
+                      The more signups you get, the more points you get and the
+                      higher your chances of winning.
                     </p>
                   </div>
                 </div>
@@ -306,19 +303,22 @@ export default function ReferralPromo2() {
               <div className="why-card">
                 <div className="why-card-title">Fast updates</div>
                 <p className="why-card-text">
-                  Top headlines in under 3 minutes every day.
+                  You get access to top headlines and every trending topic in
+                  the country.
                 </p>
               </div>
               <div className="why-card">
-                <div className="why-card-title">No noise, no drama</div>
+                <div className="why-card-title">Verified news</div>
                 <p className="why-card-text">
-                  Verified stories. No fake news. No clickbait.
+                  All news updates and stories are verified and thoroughly fact
+                  checked.
                 </p>
               </div>
               <div className="why-card">
-                <div className="why-card-title">Local + global</div>
+                <div className="why-card-title">Local and Global</div>
                 <p className="why-card-text">
-                  From your street to the world stage, all in one place.
+                  From your street to the world stage, we tell stories that
+                  matter to everyone.
                 </p>
               </div>
             </div>
@@ -332,7 +332,7 @@ export default function ReferralPromo2() {
                 Join the contest &amp; get your link
               </h2>
               <p className="form-description">
-                Takes less than 1 minute. It&apos;s free.
+                Takes less than 1 minute and it&apos;s free.
               </p>
               <form id="signup-form" onSubmit={handleSubmit} noValidate>
                 <div className="form-grid">
@@ -411,7 +411,7 @@ export default function ReferralPromo2() {
                     onChange={handleInputChange}
                   />
                   <label htmlFor="terms">
-                    I agree to the contest terms &amp; conditions.
+                    I agree to the contest terms and conditions.
                     <span className="required">*</span>
                   </label>
                 </div>
@@ -441,7 +441,7 @@ export default function ReferralPromo2() {
                         Creating account...
                       </span>
                     ) : (
-                      "Create my account &amp; generate my link"
+                      "Create my account and generate my link"
                     )}
                   </button>
                 </div>
@@ -453,13 +453,13 @@ export default function ReferralPromo2() {
                 {/* Success Message with Referral Link */}
                 {showSuccess && referralLink && (
                   <div
-                    className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4"
+                    className="mt-4 rounded-lg border border-green-200 bg-green-50 p-4"
                     id="form-success"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0">
+                      <div className="shrink-0">
                         <svg
-                          className="w-6 h-6 text-green-600"
+                          className="size-6 text-green-600"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -473,25 +473,25 @@ export default function ReferralPromo2() {
                         </svg>
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-green-800 mb-1">
+                        <h3 className="mb-1 text-lg font-semibold text-green-800">
                           🎉 You&apos;re in!
                         </h3>
-                        <p className="text-sm text-green-700 mb-3">
+                        <p className="mb-3 text-sm text-green-700">
                           Your account has been created. Check your email to set
                           your password and start sharing!
                         </p>
-                        <div className="bg-white rounded p-3 border border-green-200">
-                          <p className="text-xs text-gray-600 mb-1">
+                        <div className="rounded border border-green-200 bg-white p-3">
+                          <p className="mb-1 text-xs text-gray-600">
                             Your referral link:
                           </p>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-mono text-green-700 break-all flex-1">
+                            <span className="flex-1 break-all font-mono text-sm text-green-700">
                               {referralLink}
                             </span>
                             <button
                               type="button"
                               onClick={copyReferralLink}
-                              className="flex-shrink-0 bg-green-600 text-white px-3 py-1.5 rounded text-xs font-semibold hover:bg-green-700 transition"
+                              className="shrink-0 rounded bg-green-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-green-700"
                             >
                               Copy
                             </button>
@@ -509,7 +509,7 @@ export default function ReferralPromo2() {
         <section className="section" id="boost">
           <div className="container">
             <h2 className="section-title">
-              Boost your chances. Share everywhere.
+              Boost your chances by sharing everywhere.
             </h2>
             <p className="section-subtitle">
               Use your link on all your socials. Every new signup takes you
@@ -626,16 +626,19 @@ export default function ReferralPromo2() {
                   <span className="faq-chevron">›</span>
                 </summary>
                 <div className="faq-answer">
-                  Yes. Creating an account on ZealNews Africa is completely
-                  free.
+                  Yes, you will not be asked to pay anything throughout the
+                  program. Everything is completely free.
                 </div>
               </details>
             </div>
             <div className="faq-meta">
               <p>
-                <a href="#" className="tcs-link">
+                <Link
+                  href="/info/referral-promo/terms-and-conditions"
+                  className="tcs-link"
+                >
                   Read full terms &amp; conditions
-                </a>
+                </Link>
               </p>
               <p style={{ marginTop: "0.4rem" }}>
                 ZealNews Africa is a news media company based in Lagos.
@@ -644,52 +647,6 @@ export default function ReferralPromo2() {
           </div>
         </section>
       </main>
-      {/* FOOTER */}
-      {/* <footer className="footer">
-        <div className="container">
-          <div className="footer-top">
-            <div className="footer-links">
-              <a href="#">About</a> <a href="#">Contact</a>
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms &amp; Conditions</a>
-            </div>
-            <div className="footer-social" aria-label="Social media links">
-              <a href="#" aria-label="WhatsApp">
-                <img
-                  className="social-icon"
-                  src="https://img.icons8.com/?size=100&amp;id=BkugfgmBwtEI&amp;format=png&amp;color=000000"
-                  alt="WhatsApp logo"
-                />
-              </a>
-              <a href="#" aria-label="Facebook">
-                <img
-                  className="social-icon"
-                  src="https://img.icons8.com/?size=100&amp;id=118497&amp;format=png&amp;color=000000"
-                  alt="Facebook logo"
-                />
-              </a>
-              <a href="#" aria-label="X (Twitter)">
-                <img
-                  className="social-icon"
-                  src="https://img.icons8.com/?size=100&amp;id=phOKFKYpe00C&amp;format=png&amp;color=000000"
-                  alt="X (Twitter) logo"
-                />
-              </a>
-              <a href="#" aria-label="Linkedin">
-                <img
-                  className="social-icon"
-                  src="https://img.icons8.com/?size=100&amp;id=13930&amp;format=png&amp;color=000000"
-                  alt="Linkedin"
-                />
-              </a>
-            </div>
-          </div>
-          <div className="caption">
-            © <span id="year">{new Date().getFullYear()}</span> ZealNews
-            Africa. All rights reserved.
-          </div>
-        </div>
-      </footer> */}
       {/* STICKY CTA */}
       <div
         className={`sticky-cta ${showSticky ? "visible" : ""}`}

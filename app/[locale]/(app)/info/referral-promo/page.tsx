@@ -1,33 +1,25 @@
 "use client";
 import { Menu } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useAuthStore } from "@/stores/authStore";
-import { copyReferralLink } from "@/services/referral.services";
 import { toast } from "sonner";
+import { copyReferralLink } from "@/services/referral.services";
+import { useAuthStore } from "@/stores/authStore";
 
-import AnimatedHero from "./_components/AnimatedHero";
-import ExplainerVideo from "./_components/ExplainerVideo";
-import FooterSection from "./_components/FooterSection";
 import HowItWorks from "./_components/HowItWorks";
-import HowItWorksCard from "./_components/HowItWorksCard";
-import InfographicGuide from "./_components/InfographicGuide";
 import LeaderboardPreview from "./_components/LeaderboardPreview";
-import LeaderboardTable from "./_components/LeaderboardTable";
 import PrizeTiers from "./_components/PrizeTiers";
-import ReferralPromoHero1 from "./_components/ReferralPromoHero1";
-import RewardsCard from "./_components/RewardsCard";
-import UserProgress from "./_components/UserProgress";
-import WeeklyTimelineShare from "./_components/WeeklyTimelineShare";
 import ReferralPromo2 from "./_components/ReferralPromo2";
+import ReferralPromoHero1 from "./_components/ReferralPromoHero1";
+import WeeklyTimelineShare from "./_components/WeeklyTimelineShare";
 
 const ReferralPromo1 = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user, initialized } = useAuthStore();
+  const { user } = useAuthStore();
 
   const handleGetLink = async () => {
     // If authenticated with referral code, copy referral link
     if (user?.referral_code) {
-      const referralLink = `${typeof window !== 'undefined' ? window.location.origin : ''}?ref=${user.referral_code}`;
+      const referralLink = `${typeof window !== "undefined" ? window.location.origin : ""}?ref=${user.referral_code}`;
       const success = await copyReferralLink(referralLink);
       if (success) {
         toast.success("Referral link copied to clipboard!");
@@ -48,7 +40,9 @@ const ReferralPromo1 = () => {
       behavior: "smooth",
       block: "center",
     });
-    (document.querySelector("input[type='email']") as HTMLInputElement)?.focus();
+    (
+      document.querySelector("input[type='email']") as HTMLInputElement
+    )?.focus();
     toast.info("Please enter your email to get started");
   };
 
@@ -126,176 +120,6 @@ const ReferralPromo1 = () => {
         <LeaderboardPreview />
       </div>
     </>
-  );
-};
-
-const ReferralPromo21 = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const { user } = useAuthStore();
-
-  const handleGetLink = async () => {
-    // If authenticated with referral code, copy referral link
-    if (user?.referral_code) {
-      const referralLink = `${typeof window !== 'undefined' ? window.location.origin : ''}?ref=${user.referral_code}`;
-      const success = await copyReferralLink(referralLink);
-      if (success) {
-        toast.success("Referral link copied to clipboard!");
-      } else {
-        toast.error("Failed to copy link");
-      }
-      return;
-    }
-
-    // If authenticated without referral code, scroll to signup
-    if (user && !user.referral_code) {
-      toast.info("Please generate your referral code first");
-      return;
-    }
-
-    // If not authenticated, scroll to signup form (in AnimatedHero)
-    const emailInput = document.querySelector("#email") as HTMLInputElement;
-    if (emailInput) {
-      emailInput.scrollIntoView({ behavior: "smooth", block: "center" });
-      emailInput.focus();
-    }
-    toast.info("Please enter your email to get started");
-  };
-
-  useEffect(() => {
-    // Reveal elements on scroll
-    const revealEls = () => {
-      const items = document.querySelectorAll(".reveal");
-      const io = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((e) => {
-            if (e.isIntersecting) e.target.classList.add("is-visible");
-          });
-        },
-        {
-          threshold: 0.15,
-        },
-      );
-      items.forEach((i) => io.observe(i));
-    };
-
-    revealEls();
-  }, []);
-
-  return (
-    <div className="bg-gradient-to-b from-emerald-50 to-white text-slate-800 antialiased">
-      {/* Header */}
-      <header className="sticky top-14 z-50 border-b border-gray-200 bg-gray-100">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            {/* Mobile menu button */}
-            <button
-              className="p-2 lg:hidden"
-              onClick={() => setMenuOpen(!menuOpen)}
-            >
-              <Menu className="size-6" />
-            </button>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden flex-1 items-center justify-center gap-8 lg:flex">
-              <a
-                href="#leaderboard"
-                className="text-gray-700 hover:text-gray-900"
-              >
-                Leaderboard
-              </a>
-              <a
-                href="#infographic-guide"
-                className="text-gray-700 hover:text-gray-900"
-              >
-                Infographic Guide
-              </a>
-              <a
-                href="#explainer-video"
-                className="text-gray-700 hover:text-gray-900"
-              >
-                Explainer Video
-              </a>
-            </nav>
-
-            {/* CTA Buttons */}
-            <div className="flex items-center gap-3">
-              <button className="rounded border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50">
-                Rules
-              </button>
-              <button
-                onClick={handleGetLink}
-                className="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800"
-              >
-                Get Link
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile Navigation */}
-          {menuOpen && (
-            <nav className="border-t border-gray-200 py-4 lg:hidden">
-              <a href="#leaderboard" className="block py-2 text-gray-700">
-                Leaderboard
-              </a>
-              <a href="#infographic-guide" className="block py-2 text-gray-700">
-                Infographic Guide
-              </a>
-              <a href="#explainer-video" className="block py-2 text-gray-700">
-                Explainer Video
-              </a>
-            </nav>
-          )}
-        </div>
-      </header>
-
-      {/* HERO */}
-      <AnimatedHero />
-
-      {/* REWARDS & HOW IT WORKS */}
-      <main className="mx-auto -mt-12 max-w-6xl px-6">
-        <section className="grid gap-6 md:grid-cols-3">
-          <div className="reveal glass rounded-2xl p-6 shadow-md">
-            <RewardsCard />
-          </div>
-
-          <div className="reveal rounded-2xl bg-white p-6 shadow-md">
-            <HowItWorksCard />
-          </div>
-
-          <div className="reveal glass rounded-2xl p-6 shadow-md">
-            <UserProgress />
-          </div>
-        </section>
-
-        {/* Leaderboard */}
-        <LeaderboardTable />
-      </main>
-
-      {/* INFOGRAPHIC GUIDE SECTION */}
-      <InfographicGuide />
-
-      {/* EXPLAINER VIDEO SECTION */}
-      <ExplainerVideo />
-
-      <style jsx>{`
-        .reveal {
-          transform: translateY(14px);
-          opacity: 0;
-          transition: all 0.7s cubic-bezier(0.2, 0.9, 0.3, 1);
-        }
-
-        .reveal.is-visible {
-          transform: translateY(0);
-          opacity: 1;
-        }
-
-        .glass {
-          background: rgba(255, 255, 255, 0.55);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
-        }
-      `}</style>
-    </div>
   );
 };
 

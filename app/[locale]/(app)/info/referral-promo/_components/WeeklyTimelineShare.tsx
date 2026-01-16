@@ -45,9 +45,8 @@ const shareOptions: ShareOption[] = [
     id: "whatsapp",
     content: (referralLink) => (
       <p className="leading-relaxed text-gray-700">
-        I'm loving ZealNews — concise, credible Africa-first news. Join via my
-        link and you could win this week!
-        <br />
+        Read stories that matter. Share what you love. Get involved in
+        conversations shaping Africa today. Join Zeal here:{" "}
         <span className="text-[#1E824C]">{referralLink}</span>
       </p>
     ),
@@ -59,12 +58,8 @@ const shareOptions: ShareOption[] = [
     id: "twitter",
     content: (referralLink) => (
       <p className="leading-relaxed text-gray-700">
-        Credible, concise Africa-first news via @ZealNews. Join through my link
-        →
-        <br />
-        <span className="text-[#1E824C]">
-          {referralLink} #ZealNews #ShareAndWin
-        </span>
+        If it’s African news that matters, it’s on Zeal. Join now so you don’t
+        miss out: <span className="text-[#1E824C]">{referralLink}</span>
       </p>
     ),
     getTextToCopy: (referralLink) =>
@@ -75,11 +70,10 @@ const shareOptions: ShareOption[] = [
     id: "linkedin",
     content: (referralLink) => (
       <p className="leading-relaxed text-gray-700">
-        If you value credible, Africa-first reporting, try ZealNews. My link:
-        <br />
-        <span className="text-[#1E824C]">
-          {referralLink}. Weekly rewards for verified signups.
-        </span>
+        Access in-depth African news, culture, tech, and lifestyle stories in
+        one place. Stay informed. Join discussions. Connect with like-minded
+        readers. Sign up for Zeal:{" "}
+        <span className="text-[#1E824C]">{referralLink}.</span>
       </p>
     ),
     getTextToCopy: (referralLink) =>
@@ -90,12 +84,10 @@ const shareOptions: ShareOption[] = [
     id: "facebook",
     content: (referralLink) => (
       <p className="leading-relaxed text-gray-700">
-        Credible, concise Africa-first news via @ZealNews. Join through my link
-        →
-        <br />
-        <span className="text-[#1E824C]">
-          {referralLink} #ZealNews #ShareAndWin
-        </span>
+        Stop scrolling through headlines that don’t tell the full story. Zeal
+        gives you real news, culture, and lifestyle coverage that matters. Join
+        the Zeal community today:{" "}
+        <span className="text-[#1E824C]">{referralLink}</span>
       </p>
     ),
     getTextToCopy: (referralLink) =>
@@ -109,7 +101,8 @@ const WeeklyTimelineShare: React.FC = () => {
   const { referralLink, isAuthenticated } = useReferralData();
 
   // Use real referral link if authenticated, otherwise use placeholder
-  const displayReferralLink = referralLink || "https://zealnews.africa/r/your-handle";
+  const displayReferralLink =
+    referralLink || "https://zealnews.africa/r/your-handle";
 
   const handleCopy = (text: string, id: string) => {
     navigator.clipboard
@@ -177,7 +170,9 @@ const WeeklyTimelineShare: React.FC = () => {
                     key={option.id}
                     className="space-y-2 rounded-lg border border-dashed border-green-800 p-4"
                   >
-                    <h3 className="font-bold text-gray-900">{option.platform}</h3>
+                    <h3 className="font-bold text-gray-900">
+                      {option.platform}
+                    </h3>
                     {option.content(displayReferralLink)}
                     <button
                       onClick={() => handleCopy(textToCopy, option.id)}

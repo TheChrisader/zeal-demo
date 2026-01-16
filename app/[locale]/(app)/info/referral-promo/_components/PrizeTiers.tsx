@@ -41,9 +41,9 @@ const PrizeTiers: React.FC = () => {
         {/* Header Section */}
         <div className="mb-8 text-left">
           <h2 className="text-3xl font-bold text-[#1E5E4B]">Prize tiers</h2>
-          <p className="mt-2 text-lg text-emerald-900">
+          {/* <p className="mt-2 text-lg text-emerald-900">
             We reward reach and relevance — verified signups only.
-          </p>
+          </p> */}
         </div>
 
         {/* Prizes Grid Section */}

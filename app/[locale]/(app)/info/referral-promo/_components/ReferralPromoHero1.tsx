@@ -1,8 +1,9 @@
 "use client";
+import { AlertCircle, Check, Copy, Menu } from "lucide-react";
 import React, { useState } from "react";
-import { Menu, Copy, Check, AlertCircle } from "lucide-react";
-import { useReferral } from "@/hooks/useReferral";
 import { toast } from "sonner";
+import { useReferral } from "@/hooks/useReferral";
+import { Link } from "@/i18n/routing";
 
 const ReferralPromoHero1: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -46,7 +47,7 @@ const ReferralPromoHero1: React.FC = () => {
         toast.success(data.message);
       } else {
         toast.success(
-          "Account created! Check your email to verify and set your password."
+          "Account created! Check your email to verify and set your password.",
         );
       }
     } catch (error) {
@@ -54,7 +55,7 @@ const ReferralPromoHero1: React.FC = () => {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Something went wrong. Please try again."
+          : "Something went wrong. Please try again.",
       );
     } finally {
       setIsLoading(false);
@@ -197,15 +198,26 @@ const ReferralPromoHero1: React.FC = () => {
                 )}
               </button>
 
+              {/* Terms Link */}
+              <p className="text-center text-xs text-gray-600">
+                By signing up, you agree to our{" "}
+                <Link
+                  href="/info/referral-promo/terms-and-conditions"
+                  className="text-emerald-700 underline hover:text-emerald-900"
+                >
+                  Terms & Conditions
+                </Link>
+              </p>
+
               {/* Link Preview */}
               {referralLink && (
                 <div className="flex flex-wrap items-center gap-2 rounded bg-green-50 p-3">
                   <Check className="size-5 text-green-600" />
-                  <div className="flex flex-1 flex-col sm:flex-row sm:items-center gap-2">
+                  <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
                     <span className="text-sm font-medium text-green-800">
                       Your referral link:
                     </span>
-                    <span className="text-sm font-medium text-emerald-700 break-all">
+                    <span className="break-all text-sm font-medium text-emerald-700">
                       {referralLink}
                     </span>
                   </div>
@@ -222,15 +234,14 @@ const ReferralPromoHero1: React.FC = () => {
           </div>
 
           {/* Right Column - Prize Info */}
-          <div className="space-y-6 rounded-lg bg-white p-4">
+          <div className="space-y-6 rounded-lg bg-white p-4 text-black/80">
             {/* Prize Card */}
             <div className="rounded-lg bg-green-50 p-4">
               <div className="grow-shrink mb-2 flex w-fit text-sm font-bold text-emerald-800">
-                This week's prize
+                Star Prize
               </div>
-              <h2 className="mb-4 text-4xl font-bold lg:text-5xl">
-                ₦50,000 cash +<br />
-                Branded T-Shirt
+              <h2 className="mb-4 text-3xl font-bold lg:text-4xl">
+                ₦50,000 cash price plus an exclusive Zeal-branded T-shirt
               </h2>
               <p className="text-sm text-emerald-800">
                 10 runner-ups: data vouchers
@@ -240,25 +251,34 @@ const ReferralPromoHero1: React.FC = () => {
             {/* Features Grid */}
             <div className="grid gap-4 sm:grid-cols-2">
               {/* Share Anywhere */}
-              <div className="rounded-lg border border-gray-200 bg-green-50/50 p-6">
+              {/* <div className="rounded-lg border border-gray-200 bg-green-50/50 p-6">
                 <h3 className="mb-1 font-bold">Share anywhere</h3>
                 <p className="text-sm text-emerald-800">
                   WhatsApp, X, LinkedIn, email, communities
                 </p>
+              </div> */}
+              <div className="p-6 sm:p-16">
+                <img src="/zeal_logo_2.svg" className="size-20 sm:size-auto" />
               </div>
 
               {/* Fair Tracking */}
               <div className="rounded-lg border border-gray-200 bg-green-50/50 p-6">
-                <h3 className="mb-1 font-bold">Fair tracking</h3>
+                <h3 className="mb-1 font-bold">
+                  Transparent and reliable tracking
+                </h3>
                 <p className="text-sm text-emerald-800">
-                  Verified signups only — no spam
+                  We count only verified sign-ups to ensure fairness, accuracy,
+                  and a spam-free experience for everyone involved.
                 </p>
               </div>
             </div>
 
             {/* Pro Tip */}
             <div className="rounded-lg border border-gray-200 bg-green-50/50 p-6">
-              <h3 className="mb-1 font-bold">Pro tip</h3>
+              <h3 className="mb-1 font-bold">
+                Include a brief personal message when sharing. It drives two to
+                three times more engagement than posting a link alone.{" "}
+              </h3>
               <p className="text-sm text-emerald-800">
                 Add a short personal note when you share — converts 2–3× better
                 than bare links.
