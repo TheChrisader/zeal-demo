@@ -21,8 +21,8 @@ export function FooterTop() {
 
   useEffect(() => {
     // Check if user has already selected newsletter preferences
-    const preferencesSelected = getCookie("zealnews_preferences_selected");
-    setIsSubscribed(preferencesSelected === "true");
+    const newsletterSubscribed = getCookie("zealnews_subscribed_newsletter");
+    setIsSubscribed(newsletterSubscribed === "true");
     setIsLoading(false);
   }, []);
 
@@ -31,15 +31,15 @@ export function FooterTop() {
     return null;
   }
   return (
-    <div className="bg-gradient-to-r from-emerald-950 via-emerald-900 to-emerald-950 py-12 px-4">
+    <div className="bg-gradient-to-r from-emerald-950 via-emerald-900 to-emerald-950 px-4 py-12">
       <div className="container mx-auto">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+        <div className="flex flex-col items-center justify-between gap-8 lg:flex-row">
           {/* Newsletter Section */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex-1 w-full lg:w-auto"
+            className="w-full flex-1 lg:w-auto"
           >
             <FooterNewsletterSignup />
           </motion.div>
@@ -49,10 +49,10 @@ export function FooterTop() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex flex-col items-center lg:items-end gap-4"
+            className="flex flex-col items-center gap-4 lg:items-end"
           >
             <div className="text-center lg:text-right">
-              <h2 className="text-3xl font-bold text-white mb-2">
+              <h2 className="mb-2 text-3xl font-bold text-white">
                 Zeal News Africa
               </h2>
               <p className="text-emerald-100">

@@ -9,7 +9,7 @@ import { useReferralClient } from "@/hooks/useReferralClient";
 import { onboardingVariants, useOnboardingContext } from "../page";
 
 const ReferralForm = ({ key }: { key: string }) => {
-  const { setStep, setIsLoading } = useOnboardingContext();
+  const { setStep } = useOnboardingContext();
   const { referralCode, clearReferralCode, setReferralCodeManually } =
     useReferralClient();
   const [manualCode, setManualCode] = useState("");

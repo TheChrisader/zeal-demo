@@ -2,9 +2,9 @@ import { Lucia } from "lucia";
 import type { Session, User } from "lucia";
 import { cookies } from "next/headers";
 import { cache } from "react";
-import { IUser } from "@/types/user.type";
+// import { IUser } from "@/types/user.type";
 import { adapter } from "./adapter";
-import { Id } from "../database";
+// import { Id } from "../database";
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
@@ -70,10 +70,10 @@ export const validateRequest = cache(
   },
 );
 
-declare module "lucia" {
-  interface Register {
-    Lucia: typeof lucia;
-    DatabaseUserAttributes: Partial<IUser>;
-    UserId: Id | string;
-  }
-}
+// declare module "lucia" {
+//   interface Register {
+//     Lucia: typeof lucia;
+//     DatabaseUserAttributes: Partial<IUser>;
+//     UserId: Id | string;
+//   }
+// }
