@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { UpdateUserAccountSchema } from "@/database/user/user.dto";
+import UserModel from "@/database/user/user.model";
 import { findUserById, updateUser } from "@/database/user/user.repository";
 import { validateRequest } from "@/lib/auth/auth";
 import { serverAuthGuard } from "@/lib/auth/serverAuthGuard";
@@ -11,7 +12,6 @@ import {
   INVALID_INPUT_ERROR,
   USER_NOT_FOUND_ERROR,
 } from "@/utils/error/error-codes";
-import UserModel from "@/database/user/user.model";
 import { transformUserForClient } from "@/utils/user.transform";
 
 export const GET = async () => {
@@ -25,7 +25,7 @@ export const GET = async () => {
     }
 
     const userDoc = await UserModel.findById(user.id).select(
-      "username email role display_name avatar bio country has_email_verified upgrade_pending referral_code referral_count referred_by",
+      "username email role display_name avatar bio country has_email_verified upgrade_pending referral_code referral_count referred_by two_fa_enabled",
     );
 
     if (!userDoc) {

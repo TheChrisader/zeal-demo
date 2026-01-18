@@ -1,46 +1,62 @@
 import * as OTPAuth from "otpauth";
+import { randomBytes } from "crypto";
 
-const createOTPGenerator = (email: string) => {
-  return new OTPAuth.TOTP({
+/**
+ * Generate a unique Base32 secret for a user
+ * @returns A 20-byte Base32 encoded secret
+ */
+export const generateSecret = (): string => {
+  return new OTPAuth.Secret({ size: 20 }).base32;
+};
+
+/**
+ * Generate a TOTP URL for QR code generation
+ * @param email - User's email for the label
+ * @param secret - The user's unique Base32 secret
+ * @returns otpauth:// URL for QR code generation
+ */
+export const generateOTPURL = (email: string, secret: string): string => {
+  const totp = new OTPAuth.TOTP({
     issuer: "Zeal News Africa",
     label: email,
     algorithm: "SHA1",
     digits: 6,
-    period: 60 * 4,
-    secret: "NB2W45DFOIZA", // In production, generate a unique secret for each user
-  });
-};
-
-export const generateOTP = (email: string) => {
-  const totp = createOTPGenerator(email);
-  return totp.generate();
-};
-
-export const generateOTPURL = (email: string) => {
-  const totp = new OTPAuth.TOTP({
-    issuer: "Zeal News Africa",
-    label: encodeURIComponent(email),
-    algorithm: "SHA1",
-    digits: 6,
-    period: 30, // Changed from 240 to standard 30-second window
-    secret: OTPAuth.Secret.fromBase32("NB2W45DFOIZA======"), // Added base32 padding
+    period: 30, // Standard 30-second window
+    secret: OTPAuth.Secret.fromBase32(secret),
   });
   return totp.toString();
 };
 
-export const validateOTP = (email: string, token: string) => {
-  const totp = createOTPGenerator(email);
+/**
+ * Validate a TOTP token against a user's secret
+ * @param secret - The user's Base32 secret
+ * @param token - The 6-digit code to validate
+ * @returns The token offset if valid, null if invalid
+ */
+export const validate2FA = (secret: string, token: string): number | null => {
+  const totp = new OTPAuth.TOTP({
+    algorithm: "SHA1",
+    digits: 6,
+    period: 30,
+    secret: OTPAuth.Secret.fromBase32(secret),
+  });
+  // window: 1 allows 1 period before and after for clock skew
   return totp.validate({ token, window: 1 });
 };
 
-export const validate2FA = (email: string, token: string) => {
-  const totp = new OTPAuth.TOTP({
-    issuer: "Zeal News Africa",
-    label: encodeURIComponent(email),
-    algorithm: "SHA1",
-    digits: 6,
-    period: 30, // Changed from 240 to standard 30-second window
-    secret: OTPAuth.Secret.fromBase32("NB2W45DFOIZA======"), // Added base32 padding
-  });
-  return totp.validate({ token, window: 1 });
+/**
+ * Generate backup codes for recovery
+ * @param count - Number of backup codes to generate (default: 10)
+ * @returns Array of formatted backup codes (XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX)
+ */
+export const generateBackupCodes = (count: number = 10): string[] => {
+  const codes: string[] = [];
+  for (let i = 0; i < count; i++) {
+    // Generate 16 random bytes (32 hex chars), format as XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX
+    const code = randomBytes(16).toString("hex").toUpperCase();
+    // Format as groups of 4: XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX
+    const formatted = code.match(/.{1,4}/g)?.join("-") || code;
+    codes.push(formatted);
+  }
+  return codes;
 };

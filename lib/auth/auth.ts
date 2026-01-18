@@ -13,6 +13,12 @@ export const lucia = new Lucia(adapter, {
       secure: process.env.NODE_ENV === "production",
     },
   },
+  getSessionAttributes: (attributes) => {
+    return {
+      two_fa_pending: attributes.two_fa_pending,
+      two_fa_verified_at: attributes.two_fa_verified_at,
+    };
+  },
   getUserAttributes: (attributes) => {
     return {
       username: attributes.username,
@@ -27,6 +33,7 @@ export const lucia = new Lucia(adapter, {
       referral_code: attributes.referral_code,
       referral_count: attributes.referral_count,
       referred_by: attributes.referred_by,
+      two_fa_enabled: attributes.two_fa_enabled ?? false,
     };
   },
 });
@@ -36,7 +43,6 @@ export const validateRequest = cache(
     { user: User; session: Session } | { user: null; session: null }
   > => {
     const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
-    // console.log(cookies());
 
     if (!sessionId) {
       return {
@@ -70,10 +76,5 @@ export const validateRequest = cache(
   },
 );
 
-// declare module "lucia" {
-//   interface Register {
-//     Lucia: typeof lucia;
-//     DatabaseUserAttributes: Partial<IUser>;
-//     UserId: Id | string;
-//   }
-// }
+// export interface Session extends Lucia.Session {}
+// export type Session = ReturnType<Lucia["validateSession"]>;

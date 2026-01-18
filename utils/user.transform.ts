@@ -1,6 +1,6 @@
 import { User } from "lucia";
 import { Document } from "mongoose";
-import { IUser } from "@/types/user.type";
+import { Id } from "@/lib/database";
 
 /**
  * Transform a MongoDB user document to the client-expected format
@@ -13,7 +13,7 @@ export function transformUserForClient(userDoc: Document | null): User | null {
 
   return {
     ...userObject,
-    id: userDoc._id.toHexString(), // Convert ObjectId to string and map to 'id'
+    id: (userDoc._id as Id).toHexString(), // Convert ObjectId to string and map to 'id'
     _id: undefined, // Remove the MongoDB _id property
   } as User;
 }
@@ -31,7 +31,7 @@ export function transformUsersForClient(userDocs: Document[]): User[] {
  * Ensure a user object has the correct id property format
  * This can be used as a safety check for any user data
  */
-export function normalizeUserId(user: any): User {
+export function normalizeUserId(user: User & { _id: Id }): User | null {
   if (!user) return null;
 
   // If already has id property and no _id, return as-is
@@ -42,7 +42,6 @@ export function normalizeUserId(user: any): User {
     return {
       ...user,
       id: typeof user._id === "object" ? user._id.toHexString() : user._id,
-      _id: undefined,
     };
   }
 

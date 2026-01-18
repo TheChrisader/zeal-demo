@@ -36,12 +36,20 @@ export interface IUser {
   referral_code: string | null;
   referral_count: number;
   referred_by: Id | null;
+  two_fa_enabled: boolean;
   created_at: Date;
   updated_at: Date;
 }
 
 export interface IUserWithPassword extends IUser {
   password_hash: string;
+  two_fa_secret?: string | null; // Encrypted JSON string, not exposed in API responses
+  two_fa_backup_codes?: string[]; // Hashed backup codes, not exposed in API responses
+  two_fa_backup_codes_used?: string[]; // Used backup codes, not exposed in API responses
+}
+
+export interface IUserWithStrictId extends Omit<IUser, "id"> {
+  _id: Id;
 }
 
 export interface IUpdateUser extends Partial<IUser> {

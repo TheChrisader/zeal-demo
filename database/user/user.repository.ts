@@ -1,6 +1,6 @@
 import { FilterQuery } from "mongoose";
 
-import { Id, newId, QueryOptions, UpdateQueryOptions } from "@/lib/database";
+import { connectToDatabase, Id, newId, QueryOptions, UpdateQueryOptions } from "@/lib/database";
 import { IUser, IUserWithPassword } from "@/types/user.type";
 import { Optional } from "@/types/utils";
 
@@ -229,6 +229,58 @@ export const deleteMultipleUsersById = async (
       _id: { $in: userIds.map((id) => newId(id)) },
     });
     return deletedCount;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Find user with 2FA fields by ID
+ * Uses .select() to include fields marked with select: false
+ */
+export const findUserWith2FAById = async (
+  userId: string | Id,
+): Promise<IUserWithPassword | null> => {
+  try {
+    await connectToDatabase();
+    const user = await UserModel.findById(userId)
+      .select("+two_fa_secret +two_fa_backup_codes +two_fa_backup_codes_used");
+    return user?.toObject() || null;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Find user with 2FA fields by email
+ * Uses .select() to include fields marked with select: false
+ */
+export const findUserWith2FAByEmail = async (
+  email: string,
+): Promise<IUserWithPassword | null> => {
+  try {
+    await connectToDatabase();
+    const serializedEmail = email.toLowerCase().trim();
+    const user = await UserModel.findOne({ email: serializedEmail })
+      .select("+two_fa_secret +two_fa_backup_codes +two_fa_backup_codes_used");
+    return user?.toObject() || null;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Find user with 2FA fields by username
+ * Uses .select() to include fields marked with select: false
+ */
+export const findUserWith2FAByUsername = async (
+  username: string,
+): Promise<IUserWithPassword | null> => {
+  try {
+    await connectToDatabase();
+    const user = await UserModel.findOne({ username: username.trim() })
+      .select("+two_fa_secret +two_fa_backup_codes +two_fa_backup_codes_used");
+    return user?.toObject() || null;
   } catch (error) {
     throw error;
   }

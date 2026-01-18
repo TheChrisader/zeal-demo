@@ -1,25 +1,25 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "@/i18n/routing";
-import { useRouter } from "@/app/_components/useRouter";
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { object, string, z } from "zod";
+import { useRouter } from "@/app/_components/useRouter";
 import revalidatePathAction from "@/app/actions/revalidatePath";
 import { InputWithLabel } from "@/components/forms/Input/InputWithLabel";
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
+import { Link } from "@/i18n/routing";
 import {
   SignInUserWithUsernameAndPassword,
   SignUserWithoutPassword,
 } from "@/services/auth.services";
+import { decodeJWTResponse } from "@/utils/jwt.utils";
 import AuthHeader from "../_components/AuthHeader";
 import ContinueWithSeparator from "../_components/ContinueWithSeparator";
 import SocialProviders from "../_components/SocialProviders";
-import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
-import { decodeJWTResponse } from "@/utils/jwt.utils";
-import { toast } from "sonner";
 
 const SignInPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -66,7 +66,7 @@ const SignInPage = () => {
     return () => {
       document.body.removeChild(script);
     };
-  }, []);
+  }, [router]);
 
   const SignInFormSchema = object({
     username: string().min(1, "Username is required"),
@@ -86,17 +86,24 @@ const SignInPage = () => {
     const { username, password } = data;
     setIsLoading(true);
     try {
-      await SignInUserWithUsernameAndPassword({
+      const response = await SignInUserWithUsernameAndPassword({
         username,
         password,
       });
+
+      // Check if 2FA is required
+      if ((response as { requires2FA?: boolean })?.requires2FA) {
+        router.push("/signin/2fa");
+        return;
+      }
+
       revalidatePathAction("/");
       router.push("/");
     } catch (error) {
       console.log(error);
-      // @ts-ignore
+      // @ts-expect-error - error object from API may not have typed properties
       if (error.status === 500) toast.error("Something went wrong");
-      // @ts-ignore
+      // @ts-expect-error - error object from API may not have typed properties
       setError(error.message);
     } finally {
       setIsLoading(false);

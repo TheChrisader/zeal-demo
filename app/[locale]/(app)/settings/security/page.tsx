@@ -3,27 +3,65 @@ import {
   AlertCircle,
   CheckCircle2,
   Key,
+  KeyRound,
   Lock,
-  RotateCw,
   Shield,
   ShieldCheck,
   ShieldX,
   Smartphone,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/hooks/useAuth";
 import PasswordModal from "./popup/PasswordModal";
 import TwoFAModal from "./popup/TwoFAModal";
 
 const SecuritySettings = () => {
-  const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+  const { user, refresh } = useAuth();
   const [twoFAModalOpen, setTwoFAModalOpen] = useState(false);
   const [qrCodeData, setQrCodeData] = useState("");
   const [isLoading2FA, setIsLoading2FA] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showBackupCodesModal, setShowBackupCodesModal] = useState(false);
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
+  const [regeneratingCodes, setRegeneratingCodes] = useState(false);
+
+  // Backup codes regeneration handler
+  const handleRegenerateBackupCodes = async () => {
+    const password = prompt("Enter your password to regenerate backup codes:");
+    if (!password) return;
+
+    setRegeneratingCodes(true);
+    setErrorMessage(null);
+
+    try {
+      const response = await fetch("/api/v1/2fa/backup-codes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setBackupCodes(data.backupCodes);
+        setShowBackupCodesModal(true);
+        setSuccessMessage("New backup codes generated!");
+        setTimeout(() => setSuccessMessage(null), 3000);
+      } else {
+        setErrorMessage(data.error || "Failed to regenerate backup codes");
+      }
+    } catch (error) {
+      setErrorMessage("Something went wrong");
+    } finally {
+      setRegeneratingCodes(false);
+    }
+  };
 
   const handle2FAToggle = async (checked: boolean) => {
     setIsLoading2FA(true);
@@ -50,7 +88,7 @@ const SecuritySettings = () => {
           method: "POST",
         });
         if (response.ok) {
-          setIs2FAEnabled(false);
+          await refresh();
           setSuccessMessage("2FA disabled successfully");
           setTimeout(() => setSuccessMessage(null), 3000);
         }
@@ -162,12 +200,12 @@ const SecuritySettings = () => {
               <div className="flex items-start gap-3">
                 <div
                   className={`shrink-0 rounded-lg p-3 transition-all duration-200 ${
-                    is2FAEnabled
+                    user?.two_fa_enabled
                       ? "bg-green-500/10 group-hover:bg-green-500/20"
                       : "bg-orange-500/5 group-hover:bg-orange-500/10"
                   }`}
                 >
-                  {is2FAEnabled ? (
+                  {user?.two_fa_enabled ? (
                     <ShieldCheck className="size-5 text-green-600" />
                   ) : (
                     <ShieldX className="size-5 text-orange-600" />
@@ -178,8 +216,8 @@ const SecuritySettings = () => {
                     <p className="text-sm font-semibold text-foreground/80">
                       Two-Factor Authentication
                     </p>
-                    {is2FAEnabled ? (
-                      <Badge className="h-4 gap-1 bg-green-500/10 px-1.5 text-[10px] text-green-600">
+                    {user?.two_fa_enabled ? (
+                      <Badge className="h-4 gap-1 bg-green-500/10 px-1.5 text-[10px] text-green-600 hover:text-white">
                         <CheckCircle2 className="size-2.5" />
                         Enabled
                       </Badge>
@@ -194,7 +232,7 @@ const SecuritySettings = () => {
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {is2FAEnabled
+                    {user?.two_fa_enabled
                       ? "Your account is protected with 2FA"
                       : "Add an extra layer of security to your account"}
                   </p>
@@ -208,7 +246,7 @@ const SecuritySettings = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Switch
-                  checked={is2FAEnabled}
+                  checked={user?.two_fa_enabled}
                   onCheckedChange={handle2FAToggle}
                   disabled={isLoading2FA}
                   className="shrink-0 data-[state=checked]:bg-green-600"
@@ -216,6 +254,44 @@ const SecuritySettings = () => {
               </div>
             </div>
           </div>
+
+          {/* Backup Codes Section - Only shown when 2FA is enabled */}
+          {user?.two_fa_enabled && (
+            <div className="group relative rounded-lg border border-border/40 bg-gradient-to-r from-background/80 to-muted/5 p-4 transition-all duration-200 hover:border-primary/15 hover:bg-muted/10">
+              <div className="flex w-full items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="shrink-0 rounded-lg bg-purple-500/5 p-3 transition-all duration-200 group-hover:bg-purple-500/10">
+                    <KeyRound className="size-5 text-purple-600" />
+                  </div>
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-foreground/80">
+                        Backup Codes
+                      </p>
+                      <Badge
+                        variant="outline"
+                        className="h-4 px-1.5 text-[10px]"
+                      >
+                        Recovery
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Generate recovery codes for when you can&apos;t access
+                      your authenticator
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={handleRegenerateBackupCodes}
+                  disabled={regeneratingCodes}
+                  className="shrink-0"
+                >
+                  {regeneratingCodes ? "Generating..." : "Regenerate"}
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -233,10 +309,12 @@ const SecuritySettings = () => {
             });
 
             if (response.ok) {
-              setIs2FAEnabled(true);
-              setTwoFAModalOpen(false);
+              const data = await response.json();
+              await refresh();
               setSuccessMessage("2FA enabled successfully!");
               setTimeout(() => setSuccessMessage(null), 3000);
+              // Return the data with backup codes to the modal
+              return { success: true, backupCodes: data.backupCodes };
             } else {
               throw new Error("Verification failed");
             }
@@ -247,6 +325,48 @@ const SecuritySettings = () => {
           }
         }}
       />
+
+      {/* Backup Codes Modal */}
+      {showBackupCodesModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-lg bg-background p-6 shadow-lg">
+            <h3 className="mb-2 text-lg font-semibold">
+              Save Your Backup Codes
+            </h3>
+            <p className="mb-4 text-sm text-muted-foreground">
+              These codes won&apos;t be shown again. Store them securely.
+            </p>
+            <div className="mb-4 grid grid-cols-2 gap-2">
+              {backupCodes.map((code, i) => (
+                <code
+                  key={i}
+                  className="rounded bg-muted p-2 text-center font-mono text-xs"
+                >
+                  {code}
+                </code>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  navigator.clipboard.writeText(backupCodes.join("\n"));
+                  toast.success("Codes copied to clipboard");
+                }}
+                className="flex-1"
+              >
+                Copy All
+              </Button>
+              <Button
+                onClick={() => setShowBackupCodesModal(false)}
+                className="flex-1"
+              >
+                Done
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

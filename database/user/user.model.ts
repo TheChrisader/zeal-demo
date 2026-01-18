@@ -98,6 +98,26 @@ const UserSchema = new Schema<IUserWithPassword>(
       ref: 'User',
       default: null,
     },
+    // Two-Factor Authentication fields
+    two_fa_enabled: {
+      type: Boolean,
+      default: false,
+    },
+    two_fa_secret: {
+      type: String,
+      default: null,
+      select: false, // Never query by default, must explicitly select
+    },
+    two_fa_backup_codes: {
+      type: [String],
+      default: [],
+      select: false,
+    },
+    two_fa_backup_codes_used: {
+      type: [String],
+      default: [],
+      select: false,
+    },
   },
   {
     timestamps: {
@@ -133,6 +153,7 @@ UserSchema.index({ auth_provider: 1, created_at: -1 });
 UserSchema.index({ last_login_at: -1 });
 UserSchema.index({ referral_code: 1 });
 UserSchema.index({ referred_by: 1 });
+UserSchema.index({ two_fa_enabled: 1 });
 
 const UserModel: Model<IUserWithPassword> =
   models.User || model<IUserWithPassword>("User", UserSchema);
