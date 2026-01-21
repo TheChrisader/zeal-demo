@@ -1,15 +1,15 @@
+import { NextRequest, NextResponse } from "next/server";
+import { ZodError } from "zod";
 import { findUserByEmail, updateUser } from "@/database/user/user.repository";
 import { serverAuthGuard } from "@/lib/auth/serverAuthGuard";
 import { connectToDatabase } from "@/lib/database";
-import { validateOTP } from "@/lib/otp";
+import { validateEmailOTP } from "@/lib/otp";
 import { buildError, sendError } from "@/utils/error";
 import {
   INTERNAL_ERROR,
   INVALID_INPUT_ERROR,
   USER_ALREADY_EXISTS_ERROR,
 } from "@/utils/error/error-codes";
-import { NextRequest, NextResponse } from "next/server";
-import { ZodError } from "zod";
 
 export const POST = async (request: NextRequest) => {
   try {
@@ -41,7 +41,7 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
-    const isTokenValid = validateOTP(user.email as string, otp);
+    const isTokenValid = validateEmailOTP(user.email as string, otp);
 
     if (isTokenValid === null) {
       return sendError(

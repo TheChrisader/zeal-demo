@@ -80,6 +80,14 @@ jobs:
           echo "SQS_SECRET_ACCESS_KEY=${{ secrets.SQS_SECRET_ACCESS_KEY }}" >> .env
           echo "SQS_REGION=${{ secrets.SQS_REGION }}" >> .env
           echo "SES_FEEDBACK_QUEUE_URL=${{ secrets.SES_FEEDBACK_QUEUE_URL }}" >> .env
+          echo "TWO_FA_ENCRYPTION_KEY=${{secrets.TWO_FA_ENCRYPTION_KEY}}" >> .env
+          echo "LOG_LEVEL=${{secrets.LOG_LEVEL}}" >> .env
+          echo "LOG_PRETTY_PRINT=${{secrets.LOG_PRETTY_PRINT}}" >> .env
+          echo "OTEL_SERVICE_NAME=${{secrets.OTEL_SERVICE_NAME}}" >> .env
+          echo "OTEL_SERVICE_VERSION=${{secrets.OTEL_SERVICE_VERSION}}" >> .env
+          echo "OTEL_EXPORTER_OTLP_ENDPOINT=${{secrets.OTEL_EXPORTER_OTLP_ENDPOINT}}" >> .env
+          echo "OTEL_EXPORTER_OTLP_HEADERS=${{secrets.OTEL_EXPORTER_OTLP_HEADERS}}" >> .env
+          echo "OTEL_TRACES_SAMPLER_ARG=${{secrets.OTEL_TRACES_SAMPLER_ARG}}" >> .env
 
         shell: bash
 

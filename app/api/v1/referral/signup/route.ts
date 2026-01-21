@@ -1,14 +1,16 @@
+import { nanoid } from "nanoid";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { z, ZodError } from "zod";
-import SubscriberModel from "@/database/subscriber/subscriber.model";
 import { ReferralCodeSchema } from "@/database/referral/referral.dto";
 import { applyReferralCode } from "@/database/referral/referral.repository";
+import SubscriberModel from "@/database/subscriber/subscriber.model";
 import UserModel from "@/database/user/user.model";
 import { lucia } from "@/lib/auth/auth";
 import { connectToDatabase, newId } from "@/lib/database";
 import { getMMDB } from "@/lib/mmdb";
-import { generateOTP } from "@/lib/otp";
+import { generateEmailOTP } from "@/lib/otp";
+import { generateReferralLink } from "@/services/referral.services";
 import { sendAccountVerificationEmail } from "@/utils/email";
 import { buildError, sendError } from "@/utils/error";
 import {
@@ -16,9 +18,7 @@ import {
   INVALID_INPUT_ERROR,
   USER_ALREADY_EXISTS_ERROR,
 } from "@/utils/error/error-codes";
-import { generateReferralLink } from "@/services/referral.services";
 import { isMongooseDuplicateKeyError } from "@/utils/mongoose.utils";
-import { nanoid } from "nanoid";
 
 /**
  * Schema for referral promo signup
@@ -54,7 +54,7 @@ export const POST = async (request: NextRequest) => {
     } = ReferralSignupSchema.parse(body);
 
     // Generate username from email or handle
-    const baseUsername = handle || email.split("@")[0];
+    const baseUsername = handle || email.split("@")[0] || "user";
     let username = baseUsername.toLowerCase().replace(/[^a-z0-9]/g, "");
     let usernameSuffix = 1;
 
@@ -177,7 +177,7 @@ export const POST = async (request: NextRequest) => {
     await createdUser.save();
 
     // Generate OTP for email verification
-    const totp = await generateOTP(createdUser.email);
+    const totp = generateEmailOTP(createdUser.email);
 
     // Send verification email (with password reset link)
     await sendAccountVerificationEmail(createdUser, totp);

@@ -6,7 +6,6 @@ const allowedOrigins = [
   "https://admin.zealnews.africa",
   "http://localhost:5173",
 ];
-console.log(allowedOrigins, "ALLOWED ORIGINS");
 
 const corsOptions = {
   "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",

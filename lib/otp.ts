@@ -60,3 +60,56 @@ export const generateBackupCodes = (count: number = 10): string[] => {
   }
   return codes;
 };
+
+// ============================================================================
+// Email OTP Functions (for email verification and password reset)
+// Uses a shared secret with 4-minute period (different from per-user 2FA)
+// ============================================================================
+
+/** Shared secret for email OTPs (used for all users) */
+const EMAIL_OTP_SECRET = "NB2W45DFOIZA======";
+/** 4-minute period for email verification OTPs */
+const EMAIL_OTP_PERIOD = 60 * 4; // 4 minutes
+
+/**
+ * Create an OTP generator for email-based OTPs
+ * Uses a fixed shared secret and 4-minute period
+ * @param email - User's email for the label
+ * @returns TOTP instance configured for email OTPs
+ */
+const createEmailOTPGenerator = (email: string) => {
+  return new OTPAuth.TOTP({
+    issuer: "Zeal News Africa",
+    label: email,
+    algorithm: "SHA1",
+    digits: 6,
+    period: EMAIL_OTP_PERIOD,
+    secret: OTPAuth.Secret.fromBase32(EMAIL_OTP_SECRET),
+  });
+};
+
+/**
+ * Generate an OTP for email verification/password reset
+ * Uses a shared secret with 4-minute validity period
+ * @param email - User's email address
+ * @returns 6-digit OTP code
+ */
+export const generateEmailOTP = (email: string): string => {
+  const totp = createEmailOTPGenerator(email);
+  return totp.generate();
+};
+
+/**
+ * Validate an email OTP token
+ * Uses a shared secret with 4-minute period and 1 window tolerance
+ * @param email - User's email address
+ * @param token - The 6-digit code to validate
+ * @returns The token offset if valid, null if invalid
+ */
+export const validateEmailOTP = (
+  email: string,
+  token: string,
+): number | null => {
+  const totp = createEmailOTPGenerator(email);
+  return totp.validate({ token, window: 1 });
+};

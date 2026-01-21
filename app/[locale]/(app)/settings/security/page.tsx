@@ -19,10 +19,12 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
 import PasswordModal from "./popup/PasswordModal";
 import TwoFAModal from "./popup/TwoFAModal";
+import TwoFADisableModal from "./popup/TwoFADisableModal";
 
 const SecuritySettings = () => {
   const { user, refresh } = useAuth();
   const [twoFAModalOpen, setTwoFAModalOpen] = useState(false);
+  const [twoFADisableModalOpen, setTwoFADisableModalOpen] = useState(false);
   const [qrCodeData, setQrCodeData] = useState("");
   const [isLoading2FA, setIsLoading2FA] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -83,21 +85,8 @@ const SecuritySettings = () => {
         setIsLoading2FA(false);
       }
     } else {
-      try {
-        const response = await fetch("/api/v1/2fa/disable", {
-          method: "POST",
-        });
-        if (response.ok) {
-          await refresh();
-          setSuccessMessage("2FA disabled successfully");
-          setTimeout(() => setSuccessMessage(null), 3000);
-        }
-      } catch (error) {
-        console.error("Error disabling 2FA:", error);
-        setErrorMessage("Failed to disable 2FA. Please try again.");
-      } finally {
-        setIsLoading2FA(false);
-      }
+      setTwoFADisableModalOpen(true);
+      setIsLoading2FA(false);
     }
   };
 
@@ -294,6 +283,26 @@ const SecuritySettings = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* TwoFA Disable Modal */}
+      <TwoFADisableModal
+        open={twoFADisableModalOpen}
+        onOpenChange={setTwoFADisableModalOpen}
+        onDisable={async (code) => {
+          const response = await fetch("/api/v1/2fa/disable", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code }),
+          });
+          if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.error || "Failed to disable 2FA");
+          }
+          await refresh();
+          setSuccessMessage("2FA disabled successfully");
+          setTimeout(() => setSuccessMessage(null), 3000);
+        }}
+      />
 
       {/* TwoFA Modal */}
       <TwoFAModal

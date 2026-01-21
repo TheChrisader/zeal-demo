@@ -3,14 +3,14 @@ import { z } from "zod";
 
 import { findUserByEmail } from "@/database/user/user.repository";
 import { connectToDatabase } from "@/lib/database";
-import { generateOTP } from "@/lib/otp";
+import { generateEmailOTP } from "@/lib/otp";
 
+import { sendResetPasswordEmail } from "@/utils/email";
 import {
   INTERNAL_ERROR,
   INVALID_INPUT_ERROR,
   USER_NOT_FOUND_ERROR,
 } from "@/utils/error/error-codes";
-import { sendResetPasswordEmail } from "@/utils/email";
 
 const RequestPasswordResetSchema = z.object({
   email: z.string().email("Invalid email address."),
@@ -39,7 +39,7 @@ export const POST = async (request: NextRequest) => {
     }
 
     // Generate OTP
-    const otp = await generateOTP(user.email);
+    const otp = generateEmailOTP(user.email);
 
     // Send password reset email with OTP
     await sendResetPasswordEmail(user, otp);

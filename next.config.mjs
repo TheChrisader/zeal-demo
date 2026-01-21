@@ -36,6 +36,11 @@ const NextConfig = async (phase) => {
           }),
         );
       }
+      config.ignoreWarnings = [
+        { module: /opentelemetry/ },
+        { module: /@opentelemetry/ },
+        /Critical dependency:/i,
+      ];
 
       return config;
     },

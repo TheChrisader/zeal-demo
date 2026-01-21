@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { findUserByEmail } from "@/database/user/user.repository";
 import { connectToDatabase } from "@/lib/database";
-import { validateOTP } from "@/lib/otp";
+import { validateEmailOTP } from "@/lib/otp";
 import {
   INTERNAL_ERROR,
   INVALID_INPUT_ERROR,
@@ -38,7 +38,7 @@ export const POST = async (request: NextRequest) => {
     }
 
     // Validate OTP
-    const isOTPValid = validateOTP(email, otp);
+    const isOTPValid = validateEmailOTP(email, otp);
 
     if (isOTPValid === null) {
       return NextResponse.json(

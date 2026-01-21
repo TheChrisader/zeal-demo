@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPost } from "@/database/post/post.repository";
 import { serverAuthGuard } from "@/lib/auth/serverAuthGuard";
-import { uploadImageToS3 } from "@/lib/bucket";
 import { connectToDatabase } from "@/lib/database";
+import { createChildLogger } from "@/lib/logger";
+import { SlugGenerator } from "@/lib/slug";
+import { generateRandomString } from "@/lib/utils";
 import { IPost } from "@/types/post.type";
-import { buildError, sendError } from "@/utils/error";
-import {
-  FILE_TOO_LARGE_ERROR,
-  INTERNAL_ERROR,
-  WRONG_FILE_FORMAT_ERROR,
-} from "@/utils/error/error-codes";
+import { formDataToJson } from "@/utils/converter.utils";
 import {
   AUTHORIZED_IMAGE_MIME_TYPES,
   AUTHORIZED_IMAGE_SIZE,
@@ -17,15 +14,8 @@ import {
   validateAndUploadImage,
 } from "@/utils/file.utils";
 import { calculateReadingTime } from "@/utils/post.utils";
-import { SlugGenerator } from "@/lib/slug";
-import { generateRandomString } from "@/lib/utils";
-import { formDataToJson } from "@/utils/converter.utils";
-import { calculateInitialScore } from "@/lib/scoring";
 
-// export interface ImageValidationError {
-//   message: string;
-//   status: number;
-// }
+const logger = createChildLogger("post-create");
 
 // TODO: Delete Draft if it exists
 
@@ -44,6 +34,7 @@ export const POST = async (request: NextRequest) => {
     const { user } = await serverAuthGuard();
 
     if (!user) {
+      logger.warn({}, "Unauthenticated post creation attempt");
       return NextResponse.json({ message: "Unauthenticated" });
     }
 
@@ -62,7 +53,7 @@ export const POST = async (request: NextRequest) => {
           const key = await validateAndUploadImage(file, "posts/");
           image_url = `${process.env.CLOUDFRONT_BASE_URL}/${key}`;
         } catch (error) {
-          console.error(`Error uploading image: ${error}`);
+          logger.error({ userId: user.id, error }, "Error uploading image");
           if (error instanceof ImageValidationError) {
             return NextResponse.json(
               { message: error.message },
@@ -118,9 +109,18 @@ export const POST = async (request: NextRequest) => {
 
     const createdPost = await createPost(post);
 
+    logger.info(
+      {
+        postId: createdPost.id,
+        slug: createdPost.slug,
+        authorId: user.id,
+      },
+      "Post created successfully"
+    );
+
     return NextResponse.json(createdPost);
   } catch (error) {
-    console.log(`Error creating post: ${error}`);
+    logger.error({ error }, "Error creating post");
     return NextResponse.json(
       { message: "Error creating post" },
       { status: 500 },

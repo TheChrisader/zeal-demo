@@ -4,6 +4,7 @@ import { LoginUserSchema } from "@/database/user/user.dto";
 import { findUserWith2FAByUsername } from "@/database/user/user.repository";
 import { lucia } from "@/lib/auth/auth";
 import { connectToDatabase, newId } from "@/lib/database";
+import { createChildLogger } from "@/lib/logger";
 import { buildError, sendError } from "@/utils/error";
 import {
   INTERNAL_ERROR,
@@ -11,6 +12,8 @@ import {
   USER_NOT_FOUND_ERROR,
 } from "@/utils/error/error-codes";
 import { verifyPassword } from "@/utils/password.utils";
+
+const logger = createChildLogger("auth-signin");
 
 export const POST = async (request: NextRequest) => {
   try {
@@ -25,6 +28,7 @@ export const POST = async (request: NextRequest) => {
     const existingUser = await findUserWith2FAByUsername(username);
 
     if (!existingUser || !existingUser.has_password) {
+      logger.warn({ username }, "Authentication failed: User not found or no password");
       return sendError(
         buildError({
           code: USER_NOT_FOUND_ERROR,
@@ -40,6 +44,7 @@ export const POST = async (request: NextRequest) => {
     );
 
     if (!isPasswordValid) {
+      logger.warn({ username }, "Authentication failed: Invalid password");
       return sendError(
         buildError({
           code: INVALID_INPUT_ERROR,
@@ -51,8 +56,11 @@ export const POST = async (request: NextRequest) => {
 
     const { password_hash: _, two_fa_secret: __, two_fa_backup_codes: ___, two_fa_backup_codes_used: ____, ...user } = existingUser;
 
+    logger.info({ userId: existingUser.id, username }, "User authenticated successfully");
+
     // Check if user has 2FA enabled
     if (existingUser.two_fa_enabled) {
+      logger.info({ userId: existingUser.id, username }, "2FA required");
       // Create partial session with 2FA pending flag
       const session = await lucia.createSession(newId(existingUser.id), {
         two_fa_pending: true,
@@ -85,6 +93,7 @@ export const POST = async (request: NextRequest) => {
       },
     });
   } catch (error: unknown) {
+    logger.error(error, "Signin error");
     if (error instanceof ZodError) {
       return sendError(
         buildError({

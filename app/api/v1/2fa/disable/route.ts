@@ -7,22 +7,16 @@ import { connectToDatabase } from "@/lib/database";
 import { validate2FA } from "@/lib/otp";
 import { decryptSecret } from "@/utils/crypto.utils";
 import { buildError, sendError } from "@/utils/error";
-import {
-  INVALID_INPUT_ERROR,
-  UNAUTHORIZED_ERROR,
-  WRONG_PASSWORD_ERROR,
-} from "@/utils/error/error-codes";
-import { verifyPassword } from "@/utils/password.utils";
+import { INVALID_INPUT_ERROR, UNAUTHORIZED_ERROR } from "@/utils/error/error-codes";
 
 const Disable2FASchema = z.object({
-  password: z.string().min(1, "Password is required"),
   code: z.string().length(6, "2FA code must be 6 digits"),
 });
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { password, code } = Disable2FASchema.parse(body);
+    const { code } = Disable2FASchema.parse(body);
 
     // Get authenticated user from session
     const { user } = await validateRequest();
@@ -33,7 +27,7 @@ export async function POST(request: NextRequest) {
           code: UNAUTHORIZED_ERROR,
           message: "Unauthorized",
           status: 401,
-        })
+        }),
       );
     }
 
@@ -48,25 +42,8 @@ export async function POST(request: NextRequest) {
           code: INVALID_INPUT_ERROR,
           message: "2FA is not enabled",
           status: 400,
-        })
+        }),
       );
-    }
-
-    // Verify password (if user has one)
-    if (existingUser.has_password && existingUser.password_hash) {
-      const isPasswordValid = await verifyPassword(
-        password,
-        existingUser.password_hash
-      );
-      if (!isPasswordValid) {
-        return sendError(
-          buildError({
-            code: WRONG_PASSWORD_ERROR,
-            message: "Invalid password",
-            status: 401,
-          })
-        );
-      }
     }
 
     // Verify 2FA code
@@ -81,7 +58,7 @@ export async function POST(request: NextRequest) {
             code: INVALID_INPUT_ERROR,
             message: "Invalid 2FA code",
             status: 400,
-          })
+          }),
         );
       }
     }
@@ -105,13 +82,13 @@ export async function POST(request: NextRequest) {
           message: "Invalid input",
           status: 422,
           data: error,
-        })
+        }),
       );
     }
     console.error("Error disabling 2FA:", error);
     return NextResponse.json(
       { error: "Failed to disable 2FA" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

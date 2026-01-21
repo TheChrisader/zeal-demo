@@ -1,7 +1,7 @@
 import { PushSubscription } from "web-push";
 import { EventEmitter } from "events";
-import { webPush } from "./web-push";
 import { findSubscriptionsByUserId } from "@/database/subscription/subscription.repository";
+import { webPush } from "./web-push";
 
 interface Connection {
   writer: WritableStreamDefaultWriter;
@@ -93,7 +93,6 @@ export class ConnectionManager {
         await this.removeConnection(userId);
       }
     }
-    console.log("Heartbeat checked.");
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -128,11 +127,7 @@ export class ConnectionManager {
     const connection = this.connections.get(userId);
     if (connection) {
       connection.lastPing = Date.now();
-      console.log(`Ping received from user ${userId}`);
     } else {
-      console.warn(
-        `Ping received for non-existent connection (user: ${userId})`,
-      );
     }
   }
 }

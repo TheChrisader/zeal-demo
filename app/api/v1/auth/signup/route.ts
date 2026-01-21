@@ -9,7 +9,8 @@ import { SignUpUserSchema } from "@/database/user/user.dto";
 import { createUser, findUserByEmail } from "@/database/user/user.repository";
 import { lucia } from "@/lib/auth/auth";
 import { connectToDatabase, newId } from "@/lib/database";
-import { generateOTP } from "@/lib/otp";
+import { createChildLogger } from "@/lib/logger";
+import { generateEmailOTP } from "@/lib/otp";
 import {
   sendAccountVerificationEmail,
   sendNewsletterWelcomeEmail,
@@ -21,6 +22,8 @@ import {
   USER_ALREADY_EXISTS_ERROR,
 } from "@/utils/error/error-codes";
 import { hashPassword } from "@/utils/password.utils";
+
+const logger = createChildLogger("auth-signup");
 
 // TODO: case sensitive usernames? Search user by both email and username to find if
 // they exist
@@ -51,7 +54,7 @@ export const POST = async (request: NextRequest) => {
       source,
       terms_accepted,
     } = SignUpSchema.parse(body);
-    console.log("Signup schema parsed");
+    logger.info({ email, username }, "Signup schema parsed");
 
     // get ip from request
     const header = headers();
@@ -72,11 +75,11 @@ export const POST = async (request: NextRequest) => {
     //     location = result?.country?.names["en"];
     //   }
     // }
-    console.log("location extracted");
 
     const existingUser = await findUserByEmail(email);
 
     if (existingUser) {
+      logger.warn({ email }, "Signup attempted with existing email");
       return sendError(
         buildError({
           code: USER_ALREADY_EXISTS_ERROR,
@@ -85,8 +88,6 @@ export const POST = async (request: NextRequest) => {
         }),
       );
     }
-
-    console.log("existing user checked");
 
     const hashedPassword = await hashPassword(password);
 
@@ -129,7 +130,7 @@ export const POST = async (request: NextRequest) => {
       try {
         await applyReferralCode(referral_code, createdUser.id);
       } catch (error) {
-        console.error("Failed to apply referral code:", error);
+        logger.warn({ referral_code, userId: createdUser.id }, "Failed to apply referral code");
         // Don't fail signup if referral code is invalid
       }
     }
@@ -149,7 +150,7 @@ export const POST = async (request: NextRequest) => {
           signed_up_at: new Date(),
         });
       } catch (error) {
-        console.error("Failed to store referral metadata:", error);
+        logger.warn({ userId: createdUser.id }, "Failed to store referral metadata");
         // Don't fail signup if metadata storage fails
       }
     }
@@ -179,19 +180,21 @@ export const POST = async (request: NextRequest) => {
               display_name: display_name,
             });
           } catch (emailError) {
-            console.error("Newsletter welcome email error:", emailError);
+            logger.warn({ email, userId: createdUser.id }, "Newsletter welcome email error");
           }
         }
       } catch (subscriberError) {
-        console.error("Failed to subscribe to newsletter:", subscriberError);
+        logger.warn({ email, userId: createdUser.id }, "Failed to subscribe to newsletter");
         // Don't fail signup if newsletter subscription fails
       }
     }
 
+    logger.info({ userId: createdUser.id, username, email }, "User created successfully");
+
     const session = await lucia.createSession(newId(createdUser.id), {});
     const sessionCookie = lucia.createSessionCookie(session.id);
 
-    const totp = await generateOTP(createdUser.email);
+    const totp = generateEmailOTP(createdUser.email);
 
     await sendAccountVerificationEmail(createdUser, totp);
 
@@ -200,6 +203,7 @@ export const POST = async (request: NextRequest) => {
       headers: { "Set-Cookie": sessionCookie.serialize() },
     });
   } catch (error: unknown) {
+    logger.error(error, "Signup error");
     if (error instanceof ZodError) {
       return sendError(
         buildError({

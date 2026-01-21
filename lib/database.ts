@@ -1,4 +1,7 @@
 import mongoose, { Types } from "mongoose";
+import { createChildLogger } from "./logger/child-logger";
+
+const logger = createChildLogger("database");
 
 export type Id = Types.ObjectId;
 export const newId = (idString?: string | Id) => new Types.ObjectId(idString);
@@ -78,7 +81,7 @@ export const connectToDatabase = async () => {
     cached.promise = mongoose
       .connect(MONGODB_URI, opts)
       .then((mongoose) => {
-        console.info("Connected to MongoDB successfully.");
+        logger.info("MongoDB connected");
         cached.conn = mongoose;
         return mongoose;
       })
@@ -87,9 +90,7 @@ export const connectToDatabase = async () => {
           error.name === "MongoNetworkError" ||
           error.name === "MongoServerSelectionError"
         ) {
-          console.error(
-            "MongoDB connection error. Please make sure MongoDB is running!!!!!!!!!!!!!!",
-          );
+          logger.error(error, "MongoDB connection failed");
         }
         cached.promise = null;
         throw error;
@@ -100,7 +101,7 @@ export const connectToDatabase = async () => {
     // return cached.conn;
     return await cached.promise;
   } catch (error) {
-    console.error("MONGODB CONNECTION ERROR >>>>>>>>>", error);
+    logger.error(error, "MongoDB connection error");
     cached.promise = null;
     cached.conn = null;
     throw error;
