@@ -2,11 +2,13 @@
 
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { IPost } from "@/types/post.type";
+import ArticleCard from "./ArticleCard";
 
 type LoadMoreAction = (
   offset: number,
   category: string,
-) => Promise<JSX.Element>;
+) => Promise<IPost[]>;
 
 const ScrollContainer = ({
   children,
@@ -17,17 +19,17 @@ const ScrollContainer = ({
   category: string;
   loadMoreAction: LoadMoreAction;
 }) => {
-  const [loadedNodes, setLoadedNodes] = useState<JSX.Element[]>([]);
+  const [loadedPosts, setLoadedPosts] = useState<IPost[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const offsetRef = useRef(1);
 
   const handleLoad = async () => {
     try {
       setIsLoading(true);
-      const newNode = await loadMoreAction(offsetRef.current, category);
+      const posts = await loadMoreAction(offsetRef.current, category);
 
       offsetRef.current++;
-      setLoadedNodes((nodes) => [...nodes, newNode]);
+      setLoadedPosts((prev) => [...prev, ...posts]);
     } catch (error) {
       console.log(error);
     } finally {
@@ -38,7 +40,16 @@ const ScrollContainer = ({
   return (
     <>
       {children}
-      {loadedNodes}
+      {loadedPosts.map((post) => {
+        if (!post._id) return null;
+        return (
+          <ArticleCard
+            className="w-full"
+            article={{ ...post, id: post._id.toString() }}
+            key={post._id.toString()}
+          />
+        );
+      })}
       <div className="mt-2 flex w-full items-center justify-center">
         <Button variant="outline" className="py-1" onClick={handleLoad}>
           {isLoading ? <span>Loading...</span> : <span>View More</span>}

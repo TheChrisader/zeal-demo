@@ -1,5 +1,4 @@
 import { Id } from "@/lib/database";
-import { IUser } from "@/types/user.type";
 
 export interface IReferral {
   id: Id | string;
@@ -44,6 +43,8 @@ export interface IAdminReferralSummary {
     week: string;
     count: number;
   }>;
+  influencer_referrals: number;
+  regular_referrals: number;
 }
 
 export interface IReferralLeaderboardEntry {
@@ -64,7 +65,7 @@ export interface IAdminReferralUserAnalytics {
     username: string;
     avatar: string | null;
     email: string;
-    referral_code: string;
+    referral_code: string | null;
     created_at: Date;
   };
   referral_stats: {
@@ -75,5 +76,31 @@ export interface IAdminReferralUserAnalytics {
   daily_referrals: Array<{
     date: string;
     count: number;
+  }>;
+}
+
+// Influencer-specific interfaces
+export type InfluencerStatus = "active" | "inactive" | "pending" | "suspended";
+
+export interface IInfluencer {
+  id: string;
+  user_id: string;
+  status: InfluencerStatus;
+  notes: string | null;
+  joined_at: Date;
+  created_at: Date;
+}
+
+export interface IInfluencerAnalytics {
+  total_influencers: number;
+  active_influencers: number;
+  total_influencer_referrals: number;
+  influencers: Array<{
+    user_id: string;
+    display_name: string;
+    username: string;
+    referral_count: number;
+    status: InfluencerStatus;
+    joined_at: Date;
   }>;
 }

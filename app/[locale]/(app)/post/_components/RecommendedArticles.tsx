@@ -178,7 +178,7 @@ const RecommendedArticles = async ({
       <h1 className="text-2xl font-bold text-foreground-alt">
         Recommended Articles
       </h1>
-      <Trending partial articles={RecommendedArticles} />
+      <Trending articles={RecommendedArticles} />
     </>
   );
 };

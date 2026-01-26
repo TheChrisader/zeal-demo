@@ -1,12 +1,12 @@
-import { FilterQuery, ObjectId } from "mongoose";
+import { FilterQuery as _FilterQuery, ObjectId as _ObjectId } from "mongoose";
 import UserModel from "@/database/user/user.model";
 import { findUserById, updateUser } from "@/database/user/user.repository";
 import { Id, newId } from "@/lib/database";
 import {
-  IReferralUser,
   IAdminReferralSummary,
-  IReferralLeaderboardEntry,
   IAdminReferralUserAnalytics,
+  IReferralLeaderboardEntry,
+  IReferralUser,
 } from "@/types/referral.type";
 import { IUser } from "@/types/user.type";
 
@@ -210,33 +210,42 @@ export const getAdminReferralSummary = async (
   try {
     const now = new Date();
     let startDate: Date;
-    let bucketInterval: number; // in days
-    let groupFormat: string;
+    let _bucketInterval: number; // in days
+    let _groupFormat: string;
 
     switch (timeRange) {
       case "7d":
         startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        bucketInterval = 1; // Daily
-        groupFormat = "%Y-%m-%d";
+        _bucketInterval = 1; // Daily
+        _groupFormat = "%Y-%m-%d";
         break;
       case "90d":
         startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-        bucketInterval = 7; // Weekly
-        groupFormat = "%Y-%U"; // Year-week
+        _bucketInterval = 7; // Weekly
+        _groupFormat = "%Y-%U"; // Year-week
         break;
       case "30d":
       default:
         startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-        bucketInterval = 3; // Every 3 days
-        groupFormat = "%Y-%m-%d";
+        _bucketInterval = 3; // Every 3 days
+        _groupFormat = "%Y-%m-%d";
         break;
     }
 
     // Get total referral counts and basic stats
-    const [totalReferrals, totalReferrers] = await Promise.all([
-      UserModel.countDocuments({ referred_by: { $exists: true, $ne: null } }),
-      UserModel.countDocuments({ referral_count: { $gt: 0 } }),
-    ]);
+    const [totalReferrals, totalReferrers, influencerReferrals, regularReferrals] =
+      await Promise.all([
+        UserModel.countDocuments({ referred_by: { $exists: true, $ne: null } }),
+        UserModel.countDocuments({ referral_count: { $gt: 0 } }),
+        UserModel.countDocuments({
+          referred_by: { $exists: true, $ne: null },
+          is_influencer: true,
+        }),
+        UserModel.countDocuments({
+          referred_by: { $exists: true, $ne: null },
+          is_influencer: { $ne: true },
+        }),
+      ]);
 
     // Get time-series data
     const timeSeriesData = await UserModel.aggregate([
@@ -262,20 +271,21 @@ export const getAdminReferralSummary = async (
     ]);
 
     // Create a map of dates to referral counts
-    const dailyReferralMap = new Map();
+    const dailyReferralMap = new Map<string, number>();
     timeSeriesData.forEach((item) => {
       dailyReferralMap.set(item._id, item.count);
     });
 
     // Generate all dates from startDate to now and fill missing ones with 0
-    const dailyReferrals = [];
+    const dailyReferrals: Array<{ date: string; count: number }> = [];
     const currentDate = new Date(startDate);
 
     while (currentDate <= now) {
-      const dateStr = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD format
+      const isoDate = currentDate.toISOString().split("T")[0];
+      const dateStr = isoDate ?? currentDate.toISOString().slice(0, 10); // YYYY-MM-DD format
       dailyReferrals.push({
         date: dateStr,
-        count: dailyReferralMap.get(dateStr) || 0,
+        count: dailyReferralMap.get(dateStr) ?? 0,
       });
 
       // Move to next day
@@ -357,6 +367,8 @@ export const getAdminReferralSummary = async (
           : 0,
       daily_referrals: dailyReferrals,
       weekly_referrals: formattedWeeklyReferrals,
+      influencer_referrals: influencerReferrals,
+      regular_referrals: regularReferrals,
     };
   } catch (error) {
     console.error("Error getting admin referral summary:", error);
@@ -390,6 +402,7 @@ export const getReferralLeaderboard = async (
       {
         $match: {
           referral_count: { $gt: 0 },
+          is_influencer: false,
         },
       },
       {
@@ -519,20 +532,21 @@ export const getAdminReferralUserAnalytics = async (
     ]);
 
     // Create a map of dates to referral counts
-    const referralMap = new Map();
+    const referralMap = new Map<string, number>();
     dailyReferrals.forEach((item) => {
       referralMap.set(item._id, item.count);
     });
 
     // Generate all dates from Monday to endDate and fill missing ones with 0
-    const allDates = [];
+    const allDates: Array<{ date: string; count: number }> = [];
     const currentDate = new Date(monday);
 
     while (currentDate <= endDate) {
-      const dateStr = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD format
+      const isoDate = currentDate.toISOString().split("T")[0];
+      const dateStr = isoDate ?? currentDate.toISOString().slice(0, 10); // YYYY-MM-DD format
       allDates.push({
         date: dateStr,
-        count: referralMap.get(dateStr) || 0,
+        count: referralMap.get(dateStr) ?? 0,
       });
 
       // Move to next day
@@ -562,7 +576,7 @@ export const getAdminReferralUserAnalytics = async (
 
     return {
       user: {
-        id: user.id,
+        id: typeof user.id === "string" ? user.id : user.id.toString(),
         display_name: user.display_name,
         username: user.username,
         avatar: user.avatar,

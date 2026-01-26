@@ -36,6 +36,7 @@ export interface IUser {
   referral_code: string | null;
   referral_count: number;
   referred_by: Id | null;
+  is_influencer: boolean;
   two_fa_enabled: boolean;
   created_at: Date;
   updated_at: Date;

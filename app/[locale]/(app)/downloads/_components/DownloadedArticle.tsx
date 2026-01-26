@@ -1,10 +1,10 @@
-import { Link } from "@/i18n/routing";
-import { Separator } from "@/components/ui/separator";
-import { getPublishTimeStamp } from "@/utils/time.utils";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Link } from "@/i18n/routing";
+import { getPublishTimeStamp } from "@/utils/time.utils";
+import DLink from "./DLink";
 import AnimateTitle from "../../_components/AnimateTitle";
 import { DownloadedPost } from "../[[...id]]/page";
-import DLink from "./DLink";
 
 interface DownloadedArticleProps {
   article?: DownloadedPost;
@@ -49,7 +49,7 @@ const DownloadedArticle = ({ article, className }: DownloadedArticleProps) => {
         /> */}
           <div className="flex flex-col justify-center">
             <AnimateTitle _key={article!.title}>
-              <h3 className="text-md text-foreground-alt mb-2 font-semibold">
+              <h3 className="text-md mb-2 font-semibold text-foreground-alt">
                 {truncateString(article?.title)}
               </h3>
             </AnimateTitle>
@@ -58,13 +58,13 @@ const DownloadedArticle = ({ article, className }: DownloadedArticleProps) => {
                 className="size-5 rounded-full object-cover"
                 src={article?.source.icon}
               />
-              <span className="text-muted-alt text-sm font-normal">
+              <span className="text-sm font-normal text-muted-alt">
                 {article?.source.name}
               </span>
               <div className="h-3">
                 <Separator orientation="vertical" />
               </div>
-              <span className="text-muted-alt text-sm font-normal">
+              <span className="text-sm font-normal text-muted-alt">
                 {getPublishTimeStamp(article?.published_at as string)}
               </span>
             </div>
@@ -80,10 +80,6 @@ const DownloadedArticle = ({ article, className }: DownloadedArticleProps) => {
           <BookmarkIcon />
         </Button> */}
         </DLink>
-        {/* <BookmarkButton
-          id={article?.id as string}
-          bookmarked={article?.bookmarked}
-        /> */}
       </div>
     );
   }
@@ -115,7 +111,7 @@ const DownloadedArticle = ({ article, className }: DownloadedArticleProps) => {
       /> */}
         <div className="flex flex-col justify-center">
           <AnimateTitle _key={article!.title}>
-            <h3 className="text-foreground-alt mb-2 text-sm font-semibold">
+            <h3 className="mb-2 text-sm font-semibold text-foreground-alt">
               {truncateString(article?.title)}
             </h3>
           </AnimateTitle>
@@ -124,25 +120,21 @@ const DownloadedArticle = ({ article, className }: DownloadedArticleProps) => {
               className="size-5 rounded-full object-cover"
               src={article?.source.icon}
             />
-            <span className="text-muted-alt text-sm font-normal">
+            <span className="text-sm font-normal text-muted-alt">
               {article?.source.name}
             </span>
             <div className="h-3">
               <Separator orientation="vertical" />
             </div>
-            <span className="text-muted-alt text-sm font-normal">
+            <span className="text-sm font-normal text-muted-alt">
               {getPublishTimeStamp(article?.published_at as string)}
             </span>
           </div>
-          <span className="text-muted-alt flex text-xs font-normal">
+          <span className="flex text-xs font-normal text-muted-alt">
             {article?.ttr && `${article?.ttr} min read`}
           </span>
         </div>
       </DLink>
-      {/* <BookmarkButton
-        id={article?.id as string}
-        bookmarked={article?.bookmarked}
-      /> */}
     </div>
   );
 };

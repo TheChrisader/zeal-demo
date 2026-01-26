@@ -1,4 +1,5 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -6,8 +7,6 @@ import { Link } from "@/i18n/routing";
 import { IPost } from "@/types/post.type";
 import { getPublishTimeStamp } from "@/utils/time.utils";
 import ArticleTitle from "./ArticleTitle";
-import BookmarkButton from "./BookmarkButton";
-import dynamic from "next/dynamic";
 
 // import HeadlinesCarousel from "./HeadlinesCarousel";
 const HeadlinesCarousel = dynamic(() => import("./HeadlinesCarousel"));
@@ -114,10 +113,6 @@ const ResponsiveHeadlines = ({
                       </div>
                     </div>
                   </Link>
-                  <BookmarkButton
-                    id={article?._id?.toString() as string}
-                    bookmarked={article?.bookmarked}
-                  />
                 </div>
               );
             })}

@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { ICommentResponse } from "@/database/comment/comment.repository";
-import { IComment } from "@/types/comment.type";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChevronDown, ChevronUp, MessageSquare, Send } from "lucide-react";
+import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -15,17 +18,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import { getPublishTimeStamp } from "@/utils/time.utils";
+import { Textarea } from "@/components/ui/textarea";
+import { ICommentResponse } from "@/database/comment/comment.repository";
 import { useAuth } from "@/hooks/useAuth";
-import { getReplies } from "../_actions/getReplies";
 import { Link } from "@/i18n/routing";
+import { IComment } from "@/types/comment.type";
 import { cleanObject } from "@/utils/cleanObject.utils";
+import { getPublishTimeStamp } from "@/utils/time.utils";
+import { getReplies } from "../_actions/getReplies";
 
 type CommentSectionProps = {
   article_id: string;
@@ -132,7 +132,7 @@ const CommentSection = ({
         style={{ marginLeft: `${comment.depth * 20}px` }}
       >
         <CardHeader className="flex flex-row items-start space-x-4 p-4">
-          <Link href={`/profile/${comment.user_id.username}`}>
+          <div>
             <Avatar>
               <AvatarImage
                 src={comment.user_id.avatar}
@@ -140,7 +140,7 @@ const CommentSection = ({
               />
               <AvatarFallback>{comment.user_id.display_name[0]}</AvatarFallback>
             </Avatar>
-          </Link>
+          </div>
           <div className="flex-1">
             <div className="flex items-center justify-between gap-2">
               <div className="flex gap-1 max-[500px]:flex-col max-[500px]:justify-start">
@@ -168,9 +168,9 @@ const CommentSection = ({
               }
             >
               {isExpanded ? (
-                <ChevronUp className="mr-1 h-4 w-4" />
+                <ChevronUp className="mr-1 size-4" />
               ) : (
-                <ChevronDown className="mr-1 h-4 w-4" />
+                <ChevronDown className="mr-1 size-4" />
               )}
               {comment.reply_count}{" "}
               {comment.reply_count === 1 ? "reply" : "replies"}
@@ -181,7 +181,7 @@ const CommentSection = ({
               size="sm"
               onClick={() => setReplyingTo(comment._id!.toString())}
             >
-              <MessageSquare className="mr-1 h-4 w-4" />
+              <MessageSquare className="mr-1 size-4" />
               Reply
             </Button>
           </div>
@@ -235,7 +235,7 @@ const CommentSection = ({
                 className="mb-2"
               />
               <Button onClick={() => addComment()}>
-                <MessageSquare className="mr-1 h-4 w-4" />
+                <MessageSquare className="mr-1 size-4" />
                 {/* Comment */}
               </Button>
             </div>
@@ -244,7 +244,7 @@ const CommentSection = ({
       </Card>
       {sortComments(rootComments).map(renderComment)}
       {replyingTo && (
-        <Card className="fixed bottom-0 left-0 right-0 z-50">
+        <Card className="fixed inset-x-0 bottom-0 z-50">
           <CardContent className="relative p-4">
             <div className="flex items-center space-x-4">
               <Input
@@ -254,7 +254,7 @@ const CommentSection = ({
                 className="flex-1"
               />
               <Button onClick={() => addComment(replyingTo)}>
-                <Send className="mr-1 h-4 w-4" />
+                <Send className="mr-1 size-4" />
                 {/* Reply */}
               </Button>
               <Button

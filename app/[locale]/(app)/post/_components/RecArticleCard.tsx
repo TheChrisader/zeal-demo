@@ -5,13 +5,6 @@ import { IPost } from "@/types/post.type";
 import { getPublishTimeStamp } from "@/utils/time.utils";
 import ArticleTitle from "../../(home)/_components/ArticleTitle";
 
-const BookmarkButton = dynamic(
-  () => import("../../(home)/_components/BookmarkButton"),
-  {
-    ssr: false,
-  },
-);
-
 interface RecArticleCardProps {
   article?: IPost;
   className?: string;
@@ -37,7 +30,7 @@ const RecArticleCard = ({ article, className }: RecArticleCardProps) => {
           className={`flex h-fit w-full flex-1 cursor-pointer gap-5 [&_h3]:hover:text-primary [&_h3]:hover:underline`}
         >
           <div className="flex flex-col justify-center">
-            <h3 className="text-md text-foreground-alt mb-2 font-semibold">
+            <h3 className="text-md mb-2 font-semibold text-foreground-alt">
               {truncateString(article?.title)}
             </h3>
             <div className="flex items-center gap-2 max-[400px]:flex-col max-[400px]:items-start">
@@ -47,7 +40,7 @@ const RecArticleCard = ({ article, className }: RecArticleCardProps) => {
                   alt="article source icon"
                   src={article?.source.icon}
                 />
-                <span className="text-muted-alt text-xs font-normal">
+                <span className="text-xs font-normal text-muted-alt">
                   {article?.source.name}
                 </span>
               </div>
@@ -68,11 +61,6 @@ const RecArticleCard = ({ article, className }: RecArticleCardProps) => {
             </div>
           </div>
         </Link>
-        <BookmarkButton
-          id={article?.id as string}
-          bookmarked={article?.bookmarked}
-          imageExists={false}
-        />
       </div>
     );
   }
@@ -101,7 +89,7 @@ const RecArticleCard = ({ article, className }: RecArticleCardProps) => {
               alt="Article source Icon"
               src={article?.source.icon}
             />
-            <span className="text-muted-alt text-xs font-normal">
+            <span className="text-xs font-normal text-muted-alt">
               {article?.source.name}
             </span>
           </div>
@@ -121,10 +109,6 @@ const RecArticleCard = ({ article, className }: RecArticleCardProps) => {
           </div>
         </div>
       </Link>
-      <BookmarkButton
-        id={article?.id as string}
-        bookmarked={article?.bookmarked}
-      />
     </div>
   );
 };

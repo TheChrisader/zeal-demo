@@ -1,5 +1,6 @@
 import { User } from "lucia";
-import { Link } from "@/i18n/routing";
+import { Download } from "lucide-react";
+import { useTheme } from "next-themes";
 import DarkModeIcon from "@/assets/svgs/utils/DarkModeIcon";
 import LogOutIcon from "@/assets/svgs/utils/LogOutIcon";
 import PenIcon from "@/assets/svgs/utils/PenIcon";
@@ -14,11 +15,10 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { Link } from "@/i18n/routing";
 import { UserAvatar } from "..";
 import LogoutAlert from "../popup/Logout";
-import { useTheme } from "next-themes";
-import { Download } from "lucide-react";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const ProfileDropdown = ({
   children,
@@ -57,19 +57,6 @@ const ProfileDropdown = ({
         </div>
         <Separator className="my-3" />
         <div className="flex flex-col gap-1">
-          {canWrite && (
-            <Link
-              href={"/drafts"}
-              className="flex items-center justify-between rounded-md px-1 py-2 hover:bg-subtle-hover-bg"
-            >
-              <div className="flex items-center gap-3">
-                <PenIcon />
-                <span className="text-sm font-normal text-[#959595]">
-                  My Drafts
-                </span>
-              </div>
-            </Link>
-          )}
           <Link
             href={"/settings/profile"}
             className="flex items-center justify-between rounded-md px-1 py-2 hover:bg-subtle-hover-bg"

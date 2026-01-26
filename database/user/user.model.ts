@@ -98,6 +98,11 @@ const UserSchema = new Schema<IUserWithPassword>(
       ref: 'User',
       default: null,
     },
+    is_influencer: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
     // Two-Factor Authentication fields
     two_fa_enabled: {
       type: Boolean,
@@ -153,6 +158,7 @@ UserSchema.index({ auth_provider: 1, created_at: -1 });
 UserSchema.index({ last_login_at: -1 });
 UserSchema.index({ referral_code: 1 });
 UserSchema.index({ referred_by: 1 });
+UserSchema.index({ is_influencer: 1 });
 UserSchema.index({ two_fa_enabled: 1 });
 
 const UserModel: Model<IUserWithPassword> =

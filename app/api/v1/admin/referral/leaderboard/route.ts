@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/database";
-import { getReferralLeaderboard } from "@/database/referral/referral.repository";
 import { ReferralLeaderboardQuerySchema } from "@/database/referral/referral.dto";
+import { getReferralLeaderboard } from "@/database/referral/referral.repository";
+import { connectToDatabase } from "@/lib/database";
 
 export async function GET(request: NextRequest) {
   try {

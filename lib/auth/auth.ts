@@ -33,6 +33,7 @@ export const lucia = new Lucia(adapter, {
       referral_code: attributes.referral_code,
       referral_count: attributes.referral_count,
       referred_by: attributes.referred_by,
+      is_influencer: attributes.is_influencer ?? false,
       two_fa_enabled: attributes.two_fa_enabled ?? false,
     };
   },
