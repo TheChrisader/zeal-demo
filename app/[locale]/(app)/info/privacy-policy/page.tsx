@@ -11,7 +11,7 @@ const PrivacyPolicy = () => {
       <p>
         Zeal News (
         <Link href="https://www.google.com/maps/search/?api=1&query=31+Afolabi+Aina+St,+Omole+Phase+1,+Lagos+101233">
-          Block A, 31 Afolabi Aina St, Omole Phase 1, Lagos 101233, Lagos
+          Block A, 31 Afolabi Aina St, Royal Bed Estate, Ikeja, Lagos 101233, Lagos
         </Link>
         ) is a platform committed to protecting your personal information. This
         policy explains how we collect, use, and disclose your data when you use
@@ -20,7 +20,7 @@ const PrivacyPolicy = () => {
       <p>
         Our company, Zeal News, is located at{" "}
         <Link href="https://www.google.com/maps/search/?api=1&query=31+Afolabi+Aina+St,+Omole+Phase+1,+Lagos+101233">
-          Block A, 31 Afolabi Aina St, Omole Phase 1, Lagos 101233, Lagos
+          Block A, 31 Afolabi Aina St, Royal Bed Estate, Ikeja, Lagos 101233, Lagos
         </Link>
         , Nigeria. You can reach us at{" "}
         <Link href="mailto:info@zealnews.africa">info@zealnews.africa</Link>{" "}
@@ -408,7 +408,7 @@ const PrivacyPolicy = () => {
       <p>Zeal News Aggregation App</p>
       <p>
         <Link href="https://www.google.com/maps/search/?api=1&query=31+Afolabi+Aina+St,+Omole+Phase+1,+Lagos+101233">
-          Block A, 31 Afolabi Aina St, Omole Phase 1, Lagos 101233, Lagos
+          Block A, 31 Afolabi Aina St, Royal Bed Estate, Ikeja, Lagos 101233, Lagos
         </Link>
       </p>
       <p>

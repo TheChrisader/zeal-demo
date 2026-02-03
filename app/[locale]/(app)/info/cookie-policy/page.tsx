@@ -14,10 +14,8 @@ const CookiePolicyPage = () => {
       </p>
       <p>
         Still have further inquiries, see our{" "}
-        <Link href="/info/terms-and-conditions">terms and conditions</Link>
-        ,{" "}
-        <Link href="/info/privacy-policy">privacy policy</Link>
-        , or reach us at{" "}
+        <Link href="/info/terms-and-conditions">terms and conditions</Link>,{" "}
+        <Link href="/info/privacy-policy">privacy policy</Link>, or reach us at{" "}
         <Link href="mailto:info@zealnews.africa">info@zealnews.africa</Link>.
       </p>
       <p>
@@ -294,7 +292,8 @@ const CookiePolicyPage = () => {
           <p>
             Postal Address: Zeal News Network,{" "}
             <Link href="https://www.google.com/maps/search/?api=1&query=31+Afolabi+Aina+St,+Omole+Phase+1,+Lagos+101233">
-              Block A, 31 Afolabi Aina St, Omole Phase 1, Lagos 101233, Lagos
+              Block A, 31 Afolabi Aina St, Royal Bed Estate, Ikeja, Lagos
+              101233, Lagos
             </Link>
           </p>
         </li>

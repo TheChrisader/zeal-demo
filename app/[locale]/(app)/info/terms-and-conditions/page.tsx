@@ -4,9 +4,7 @@ const TermsAndConditions = () => {
   return (
     <div className="prose mx-auto flex flex-col px-3 py-4 lg:max-w-[80vw]">
       <p>
-        <strong>
-          Effective Date: 02-DEC-2024
-        </strong>
+        <strong>Effective Date: 02-DEC-2024</strong>
       </p>
       <p>
         Welcome to <strong>Zeal News Aggregation App</strong> (&quot;we,&quot;
@@ -427,7 +425,8 @@ const TermsAndConditions = () => {
       <p>
         <strong>Mailing Address</strong>:{" "}
         <Link href="https://www.google.com/maps/search/?api=1&query=31+Afolabi+Aina+St,+Omole+Phase+1,+Lagos+101233">
-          Block A, 31 Afolabi Aina St, Omole Phase 1, Lagos 101233, Lagos
+          Block A, 31 Afolabi Aina St, Royal Bed Estate, Ikeja, Lagos 101233,
+          Lagos
         </Link>
       </p>
       <p>
@@ -608,7 +607,8 @@ const TermsAndConditions = () => {
         publication to ensure it meets Zeal News&#39; quality and editorial
         standards. Our editorial team will assess submissions for relevance,
         accuracy, and alignment with our values. We reserve the right to edit,
-        revise, or reject content that does not comply with these standards.{" "}
+        revise, or reject content that does not comply with these
+        standards.{" "}
       </p>
       <p>
         <strong> Review Criteria:</strong>
