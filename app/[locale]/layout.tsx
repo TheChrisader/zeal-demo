@@ -17,6 +17,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { routing } from "@/i18n/routing";
 import ClearPushNotifications from "./(app)/_components/ClearPushNotifications";
 import GoogleAdsense from "./(app)/_components/GoogleAdsense";
+import MetaPixel from "./(app)/_components/MetaPixel";
 
 const PageProgressBar = dynamic(
   () => import("@/components/layout/PageProgressBar"),
@@ -169,6 +170,7 @@ export default async function RootLayout({
       <GoogleAdsense
         pId={process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_KEY as string}
       />
+      <MetaPixel />
       <ClearPushNotifications />
     </html>
   );

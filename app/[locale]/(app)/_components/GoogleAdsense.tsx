@@ -1,13 +1,24 @@
+"use client";
+
 import Script from "next/script";
+import { useEffect, useState } from "react";
 
 type Props = {
   pId: string;
 };
 
 const GoogleAdsense: React.FC<Props> = ({ pId }) => {
-  if (process.env.NODE_ENV !== "production") {
+  const [hasConsent, setHasConsent] = useState(false);
+
+  useEffect(() => {
+    const cookieChoice = localStorage.getItem("cookieChoice");
+    setHasConsent(cookieChoice === "accepted");
+  }, []);
+
+  if (process.env.NODE_ENV !== "production" || !hasConsent) {
     return null;
   }
+
   return (
     <Script
       async

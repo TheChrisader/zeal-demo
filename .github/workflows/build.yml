@@ -88,6 +88,7 @@ jobs:
           echo "OTEL_EXPORTER_OTLP_ENDPOINT=${{secrets.OTEL_EXPORTER_OTLP_ENDPOINT}}" >> .env
           echo "OTEL_EXPORTER_OTLP_HEADERS=${{secrets.OTEL_EXPORTER_OTLP_HEADERS}}" >> .env
           echo "OTEL_TRACES_SAMPLER_ARG=${{secrets.OTEL_TRACES_SAMPLER_ARG}}" >> .env
+          echo "NEXT_PUBLIC_META_PIXEL_ID=${{secrets.NEXT_PUBLIC_META_PIXEL_ID}}" >> .env
 
         shell: bash
 
