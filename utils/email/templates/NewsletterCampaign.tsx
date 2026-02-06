@@ -1,18 +1,12 @@
-import { Body } from "@react-email/body";
 import { Column } from "@react-email/column";
-import { Container } from "@react-email/container";
-import { Head } from "@react-email/head";
 import { Hr } from "@react-email/hr";
-import { Html } from "@react-email/html";
 import { Img } from "@react-email/img";
 import { Link } from "@react-email/link";
-import { Preview } from "@react-email/preview";
 import { Row } from "@react-email/row";
 import { Section } from "@react-email/section";
-import { Tailwind } from "@react-email/tailwind";
 import { Text } from "@react-email/text";
-import * as React from "react";
 import { EmailArticle } from "@/types/newsletter.type";
+import { EmailFooter, EmailHeader, EmailWrapper } from "@/utils/email/components";
 
 // The props your component accepts
 export interface NewsletterProps {
@@ -46,76 +40,8 @@ export const ZealNewsletterCampaign = ({
   const batch1 = articles.slice(0, 5).filter(Boolean);
   const batch2 = articles.slice(5, 10).filter(Boolean);
   return (
-    <Html>
-      <Tailwind
-        config={{
-          theme: {
-            extend: {
-              colors: {
-                brand: "#096b0a",
-                brandLight: "#096b0a",
-                accent: "#f6d32d",
-                dark: "#1c1c1e",
-                graytext: "#6e6e73",
-                bglight: "#f5f5f7",
-                cardShadow: "rgba(0, 0, 0, 0.04)",
-              },
-              fontFamily: {
-                serif: ["Georgia", "Times New Roman", "serif"],
-                sans: [
-                  "-apple-system",
-                  "BlinkMacSystemFont",
-                  "Segoe UI",
-                  "Roboto",
-                  "Helvetica",
-                  "Arial",
-                  "sans-serif",
-                ],
-              },
-            },
-          },
-        }}
-      >
-        <Head />
-        <Preview>{meta.preheader}</Preview>
-        <Body className="bg-bglight m-auto font-sans">
-          <Container className="mx-auto w-full max-w-[600px] rounded-lg border border-gray-200 bg-white p-0 shadow-lg sm:w-auto">
-            <Section className="bg-brand mb-4 rounded-t-md text-center">
-              <Text className="m-0 text-[10px] font-medium uppercase tracking-[0.2em] text-white">
-                Zeal News africa •{" "}
-                {new Date().toLocaleDateString("en-US", {
-                  weekday: "short",
-                  month: "short",
-                  day: "numeric",
-                })}
-              </Text>
-            </Section>
-
-            {/* Brand Logo Placeholder */}
-            <Section className="mb-4 text-center">
-              <Link href="https://zealnews.africa/en">
-                <Img
-                  src="https://d3hovs1ug0rvor.cloudfront.net/assets/zeal_news_logo_dynamic.png"
-                  alt="Zeal News"
-                  width="100"
-                  className="mx-auto"
-                  style={{ width: "100px", height: "auto" }}
-                />
-              </Link>
-            </Section>
-
-            {/* Aesthetic Thin Divider */}
-            <Hr className="border-brand mb-2 border-t" />
-
-            {/* Secondary Navigation / Sub-Header */}
-            <Section className="rounded-xl text-center">
-              <Text className="text-brand text-sm italic leading-relaxed">
-                &quot;The stories that matter, delivered directly to your
-                inbox.&quot;
-              </Text>
-            </Section>
-
-            <Hr className="border-brand mb-4 mt-2 border-t" />
+    <EmailWrapper preheader={meta.preheader}>
+      <EmailHeader />
 
             {/* --- DATE & TOP STORIES HEADER --- */}
             <Section className="border-b border-gray-100 px-4 py-3 sm:px-6 sm:py-4">
@@ -219,93 +145,8 @@ export const ZealNewsletterCampaign = ({
             )}
 
             {/* --- FOOTER --- */}
-            <Section className="mb-6 rounded bg-orange-50 p-3 text-center sm:mb-8 sm:p-4">
-              <Text className="m-0 text-xs text-gray-700">
-                Forwarded this email?{" "}
-                <Link
-                  href="https://zealnews.africa/en/newsletter"
-                  className="font-bold text-green-600 underline"
-                >
-                  Subscribe
-                </Link>{" "}
-                to get more balanced, bite-sized stories in your inbox.
-              </Text>
-            </Section>
-
-            {/* Brand & Legal */}
-            <Section className="p-4 text-center sm:p-6">
-              <div className="text-center">
-                <Link
-                  href="https://zealnews.africa/en"
-                  className="mx-auto mb-4 w-fit"
-                >
-                  <Img
-                    src="https://d3hovs1ug0rvor.cloudfront.net/assets/zeal_news_logo_dynamic.png"
-                    className="mx-auto mb-4"
-                    alt="Zeal News"
-                    width="100"
-                    style={{ width: "100px", height: "auto" }}
-                  />
-                </Link>
-                <Text className="text-graytext m-0 mx-auto mb-4 max-w-md text-xs leading-relaxed">
-                  Balanced news from trusted sources, delivered weekly. We bring
-                  together diverse perspectives to help you stay informed
-                  without the noise.
-                </Text>
-                <div className="mx-auto mb-4 text-center">
-                  <Link
-                    href="https://zealnews.africa/en/info/about-us"
-                    className="text-graytext hover:text-brand mx-2 text-center text-xs"
-                  >
-                    About
-                  </Link>{" "}
-                  <Link
-                    href="https://zealnews.africa/en/info/privacy-policy"
-                    className="text-graytext hover:text-brand mx-2 text-center text-xs"
-                  >
-                    Privacy Policy
-                  </Link>{" "}
-                  <Link
-                    href="https://zealnews.africa/en/info/terms-and-conditions"
-                    className="text-graytext hover:text-brand mx-2 text-center text-xs"
-                  >
-                    Terms
-                  </Link>{" "}
-                  <Link
-                    href="https://zealnews.africa/en/info/advertise-with-us"
-                    className="text-graytext hover:text-brand mx-2 text-center text-xs"
-                  >
-                    Contact
-                  </Link>
-                </div>
-              </div>
-
-              <div className="border-t border-gray-200 pt-4 text-center">
-                <Text className="text-graytext m-0 text-xs">
-                  You&apos;re receiving this email because you subscribed to
-                  Zeal News&apos; newsletter.
-                </Text>
-                <Text className="text-graytext m-0 mt-2 text-xs">
-                  {/* <Link href="#" className="text-brand hover:underline">
-                    Update preferences
-                  </Link>{" "}
-                  •{" "} */}
-                  <Link
-                    href={meta.unsubscribeUrl}
-                    className="text-brand hover:underline"
-                  >
-                    Unsubscribe
-                  </Link>
-                </Text>
-                <Text className="text-graytext m-0 mt-2 text-xs">
-                  © 2025 Zeal News Africa. All rights reserved.
-                </Text>
-              </div>
-            </Section>
-          </Container>
-        </Body>
-      </Tailwind>
-    </Html>
+            <EmailFooter unsubscribeUrl={meta.unsubscribeUrl} />
+    </EmailWrapper>
   );
 };
 

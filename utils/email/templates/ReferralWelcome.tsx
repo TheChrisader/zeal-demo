@@ -1,13 +1,11 @@
 import { Button } from "@react-email/button";
-import { Container } from "@react-email/container";
-import { Head } from "@react-email/head";
-import { Heading } from "@react-email/heading";
-import { Html } from "@react-email/html";
-import { Tailwind } from "@react-email/tailwind";
+import { Hr } from "@react-email/hr";
+import { Section } from "@react-email/section";
 import { Text } from "@react-email/text";
 import * as React from "react";
 
 import { IUser } from "@/types/user.type";
+import { EmailFooter, EmailHeader, EmailWrapper } from "../components";
 
 type ReferralWelcomeProps = {
   user: Partial<IUser>;
@@ -20,78 +18,122 @@ const ReferralWelcome = ({
   user = { display_name: "John Doe" },
   referralCode = "REF123",
   referralLink,
-  appName = "Lodge",
+  appName = "Zeal News",
 }: ReferralWelcomeProps) => {
-  const shareLink = referralLink || `${process.env.NEXT_PUBLIC_APP_URL || 'https://lodge.app'}?ref=${referralCode}`;
+  const shareLink =
+    referralLink || `${process.env.NEXT_PUBLIC_APP_URL}/en?ref=${referralCode}`;
+
+  const referralPage = `${process.env.NEXT_PUBLIC_APP_URL}/en/settings/referral`;
 
   return (
-    <Tailwind>
-      <Html className="bg-card-alt-bg font-sans">
-        <Head>
-          {/* <title>`${appName} - Welcome to our referral program!`</title> */}
-        </Head>
-        <Container className="max-w-2xl mx-auto p-6">
-          <Heading className="text-3xl font-bold text-gray-900 mb-6">
-            Welcome to the {appName} Referral Program! 🎉
-          </Heading>
+    <EmailWrapper preheader="You're officially part of Zeal's biggest engagement challenge yet. Start sharing. Start earning.">
+      <EmailHeader />
 
-          <Text className="text-xl font-semibold text-gray-800 mb-4">
-            Hi{user.display_name ? `, ${user.display_name}!` : "!"}
+      <Section className="px-6 py-8">
+        {/* Main Heading */}
+        <Text className="text-dark mb-6 text-2xl font-bold leading-tight">
+          Welcome to the Zeal Share & Earn Challenge 2025 — Gain Rewards With
+          Ease
+        </Text>
+
+        {/* Greeting */}
+        <Text className="text-graytext mb-6 text-base">
+          Dear {user?.display_name},
+        </Text>
+
+        {/* Welcome Message */}
+        <Text className="text-graytext mb-6 text-base leading-relaxed">
+          Welcome to the Zeal Share & Earn Challenge 2025 — where your
+          engagement meets opportunity.
+        </Text>
+
+        <Text className="text-graytext mb-6 text-base leading-relaxed">
+          You&apos;ve taken the first step into an exclusive reward system that
+          recognizes influence, consistency, and drive. This challenge is
+          designed to celebrate active users in Zealnews and rewarding every
+          meaningful share, click, and connection.
+        </Text>
+
+        {/* How to Begin Section */}
+        <Text className="text-dark mb-4 text-base font-semibold">
+          Here&apos;s how to begin:
+        </Text>
+
+        <Text className="text-graytext mb-1 ml-4 text-base">
+          ● Share Zeal content with zeal across your preferred platforms.
+        </Text>
+        <Text className="text-graytext mb-1 ml-4 text-base">
+          ● Earn cash, points, or vouchers for every valid engagement.
+        </Text>
+        <Text className="text-graytext mb-1 ml-4 text-base">
+          ● Track your performance and progress in real-time through your
+          personal dashboard.
+        </Text>
+        <Text className="text-graytext mb-6 ml-4 text-base">
+          ● Invite others to join, because the more you grow your network, the
+          higher your rewards.
+        </Text>
+
+        {/* Referral Code Section */}
+        <Text className="text-dark mb-3 text-base font-semibold">
+          Your Referral Code:
+        </Text>
+
+        <Section className="border-brandLight mb-6 rounded-lg border-2 border-dashed bg-green-50 p-4 text-center">
+          <Text className="text-brand font-mono text-2xl font-bold">
+            {referralCode}
           </Text>
+        </Section>
 
-          <Text className="text-gray-700 mb-6 leading-relaxed">
-            Thank you for joining our community! We're excited to have you as part of our referral program.
-            Share your unique referral code with friends and family to help grow our community.
+        {/* Referral Link Section */}
+        <Text className="text-dark mb-3 text-base font-semibold">
+          Your Referral Link:
+        </Text>
+
+        <Section className="border-brandLight mb-6 break-all rounded-lg border bg-green-50 p-4">
+          <Text className="text-brand text-sm">{shareLink}</Text>
+        </Section>
+
+        {/* Motivational Message */}
+        <Text className="text-graytext mb-6 text-base leading-relaxed">
+          Your journey to the leaderboard starts now. Let every share count,
+          every invite matter, and every moment online become a step toward
+          something bigger.
+        </Text>
+
+        {/* CTA Button */}
+        <Section className="mb-8 text-center">
+          <Button
+            href={referralPage}
+            className="bg-brand hover:bg-brandLight rounded-lg px-8 py-3 font-semibold text-white"
+          >
+            Go to Your Referral Page
+          </Button>
+        </Section>
+
+        <Hr className="mb-6 border-t border-gray-200" />
+
+        {/* Closing Message */}
+        <Text className="text-graytext mb-2 text-base">
+          Welcome to the challenge. Welcome to Zeal.
+        </Text>
+
+        <Text className="text-dark mb-6 text-base font-semibold">
+          Team {appName}
+        </Text>
+
+        {/* P.S. Section */}
+        <Section className="mb-6 rounded-lg bg-orange-50 p-4">
+          <Text className="text-dark text-sm font-semibold">P.S.</Text>
+          <Text className="text-graytext text-sm leading-relaxed">
+            Great things happen when you share with purpose. Start today — your
+            influence has value.
           </Text>
+        </Section>
+      </Section>
 
-          <Text className="text-lg font-semibold text-gray-800 mb-3">
-            Your Referral Code:
-          </Text>
-
-          <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-4 mb-6 text-center">
-            <Text className="text-2xl font-mono font-bold text-blue-600">
-              {referralCode}
-            </Text>
-          </div>
-
-          <Text className="text-lg font-semibold text-gray-800 mb-3">
-            Your Referral Link:
-          </Text>
-
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 break-all">
-            <Text className="text-sm text-blue-700">
-              {shareLink}
-            </Text>
-          </div>
-
-          <Text className="text-gray-700 mb-4">
-            Share this link with others, and when they sign up using your referral code,
-            you'll get credit for the referral!
-          </Text>
-
-          <Container className="text-center mb-6">
-            <Button
-              href={shareLink}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg"
-            >
-              Visit Your Referral Page
-            </Button>
-          </Container>
-
-          <Text className="text-sm text-gray-600 mb-4">
-            Questions about our referral program? Check your settings page or contact our support team.
-          </Text>
-
-          <Text className="text-gray-700">
-            Happy referring!
-          </Text>
-
-          <Text className="text-gray-700 font-semibold">
-            The {appName} Team
-          </Text>
-        </Container>
-      </Html>
-    </Tailwind>
+      <EmailFooter />
+    </EmailWrapper>
   );
 };
 

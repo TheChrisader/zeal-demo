@@ -55,9 +55,8 @@ const TopicsForm = React.forwardRef(({ key }: { key: string }, _) => {
       // Clear the promo flag
       sessionStorage.removeItem("promo_signup");
 
-      // Redirect to referral dashboard if promo signup, otherwise home
-      router.push(isPromoSignup ? "/settings/referral" : "/");
-      router.refresh();
+      // Use hard redirect to ensure fresh auth state
+      window.location.href = isPromoSignup ? "/settings/referral" : "/";
     } catch {
     } finally {
       setIsLoading(false);
