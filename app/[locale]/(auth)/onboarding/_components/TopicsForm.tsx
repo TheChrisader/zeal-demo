@@ -56,7 +56,7 @@ const TopicsForm = React.forwardRef(({ key }: { key: string }, _) => {
       sessionStorage.removeItem("promo_signup");
 
       // Use hard redirect to ensure fresh auth state
-      window.location.href = isPromoSignup ? "/settings/referral" : "/";
+      window.location.href = isPromoSignup ? "/en/settings/referral" : "/";
     } catch {
     } finally {
       setIsLoading(false);
