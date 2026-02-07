@@ -170,10 +170,10 @@ const SignUpPage = () => {
         terms_accepted: transferredData.terms_accepted,
       });
 
-      await SignInUserWithUsernameAndPassword({
-        username,
-        password,
-      });
+      // await SignInUserWithUsernameAndPassword({
+      //   username,
+      //   password,
+      // });
 
       // Clear the transferred metadata after using it
       sessionStorage.removeItem("referral_signup_metadata");

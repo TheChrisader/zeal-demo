@@ -130,7 +130,10 @@ export const POST = async (request: NextRequest) => {
       try {
         await applyReferralCode(referral_code, createdUser.id);
       } catch (error) {
-        logger.warn({ referral_code, userId: createdUser.id }, "Failed to apply referral code");
+        logger.warn(
+          { referral_code, userId: createdUser.id },
+          "Failed to apply referral code",
+        );
         // Don't fail signup if referral code is invalid
       }
     }
@@ -150,7 +153,10 @@ export const POST = async (request: NextRequest) => {
           signed_up_at: new Date(),
         });
       } catch (error) {
-        logger.warn({ userId: createdUser.id }, "Failed to store referral metadata");
+        logger.warn(
+          { userId: createdUser.id },
+          "Failed to store referral metadata",
+        );
         // Don't fail signup if metadata storage fails
       }
     }
@@ -180,16 +186,25 @@ export const POST = async (request: NextRequest) => {
               display_name: display_name,
             });
           } catch (emailError) {
-            logger.warn({ email, userId: createdUser.id }, "Newsletter welcome email error");
+            logger.warn(
+              { email, userId: createdUser.id },
+              "Newsletter welcome email error",
+            );
           }
         }
       } catch (subscriberError) {
-        logger.warn({ email, userId: createdUser.id }, "Failed to subscribe to newsletter");
+        logger.warn(
+          { email, userId: createdUser.id },
+          "Failed to subscribe to newsletter",
+        );
         // Don't fail signup if newsletter subscription fails
       }
     }
 
-    logger.info({ userId: createdUser.id, username, email }, "User created successfully");
+    logger.info(
+      { userId: createdUser.id, username, email },
+      "User created successfully",
+    );
 
     const session = await lucia.createSession(newId(createdUser.id), {});
     const sessionCookie = lucia.createSessionCookie(session.id);
