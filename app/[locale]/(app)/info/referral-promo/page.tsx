@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { copyReferralLink } from "@/services/referral.services";
 import { useAuthStore } from "@/stores/authStore";
+import { useRouter } from "@/app/_components/useRouter";
+import { useReferral } from "@/hooks/useReferral";
 
 import HowItWorks from "./_components/HowItWorks";
 import LeaderboardPreview from "./_components/LeaderboardPreview";
@@ -15,6 +17,8 @@ import WeeklyTimelineShare from "./_components/WeeklyTimelineShare";
 const ReferralPromo1 = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user } = useAuthStore();
+  const { referralCode: urlReferralCode } = useReferral();
+  const router = useRouter();
 
   const handleGetLink = async () => {
     // If authenticated with referral code, copy referral link
@@ -29,21 +33,22 @@ const ReferralPromo1 = () => {
       return;
     }
 
-    // If authenticated without referral code, scroll to signup
+    // If authenticated without referral code, redirect to signup with promo flag
     if (user && !user.referral_code) {
-      toast.info("Please generate your referral code first");
+      const params = new URLSearchParams({
+        promo: "true",
+        ...(urlReferralCode && { ref: urlReferralCode }),
+      });
+      router.push(`/signup?${params.toString()}`);
       return;
     }
 
-    // If not authenticated, scroll to signup form
-    document.querySelector("input[type='email']")?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
+    // If not authenticated, redirect to signup with promo flag
+    const params = new URLSearchParams({
+      promo: "true",
+      ...(urlReferralCode && { ref: urlReferralCode }),
     });
-    (
-      document.querySelector("input[type='email']") as HTMLInputElement
-    )?.focus();
-    toast.info("Please enter your email to get started");
+    router.push(`/signup?${params.toString()}`);
   };
 
   return (

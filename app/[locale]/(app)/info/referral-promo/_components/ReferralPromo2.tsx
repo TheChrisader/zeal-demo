@@ -64,29 +64,35 @@ export default function ReferralPromo2() {
     }
 
     // Store basic form data for pre-filling the signup form
-    sessionStorage.setItem('referral_signup_data', JSON.stringify({
-      fullName: formData.fullName,
-      email: formData.email,
-      phone: formData.phone,
-      source: formData.source,
-      dailyNews: formData.dailyNews,
-      terms: formData.terms,
-      referral_code: urlReferralCode,
-    }));
+    sessionStorage.setItem(
+      "referral_signup_data",
+      JSON.stringify({
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        source: formData.source,
+        dailyNews: formData.dailyNews,
+        terms: formData.terms,
+        referral_code: urlReferralCode,
+      }),
+    );
 
     // Store referral metadata separately to be sent with the signup request
-    sessionStorage.setItem('referral_signup_metadata', JSON.stringify({
-      phone: formData.phone,
-      source: formData.source,
-      terms_accepted: formData.terms,
-    }));
+    sessionStorage.setItem(
+      "referral_signup_metadata",
+      JSON.stringify({
+        phone: formData.phone,
+        source: formData.source,
+        terms_accepted: formData.terms,
+      }),
+    );
 
     // Store promo signup flag for later redirect to referral dashboard
-    sessionStorage.setItem('promo_signup', 'true');
+    sessionStorage.setItem("promo_signup", "true");
 
     // Navigate to signup page
     const params = new URLSearchParams({
-      promo: 'true',
+      promo: "true",
       ...(urlReferralCode && { ref: urlReferralCode }),
     });
     router.push(`/signup?${params.toString()}`);
@@ -293,7 +299,14 @@ export default function ReferralPromo2() {
               <p className="form-description">
                 Takes less than 1 minute and it&apos;s free.
               </p>
-              <form id="signup-form" onSubmit={(e) => { e.preventDefault(); transferToSignup(); }} noValidate>
+              <form
+                id="signup-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  transferToSignup();
+                }}
+                noValidate
+              >
                 <div className="form-grid">
                   <div className="form-field">
                     <label htmlFor="full-name">

@@ -1,5 +1,7 @@
 "use client";
 import type { FC } from "react";
+import { useRouter } from "@/app/_components/useRouter";
+import { useReferral } from "@/hooks/useReferral";
 
 // SECTION: SVG Icons
 // These are custom SVG components to match the icons in the design.
@@ -266,6 +268,17 @@ const stepsData = [
 
 // SECTION: Main Component
 const HowItWorks: FC = () => {
+  const router = useRouter();
+  const { referralCode: urlReferralCode } = useReferral();
+
+  const handleRedirectToSignup = () => {
+    const params = new URLSearchParams({
+      promo: "true",
+      ...(urlReferralCode && { ref: urlReferralCode }),
+    });
+    router.push(`/signup?${params.toString()}`);
+  };
+
   return (
     <div id="how-it-works" className="px-4 py-2 font-sans sm:py-4">
       <div className="mx-auto max-w-7xl">
@@ -313,10 +326,16 @@ const HowItWorks: FC = () => {
             </div>
 
             {/* Call to Action Button 1 */}
-            <button className="mt-4 rounded-xl bg-red-600 px-4 py-1 text-lg font-bold text-white shadow-md transition-colors duration-300 hover:bg-[#15381f]">
+            <button
+              className="mt-4 rounded-xl bg-red-600 px-4 py-1 text-lg font-bold text-white shadow-md transition-colors duration-300 hover:bg-[#15381f]"
+              onClick={handleRedirectToSignup}
+            >
               Start Sharing. Start Winning.
             </button>
-            <button className="grow-shrink mt-4 rounded-xl bg-red-600 px-8 py-1 text-lg font-bold text-white shadow-md transition-colors hover:bg-[#15381f]">
+            <button
+              className="grow-shrink mt-4 rounded-xl bg-red-600 px-8 py-1 text-lg font-bold text-white shadow-md transition-colors hover:bg-[#15381f]"
+              onClick={handleRedirectToSignup}
+            >
               Join Now!
             </button>
           </div>
@@ -338,7 +357,10 @@ const HowItWorks: FC = () => {
             </div>
 
             {/* Call to Action Button 2 */}
-            <button className="sm:-lg mt-8 rounded-xl bg-red-600 px-3 py-1 text-center text-sm font-bold text-white shadow-md transition-colors duration-300 hover:bg-[#15381f]">
+            <button
+              className="sm:-lg mt-8 rounded-xl bg-red-600 px-3 py-1 text-center text-sm font-bold text-white shadow-md transition-colors duration-300 hover:bg-[#15381f]"
+              onClick={handleRedirectToSignup}
+            >
               <span>Get your referral link today</span> – your first
               <br />
               entry could win this Friday!

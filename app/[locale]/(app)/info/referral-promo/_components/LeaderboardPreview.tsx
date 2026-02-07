@@ -1,8 +1,21 @@
 "use client";
 import React from "react";
+import { useRouter } from "@/app/_components/useRouter";
+import { useReferral } from "@/hooks/useReferral";
 
 // SECTION: Main Leaderboard Component
 const LeaderboardPreview: React.FC = () => {
+  const router = useRouter();
+  const { referralCode: urlReferralCode } = useReferral();
+
+  const handleRedirectToSignup = () => {
+    const params = new URLSearchParams({
+      promo: "true",
+      ...(urlReferralCode && { ref: urlReferralCode }),
+    });
+    router.push(`/signup?${params.toString()}`);
+  };
+
   return (
     // Page container with a light gray background to match the image
     <div id="leaderboard" className="min-h-screen w-full font-sans">
@@ -43,12 +56,12 @@ const LeaderboardPreview: React.FC = () => {
               your link to climb the leaderboard.
             </p>
             <div className="mt-6 flex justify-center">
-              <a
-                href="#signup"
+              <button
+                onClick={handleRedirectToSignup}
                 className="rounded-lg bg-green-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-green-700"
               >
                 Get Your Referral Link
-              </a>
+              </button>
             </div>
           </div>
 

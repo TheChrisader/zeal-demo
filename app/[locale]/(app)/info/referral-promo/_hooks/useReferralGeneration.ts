@@ -23,7 +23,7 @@ export const useReferralGeneration = () => {
         .replace(/[^a-z0-9]/gi, "")
         .toLowerCase();
 
-      const link = `https://zealnews.africa/r/${handle}`;
+      const link = `https://zealnews.africa/en?ref=${handle}`;
       setReferralLink(link);
       setShowLinkPreview(true);
       setIsGenerating(false);

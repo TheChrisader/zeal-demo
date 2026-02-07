@@ -1,6 +1,8 @@
 "use client";
 import React, { useMemo, useState } from "react";
 import { useReferralData } from "@/hooks/useReferralData";
+import { useRouter } from "@/app/_components/useRouter";
+import { useReferral } from "@/hooks/useReferral";
 
 // --- Timeline Data ---
 interface TimelineItem {
@@ -99,10 +101,20 @@ const shareOptions: ShareOption[] = [
 const WeeklyTimelineShare: React.FC = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const { referralLink, isAuthenticated } = useReferralData();
+  const router = useRouter();
+  const { referralCode: urlReferralCode } = useReferral();
+
+  const handleRedirectToSignup = () => {
+    const params = new URLSearchParams({
+      promo: "true",
+      ...(urlReferralCode && { ref: urlReferralCode }),
+    });
+    router.push(`/signup?${params.toString()}`);
+  };
 
   // Use real referral link if authenticated, otherwise use placeholder
   const displayReferralLink =
-    referralLink || "https://zealnews.africa/r/your-handle";
+    referralLink || `https://zealnews.africa/en?ref=your-code`;
 
   const handleCopy = (text: string, id: string) => {
     navigator.clipboard
@@ -144,7 +156,10 @@ const WeeklyTimelineShare: React.FC = () => {
               </div>
             ))}
           </div>
-          <button className="grow-shrink mx-auto mt-8 flex w-fit rounded-md bg-red-600 px-10 py-3 font-bold text-white transition-colors hover:bg-[#16643B]">
+          <button
+            className="grow-shrink mx-auto mt-8 flex w-fit rounded-md bg-red-600 px-10 py-3 font-bold text-white transition-colors hover:bg-[#16643B]"
+            onClick={handleRedirectToSignup}
+          >
             Join now
           </button>
         </section>
