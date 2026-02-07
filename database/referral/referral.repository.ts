@@ -236,14 +236,14 @@ export const getAdminReferralSummary = async (
     const [totalReferrals, totalReferrers, influencerReferrals, regularReferrals] =
       await Promise.all([
         UserModel.countDocuments({ referred_by: { $exists: true, $ne: null } }),
-        UserModel.countDocuments({ referral_count: { $gt: 0 } }),
+        UserModel.countDocuments({ referral_code: { $exists: true, $ne: "" } }),
         UserModel.countDocuments({
           referred_by: { $exists: true, $ne: null },
           is_influencer: true,
         }),
         UserModel.countDocuments({
           referred_by: { $exists: true, $ne: null },
-          is_influencer: { $ne: true },
+          $or: [{ is_influencer: false }, { is_influencer: { $exists: false } }],
         }),
       ]);
 
@@ -402,7 +402,7 @@ export const getReferralLeaderboard = async (
       {
         $match: {
           referral_count: { $gt: 0 },
-          is_influencer: false,
+          $or: [{ is_influencer: false }, { is_influencer: { $exists: false } }],
         },
       },
       {

@@ -12,18 +12,25 @@ export async function GET(request: NextRequest) {
     const weekOffset = parseInt(searchParams.get("weekOffset") || "0");
     const limit = parseInt(searchParams.get("limit") || "50");
 
-    const validationResult = ReferralLeaderboardQuerySchema.safeParse({ weekOffset, limit });
+    const validationResult = ReferralLeaderboardQuerySchema.safeParse({
+      weekOffset,
+      limit,
+    });
     if (!validationResult.success) {
       return NextResponse.json(
         { error: "Invalid query parameters" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const { weekOffset: validatedWeekOffset, limit: validatedLimit } = validationResult.data;
+    const { weekOffset: validatedWeekOffset, limit: validatedLimit } =
+      validationResult.data;
 
     // Get referral leaderboard data
-    const leaderboard = await getReferralLeaderboard(validatedWeekOffset, validatedLimit);
+    const leaderboard = await getReferralLeaderboard(
+      validatedWeekOffset,
+      validatedLimit,
+    );
 
     return NextResponse.json(leaderboard, {
       status: 200,
@@ -35,7 +42,7 @@ export async function GET(request: NextRequest) {
     console.error("Admin referral leaderboard API Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
