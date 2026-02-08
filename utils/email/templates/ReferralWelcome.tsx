@@ -21,7 +21,8 @@ const ReferralWelcome = ({
   appName = "Zeal News",
 }: ReferralWelcomeProps) => {
   const shareLink =
-    referralLink || `${process.env.NEXT_PUBLIC_APP_URL}/en?ref=${referralCode}`;
+    referralLink ||
+    `${process.env.NEXT_PUBLIC_APP_URL}/en/signup?ref=${referralCode}`;
 
   const referralPage = `${process.env.NEXT_PUBLIC_APP_URL}/en/settings/referral`;
 

@@ -30,7 +30,7 @@ export const GET = async (request: NextRequest) => {
       total_referrals: user.referral_count || 0,
       referral_code: user.referral_code,
       referral_link: user.referral_code
-        ? `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/en?ref=${user.referral_code}`
+        ? `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/en/signup?ref=${user.referral_code}`
         : null,
       recent_referrals: referredUsers,
     };
